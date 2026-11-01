@@ -30,7 +30,7 @@
   - 별도의 기능 브랜치를 나누지 않고 메인 브랜치(단일 브랜치) 하나만 운영하는 **Trunk-Based Development** 방식을 따릅니다.
   - 각 커밋은 동작 가능한 단위로 작게(Atomic Commit) 유지합니다.
 - **Commit & Push Ownership (User Managed):**
-  - `git commit`과 `git push`는 **사용자가 직접 수행**합니다 (AI 에이전트가 임의로 커밋하거나 푸시하지 않음).
+  - `git commit`과 `git push`는 기본적으로 **사용자가 직접 수행**합니다 (AI 에이전트가 임의로 커밋하거나 푸시하지 않음). 단, **원격으로 접속한 환경에서 요청할 시에는 에이전트를 통한 커밋 및 푸시가 가능**합니다.
   - 작업 완료 후 결과 리포트를 작성할 때, 변경 사항에 맞는 **추천 Git 커밋 메시지(영문)를 별도 블록으로 함께 제시**합니다.
 - **Commit Message Rules:**
   - 모든 커밋 메시지는 **영문(English)**으로 작성하며 **Conventional Commits** 규격을 따릅니다.
