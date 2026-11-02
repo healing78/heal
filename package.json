@@ -8,6 +8,10 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "firebase:login": "npx firebase-tools login",
+    "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting",
+    "deploy:rules": "npx firebase-tools deploy --only firestore:rules",
+    "deploy:all": "npm run build && npx firebase-tools deploy --only hosting,firestore:rules",
     "cap:sync": "cap sync",
     "cap:open:android": "cap open android",
     "cap:open:ios": "cap open ios"

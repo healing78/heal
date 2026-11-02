@@ -24,6 +24,7 @@
   - 개발 프로세스 및 로컬 검증 가이드: `docs/specs/features/development-workflow.md`
   - Firebase 및 Firestore 연동 명세: `docs/specs/features/firebase-integration.md`
   - 카카오 OAuth 인증 연동 명세: `docs/specs/features/kakao-auth.md`
+  - 웹 배포 및 PWA 명세: `docs/specs/features/web-deployment.md`
   - 세부 비즈니스 로직/기능별 명세: `docs/specs/features/<feature-name>.md` (파일명은 영문 `kebab-case` 사용)
 - **Language & Heading Rules:**
   - **Headings (Titles & Section Headers):** 문서 제목과 모든 섹션 헤더(`#`, `##`, `###` 등)는 **영문(English)**으로 작성합니다.
