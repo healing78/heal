@@ -21,6 +21,7 @@ import {
   updateCommunityConfig,
   updateMemberProfile
 } from './services/communityService';
+import { logoutFromKakao } from './services/kakaoAuthService';
 import LoginOnboardingPage from './pages/LoginOnboardingPage';
 import HomePage from './pages/HomePage';
 import MeetingsPage from './pages/MeetingsPage';
@@ -55,6 +56,7 @@ export default function App() {
 
   const handleSwitchUser = (uid) => {
     if (uid === '__LOGOUT__') {
+      logoutFromKakao();
       setCurrentUserUid(null);
       saveCurrentUserUid(null);
       return;
@@ -67,8 +69,8 @@ export default function App() {
     }
   };
 
-  const handleCompleteOnboarding = async (form) => {
-    const newMember = await registerOnboardingMember(form);
+  const handleCompleteOnboarding = async (form, customUid) => {
+    const newMember = await registerOnboardingMember(form, customUid);
     setCurrentUserUid(newMember.uid);
     saveCurrentUserUid(newMember.uid);
     setActiveTab('home');

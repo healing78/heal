@@ -207,12 +207,14 @@ export const subscribeCommunityData = (onUpdate) => {
 
 /**
  * Registers a new member from Onboarding and returns the created member object.
+ * @param {Object} form - Onboarding form values
+ * @param {string} [customUid] - Optional pre-verified Kakao UID (e.g. 'kakao:12345678')
  */
-export const registerOnboardingMember = async (form) => {
+export const registerOnboardingMember = async (form, customUid) => {
   const now = new Date();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
-  const newUid = `kakao:${Date.now()}`;
+  const newUid = customUid || `kakao:${Date.now()}`;
 
   const newMember = {
     uid: newUid,

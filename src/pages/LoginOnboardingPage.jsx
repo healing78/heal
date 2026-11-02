@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { suggestNewMemberNickname } from '../nicknameUtils';
 import { formatMemberNickname, ROLE_META } from '../core/communityRules';
+import {
+  isKakaoConfigured,
+  loginWithKakao
+} from '../services/kakaoAuthService';
 
 export default function LoginOnboardingPage({
   members,
@@ -9,6 +13,9 @@ export default function LoginOnboardingPage({
 }) {
   const [step, setStep] = useState('login'); // 'login' | 'onboarding'
   const [copied, setCopied] = useState(false);
+  const [kakaoLoading, setKakaoLoading] = useState(false);
+  const [kakaoError, setKakaoError] = useState('');
+  const [pendingKakaoUser, setPendingKakaoUser] = useState(null);
 
   // Quick nickname generator (available before login)
   const [quickForm, setQuickForm] = useState({
@@ -45,10 +52,47 @@ export default function LoginOnboardingPage({
     }
   };
 
+  const handleKakaoLoginClick = async () => {
+    setKakaoError('');
+    if (!isKakaoConfigured) {
+      setStep('onboarding');
+      return;
+    }
+
+    setKakaoLoading(true);
+    try {
+      const kakaoUser = await loginWithKakao();
+      const existingMember = members.find((m) => m.uid === kakaoUser.uid);
+
+      if (existingMember) {
+        onSelectExistingMember(existingMember.uid);
+        return;
+      }
+
+      // First-time Kakao user -> go to Onboarding with pre-filled name & Kakao UID
+      setPendingKakaoUser(kakaoUser);
+      setOnboardingForm((prev) => ({
+        ...prev,
+        realName: kakaoUser.nickname || prev.realName
+      }));
+      setStep('onboarding');
+    } catch (err) {
+      const detail =
+        err?.error_description ||
+        err?.message ||
+        JSON.stringify(err || '알 수 없는 오류');
+      setKakaoError(
+        `카카오 로그인 안내: ${detail} (Kakao Developers 콘솔의 [앱 설정 > 플랫폼 > Web]에 현재 주소(${window.location.origin}) 등록 및 [카카오 로그인 > 활성화 설정 ON] 여부를 확인해 주세요.)`
+      );
+    } finally {
+      setKakaoLoading(false);
+    }
+  };
+
   const handleOnboardingSubmit = (e) => {
     e.preventDefault();
     if (!onboardingForm.realName.trim()) return;
-    onCompleteOnboarding(onboardingForm);
+    onCompleteOnboarding(onboardingForm, pendingKakaoUser?.uid);
   };
 
   if (step === 'onboarding') {
@@ -56,7 +100,11 @@ export default function LoginOnboardingPage({
       <div className="auth-wrapper">
         <div className="card auth-card">
           <div className="section-header">
-            <span className="platform-badge">신규 회원 온보딩</span>
+            <span className="platform-badge">
+              {pendingKakaoUser
+                ? `카카오 인증 완료 (${pendingKakaoUser.uid})`
+                : '신규 회원 온보딩'}
+            </span>
             <h2>프로필 및 규격 닉네임 설정</h2>
             <p className="muted-text">
               입력 완료 즉시 <strong>일반회원(Member)</strong>으로 커뮤니티를 이용할 수 있습니다.
@@ -74,7 +122,10 @@ export default function LoginOnboardingPage({
                   required
                   value={onboardingForm.realName}
                   onChange={(e) =>
-                    setOnboardingForm({ ...onboardingForm, realName: e.target.value })
+                    setOnboardingForm({
+                      ...onboardingForm,
+                      realName: e.target.value
+                    })
                   }
                 />
               </div>
@@ -103,7 +154,10 @@ export default function LoginOnboardingPage({
                   required
                   value={onboardingForm.homeCity}
                   onChange={(e) =>
-                    setOnboardingForm({ ...onboardingForm, homeCity: e.target.value })
+                    setOnboardingForm({
+                      ...onboardingForm,
+                      homeCity: e.target.value
+                    })
                   }
                 />
               </div>
@@ -130,7 +184,10 @@ export default function LoginOnboardingPage({
                   id="onboard-gender"
                   value={onboardingForm.gender}
                   onChange={(e) =>
-                    setOnboardingForm({ ...onboardingForm, gender: e.target.value })
+                    setOnboardingForm({
+                      ...onboardingForm,
+                      gender: e.target.value
+                    })
                   }
                 >
                   <option value="남">남성 (남)</option>
@@ -157,7 +214,10 @@ export default function LoginOnboardingPage({
               <button
                 type="button"
                 className="btn btn-outline"
-                onClick={() => setStep('login')}
+                onClick={() => {
+                  setPendingKakaoUser(null);
+                  setStep('login');
+                }}
               >
                 이전으로
               </button>
@@ -176,10 +236,15 @@ export default function LoginOnboardingPage({
       {/* Main Kakao Login Card */}
       <div className="card auth-card">
         <div className="section-header">
-          <span className="platform-badge">Heal Community</span>
+          <div className="badge-group">
+            <span className="platform-badge">Heal Community</span>
+            {isKakaoConfigured && (
+              <span className="platform-badge">Kakao SDK 연동됨</span>
+            )}
+          </div>
           <h2>힐(Heal) 커뮤니티 관리 시스템</h2>
           <p className="muted-text">
-            카카오 로그인으로 간편하게 입장하세요. 미등록 신규 회원은 프로필/닉네임 설정(온보딩) 화면으로 자동 안내됩니다.
+            카카오 계정으로 로그인하세요. 기존 회원은 즉시 입장하며, 미등록 신규 회원은 프로필/닉네임 설정(온보딩) 화면으로 자동 이동합니다.
           </p>
         </div>
 
@@ -187,12 +252,30 @@ export default function LoginOnboardingPage({
           <button
             type="button"
             className="btn btn-kakao"
-            onClick={() => setStep('onboarding')}
+            disabled={kakaoLoading}
+            onClick={handleKakaoLoginClick}
           >
-            카카오로 시작하기 (신규 회원 온보딩 체험)
+            {kakaoLoading ? '카카오 인증 창 연결 중...' : '카카오 계정으로 로그인'}
           </button>
 
-          <div className="divider-label">또는 기존 등록 계정으로 빠른 로그인 체험</div>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => {
+              setPendingKakaoUser(null);
+              setStep('onboarding');
+            }}
+          >
+            신규 회원 온보딩 화면 바로 체험하기
+          </button>
+
+          {kakaoError && (
+            <div className="warning-banner" role="alert">
+              ⚠️ {kakaoError}
+            </div>
+          )}
+
+          <div className="divider-label">또는 등록된 회원 계정으로 빠른 로그인 체험</div>
           <div className="demo-account-list">
             {members.map((m) => (
               <button
@@ -235,7 +318,9 @@ export default function LoginOnboardingPage({
               id="quick-name"
               type="text"
               value={quickForm.name}
-              onChange={(e) => setQuickForm({ ...quickForm, name: e.target.value })}
+              onChange={(e) =>
+                setQuickForm({ ...quickForm, name: e.target.value })
+              }
             />
           </div>
           <div className="form-field">
@@ -244,7 +329,9 @@ export default function LoginOnboardingPage({
               id="quick-city"
               type="text"
               value={quickForm.city}
-              onChange={(e) => setQuickForm({ ...quickForm, city: e.target.value })}
+              onChange={(e) =>
+                setQuickForm({ ...quickForm, city: e.target.value })
+              }
             />
           </div>
           <div className="form-field">
@@ -266,7 +353,9 @@ export default function LoginOnboardingPage({
             <select
               id="quick-gender"
               value={quickForm.gender}
-              onChange={(e) => setQuickForm({ ...quickForm, gender: e.target.value })}
+              onChange={(e) =>
+                setQuickForm({ ...quickForm, gender: e.target.value })
+              }
             >
               <option value="남">남성 (남)</option>
               <option value="여">여성 (여)</option>
