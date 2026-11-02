@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getMemberDoc() {
+      return get(/databases/$(database)/documents/members/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/members/$(request.auth.uid)) &&
+        (getMemberDoc().role == 'Leader' || getMemberDoc().role == 'Deputy');
+    }
+
+    function isActiveMember() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/members/$(request.auth.uid)) &&
+        getMemberDoc().role != 'Withdrawn' &&
+        getMemberDoc().role != 'Expelled';
+    }
+
+    // Rule: Must have attended >= 1 meeting OR be an Admin (Leader/Deputy) to create a meeting
+    function canCreateMeeting() {
+      return isAdmin() || (isActiveMember() && getMemberDoc().attendanceCount >= 1);
+    }
+
+    // 1. Members Collection
+    match /members/{uid} {
+      allow read: if isSignedIn();
+
+      // Onboarding: New user registers their own initial profile as 'Member' with 0 scores
+      allow create: if isSignedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.role == 'Member' &&
+        request.resource.data.attendanceCount == 0 &&
+        request.resource.data.totalScore == 0;
+
+      // Update:
+      // - Admins can update any member field (role, customBadge, scores)
+      // - Self can update profile info (realName, city, homeCity, maritalStatus, gender) without changing role or customBadge
+      // - Meeting host can update participant scores/attendanceCount during settlement
+      allow update: if isAdmin() || (
+        isSignedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.customBadge == resource.data.customBadge &&
+        request.resource.data.totalScore == resource.data.totalScore &&
+        request.resource.data.attendanceCount == resource.data.attendanceCount
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // 2. Meetings Collection
+    match /meetings/{meetingId} {
+      allow read: if isSignedIn();
+
+      // Casual meetings by any eligible member (attendanceCount >= 1); Official meetings by Admins only
+      allow create: if canCreateMeeting() &&
+        request.resource.data.hostUid == request.auth.uid &&
+        (request.resource.data.type == 'Casual' || isAdmin());
+
+      // Active members can apply/cancel while meeting is 'open'; Host or Admin can settle the meeting
+      allow update: if isAdmin() ||
+        (isActiveMember() && resource.data.status == 'open');
+
+      allow delete: if isAdmin();
+    }
+
+    // 3. Score Logs Collection
+    match /scoreLogs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isActiveMember() || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // 4. Community Settings & Notice
+    match /settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

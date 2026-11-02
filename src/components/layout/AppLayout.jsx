@@ -5,6 +5,7 @@ import {
   isAdminRole,
   ROLE_META
 } from '../../core/communityRules';
+import { isFirebaseConfigured } from '../../services/firebase';
 
 const BASE_NAV_ITEMS = [
   { id: 'home', label: '홈' },
@@ -19,6 +20,7 @@ export default function AppLayout({
   currentUser,
   members,
   onSwitchUser,
+  onResetDemoData,
   children
 }) {
   const [platformInfo, setPlatformInfo] = useState(() => getPlatformInfo());
@@ -44,13 +46,20 @@ export default function AppLayout({
       ? 'Mobile Web'
       : 'PC Web';
 
+  const dbLabel = isFirebaseConfigured ? 'Firestore DB' : 'Local DB (영구저장)';
+
   return (
     <div className="app-shell">
       {/* PC Left Sidebar */}
       <aside className="pc-sidebar">
-        <div className="brand-title">
-          <span>Heal</span>
-          <span className="platform-badge">{envLabel}</span>
+        <div>
+          <div className="brand-title">
+            <span>Heal</span>
+            <span className="platform-badge">{envLabel}</span>
+          </div>
+          <div className="sub-meta" style={{ marginTop: '4px' }}>
+            저장소: <strong>{dbLabel}</strong>
+          </div>
         </div>
 
         <ul className="nav-list">
@@ -67,7 +76,7 @@ export default function AppLayout({
           ))}
         </ul>
 
-        {/* Quick Account / Role Switcher for testing permissions */}
+        {/* Quick Account / Role Switcher & Reset for testing permissions */}
         <div className="sidebar-footer">
           <label htmlFor="pc-user-switch" className="switcher-label">
             현재 로그인 계정 (권한 체험)
@@ -86,6 +95,17 @@ export default function AppLayout({
             ))}
             <option value="__LOGOUT__">→ 로그인 / 신규 온보딩 화면</option>
           </select>
+
+          {!isFirebaseConfigured && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              style={{ marginTop: '6px', fontSize: '0.78rem', padding: '6px 10px' }}
+              onClick={onResetDemoData}
+            >
+              데모 데이터 초기화
+            </button>
+          )}
         </div>
       </aside>
 
@@ -96,6 +116,7 @@ export default function AppLayout({
           <div className="brand-title">
             <span>Heal</span>
             <span className="platform-badge">{envLabel}</span>
+            <span className="platform-badge">{dbLabel}</span>
           </div>
           <select
             aria-label="계정 전환"

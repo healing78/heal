@@ -22,6 +22,7 @@
   - 멀티플랫폼 설계: `docs/specs/features/multi-platform-architecture.md`
   - 페이지 구조 및 네비게이션: `docs/specs/features/page-structure.md`
   - 개발 프로세스 및 로컬 검증 가이드: `docs/specs/features/development-workflow.md`
+  - Firebase 및 Firestore 연동 명세: `docs/specs/features/firebase-integration.md`
   - 세부 비즈니스 로직/기능별 명세: `docs/specs/features/<feature-name>.md` (파일명은 영문 `kebab-case` 사용)
 - **Language & Heading Rules:**
   - **Headings (Titles & Section Headers):** 문서 제목과 모든 섹션 헤더(`#`, `##`, `###` 등)는 **영문(English)**으로 작성합니다.
