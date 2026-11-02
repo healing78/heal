@@ -23,23 +23,30 @@
   - `badge`: string (참석 횟수 또는 가입일 기반 뱃지/이모지, 예: '0829')
   - `entryDate`: timestamp (가입일자)
   - `homeCity`: string (홈 지역/연고지 - 원정/지역 보너스 계산용)
-  - `totalScore`: number (누적 점수)
+  - `attendanceCount`: number (정산 완료된 누적 모임 참석 횟수 - 1회 이상 참석 시 자율벙 개설 자격 부여)
+  - `totalScore`: number (누적 점수 = 기본 참석 점수 + 원정 보너스 점수 + 수동 이벤트 점수)
 - **meetings (모임/벙)**:
   - `id`: string (모임 고유 ID)
+  - `title`: string (모임 제목)
   - `date`: timestamp (모임 일시)
   - `location`: string (모임 장소/지역)
   - `hostUid`: string (주최자/벙주 Firebase UID)
-  - `participants`: array of uids (참석자 UID 목록)
-  - `type`: string (모임 유형: 'Official' = 공식 모임, 'Casual' = 자율/번개 모임)
+  - `applicants`: array of uids (사전 참석 신청자 UID 목록)
+  - `confirmedParticipants`: array of uids (모임 종료 후 정산 확정된 실참석자 UID 목록)
+  - `status`: string (`'open'` = 모집/진행중, `'settled'` = 마감 및 점수 정산 완료)
+  - `type`: string (모임 유형: `'Official'` = 공식 모임, `'Casual'` = 자율/번개 모임)
   - `description`: string (모임 설명 및 상세 정보)
 
 ### Key Features
-- **Nickname Generator (닉네임 생성기):** `이름 지역 결혼여부 성별 뱃지` 형태의 규칙화된 닉네임 생성 및 검증 로직.
+- **Nickname Generator (닉네임 생성기):** `이름 지역 결혼여부 성별 뱃지` 형태의 규칙화된 닉네임 생성, 원클릭 복사 및 검증 로직.
+- **Meeting Creation & Attendance Settlement (모임 개설 및 2단계 정산 로직):**
+  - 모임 개설 자격: **모임(벙)에 1회 이상 참석한 회원(`attendanceCount >= 1`)** 또는 운영진(`Leader`, `Deputy`)만 모임 개설 가능 (공식 모임은 운영진 전용).
+  - 2단계 정산: 회원들이 먼저 `[참석 신청]`을 하고, 모임 종료 후 벙주(개설자) 또는 운영진이 실참석자를 체크하여 `[모임 마감 · 점수 정산]`을 실행하면 점수와 참석 횟수가 일괄 반영됨.
 - **Attendance & Scoring Logic (참석 및 점수 산정 로직):**
-  - 기본 점수: 모임 참석당 1점 부여.
+  - 기본 점수: 모임 실참석 확정 시 1점 부여.
   - 지역 보너스 점수: 모임 장소(`meeting.location`)가 회원의 연고지(`member.homeCity`)와 다를 경우 원정 보너스 +2점 부여.
-  - 이벤트 점수: 운영진이 수동으로 가감 가능.
-- **Role Management (역할 관리):** 동적 역할 목록 및 권한 설정.
+  - 이벤트 점수: 운영진이 `[운영 관리]` 페이지에서 사유와 함께 수동으로 가감 가능.
+- **Role & Page Management (역할 및 페이지 구조):** 기본 4개 메뉴(`홈`, `모임(벙)`, `랭킹·점수`, `내 정보`)와 운영진 전용 조건부 메뉴(`운영 관리`)로 구성. 상세 화면 설계는 `docs/specs/features/page-structure.md` 문서를 참조합니다.
 
 ### Tech Stack
 - **Frontend & Build:** React 18, Vite (빠른 HMR 및 PWA/Capacitor 플러그인 호환성을 위한 모던 번들러).
