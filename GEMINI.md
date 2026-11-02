@@ -4,9 +4,17 @@
 힐(Heal) 커뮤니티 관리 시스템은 회원의 프로필, 고유 닉네임 규격, 역할/권한 체계, 모임(벙) 참석 및 활동 점수를 관리하기 위한 웹 애플리케이션입니다.
 
 ## Technology Stack
-- **Frontend:** React, Vanilla CSS
-- **Backend & Database:** Firebase Firestore, Firebase Cloud Functions
-- **Auth:** Firebase Auth + Kakao OAuth (Custom Token via Functions)
+- **Target Platforms:** PC Web, Mobile Web (PWA), Android, iOS (Single Codebase)
+- **Frontend & Build:** React 18, Vite, Vanilla CSS (Responsive & Adaptive UI)
+- **Mobile Packaging:** Capacitor (`@capacitor/core`, `@capacitor/cli`) + PWA Web App Manifest
+- **Backend & Database:** Firebase Firestore, Firebase Cloud Functions, Firebase Hosting
+- **Auth:** Firebase Auth + Kakao OAuth (Custom Token via Functions, Web SDK & Native App Bridge)
+
+## Multi-Platform Architecture Principles
+- **Headless Business Logic:** 닉네임 생성/검증, 점수 산정, Firebase 통신 등 핵심 비즈니스 로직은 UI 컴포넌트와 분리하여 `src/core/` 또는 `src/services/` 하위에 순수 JS 모듈로 유지합니다.
+- **Adaptive Layout System:** 단일 React 코드베이스에서 뷰포트 크기(`768px` 기준)에 따라 **PC 웹(좌측 사이드바 + 테이블/대시보드 뷰)**과 **모바일 웹/앱(상단 헤더 + 하단 고정 탭바 + 카드 뷰)** 레이아웃이 자동 전환되도록 구성합니다.
+- **Mobile Safe Area & WebView Optimization:** Android/iOS 네이티브 앱 패키징 환경을 고려하여 `viewport-fit=cover` 및 CSS `env(safe-area-inset-*)` 변수를 기본 레이아웃에 적용합니다.
+- **Platform-Aware Authentication:** 웹 환경에서는 Kakao JS SDK 리다이렉트 방식을 사용하고, Capacitor 네이티브 앱 환경에서는 카카오톡 인앱/네이티브 인증 후 동일한 Firebase Cloud Functions(`kakaoCustomAuth`)를 통해 Firebase 커스텀 토큰을 발급받습니다.
 
 ## Documentation Standards
 - **Directory Structure:** 모든 시스템 및 기능 명세서는 `docs/specs/` 디렉토리 아래에 관리합니다.

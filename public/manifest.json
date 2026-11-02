@@ -1,0 +1,9 @@
+{
+  "short_name": "Heal",
+  "name": "Heal 커뮤니티 관리 시스템",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f766e",
+  "orientation": "portrait-primary"
+}

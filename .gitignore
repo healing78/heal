@@ -35,3 +35,9 @@ Thumbs.db
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# Capacitor / Native Build
+/android/app/build
+/android/.gradle
+/ios/App/Pods
+/ios/DerivedData

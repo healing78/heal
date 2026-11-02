@@ -6,8 +6,9 @@
 ## Scope & Impact
 - **Member Management (회원 관리):** 역할 관리(방장, 부방장, VIP, 일반회원, 탈퇴자, 강퇴자, 방랑자 등), 커스텀 역할 설정, 엄격한 닉네임 포맷 규칙 적용.
 - **Meeting Management (모임/벙 관리):** 정기 모임(공식) 및 번개 모임(자율), 참석자 추적 및 점수 부여(지역 보너스 점수 및 수동 이벤트 점수 포함).
-- **Authentication (인증):** 카카오톡 OAuth 연동.
+- **Authentication (인증):** 카카오톡 OAuth 연동 (웹 및 모바일 앱 환경 통합 지원).
 - **Backend (백엔드):** Firebase 생태계 활용 (데이터 저장은 Firestore, 카카오 인증은 Firebase Auth, 프론트엔드 호스팅은 Firebase Hosting, 커스텀 토큰 발급은 Firebase Cloud Functions).
+- **Multi-Platform Support (멀티플랫폼 지원):** 단일 React 코드베이스를 기반으로 **PC 웹, 모바일 웹(PWA), Android, iOS** 4개 환경을 동시에 지원.
 
 ## Proposed Solution
 
@@ -41,27 +42,40 @@
 - **Role Management (역할 관리):** 동적 역할 목록 및 권한 설정.
 
 ### Tech Stack
-- **Frontend:** React (풍부한 생태계와 컴포넌트 재사용성을 위한 메인 프레임워크).
-- **Backend & Database:** Firebase Firestore, Firebase Cloud Functions.
+- **Frontend & Build:** React 18, Vite (빠른 HMR 및 PWA/Capacitor 플러그인 호환성을 위한 모던 번들러).
+- **Multi-Platform & Packaging:**
+  - **PC & Mobile Web:** 반응형 웹(Responsive Web) 및 PWA(Progressive Web App).
+  - **Android & iOS:** Capacitor(`@capacitor/core`, `@capacitor/cli`) 기반 하이브리드 네이티브 패키징.
+- **Backend & Database:** Firebase Firestore, Firebase Cloud Functions, Firebase Hosting.
 - **Authentication:** Firebase Auth + Kakao Custom Auth (Cloud Functions를 통한 커스텀 토큰 발급).
-- **Styling:** Vanilla CSS.
+- **Styling:** Vanilla CSS (CSS Variables, Media Queries, Safe Area Insets 적용).
+
+### Multi-Platform Strategy
+- **Single Codebase Approach:** 반응형 React 웹 + Capacitor 하이브리드 패키징 방식을 채택하여, 1벌의 UI/비즈니스 코드로 PC 웹, 모바일 웹, Android(Google Play), iOS(App Store)를 동시에 대응합니다.
+- **Adaptive UX by User Role:**
+  - **PC Web (운영진/관리 중심):** 좌측 사이드바 네비게이션과 다중 컬럼 테이블 뷰를 제공하여 전체 회원 명단, 닉네임 규격 준수 여부, 점수 가감을 한눈에 관리합니다.
+  - **Mobile Web & Native App (일반 회원/참여 중심):** 상단 헤더 + 하단 고정 탭바(Bottom Navigation)와 카드형 리스트를 제공하여 카카오톡 링크 진입이나 앱 실행 시 빠른 모임 참석 및 내 점수 확인을 지원합니다.
+- **Headless Business Layer:** 닉네임 생성/검증(`src/nicknameUtils.js`) 및 점수 계산 로직은 UI 프레임워크나 플랫폼에 종속되지 않는 순수 모듈로 분리합니다.
+- 상세 설계는 `docs/specs/features/multi-platform-architecture.md` 문서를 참조합니다.
 
 ## Roadmap & Implementation Phases
 
-### Phase 1: Environment Setup
-1. Firebase 프로젝트 초기화.
-2. 카카오 로그인을 위한 Firebase Auth 커스텀 토큰 연동 환경 구성.
-3. Firestore 보안 규칙(Security Rules) 정의.
+### Phase 1: Environment & Multi-Platform Foundation
+1. Vite 기반 React 빌드 환경 및 PWA/Capacitor 멀티플랫폼 설정 초기화.
+2. PC(사이드바) / 모바일(하단 탭바 + Safe Area) 적응형 `AppLayout` 구축.
+3. Firebase 프로젝트 초기화 및 카카오 로그인 커스텀 토큰 연동 환경 구성.
+4. Firestore 보안 규칙(Security Rules) 정의.
 
 ### Phase 2: Member & Nickname Logic
 1. Member 데이터 스키마 구현.
 2. 닉네임 포맷 제안 및 검증 유틸리티 구현.
-3. 역할(Role) 관리 UI 구축.
+3. 역할(Role) 관리 UI 구축 (PC 테이블 뷰 및 모바일 카드 뷰 대응).
 
-### Phase 3: Meeting Management
+### Phase 3: Meeting Management & Native Packaging
 1. 모임(벙) 개설 및 기록 시스템 구현.
 2. 점수 계산 로직 구현 (Cloud Functions 트리거 또는 클라이언트 서비스).
 3. 참석 이력 및 랭킹 조회 화면 구축.
+4. Capacitor 기반 Android/iOS 네이티브 빌드 및 푸시 알림(FCM) 연동.
 
 ## Verification & Testing
 - 닉네임 포맷 생성 및 유효성 검사 단위 테스트(Unit Tests).
