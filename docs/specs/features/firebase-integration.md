@@ -33,13 +33,20 @@
 실제 Firebase 서버와 연결하려면 아래 순서를 따라 `.env` 파일을 생성합니다.
 
 1. **Firebase 프로젝트 생성:**
-   - [Firebase Console](https://console.firebase.google.com/)에 접속하여 **[프로젝트 추가]**를 클릭하고 프로젝트(예: `heal-community`)를 생성합니다.
-2. **Firestore Database 활성화:**
-   - 좌측 메뉴 **[빌드] → [Firestore Database] → [데이터베이스 만들기]**를 클릭합니다.
-   - 위치는 `asia-northeast3 (서울)`을 선택하고 생성합니다.
-3. **웹 앱 등록 및 설정 키 복사:**
-   - 프로젝트 개요 화면 상단에서 **웹 아이콘(`</>`)**을 클릭해 앱 닉네임(`heal-web`)을 등록합니다.
-   - 출력되는 `firebaseConfig` 객체의 값들을 확인합니다.
+   - [Firebase Console](https://console.firebase.google.com/)에 접속하여 **[프로젝트 추가(Add project)]**(또는 **[Firebase 프로젝트 만들기]**)를 클릭하고 프로젝트(예: `heal-community`)를 생성합니다. (Google 애널리틱스는 꺼두셔도 무방합니다.)
+2. **Firestore Database 찾기 및 활성화 (개편된 콘솔 UI 기준):**
+   - 현재 Firebase 콘솔 좌측 메뉴에는 기본적으로 `프로젝트 개요(Project Overview)`와 **`모든 제품(All products)`**만 간소화되어 표시됩니다. 아래 3가지 방법 중 가장 편한 방법으로 진입하세요:
+     - **방법 A (좌측 메뉴):** 좌측 사이드바의 **`[모든 제품(All products)]`** 클릭 → 화면에 나오는 제품 카드 목록에서 **`[Firestore Database]`** 클릭
+     - **방법 B (상단 검색창):** 콘솔 화면 맨 위 중앙 검색창에 **`Firestore`** 입력 후 **`Firestore Database`** 클릭
+     - **방법 C (직접 링크):** [https://console.firebase.google.com/project/_/firestore](https://console.firebase.google.com/project/_/firestore) 클릭 후 생성한 프로젝트 선택
+   - 진입 후 **`[데이터베이스 만들기(Create database)]`** 버튼을 클릭합니다.
+   - **위치(Location) 설정:** 데이터베이스 ID는 기본값 `(default)`로 두고, 위치는 **`asia-northeast3 (Seoul)`**을 선택한 뒤 **[다음]**을 누릅니다.
+   - **보안 규칙 설정:** 초기 연동 확인을 위해 **테스트 모드에서 시작(Start in test mode)**(또는 프로덕션 모드 선택 후 생성된 DB의 **`[규칙(Rules)]`** 탭에 프로젝트의 `firestore.rules` 내용 붙여넣기)을 선택하고 **[만들기(Create)]**를 완료합니다.
+3. **웹 앱 등록 및 설정 키(`firebaseConfig`) 복사:**
+   - 좌측 상단 **`[프로젝트 개요(Project Overview)]`**(집 모양 아이콘)로 돌아가거나, 좌측 상단 **톱니바퀴 아이콘(⚙️) → `[프로젝트 설정(Project settings)]`**을 클릭합니다.
+   - 하단 **'내 앱(Your apps)'** 섹션에서 **웹 아이콘(`</>`)**을 클릭합니다.
+   - 앱 닉네임(예: `heal-web`)을 입력하고 **[앱 등록(Register app)]**을 클릭합니다 (Firebase Hosting 설정 체크박스는 지금 체크하지 않아도 됩니다).
+   - 화면에 표시되는 `const firebaseConfig = { ... }` 안의 값들을 확인합니다.
 4. **환경변수 파일(`.env`) 생성:**
    - 프로젝트 루트의 `.env.example` 파일을 복사하여 `.env` 파일을 만들고 복사한 키를 입력한 뒤 개발 서버(`npm run dev`)를 재시작하면 즉시 좌측 상단 상태 뱃지가 **`Firestore DB`**로 전환됩니다.
 

@@ -132,45 +132,70 @@ export const subscribeCommunityData = (onUpdate) => {
 
   ensureFirestoreSeeded();
 
-  const unsubMembers = onSnapshot(collection(db, 'members'), (snap) => {
-    if (!snap.empty) {
-      currentData = {
-        ...currentData,
-        members: snap.docs.map((d) => d.data())
-      };
-      onUpdate(currentData);
-    }
-  });
+  const handleSnapshotError = (err) => {
+    console.warn('Firestore snapshot fallback to LocalStorage:', err.code);
+    onUpdate(getLocalState());
+  };
 
-  const unsubMeetings = onSnapshot(collection(db, 'meetings'), (snap) => {
-    if (!snap.empty) {
-      currentData = {
-        ...currentData,
-        meetings: snap.docs.map((d) => d.data())
-      };
-      onUpdate(currentData);
-    }
-  });
+  const unsubMembers = onSnapshot(
+    collection(db, 'members'),
+    (snap) => {
+      if (!snap.empty) {
+        currentData = {
+          ...currentData,
+          members: snap.docs.map((d) => d.data())
+        };
+        writeLocalJson(STORAGE_KEYS.members, currentData.members);
+        onUpdate(currentData);
+      }
+    },
+    handleSnapshotError
+  );
 
-  const unsubLogs = onSnapshot(collection(db, 'scoreLogs'), (snap) => {
-    if (!snap.empty) {
-      currentData = {
-        ...currentData,
-        scoreLogs: snap.docs.map((d) => d.data())
-      };
-      onUpdate(currentData);
-    }
-  });
+  const unsubMeetings = onSnapshot(
+    collection(db, 'meetings'),
+    (snap) => {
+      if (!snap.empty) {
+        currentData = {
+          ...currentData,
+          meetings: snap.docs.map((d) => d.data())
+        };
+        writeLocalJson(STORAGE_KEYS.meetings, currentData.meetings);
+        onUpdate(currentData);
+      }
+    },
+    handleSnapshotError
+  );
 
-  const unsubConfig = onSnapshot(doc(db, 'settings', 'community'), (snap) => {
-    if (snap.exists()) {
-      currentData = {
-        ...currentData,
-        communityConfig: snap.data()
-      };
-      onUpdate(currentData);
-    }
-  });
+  const unsubLogs = onSnapshot(
+    collection(db, 'scoreLogs'),
+    (snap) => {
+      if (!snap.empty) {
+        currentData = {
+          ...currentData,
+          scoreLogs: snap.docs.map((d) => d.data())
+        };
+        writeLocalJson(STORAGE_KEYS.scoreLogs, currentData.scoreLogs);
+        onUpdate(currentData);
+      }
+    },
+    handleSnapshotError
+  );
+
+  const unsubConfig = onSnapshot(
+    doc(db, 'settings', 'community'),
+    (snap) => {
+      if (snap.exists()) {
+        currentData = {
+          ...currentData,
+          communityConfig: snap.data()
+        };
+        writeLocalJson(STORAGE_KEYS.config, currentData.communityConfig);
+        onUpdate(currentData);
+      }
+    },
+    handleSnapshotError
+  );
 
   return () => {
     unsubMembers();
@@ -207,12 +232,16 @@ export const registerOnboardingMember = async (form) => {
     monthlyScore: 0
   };
 
+  const { members } = getLocalState();
+  writeLocalJson(STORAGE_KEYS.members, [...members, newMember]);
+  notifyLocalListeners();
+
   if (isFirebaseConfigured && db) {
-    await setDoc(doc(db, 'members', newUid), newMember);
-  } else {
-    const { members } = getLocalState();
-    writeLocalJson(STORAGE_KEYS.members, [...members, newMember]);
-    notifyLocalListeners();
+    try {
+      await setDoc(doc(db, 'members', newUid), newMember);
+    } catch (err) {
+      console.warn('Firestore write fallback (registerOnboardingMember):', err.code);
+    }
   }
 
   return newMember;
@@ -222,17 +251,20 @@ export const registerOnboardingMember = async (form) => {
  * Updates a member's own profile fields.
  */
 export const updateMemberProfile = async (uid, updatedFields) => {
-  if (isFirebaseConfigured && db) {
-    await updateDoc(doc(db, 'members', uid), updatedFields);
-    return;
-  }
-
   const { members } = getLocalState();
   const nextMembers = members.map((m) =>
     m.uid === uid ? { ...m, ...updatedFields } : m
   );
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
   notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'members', uid), updatedFields);
+    } catch (err) {
+      console.warn('Firestore write fallback (updateMemberProfile):', err.code);
+    }
+  }
 };
 
 /**
@@ -248,18 +280,21 @@ export const toggleMeetingApplicant = async (meetingId, uid) => {
     ? target.applicants.filter((id) => id !== uid)
     : [...target.applicants, uid];
 
-  if (isFirebaseConfigured && db) {
-    await updateDoc(doc(db, 'meetings', meetingId), {
-      applicants: nextApplicants
-    });
-    return;
-  }
-
   const nextMeetings = meetings.map((m) =>
     m.id === meetingId ? { ...m, applicants: nextApplicants } : m
   );
   writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
   notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'meetings', meetingId), {
+        applicants: nextApplicants
+      });
+    } catch (err) {
+      console.warn('Firestore write fallback (toggleMeetingApplicant):', err.code);
+    }
+  }
 };
 
 /**
@@ -280,14 +315,17 @@ export const createMeeting = async (hostUid, meetingInput) => {
     description: meetingInput.description
   };
 
-  if (isFirebaseConfigured && db) {
-    await setDoc(doc(db, 'meetings', created.id), created);
-    return created;
-  }
-
   const { meetings } = getLocalState();
   writeLocalJson(STORAGE_KEYS.meetings, [created, ...meetings]);
   notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, 'meetings', created.id), created);
+    } catch (err) {
+      console.warn('Firestore write fallback (createMeeting):', err.code);
+    }
+  }
   return created;
 };
 
@@ -340,27 +378,6 @@ export const settleMeetingWithScores = async (
     };
   });
 
-  if (isFirebaseConfigured && db) {
-    const batch = writeBatch(db);
-    batch.update(doc(db, 'meetings', meetingId), {
-      status: 'settled',
-      confirmedParticipants: confirmedUids
-    });
-
-    for (const member of updatedMembers) {
-      if (confirmedUids.includes(member.uid)) {
-        batch.set(doc(db, 'members', member.uid), member);
-      }
-    }
-
-    for (const log of newLogs) {
-      batch.set(doc(db, 'scoreLogs', log.id), log);
-    }
-
-    await batch.commit();
-    return;
-  }
-
   const nextMeetings = currentMeetings.map((m) =>
     m.id === meetingId
       ? { ...m, status: 'settled', confirmedParticipants: confirmedUids }
@@ -372,23 +389,50 @@ export const settleMeetingWithScores = async (
   writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
   writeLocalJson(STORAGE_KEYS.scoreLogs, [...newLogs, ...scoreLogs]);
   notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const batch = writeBatch(db);
+      batch.update(doc(db, 'meetings', meetingId), {
+        status: 'settled',
+        confirmedParticipants: confirmedUids
+      });
+
+      for (const member of updatedMembers) {
+        if (confirmedUids.includes(member.uid)) {
+          batch.set(doc(db, 'members', member.uid), member);
+        }
+      }
+
+      for (const log of newLogs) {
+        batch.set(doc(db, 'scoreLogs', log.id), log);
+      }
+
+      await batch.commit();
+    } catch (err) {
+      console.warn('Firestore write fallback (settleMeetingWithScores):', err.code);
+    }
+  }
 };
 
 /**
  * Admin: updates member role or customBadge.
  */
 export const adminUpdateMember = async (targetUid, patch) => {
-  if (isFirebaseConfigured && db) {
-    await updateDoc(doc(db, 'members', targetUid), patch);
-    return;
-  }
-
   const { members } = getLocalState();
   const nextMembers = members.map((m) =>
     m.uid === targetUid ? { ...m, ...patch } : m
   );
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
   notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'members', targetUid), patch);
+    } catch (err) {
+      console.warn('Firestore write fallback (adminUpdateMember):', err.code);
+    }
+  }
 };
 
 /**
@@ -423,14 +467,6 @@ export const adminAdjustEventScore = async (
     monthlyScore: (targetMember.monthlyScore || 0) + delta
   };
 
-  if (isFirebaseConfigured && db) {
-    const batch = writeBatch(db);
-    batch.set(doc(db, 'members', targetUid), updatedMember);
-    batch.set(doc(db, 'scoreLogs', logEntry.id), logEntry);
-    await batch.commit();
-    return;
-  }
-
   const nextMembers = currentMembers.map((m) =>
     m.uid === targetUid ? updatedMember : m
   );
@@ -439,19 +475,33 @@ export const adminAdjustEventScore = async (
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
   writeLocalJson(STORAGE_KEYS.scoreLogs, [logEntry, ...scoreLogs]);
   notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(db, 'members', targetUid), updatedMember);
+      batch.set(doc(db, 'scoreLogs', logEntry.id), logEntry);
+      await batch.commit();
+    } catch (err) {
+      console.warn('Firestore write fallback (adminAdjustEventScore):', err.code);
+    }
+  }
 };
 
 /**
  * Admin: updates community notice and rules config.
  */
 export const updateCommunityConfig = async (nextConfig) => {
-  if (isFirebaseConfigured && db) {
-    await setDoc(doc(db, 'settings', 'community'), nextConfig, { merge: true });
-    return;
-  }
-
   writeLocalJson(STORAGE_KEYS.config, nextConfig);
   notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, 'settings', 'community'), nextConfig, { merge: true });
+    } catch (err) {
+      console.warn('Firestore write fallback (updateCommunityConfig):', err.code);
+    }
+  }
 };
 
 /**
