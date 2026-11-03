@@ -32,10 +32,7 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
   return (
     <div className="list-container">
       <section className="list-section">
-        <h2>친구 정보 · 활동 점수 랭킹</h2>
-        <p className="muted-text">
-          모임 참석(기본 +1점), 타지역 원정 보너스(+2점), 이벤트 점수가 합산된 실시간 순위입니다.
-        </p>
+        <h2>활동 랭킹</h2>
 
         <div className="subtab-bar">
           <button

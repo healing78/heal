@@ -148,12 +148,7 @@ export default function MeetingsPage({
       {/* Page Header & Create Button */}
       <section className="list-section">
         <div className="section-title-row">
-          <div>
-            <h2>모임(벙) 목록</h2>
-            <p className="muted-text">
-              참석 +1점 · 타권역 원정 +1점 · 해외 +2점 · 각 벙을 클릭하면 개별 벙 페이지(정산·장소·귀가)로 이동합니다.
-            </p>
-          </div>
+          <h2>모임(벙) 목록</h2>
           <button
             type="button"
             className="btn btn-primary btn-sm"
@@ -200,7 +195,7 @@ export default function MeetingsPage({
       {/* Create Meeting Form (Calendar Date + Separate Time + Multi-Round Venues) */}
       {showCreateForm && (
         <section className="list-section highlight-section">
-          <h3>새 모임(벙) 개설하기 (YYMMDD+01 전용 페이지 자동 생성)</h3>
+          <h3>새 모임(벙) 개설</h3>
           <form
             onSubmit={handleSubmitNewMeeting}
             className="stack-gap"
@@ -208,11 +203,11 @@ export default function MeetingsPage({
           >
             <div className="form-grid">
               <div className="form-field">
-                <label htmlFor="mtg-title">모임 제목 (필수)</label>
+                <label htmlFor="mtg-title">모임 제목</label>
                 <input
                   id="mtg-title"
                   type="text"
-                  placeholder="예: 주말 성수동 카페 & 보드게임 번개"
+                  placeholder="모임 제목 입력"
                   required
                   value={newMeeting.title}
                   onChange={(e) =>
@@ -222,14 +217,12 @@ export default function MeetingsPage({
               </div>
 
               <div className="form-field">
-                <label htmlFor="mtg-loc">
-                  모임 지역 (서울·경기 / 강원 / 충청·대전 / 전라·광주 / 경상·부산 / 제주 / 해외)
-                </label>
+                <label htmlFor="mtg-loc">모임 지역</label>
                 <input
                   id="mtg-loc"
                   type="text"
                   list="create-region-list"
-                  placeholder="예: 서울, 수원, 인천, 대전, 부산, 제주, 해외"
+                  placeholder="서울, 경기, 강원, 대전, 광주, 부산, 제주, 해외"
                   required
                   value={newMeeting.location}
                   onChange={(e) =>
@@ -246,7 +239,7 @@ export default function MeetingsPage({
               </div>
 
               <div className="form-field">
-                <label htmlFor="mtg-date-only">날짜 선택 (달력)</label>
+                <label htmlFor="mtg-date-only">날짜</label>
                 <input
                   id="mtg-date-only"
                   type="date"
@@ -259,7 +252,7 @@ export default function MeetingsPage({
               </div>
 
               <div className="form-field">
-                <label htmlFor="mtg-start-time">시작 시간 선택</label>
+                <label htmlFor="mtg-start-time">시작 시간</label>
                 <input
                   id="mtg-start-time"
                   type="time"
@@ -272,7 +265,7 @@ export default function MeetingsPage({
               </div>
 
               <div className="form-field">
-                <label htmlFor="mtg-treasurer">총무 지정 (입금 계좌 기준)</label>
+                <label htmlFor="mtg-treasurer">총무</label>
                 <select
                   id="mtg-treasurer"
                   value={newMeeting.treasurerUid || currentUser?.uid || ''}
@@ -301,11 +294,9 @@ export default function MeetingsPage({
                     setNewMeeting({ ...newMeeting, type: e.target.value })
                   }
                 >
-                  <option value="Casual">자율/번개 모임 (Casual)</option>
+                  <option value="Casual">자율/번개</option>
                   {adminUser && (
-                    <option value="Official">
-                      공식 정기 모임 (Official - 운영진 전용)
-                    </option>
+                    <option value="Official">공식 모임</option>
                   )}
                 </select>
               </div>
@@ -314,13 +305,13 @@ export default function MeetingsPage({
             {/* Dynamic Multi-Round Venues (1차, 2차... Optional) */}
             <div className="round-finance-box">
               <div className="section-title-row" style={{ marginBottom: '8px' }}>
-                <strong>차수별 장소 및 지도 링크 (선택 입력 · 개설 후 추가/변경 가능)</strong>
+                <strong>차수별 장소 · 지도</strong>
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
                   onClick={handleAddCreateRound}
                 >
-                  + {newMeeting.rounds.length + 1}차 장소 추가
+                  + {newMeeting.rounds.length + 1}차 추가
                 </button>
               </div>
 
@@ -328,10 +319,10 @@ export default function MeetingsPage({
                 {newMeeting.rounds.map((r, idx) => (
                   <div key={r.id || idx} className="form-grid">
                     <div className="form-field">
-                      <label>{idx + 1}차 장소명 (선택)</label>
+                      <label>{idx + 1}차 장소</label>
                       <input
                         type="text"
-                        placeholder={`예: ${idx + 1}차 식당/카페 이름`}
+                        placeholder={`${idx + 1}차 상호명`}
                         value={r.placeName}
                         onChange={(e) =>
                           handleCreateRoundChange(idx, {
@@ -341,11 +332,11 @@ export default function MeetingsPage({
                       />
                     </div>
                     <div className="form-field">
-                      <label>네이버 / 카카오 지도 링크 (선택)</label>
+                      <label>지도 링크</label>
                       <div className="inline-input-row">
                         <input
                           type="url"
-                          placeholder="https://map.kakao.com/... 또는 네이버 지도 URL"
+                          placeholder="네이버/카카오 지도 URL"
                           value={r.mapUrl}
                           onChange={(e) =>
                             handleCreateRoundChange(idx, {
@@ -370,11 +361,11 @@ export default function MeetingsPage({
             </div>
 
             <div className="form-field">
-              <label htmlFor="mtg-desc">모임 간단 안내 (선택)</label>
+              <label htmlFor="mtg-desc">안내 메모</label>
               <input
                 id="mtg-desc"
                 type="text"
-                placeholder="회비, 준비물, 공지사항 등을 적어주세요."
+                placeholder="안내 사항 (선택)"
                 value={newMeeting.description}
                 onChange={(e) =>
                   setNewMeeting({ ...newMeeting, description: e.target.value })
@@ -391,7 +382,7 @@ export default function MeetingsPage({
                 취소
               </button>
               <button type="submit" className="btn btn-primary">
-                벙 개설 및 전용 페이지 생성
+                개설 완료
               </button>
             </div>
           </form>

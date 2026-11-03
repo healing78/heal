@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { suggestNewMemberNickname } from '../nicknameUtils';
-import { formatMemberNickname } from '../core/communityRules';
 
 export default function NicknamePage({
   currentUser,
-  communityConfig = {},
-  onNavigateTab,
   onSharePage
 }) {
   const [form, setForm] = useState({
@@ -23,12 +20,6 @@ export default function NicknamePage({
     gender: form.gender
   });
 
-  const newcomerSummary =
-    communityConfig.newcomerSummary || '신입공지 · 입장 즉시 닉네임 변경';
-  const newcomerNoticeBody =
-    communityConfig.newcomerNoticeBody ||
-    'Healing78 오픈채팅방 입장 후 아래 생성기에서 본인 정보를 입력하고 [닉네임 복사]를 눌러 카톡방 프로필 이름을 변경해 주세요.';
-
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(generatedNickname);
@@ -41,31 +32,17 @@ export default function NicknamePage({
 
   return (
     <div className="list-container">
-      {/* 1. Newcomer Notice Banner */}
-      <section className="list-section notice-section">
-        <div className="notice-header">
-          <span className="platform-badge">신입 공지</span>
-          <h3>{newcomerSummary}</h3>
-        </div>
-        <p className="notice-body">{newcomerNoticeBody}</p>
-      </section>
-
-      {/* 2. Nickname Generator Preview & Copy */}
+      {/* Nickname Generator Preview & Copy */}
       <section className="list-section">
         <div className="section-title-row">
-          <div>
-            <h2>신입 규격 닉네임 자동 생성기</h2>
-            <p className="muted-text">
-              로그인 전에도 누구나 규격 닉네임을 만들고 복사할 수 있습니다.
-            </p>
-          </div>
+          <h2>신입 닉네임 생성기</h2>
           {onSharePage && (
             <button
               type="button"
               className="btn btn-outline btn-sm"
               onClick={onSharePage}
             >
-              이 페이지 공유
+              공유
             </button>
           )}
         </div>
@@ -73,9 +50,7 @@ export default function NicknamePage({
         {/* Live Nickname Preview Box */}
         <div className="nickname-preview-box">
           <div>
-            <div className="preview-caption">
-              복사할 오픈채팅방 규격 닉네임 ([이름 지역 결혼여부 성별 가입일])
-            </div>
+            <div className="preview-caption">생성된 닉네임</div>
             <div className="preview-value">{generatedNickname}</div>
           </div>
           <button
@@ -88,26 +63,25 @@ export default function NicknamePage({
         </div>
       </section>
 
-      {/* 3. Generator Input Form */}
+      {/* Generator Input Form */}
       <section className="list-section">
-        <h3>내 정보 입력</h3>
-        <div className="form-grid" style={{ marginTop: '12px' }}>
+        <div className="form-grid">
           <div className="form-field">
-            <label htmlFor="nick-name">실명 (또는 사용할 이름)</label>
+            <label htmlFor="nick-name">이름</label>
             <input
               id="nick-name"
               type="text"
-              placeholder="예: 김힐링"
+              placeholder="김힐링"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
           </div>
           <div className="form-field">
-            <label htmlFor="nick-city">거주 지역 (2글자 권장)</label>
+            <label htmlFor="nick-city">거주 지역</label>
             <input
               id="nick-city"
               type="text"
-              placeholder="예: 서울, 경기, 인천, 부산"
+              placeholder="서울, 경기, 부산"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
             />
@@ -137,54 +111,6 @@ export default function NicknamePage({
               <option value="여">여성 (여)</option>
             </select>
           </div>
-        </div>
-      </section>
-
-      {/* 4. Naming Rules Guide */}
-      <section className="list-section">
-        <h3>Healing78 닉네임 규격 안내</h3>
-        <div className="rules-list" style={{ marginTop: '10px' }}>
-          <div className="rule-row">
-            <span className="rule-badge">기본 규격</span>
-            <span>
-              <strong>[이름 지역 미/기/돌 남/여 MMDD]</strong> 형식으로 띄어쓰기를 포함해 작성합니다.
-            </span>
-          </div>
-          <div className="rule-row">
-            <span className="rule-badge">가입일(MMDD)</span>
-            <span>
-              신입 회원은 오늘 날짜(가입일 4자리)가 자동으로 들어가며, 정식 등급(VIP/방장 등) 부여 시 뱃지로 자동 전환됩니다.
-            </span>
-          </div>
-          {currentUser ? (
-            <div className="rule-row">
-              <span className="rule-badge">내 등록 정보</span>
-              <span>
-                현재 내 등록 닉네임은 <strong>{formatMemberNickname(currentUser)}</strong> 입니다.{' '}
-                <button
-                  type="button"
-                  className="btn-link"
-                  onClick={() => onNavigateTab('profile')}
-                >
-                  내 정보 수정하러 가기 →
-                </button>
-              </span>
-            </div>
-          ) : (
-            <div className="rule-row">
-              <span className="rule-badge">정식 등록</span>
-              <span>
-                닉네임 복사 후 모임(벙) 참석 신청과 활동 점수를 기록하려면{' '}
-                <button
-                  type="button"
-                  className="btn-link"
-                  onClick={() => onNavigateTab('login')}
-                >
-                  로그인 · 신입 등록하기 →
-                </button>
-              </span>
-            </div>
-          )}
         </div>
       </section>
     </div>

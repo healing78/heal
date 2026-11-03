@@ -68,12 +68,7 @@ export default function ProfilePage({
       {/* Nickname Auto-Generator & One-Click Copy */}
       <section className="list-section">
         <div className="section-title-row">
-          <div>
-            <h2>내 정보 및 규격 닉네임 관리</h2>
-            <p className="muted-text">
-              프로필을 수정하면 규격 닉네임이 자동 생성됩니다. 복사하여 카카오톡 오픈채팅방에 적용하세요.
-            </p>
-          </div>
+          <h2>내 정보</h2>
           <span
             className="role-pill"
             style={{ backgroundColor: ROLE_META[currentUser.role]?.badgeColor }}
@@ -84,9 +79,7 @@ export default function ProfilePage({
 
         <div className="nickname-preview-box">
           <div>
-            <div className="preview-caption">
-              자동 생성 규격 닉네임 (적용 뱃지: {currentBadge})
-            </div>
+            <div className="preview-caption">내 닉네임</div>
             <div className="preview-value">{generatedNickname}</div>
           </div>
           <button type="button" className="btn btn-primary btn-sm" onClick={handleCopy}>
@@ -107,7 +100,7 @@ export default function ProfilePage({
               />
             </div>
             <div className="form-field">
-              <label htmlFor="prof-city">거주 지역 (닉네임 표시)</label>
+              <label htmlFor="prof-city">거주 지역</label>
               <input
                 id="prof-city"
                 type="text"
@@ -117,7 +110,7 @@ export default function ProfilePage({
               />
             </div>
             <div className="form-field">
-              <label htmlFor="prof-home">연고지 (타권역 원정 +1점 · 해외 +2점 기준)</label>
+              <label htmlFor="prof-home">연고지</label>
               <input
                 id="prof-home"
                 type="text"
@@ -127,11 +120,11 @@ export default function ProfilePage({
               />
             </div>
             <div className="form-field">
-              <label htmlFor="prof-bank">내 정산용 계좌번호 (벙주·총무·대납 정산 시 표시)</label>
+              <label htmlFor="prof-bank">정산 계좌번호</label>
               <input
                 id="prof-bank"
                 type="text"
-                placeholder="예: 카카오뱅크 3333-01-1234567 (예금주: 홍길동)"
+                placeholder="은행명 계좌번호 (예금주)"
                 value={form.bankAccount}
                 onChange={(e) =>
                   setForm({ ...form, bankAccount: e.target.value })
@@ -164,24 +157,22 @@ export default function ProfilePage({
               </select>
             </div>
             <div className="form-field">
-              <label>뱃지 정보 (가입일 / 등급 자동 반영)</label>
+              <label>뱃지</label>
               <input
                 type="text"
                 disabled
-                value={`현재 뱃지: ${currentBadge} (가입일: ${currentUser.entryBadge})`}
+                value={`${currentBadge} (가입일 ${currentUser.entryBadge})`}
               />
             </div>
           </div>
 
           {savedBanner && (
-            <div className="success-banner">
-              ✅ 프로필과 규격 닉네임 정보가 저장되었습니다.
-            </div>
+            <div className="success-banner">✅ 저장되었습니다.</div>
           )}
 
           <div className="btn-row">
             <button type="submit" className="btn btn-primary">
-              프로필 변경사항 저장
+              저장
             </button>
             <button
               type="button"
@@ -196,40 +187,29 @@ export default function ProfilePage({
 
       {/* Activity & Eligibility Status */}
       <section className="list-section">
-        <h3 style={{ marginBottom: '10px' }}>내 활동 자격 현황</h3>
         <div className="stats-grid">
           <div className="stat-box">
             <span className="stat-label">참석 횟수</span>
             <strong className="stat-value">{currentUser.attendanceCount}회</strong>
-            <span className="stat-sub">정산 확정 기준</span>
           </div>
           <div className="stat-box">
-            <span className="stat-label">벙 개설 자격</span>
+            <span className="stat-label">벙 개설</span>
             <strong className="stat-value">
-              {hostEligible ? '개설 가능' : '미충족'}
+              {hostEligible ? '가능' : '대기'}
             </strong>
-            <span className="stat-sub">1회 이상 참석 시</span>
           </div>
           <div className="stat-box">
             <span className="stat-label">누적 점수</span>
             <strong className="stat-value">{currentUser.totalScore}점</strong>
-            <span className="stat-sub">
-              기본 {currentUser.baseScore}·원정 {currentUser.expeditionScore}
-            </span>
           </div>
         </div>
       </section>
 
-      {/* Bottom Test Account Switcher & System Info (Moved from Mobile Header) */}
+      {/* Bottom Test Account Switcher */}
       {onSwitchUser && (
         <section className="list-section">
           <div className="section-title-row">
-            <div>
-              <h3>권한 체험용 계정 전환</h3>
-              <p className="muted-text">
-                방장·부방장·일반회원·신입 권한을 빠르게 전환하여 테스트할 수 있습니다.
-              </p>
-            </div>
+            <h3>계정 전환</h3>
             <span className="platform-badge">{dbLabel}</span>
           </div>
           <div className="stack-gap">
@@ -245,7 +225,7 @@ export default function ProfilePage({
                   {m.attendanceCount}회)
                 </option>
               ))}
-              <option value="__LOGOUT__">→ 비로그인 / 신규 온보딩 화면</option>
+              <option value="__LOGOUT__">→ 로그아웃</option>
             </select>
 
             {!isFirebaseConfigured && onResetDemoData && (
@@ -254,7 +234,7 @@ export default function ProfilePage({
                 className="btn btn-outline btn-sm"
                 onClick={onResetDemoData}
               >
-                데모 데이터 초기화
+                데이터 초기화
               </button>
             )}
           </div>

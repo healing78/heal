@@ -26,6 +26,9 @@
 - **Mobile Divider-List & Sub-Route Summary Rule:**
   - 모바일 화면(`< 768px`)은 순백색(`#FFFFFF`) 배경 위의 구분선(Divider) 리스트 구조를 기본으로 유지합니다.
   - 새로운 페이지나 하위 주소를 추가할 때는 `src/core/routeMeta.js` 및 `scripts/generate-route-meta.mjs`에 **20자 내외의 최상단 핵심 요약 문구(`headerSummary`)**와 카카오톡 공유용 Open Graph 메타데이터를 반드시 함께 등록합니다.
+- **Zero-Explanation / Data-Only UI Rule (불필요한 설명 문구 절대 금지):**
+  - 페이지를 생성하거나 수정할 때 화면 안에 기능 소개, 사용 방법 안내, 규칙 부연 설명, 가이드 박스(`.muted-text` 설명 줄글, `.rules-list`, 괄호 안의 장황한 부연 라벨 등)를 넣지 않습니다.
+  - 모든 화면은 오직 **간결한 섹션 제목, 핵심 데이터, 짧은 입력 라벨(2~6자), 액션 버튼**만 남기고 직관적으로 구성합니다 (유일한 예외: 홈 화면 상단의 운영진 공지 본문).
 
 ## Documentation Standards
 - **Directory Structure:** 모든 시스템 및 기능 명세서는 `docs/specs/` 디렉토리 아래에 관리합니다.

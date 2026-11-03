@@ -111,10 +111,7 @@ export default function ReportsPage({
     <div className="list-container">
       {/* Top Sub-Tab Selector */}
       <section className="list-section">
-        <h2>모임별 · 개인별 정산 및 활동 리포트</h2>
-        <p className="muted-text">
-          각 벙의 차수별 비용·골든벨·찬조금·입금·귀가 현황과 회원별 누적 회비·활동 내역을 한곳에서 확인합니다.
-        </p>
+        <h2>리포트</h2>
 
         <div className="subtab-bar">
           <button
@@ -122,14 +119,14 @@ export default function ReportsPage({
             className={`subtab-btn ${subTab === 'meeting' ? 'active' : ''}`}
             onClick={() => setSubTab('meeting')}
           >
-            모임별 정산·귀가 리포트 ({meetings.length})
+            모임별 리포트 ({meetings.length})
           </button>
           <button
             type="button"
             className={`subtab-btn ${subTab === 'personal' ? 'active' : ''}`}
             onClick={() => setSubTab('personal')}
           >
-            개인별 활동·비용 리포트
+            개인별 리포트
           </button>
         </div>
 
@@ -140,7 +137,7 @@ export default function ReportsPage({
               onChange={(e) => setSelectedMeetingFilter(e.target.value)}
               style={{ flex: 1 }}
             >
-              <option value="ALL">전체 모임 리포트 보기 ({meetings.length}건)</option>
+              <option value="ALL">전체 모임 ({meetings.length}건)</option>
               {meetings.map((m) => (
                 <option key={m.id} value={m.id}>
                   [#{m.id}] {m.date} · {m.title}

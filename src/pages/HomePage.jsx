@@ -54,7 +54,6 @@ export default function HomePage({
         <section className="list-section">
           <div className="summary-header">
             <div>
-              <span className="muted-text">내 규격 닉네임</span>
               <div className="my-nickname-row">
                 <h2>{myNickname}</h2>
                 <span
@@ -87,29 +86,20 @@ export default function HomePage({
             <div className="stat-box">
               <span className="stat-label">전체 순위</span>
               <strong className="stat-value">{myRank}위</strong>
-              <span className="stat-sub">총 {members.length}명 중</span>
+              <span className="stat-sub">총 {members.length}명</span>
             </div>
             <div className="stat-box">
               <span className="stat-label">참석 횟수</span>
               <strong className="stat-value">{currentUser.attendanceCount}회</strong>
               <span className="stat-sub">
-                {hostEligible ? '벙 개설 가능' : '1회 참석 시 개설'}
+                {hostEligible ? '개설 가능' : '개설 대기'}
               </span>
             </div>
           </div>
         </section>
       ) : (
         <section className="list-section">
-          <div className="summary-header">
-            <div>
-              <span className="platform-badge">방문자 열람 모드</span>
-              <h2 style={{ marginTop: '4px' }}>Healing78에 오신 것을 환영합니다</h2>
-              <p className="muted-text">
-                신입 규격 닉네임을 바로 생성하거나 로그인하여 모임(벙)에 참석 신청하세요.
-              </p>
-            </div>
-          </div>
-          <div className="login-sub-actions">
+          <div className="login-sub-actions" style={{ marginTop: 0 }}>
             <button
               type="button"
               className="btn btn-primary"

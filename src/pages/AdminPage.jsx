@@ -72,13 +72,8 @@ export default function AdminPage({
     <div className="list-container">
       <section className="list-section">
         <div className="section-title-row">
-          <div>
-            <h2>운영진 관리 센터 (방장 · 부방장)</h2>
-            <p className="muted-text">
-              회원 등급/상태(VIP·일반·방랑자·탈퇴·강퇴) 및 커스텀 뱃지 변경, 수동 이벤트 점수 가감, 홈 공지 설정을 관리합니다.
-            </p>
-          </div>
-          <span className="platform-badge">Admin Only</span>
+          <h2>운영 관리</h2>
+          <span className="platform-badge">Admin</span>
         </div>
 
         <div className="subtab-bar">
@@ -179,10 +174,7 @@ export default function AdminPage({
       {/* Sub-tab 2: Manual Event Score Grant / Deduct */}
       {subTab === 'scores' && (
         <section className="list-section">
-          <h3>이벤트 점수 수동 부여 · 차감</h3>
-          <p className="muted-text" style={{ marginBottom: '12px' }}>
-            특정 회원에게 이벤트 가산점(+) 또는 규정 위반 감점(-)을 부여하고 점수 내역에 사유를 기록합니다.
-          </p>
+          <h3 style={{ marginBottom: '12px' }}>수동 점수 가감</h3>
 
           <form onSubmit={handleAdjustScoreSubmit} className="stack-gap">
             <div className="form-grid">

@@ -452,7 +452,7 @@ export default function MeetingDetailPage({
             className={`btn ${mySafeReturn ? 'btn-primary' : 'btn-outline'}`}
             onClick={handleToggleSafeReturn}
           >
-            {mySafeReturn ? `귀가완료됨 (${mySafeReturn})` : '귀가완료 버튼 누르기'}
+            {mySafeReturn ? `귀가완료 (${mySafeReturn})` : '귀가완료'}
           </button>
 
           {canManage && (
@@ -477,7 +477,7 @@ export default function MeetingDetailPage({
               borderTop: '1px solid var(--color-divider)'
             }}
           >
-            <h3>벙 기본 정보 수정 (벙주·총무·운영진)</h3>
+            <h3>벙 정보 수정</h3>
             <div className="form-grid">
               <div className="form-field">
                 <label htmlFor="edit-mtg-title">벙 제목</label>
@@ -492,9 +492,7 @@ export default function MeetingDetailPage({
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="edit-mtg-loc">
-                  모임 지역 (도/권역 기준: 서울, 경기, 강원, 대전, 광주, 부산, 제주, 해외)
-                </label>
+                <label htmlFor="edit-mtg-loc">모임 지역</label>
                 <input
                   id="edit-mtg-loc"
                   type="text"
@@ -514,7 +512,7 @@ export default function MeetingDetailPage({
                 </datalist>
               </div>
               <div className="form-field">
-                <label htmlFor="edit-mtg-date">날짜 선택 (달력)</label>
+                <label htmlFor="edit-mtg-date">날짜</label>
                 <input
                   id="edit-mtg-date"
                   type="date"
@@ -526,7 +524,7 @@ export default function MeetingDetailPage({
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="edit-mtg-time">시작 시간 선택</label>
+                <label htmlFor="edit-mtg-time">시작 시간</label>
                 <input
                   id="edit-mtg-time"
                   type="time"
@@ -538,7 +536,7 @@ export default function MeetingDetailPage({
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="edit-mtg-treasurer">총무 선택 (입금 계좌 기준)</label>
+                <label htmlFor="edit-mtg-treasurer">총무</label>
                 <select
                   id="edit-mtg-treasurer"
                   value={infoForm.treasurerUid}
@@ -554,7 +552,7 @@ export default function MeetingDetailPage({
                 </select>
               </div>
               <div className="form-field">
-                <label htmlFor="edit-mtg-desc">공지 / 설명</label>
+                <label htmlFor="edit-mtg-desc">안내 메모</label>
                 <input
                   id="edit-mtg-desc"
                   type="text"
@@ -574,7 +572,7 @@ export default function MeetingDetailPage({
                 취소
               </button>
               <button type="submit" className="btn btn-primary btn-sm">
-                변경사항 저장
+                저장
               </button>
             </div>
           </form>
@@ -584,12 +582,7 @@ export default function MeetingDetailPage({
       {/* 2. Multi-Round Venues, Map Links, Payer, Cost & Per-Round Participants */}
       <section className="list-section">
         <div className="section-title-row">
-          <div>
-            <h2>차수별 장소 · 지도 · 참석자 및 비용 등록</h2>
-            <p className="muted-text">
-              본인이 참석한 차수(1차·2차...)를 직접 체크할 수 있으며, 결제한 사람이 차수별 금액·영수증·골든벨을 등록할 수 있습니다.
-            </p>
-          </div>
+          <h2>차수별 장소 · 참석 · 비용</h2>
           <button
             type="button"
             className="btn btn-primary btn-sm"
@@ -618,7 +611,7 @@ export default function MeetingDetailPage({
                 <div className="meeting-top">
                   <div className="badge-group">
                     <span className="platform-badge">{idx + 1}차</span>
-                    <strong>{r.placeName || '장소 미정 (선택 입력)'}</strong>
+                    <strong>{r.placeName || '장소 미정'}</strong>
                     {r.isGoldenBell && (
                       <span className="expedition-pill">
                         골든벨 (
@@ -639,8 +632,8 @@ export default function MeetingDetailPage({
                       }
                     >
                       {amIInRound
-                        ? `내 ${idx + 1}차 참석 ✓`
-                        : `내 ${idx + 1}차 불참 (클릭시 참석)`}
+                        ? `${idx + 1}차 참석 ✓`
+                        : `${idx + 1}차 불참`}
                     </button>
                     {rounds.length > 1 && canManage && (
                       <button
@@ -657,10 +650,10 @@ export default function MeetingDetailPage({
                 {/* Place Name & Naver / Kakao Map Links */}
                 <div className="form-grid">
                   <div className="form-field">
-                    <label>{idx + 1}차 장소명 (선택)</label>
+                    <label>{idx + 1}차 장소</label>
                     <input
                       type="text"
-                      placeholder="예: 강남역 본가 고기집"
+                      placeholder={`${idx + 1}차 상호명`}
                       value={r.placeName || ''}
                       onChange={(e) =>
                         handleUpdateRoundField(idx, {
@@ -670,11 +663,11 @@ export default function MeetingDetailPage({
                     />
                   </div>
                   <div className="form-field">
-                    <label>네이버 / 카카오 지도 링크 URL (선택)</label>
+                    <label>지도 링크</label>
                     <div className="inline-input-row">
                       <input
                         type="url"
-                        placeholder="https://map.kakao.com/... 또는 네이버 지도 링크"
+                        placeholder="네이버/카카오 지도 링크"
                         value={r.mapUrl || ''}
                         onChange={(e) =>
                           handleUpdateRoundField(idx, {
@@ -700,7 +693,6 @@ export default function MeetingDetailPage({
                 {/* Quick Map Search Shortcuts */}
                 {r.placeName && (
                   <div className="badge-group">
-                    <span className="sub-meta">지도 빠른 이동:</span>
                     <a
                       href={naverSearchUrl}
                       target="_blank"
@@ -708,7 +700,7 @@ export default function MeetingDetailPage({
                       className="btn btn-outline btn-sm"
                       style={{ textDecoration: 'none' }}
                     >
-                      네이버 지도 보기
+                      네이버 지도
                     </a>
                     <a
                       href={kakaoSearchUrl}
@@ -717,7 +709,7 @@ export default function MeetingDetailPage({
                       className="btn btn-outline btn-sm"
                       style={{ textDecoration: 'none' }}
                     >
-                      카카오맵 보기
+                      카카오맵
                     </a>
                   </div>
                 )}
@@ -726,7 +718,7 @@ export default function MeetingDetailPage({
                 <div className="round-finance-box">
                   <div className="form-grid">
                     <div className="form-field">
-                      <label>{idx + 1}차 결제한 사람 (직접 선택 가능)</label>
+                      <label>{idx + 1}차 결제자</label>
                       <select
                         value={r.payerUid || treasurerUid}
                         onChange={(e) =>
@@ -744,9 +736,7 @@ export default function MeetingDetailPage({
                     </div>
 
                     <div className="form-field">
-                      <label>
-                        {idx + 1}차 총 비용 (원, 영수증 없어도 금액만 입력 가능)
-                      </label>
+                      <label>{idx + 1}차 비용 (원)</label>
                       <input
                         type="number"
                         min="0"
@@ -778,7 +768,7 @@ export default function MeetingDetailPage({
                             })
                           }
                         />
-                        <span>{idx + 1}차 골든벨 (전액 부담 · 1/N 제외)</span>
+                        <span>골든벨</span>
                       </label>
                       {r.isGoldenBell && (
                         <select
@@ -791,7 +781,7 @@ export default function MeetingDetailPage({
                         >
                           {members.map((m) => (
                             <option key={m.uid} value={m.uid}>
-                              골든벨 주인공: {formatMemberNickname(m)}
+                              {formatMemberNickname(m)}
                             </option>
                           ))}
                         </select>
@@ -800,7 +790,7 @@ export default function MeetingDetailPage({
 
                     <div className="control-inline">
                       <label className="btn btn-outline btn-sm" style={{ cursor: 'pointer' }}>
-                        {r.receiptUrl ? '영수증 사진 변경' : '영수증 사진 첨부(선택)'}
+                        {r.receiptUrl ? '영수증 변경' : '영수증 첨부'}
                         <input
                           type="file"
                           accept="image/*"
@@ -835,20 +825,17 @@ export default function MeetingDetailPage({
 
                   <div className="sub-meta">
                     {r.isGoldenBell
-                      ? `골든벨 적용으로 ${idx + 1}차 참석자 개인 부담금은 0원입니다.`
-                      : `${idx + 1}차 참석 ${rParticipants.length}명 · 1인당 약 ${(
+                      ? `${idx + 1}차 골든벨 (부담금 0원)`
+                      : `${idx + 1}차 참석 ${rParticipants.length}명 · 1인 ${(
                           rSummary.perPersonRounded || 0
                         ).toLocaleString()}원`}
                   </div>
                 </div>
 
-                {/* Per-Round Participant Nickname Chips (Host/Treasurer can click to toggle any member) */}
+                {/* Per-Round Participant Nickname Chips */}
                 <div className="participants-box">
                   <div className="participants-title">
-                    {idx + 1}차 참석자 ({rParticipants.length}명) —{' '}
-                    {canManage
-                      ? '이름 클릭 시 참석/불참 전환 (벙주·총무 수정 가능)'
-                      : '닉네임 표시'}
+                    {idx + 1}차 참석자 ({rParticipants.length}명)
                   </div>
                   <div className="chip-list">
                     {(meeting.applicants || []).map((uid) => {
@@ -886,7 +873,7 @@ export default function MeetingDetailPage({
       {previewReceiptUrl && (
         <section className="list-section highlight-section">
           <div className="section-title-row">
-            <h3>첨부된 영수증 사진 확인</h3>
+            <h3>영수증 사진</h3>
             <button
               type="button"
               className="btn btn-outline btn-sm"
@@ -906,12 +893,7 @@ export default function MeetingDetailPage({
       {/* 3. Treasurer Bank Account & Sponsorships (찬조금) */}
       <section className="list-section">
         <div className="section-title-row">
-          <div>
-            <h2>입금 계좌 (총무) 및 찬조금 관리</h2>
-            <p className="muted-text">
-              참가자들은 총무 계좌로 입금하며, 다른 차수를 결제한 회원은 대납 금액이 자동 차감됩니다.
-            </p>
-          </div>
+          <h2>총무 계좌 · 찬조금</h2>
           <button
             type="button"
             className="btn btn-outline btn-sm"
@@ -920,7 +902,7 @@ export default function MeetingDetailPage({
               setEditingBank((prev) => !prev);
             }}
           >
-            {editingBank ? '계좌 수정 닫기' : '내 계좌번호 등록·수정'}
+            {editingBank ? '닫기' : '내 계좌 등록'}
           </button>
         </div>
 
@@ -928,10 +910,10 @@ export default function MeetingDetailPage({
         <div className="nickname-preview-box">
           <div>
             <div className="preview-caption">
-              총무 ({treasurerMember ? formatMemberNickname(treasurerMember) : treasurerUid}) 입금 계좌
+              총무 ({treasurerMember ? formatMemberNickname(treasurerMember) : treasurerUid})
             </div>
             <div className="preview-value">
-              {treasurerMember?.bankAccount || '등록된 계좌번호가 없습니다 (우측 버튼으로 등록)'}
+              {treasurerMember?.bankAccount || '계좌 미등록'}
             </div>
           </div>
           {treasurerMember?.bankAccount && (
@@ -940,7 +922,7 @@ export default function MeetingDetailPage({
               className="btn btn-primary btn-sm"
               onClick={() => handleCopyAccount(treasurerMember.bankAccount)}
             >
-              {copiedAccount ? '계좌 복사됨' : '계좌 복사'}
+              {copiedAccount ? '복사됨' : '계좌 복사'}
             </button>
           )}
         </div>
@@ -950,13 +932,13 @@ export default function MeetingDetailPage({
           <form onSubmit={handleSaveMyBank} className="inline-input-row" style={{ marginBottom: '12px' }}>
             <input
               type="text"
-              placeholder="예: 카카오뱅크 3333-01-1234567 (예금주: 홍길동)"
+              placeholder="은행명 계좌번호 (예금주)"
               value={myBankInput}
               onChange={(e) => setMyBankInput(e.target.value)}
               style={{ flex: 1, padding: '8px 10px', borderRadius: 'var(--radius-base)', border: '1px solid var(--color-border)' }}
             />
             <button type="submit" className="btn btn-primary btn-sm">
-              내 계좌 저장
+              저장
             </button>
           </form>
         )}
@@ -964,7 +946,7 @@ export default function MeetingDetailPage({
         {/* Sponsorship (찬조금) List & Form */}
         <div className="round-finance-box" style={{ marginTop: '10px' }}>
           <div className="section-title-row" style={{ marginBottom: '8px' }}>
-            <strong>찬조금 내역 (합계: {settlement.totalSponsorship.toLocaleString()}원)</strong>
+            <strong>찬조금 ({settlement.totalSponsorship.toLocaleString()}원)</strong>
           </div>
 
           {sponsorships.length > 0 && (
@@ -1008,7 +990,7 @@ export default function MeetingDetailPage({
             >
               {members.map((m) => (
                 <option key={m.uid} value={m.uid}>
-                  찬조자: {formatMemberNickname(m)}
+                  {formatMemberNickname(m)}
                 </option>
               ))}
             </select>
@@ -1016,7 +998,7 @@ export default function MeetingDetailPage({
               type="number"
               min="1000"
               step="1000"
-              placeholder="찬조 금액 (원)"
+              placeholder="금액(원)"
               value={sponsorForm.amount}
               onChange={(e) =>
                 setSponsorForm({ ...sponsorForm, amount: e.target.value })
@@ -1024,14 +1006,14 @@ export default function MeetingDetailPage({
             />
             <input
               type="text"
-              placeholder="찬조 메모 (선택)"
+              placeholder="메모"
               value={sponsorForm.memo}
               onChange={(e) =>
                 setSponsorForm({ ...sponsorForm, memo: e.target.value })
               }
             />
             <button type="submit" className="btn btn-outline btn-sm">
-              + 찬조금 추가
+              + 추가
             </button>
           </form>
         </div>
@@ -1040,23 +1022,18 @@ export default function MeetingDetailPage({
       {/* 4. Personal Burden Table, Payment Complete, Host Confirm & Safe Return Status */}
       <section className="list-section">
         <div className="section-title-row">
-          <div>
-            <h2>개인별 정산 금액 · 입금 확인 · 귀가 현황</h2>
-            <p className="muted-text">
-              참가자가 [입금 완료]를 누른 뒤 벙주(총무)가 [입금 컨펌]을 누르면 정산이 확인됩니다.
-            </p>
-          </div>
+          <h2>개인별 정산 · 입금 · 귀가</h2>
           <div className="control-inline">
-            <label htmlFor="rounding-select">끝전 처리</label>
+            <label htmlFor="rounding-select">끝전</label>
             <select
               id="rounding-select"
               value={meeting.roundingRule || 'floor100'}
               disabled={!canManage}
               onChange={(e) => handleChangeRounding(e.target.value)}
             >
-              <option value="floor100">100원 단위 버림</option>
-              <option value="ceil100">100원 단위 올림</option>
-              <option value="round1">1원 단위 반올림</option>
+              <option value="floor100">100원 버림</option>
+              <option value="ceil100">100원 올림</option>
+              <option value="round1">1원 반올림</option>
             </select>
           </div>
         </div>
@@ -1136,7 +1113,7 @@ export default function MeetingDetailPage({
                       }`}
                       onClick={() => handleTogglePaid(row.uid)}
                     >
-                      {row.paid ? '입금완료 ✓' : '입금완료 누르기'}
+                      {row.paid ? '입금완료 ✓' : '입금완료'}
                     </button>
 
                     <button
@@ -1147,7 +1124,7 @@ export default function MeetingDetailPage({
                       }`}
                       onClick={() => handleToggleConfirmPayment(row.uid)}
                     >
-                      {row.confirmed ? '벙주컨펌 완료 ✓' : '벙주 컨펌대기'}
+                      {row.confirmed ? '컨펌완료 ✓' : '컨펌대기'}
                     </button>
                   </div>
                 </div>
@@ -1159,12 +1136,12 @@ export default function MeetingDetailPage({
                 >
                   <div>
                     <span className="sub-meta">
-                      계산 부담금: {row.calculatedShare.toLocaleString()}원
+                      부담 {row.calculatedShare.toLocaleString()}원
                     </span>
                     {row.paidOutOfPocket > 0 && (
                       <span className="sub-meta">
                         {' '}
-                        · 본인 결제(대납): -{row.paidOutOfPocket.toLocaleString()}원
+                        · 대납 -{row.paidOutOfPocket.toLocaleString()}원
                       </span>
                     )}
                   </div>
@@ -1172,7 +1149,7 @@ export default function MeetingDetailPage({
                   <div className="badge-group">
                     {canManage && (
                       <div className="control-inline">
-                        <label>부담금 직접수정:</label>
+                        <label>수동금액</label>
                         <input
                           type="number"
                           step="100"
@@ -1192,8 +1169,8 @@ export default function MeetingDetailPage({
 
                     <strong className="score-highlight">
                       {row.netToPay >= 0
-                        ? `입금액: ${row.netToPay.toLocaleString()}원`
-                        : `돌려받을 정산금: +${Math.abs(
+                        ? `입금 ${row.netToPay.toLocaleString()}원`
+                        : `환급 +${Math.abs(
                             row.netToPay
                           ).toLocaleString()}원`}
                     </strong>
@@ -1219,9 +1196,7 @@ export default function MeetingDetailPage({
               className="btn btn-outline btn-sm"
               onClick={handleCopySettlementReport}
             >
-              {copiedReport
-                ? '정산 리포트 복사됨'
-                : '카톡 공유용 정산 리포트 복사'}
+              {copiedReport ? '복사됨' : '정산 리포트 복사'}
             </button>
             {onNavigateTab && (
               <button
@@ -1229,7 +1204,7 @@ export default function MeetingDetailPage({
                 className="btn btn-outline btn-sm"
                 onClick={() => onNavigateTab('reports')}
               >
-                전체 리포트 탭 보기 →
+                리포트 →
               </button>
             )}
           </div>
@@ -1240,7 +1215,7 @@ export default function MeetingDetailPage({
               className="btn btn-primary"
               onClick={handleFinalizeSettlement}
             >
-              모임 최종 마감 · 참석자 점수 일괄 부여
+              모임 마감 · 점수 정산
             </button>
           )}
         </div>

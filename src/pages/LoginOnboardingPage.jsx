@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { suggestNewMemberNickname } from '../nicknameUtils';
 import { formatMemberNickname, ROLE_META } from '../core/communityRules';
-import { HERO_IMAGE_PATH, PAGE_LABELS } from '../core/routeMeta';
+import { HERO_IMAGE_PATH } from '../core/routeMeta';
 import {
   isKakaoConfigured,
   loginWithKakao
 } from '../services/kakaoAuthService';
 
 export default function LoginOnboardingPage({
-  activeTab = 'home',
-  headerSummary = '',
   members,
   onSelectExistingMember,
   onCompleteOnboarding,
@@ -36,8 +34,6 @@ export default function LoginOnboardingPage({
     maritalStatus: onboardingForm.maritalStatus,
     gender: onboardingForm.gender
   });
-
-  const currentPageLabel = PAGE_LABELS[activeTab] || PAGE_LABELS.home;
 
   const handleCopy = async (text) => {
     try {
@@ -98,23 +94,20 @@ export default function LoginOnboardingPage({
           <div className="section-header">
             <span className="platform-badge">
               {pendingKakaoUser
-                ? `카카오 인증 완료 (${pendingKakaoUser.uid})`
-                : '신규 회원 온보딩'}
+                ? `카카오 인증 (${pendingKakaoUser.uid})`
+                : '신입 등록'}
             </span>
-            <h2>프로필 및 규격 닉네임 설정</h2>
-            <p className="muted-text">
-              입력 완료 즉시 <strong>일반회원(Member)</strong>으로 커뮤니티 모임과 랭킹을 이용할 수 있습니다.
-            </p>
+            <h2>프로필 등록</h2>
           </div>
 
           <form onSubmit={handleOnboardingSubmit} className="stack-gap">
             <div className="form-grid">
               <div className="form-field">
-                <label htmlFor="onboard-name">실명 (필수)</label>
+                <label htmlFor="onboard-name">실명</label>
                 <input
                   id="onboard-name"
                   type="text"
-                  placeholder="예: 김힐링"
+                  placeholder="김힐링"
                   required
                   value={onboardingForm.realName}
                   onChange={(e) =>
@@ -126,11 +119,11 @@ export default function LoginOnboardingPage({
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="onboard-city">거주 지역 (닉네임 표시)</label>
+                <label htmlFor="onboard-city">거주 지역</label>
                 <input
                   id="onboard-city"
                   type="text"
-                  placeholder="예: 서울, 경기, 부산"
+                  placeholder="서울, 경기, 부산"
                   required
                   value={onboardingForm.city}
                   onChange={(e) =>
@@ -143,7 +136,7 @@ export default function LoginOnboardingPage({
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="onboard-home">연고지 (원정 보너스 +2점 기준)</label>
+                <label htmlFor="onboard-home">연고지</label>
                 <input
                   id="onboard-home"
                   type="text"
@@ -194,7 +187,7 @@ export default function LoginOnboardingPage({
 
             <div className="nickname-preview-box">
               <div>
-                <div className="preview-caption">생성될 내 규격 닉네임 (가입일 뱃지 자동 부여)</div>
+                <div className="preview-caption">생성될 닉네임</div>
                 <div className="preview-value">{onboardingPreview}</div>
               </div>
               <button
@@ -215,10 +208,10 @@ export default function LoginOnboardingPage({
                   setStep('login');
                 }}
               >
-                이전으로
+                이전
               </button>
               <button type="submit" className="btn btn-primary">
-                프로필 저장 후 입장하기
+                저장 후 입장
               </button>
             </div>
           </form>
@@ -229,17 +222,6 @@ export default function LoginOnboardingPage({
 
   return (
     <div className="list-container">
-      {/* Page-Specific Pre-Login Summary Strip */}
-      <section className="list-section notice-section">
-        <div className="section-title-row" style={{ marginBottom: '4px' }}>
-          <span className="platform-badge">{currentPageLabel} (로그인 전)</span>
-          <span className="sub-meta">로그인 즉시 본문 열람</span>
-        </div>
-        <p className="notice-body">
-          상단 요약: <strong>{headerSummary}</strong>
-        </p>
-      </section>
-
       {/* Common Login Section (Hero Image visible only in 'rose' theme) */}
       <section className="login-hero-section">
         <div className="login-hero-image-wrap rose-only">
@@ -250,26 +232,17 @@ export default function LoginOnboardingPage({
           />
         </div>
         <div className="login-hero-text">
-          <div className="badge-group" style={{ justifyContent: 'center' }}>
-            <span className="platform-badge">Healing78 · since 2024</span>
-            {isKakaoConfigured && (
-              <span className="platform-badge">Kakao 로그인 연동</span>
-            )}
-          </div>
-          <h2>Healing78 회원 로그인</h2>
-          <p className="muted-text">
-            로그인하시면 현재 페이지(<strong>{currentPageLabel}</strong>)의 상세 정보를 바로 확인하실 수 있습니다.
-          </p>
+          <h2>Healing78 로그인</h2>
         </div>
 
-        <div className="stack-gap" style={{ marginTop: '16px' }}>
+        <div className="stack-gap" style={{ marginTop: '14px' }}>
           <button
             type="button"
             className="btn btn-kakao"
             disabled={kakaoLoading}
             onClick={handleKakaoLoginClick}
           >
-            {kakaoLoading ? '카카오 인증 창 연결 중...' : '카카오 계정으로 로그인'}
+            {kakaoLoading ? '연결 중...' : '카카오 로그인'}
           </button>
 
           <div className="login-sub-actions">
@@ -282,7 +255,7 @@ export default function LoginOnboardingPage({
                 setStep('onboarding');
               }}
             >
-              신입 회원 프로필 등록
+              신입 등록
             </button>
             {onNavigateTab && (
               <button
@@ -291,7 +264,7 @@ export default function LoginOnboardingPage({
                 style={{ flex: 1 }}
                 onClick={() => onNavigateTab('nickname')}
               >
-                신입 닉네임 생성기 (비로그인 가능)
+                닉네임 생성기
               </button>
             )}
           </div>
@@ -307,7 +280,7 @@ export default function LoginOnboardingPage({
       {/* Quick Demo Member Login List (Always Expanded) */}
       <section className="list-section">
         <div className="divider-label" style={{ textAlign: 'left', marginBottom: '10px' }}>
-          등록된 회원 계정으로 빠른 로그인 체험 (클릭 시 현재 페이지 즉시 열람)
+          계정 선택 로그인
         </div>
         <div className="divider-list">
           {members.map((m) => (
