@@ -88,7 +88,7 @@ export default function ProfilePage({
             <div className="preview-value">{generatedNickname}</div>
           </div>
           <button type="button" className="btn btn-primary btn-sm" onClick={handleCopy}>
-            {copied ? '✅ 복사됨' : '📋 닉네임 복사'}
+            {copied ? '복사 완료' : '닉네임 복사'}
           </button>
         </div>
 

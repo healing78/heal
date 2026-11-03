@@ -16,6 +16,17 @@
 - **Mobile Safe Area & WebView Optimization:** Android/iOS 네이티브 앱 패키징 환경을 고려하여 `viewport-fit=cover` 및 CSS `env(safe-area-inset-*)` 변수를 기본 레이아웃에 적용합니다.
 - **Platform-Aware Authentication:** 웹 환경에서는 Kakao JS SDK 리다이렉트 방식을 사용하고, Capacitor 네이티브 앱 환경에서는 카카오톡 인앱/네이티브 인증 후 동일한 Firebase Cloud Functions(`kakaoCustomAuth`)를 통해 Firebase 커스텀 토큰을 발급받습니다.
 
+## UI & Theme Design Guidelines (Mandatory)
+- **3-Way Theme System Preservation (`mono` / `excel` / `rose`):**
+  - 디자인을 추가하거나 수정할 때 항상 3종 테마(`mono` 무채색 화이트 기본값, `excel` 스프레드시트 업무 모드, `rose` 힐링 로즈 테마)가 모두 깨짐 없이 동작해야 합니다.
+  - 컴포넌트 내부에 특정 원색을 하드코딩하지 않고 반드시 `src/styles/global.css`의 CSS 변수(`var(--color-primary)`, `var(--color-subtle-bg)`, `var(--color-divider)`, `var(--role-*)`, `var(--radius-base)`)를 사용합니다.
+- **Office Stealth Compliance (`mono` & `excel` Themes):**
+  - 회사나 공공장소에서 열람할 때 화면이 화려하게 튀지 않도록 기본 테마(`mono`)와 엑셀 테마(`excel`)에서는 화려한 배너 이미지나 장식용 이모지를 노출하지 않습니다.
+  - 대표 이미지나 장식 요소는 반드시 `.rose-only` 클래스 또는 `theme === 'rose'` 조건으로 감싸 `rose` 테마에서만 표시되도록 유지합니다.
+- **Mobile Divider-List & Sub-Route Summary Rule:**
+  - 모바일 화면(`< 768px`)은 순백색(`#FFFFFF`) 배경 위의 구분선(Divider) 리스트 구조를 기본으로 유지합니다.
+  - 새로운 페이지나 하위 주소를 추가할 때는 `src/core/routeMeta.js` 및 `scripts/generate-route-meta.mjs`에 **20자 내외의 최상단 핵심 요약 문구(`headerSummary`)**와 카카오톡 공유용 Open Graph 메타데이터를 반드시 함께 등록합니다.
+
 ## Documentation Standards
 - **Directory Structure:** 모든 시스템 및 기능 명세서는 `docs/specs/` 디렉토리 아래에 관리합니다.
   - 시스템/아키텍처 전반: `docs/specs/system-overview.md`
@@ -44,8 +55,9 @@
 - **Branch Strategy (Single Main Branch):**
   - 별도의 기능 브랜치를 나누지 않고 메인 브랜치(단일 브랜치) 하나만 운영하는 **Trunk-Based Development** 방식을 따릅니다.
   - 각 커밋은 동작 가능한 단위로 작게(Atomic Commit) 유지합니다.
-- **Commit & Push Ownership (User Managed):**
+- **Commit & Push Ownership (User Managed & "고고고" Shortcut):**
   - `git commit`과 `git push`는 기본적으로 **사용자가 직접 수행**합니다 (AI 에이전트가 임의로 커밋하거나 푸시하지 않음). 단, **원격으로 접속한 환경에서 요청할 시에는 에이전트를 통한 커밋 및 푸시가 가능**합니다.
+  - **원클릭 통합 실행 명령어 (`"고고고"`):** 사용자가 채팅창에 **"고고고"**(또는 **"풀배포"**, **"원샷"**)라고 입력하면 에이전트는 추가 확인 없이 **① 문서(`docs/specs/`) 동기화 확인 → ② `git add & git commit` → ③ `git push` → ④ Firebase 실서버 배포(`npm run deploy:hosting`)** 3단계(Commit · Push · Deploy)를 연속으로 즉시 수행합니다.
   - 작업 완료 후 결과 리포트를 작성할 때, 변경 사항에 맞는 **추천 Git 커밋 메시지(영문)를 별도 블록으로 함께 제시**합니다.
 - **Commit Message Rules:**
   - 모든 커밋 메시지는 **영문(English)**으로 작성하며 **Conventional Commits** 규격을 따릅니다.

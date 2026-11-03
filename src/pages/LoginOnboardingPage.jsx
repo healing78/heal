@@ -225,9 +225,9 @@ export default function LoginOnboardingPage({
 
   return (
     <div className="list-container">
-      {/* Hero Banner with Uploaded Healing78 Representative Image */}
+      {/* Hero Banner (Image visible only in 'rose' theme; clean typography in 'mono'/'excel' themes) */}
       <section className="login-hero-section">
-        <div className="login-hero-image-wrap">
+        <div className="login-hero-image-wrap rose-only">
           <img
             src={HERO_IMAGE_PATH}
             alt="Healing78 since 2024 대표 이미지"
@@ -254,7 +254,7 @@ export default function LoginOnboardingPage({
             disabled={kakaoLoading}
             onClick={handleKakaoLoginClick}
           >
-            {kakaoLoading ? '카카오 인증 창 연결 중...' : '💬 카카오 계정으로 로그인'}
+            {kakaoLoading ? '카카오 인증 창 연결 중...' : '카카오 계정으로 로그인'}
           </button>
 
           <div className="login-sub-actions">
@@ -267,7 +267,7 @@ export default function LoginOnboardingPage({
                 setStep('onboarding');
               }}
             >
-              ✨ 신입 회원 프로필 등록
+              신입 회원 프로필 등록
             </button>
             {onNavigateTab && (
               <button
@@ -276,7 +276,7 @@ export default function LoginOnboardingPage({
                 style={{ flex: 1 }}
                 onClick={() => onNavigateTab('nickname')}
               >
-                🏷️ 닉네임 생성기 바로가기
+                닉네임 생성기 바로가기
               </button>
             )}
           </div>

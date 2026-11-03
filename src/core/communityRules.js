@@ -1,13 +1,13 @@
 import { generateNickname } from '../nicknameUtils';
 
 export const ROLE_META = {
-  Leader: { label: '방장', badgeColor: '#e11d48', isAdmin: true },
-  Deputy: { label: '부방장', badgeColor: '#7c3aed', isAdmin: true },
-  VIP: { label: 'VIP', badgeColor: '#db2777', isAdmin: false },
-  Member: { label: '일반회원', badgeColor: '#475569', isAdmin: false },
-  Wanderer: { label: '방랑자', badgeColor: '#d97706', isAdmin: false },
+  Leader: { label: '방장', badgeColor: 'var(--role-leader, #1e293b)', isAdmin: true },
+  Deputy: { label: '부방장', badgeColor: 'var(--role-deputy, #334155)', isAdmin: true },
+  VIP: { label: 'VIP', badgeColor: 'var(--role-vip, #475569)', isAdmin: false },
+  Member: { label: '일반회원', badgeColor: 'var(--role-member, #64748b)', isAdmin: false },
+  Wanderer: { label: '방랑자', badgeColor: 'var(--role-wanderer, #78716c)', isAdmin: false },
   Withdrawn: { label: '탈퇴자', badgeColor: '#94a3b8', isAdmin: false },
-  Expelled: { label: '강퇴자', badgeColor: '#dc2626', isAdmin: false }
+  Expelled: { label: '강퇴자', badgeColor: '#7f1d1d', isAdmin: false }
 };
 
 export const ROLE_KEYS = Object.keys(ROLE_META);

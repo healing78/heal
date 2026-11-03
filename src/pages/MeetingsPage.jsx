@@ -142,7 +142,7 @@ export default function MeetingsPage({
         {focusedMeeting && (
           <div className="focused-meeting-bar">
             <span>
-              📌 공유된 벙 보기: <strong>{focusedMeeting.title}</strong>
+              선택된 벙: <strong>{focusedMeeting.title}</strong>
             </span>
             <button
               type="button"
@@ -321,7 +321,7 @@ export default function MeetingsPage({
                       >
                         {mtg.type === 'Official' ? '공식 모임' : '자율/번개'}
                       </span>
-                      <span className="location-pill">📍 {mtg.location}</span>
+                      <span className="location-pill">{mtg.location}</span>
                       <span
                         className={`status-pill ${
                           mtg.status === 'settled' ? 'settled' : 'open'
@@ -331,7 +331,7 @@ export default function MeetingsPage({
                       </span>
                       {mtg.status === 'open' && myScoreInfo.isExpedition && (
                         <span className="expedition-pill">
-                          🚀 원정 +2점 대상
+                          원정 +2점 대상
                         </span>
                       )}
                     </div>
@@ -390,7 +390,7 @@ export default function MeetingsPage({
                       className="btn btn-outline btn-sm"
                       onClick={() => onShareMeeting && onShareMeeting(mtg)}
                     >
-                      🔗 이 벙 카톡 공유
+                      이 벙 카톡 공유
                     </button>
 
                     {mtg.status === 'open' && (

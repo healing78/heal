@@ -6,6 +6,7 @@ import {
   ROLE_META
 } from '../../core/communityRules';
 import { HERO_IMAGE_PATH } from '../../core/routeMeta';
+import { THEME_OPTIONS } from '../../core/theme';
 import { isFirebaseConfigured } from '../../services/firebase';
 
 const BASE_NAV_ITEMS = [
@@ -26,6 +27,8 @@ export default function AppLayout({
   headerSummary,
   onShareCurrentRoute,
   shareToast,
+  theme,
+  onChangeTheme,
   children
 }) {
   const [platformInfo, setPlatformInfo] = useState(() => getPlatformInfo());
@@ -52,9 +55,11 @@ export default function AppLayout({
       : 'PC Web';
 
   const dbLabel = isFirebaseConfigured ? 'Firestore DB' : 'Local DB';
+  const isRoseTheme = theme === 'rose';
+  const isExcelTheme = theme === 'excel';
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell theme-${theme}`}>
       {/* PC Left Sidebar (Visible >= 768px) */}
       <aside className="pc-sidebar">
         <div className="pc-brand-box">
@@ -66,11 +71,17 @@ export default function AppLayout({
             onKeyDown={(e) => e.key === 'Enter' && onChangeTab('home')}
             style={{ cursor: 'pointer' }}
           >
-            <img
-              src={HERO_IMAGE_PATH}
-              alt="Healing78"
-              className="brand-avatar"
-            />
+            {isRoseTheme ? (
+              <img
+                src={HERO_IMAGE_PATH}
+                alt="Healing78"
+                className="brand-avatar"
+              />
+            ) : (
+              <span className="brand-mono-badge">
+                {isExcelTheme ? 'XLS' : 'H78'}
+              </span>
+            )}
             <div>
               <div className="brand-name-row">
                 <span>Healing78</span>
@@ -81,7 +92,21 @@ export default function AppLayout({
           </div>
 
           <div className="pc-summary-pill" title={headerSummary}>
-            {headerSummary}
+            {isExcelTheme ? `fx  ${headerSummary}` : headerSummary}
+          </div>
+
+          {/* PC Theme Switcher */}
+          <div className="theme-switcher-group" role="group" aria-label="화면 테마 선택">
+            {THEME_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={`theme-chip-btn ${theme === opt.id ? 'active' : ''}`}
+                onClick={() => onChangeTheme(opt.id)}
+              >
+                {opt.shortLabel}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -93,7 +118,7 @@ export default function AppLayout({
                 className={`nav-btn ${activeTab === item.id ? 'active' : ''}`}
                 onClick={() => onChangeTab(item.id)}
               >
-                <span className="nav-icon">{item.icon}</span>
+                {isRoseTheme && <span className="nav-icon">{item.icon}</span>}
                 <span>{item.label}</span>
               </button>
             </li>
@@ -108,7 +133,7 @@ export default function AppLayout({
             style={{ width: '100%', marginBottom: '8px' }}
             onClick={onShareCurrentRoute}
           >
-            🔗 현재 페이지 카톡 공유
+            {isRoseTheme ? '🔗 현재 페이지 카톡 공유' : '현재 페이지 링크 공유'}
           </button>
 
           <label htmlFor="pc-user-switch" className="switcher-label">
@@ -144,7 +169,7 @@ export default function AppLayout({
 
       {/* Main Content Wrapper */}
       <div className="main-container">
-        {/* Mobile Top Header: Small circular logo + 20-char key info summary + Share button */}
+        {/* Mobile Top Header: 20-char key info summary + Theme Switcher [무채색/엑셀/로즈] + Share */}
         <header className="mobile-header">
           <div
             className="mobile-header-left"
@@ -153,15 +178,42 @@ export default function AppLayout({
             onClick={() => onChangeTab('home')}
             onKeyDown={(e) => e.key === 'Enter' && onChangeTab('home')}
           >
-            <img
-              src={HERO_IMAGE_PATH}
-              alt="Healing78 로고"
-              className="header-logo-thumb"
-            />
+            {isRoseTheme && (
+              <img
+                src={HERO_IMAGE_PATH}
+                alt="Healing78 로고"
+                className="header-logo-thumb"
+              />
+            )}
+            {isExcelTheme && (
+              <span className="excel-fx-badge" aria-hidden="true">
+                fx
+              </span>
+            )}
             <h1 className="header-summary-title">{headerSummary}</h1>
           </div>
 
           <div className="mobile-header-actions">
+            {/* Compact 3-way Theme Switcher: [무채색 | 엑셀 | 로즈] */}
+            <div
+              className="mobile-theme-toggle"
+              role="group"
+              aria-label="테마 전환"
+            >
+              {THEME_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  className={`mobile-theme-btn ${
+                    theme === opt.id ? 'active' : ''
+                  }`}
+                  onClick={() => onChangeTheme(opt.id)}
+                >
+                  {opt.shortLabel}
+                </button>
+              ))}
+            </div>
+
             {!currentUser && activeTab !== 'login' && (
               <button
                 type="button"
@@ -177,10 +229,20 @@ export default function AppLayout({
               onClick={onShareCurrentRoute}
               aria-label="현재 주소 및 요약 공유"
             >
-              🔗 공유
+              공유
             </button>
           </div>
         </header>
+
+        {/* Optional Excel Column Header Bar (A | B | C | D) when Excel Theme is active */}
+        {isExcelTheme && (
+          <div className="excel-col-bar" aria-hidden="true">
+            <span className="excel-row-num">1</span>
+            <span>A (구분/항목)</span>
+            <span>B (상세 데이터)</span>
+            <span>C (상태/점수)</span>
+          </div>
+        )}
 
         {shareToast && (
           <div className="share-toast" role="status">
@@ -205,9 +267,11 @@ export default function AppLayout({
               className={`tab-btn ${activeTab === item.id ? 'active' : ''}`}
               onClick={() => onChangeTab(item.id)}
             >
-              <span className="tab-icon" aria-hidden="true">
-                {item.icon}
-              </span>
+              {isRoseTheme && (
+                <span className="tab-icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+              )}
               <span className="tab-label">{item.label}</span>
             </button>
           ))}

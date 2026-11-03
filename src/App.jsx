@@ -14,6 +14,7 @@ import {
   shareRouteInfo,
   syncDocumentMeta
 } from './core/routeMeta';
+import { getSavedTheme, saveAndApplyTheme } from './core/theme';
 import {
   adminAdjustEventScore,
   adminUpdateMember,
@@ -55,6 +56,16 @@ export default function App() {
     initialRoute.meetingId
   );
   const [shareToast, setShareToast] = useState('');
+  const [theme, setTheme] = useState(() => getSavedTheme());
+
+  useEffect(() => {
+    saveAndApplyTheme(theme);
+  }, [theme]);
+
+  const handleChangeTheme = (nextTheme) => {
+    const applied = saveAndApplyTheme(nextTheme);
+    setTheme(applied);
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeCommunityData((snapshot) => {
@@ -117,7 +128,7 @@ export default function App() {
     const result = await shareRouteInfo(currentMeta);
     if (result.copied) {
       showShareFeedback(
-        `📋 카톡 공유 문구 복사됨: "${currentMeta.headerSummary}"`
+        `카톡 공유 문구 복사됨: "${currentMeta.headerSummary}"`
       );
     }
   };
@@ -139,7 +150,7 @@ export default function App() {
 
     const result = await shareRouteInfo(mtgMeta);
     if (result.copied) {
-      showShareFeedback(`📋 벙 안내 복사됨: "${mtgMeta.headerSummary}"`);
+      showShareFeedback(`벙 안내 복사됨: "${mtgMeta.headerSummary}"`);
     }
   };
 
@@ -240,6 +251,8 @@ export default function App() {
       headerSummary={currentMeta.headerSummary}
       onShareCurrentRoute={handleShareCurrentRoute}
       shareToast={shareToast}
+      theme={theme}
+      onChangeTheme={handleChangeTheme}
     >
       {activeTab === 'home' && (
         <HomePage

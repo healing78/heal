@@ -1,21 +1,21 @@
 # Mobile Web Design and Sub-Route Sharing Specification
 
 ## Overview
-Healing78 커뮤니티 관리 시스템의 **화이트(`#FFFFFF`) 배경 + 로즈 핑크·바이올렛 테마**, **구분선(Divider) 중심 모바일 리스트 레이아웃**, 그리고 카카오톡 오픈채팅방 링크 공유에 최적화된 **하위 주소 라우팅 및 최상단 20자 요약 헤더 규격**을 정의합니다.
+Healing78 커뮤니티 관리 시스템의 **3종 멀티 테마 시스템(① 오피스 모노 무채색 기본, ② 엑셀 시트 업무용 스텔스 모드, ③ 힐링 로즈 테마)**, **구분선(Divider) 및 시트 중심 모바일 리스트 레이아웃**, 그리고 카카오톡 오픈채팅방 링크 공유에 최적화된 **하위 주소 라우팅 및 최상단 20자 요약 헤더 규격**을 정의합니다.
 
 ## Business Rules & Logic
 
-### 1. Visual Identity & Color System (`src/styles/global.css`)
-- **배경 및 표면 컬러:**
-  - 기본 배경색(`--color-bg`) 및 섹션 표면(`--color-surface`)을 순백색(`#FFFFFF`)으로 통일하여 모바일 웹에서의 가독성과 개방감을 극대화합니다.
-- **브랜드 포인트 컬러 (`Healing78` 대표 이미지 기반):**
-  - **Primary (Rose Pink):** `#e11d48` ~ `#db2777` (주요 액션 버튼, 활성 탭, 강조 텍스트, 핵심 배지).
-  - **Accent (Violet Purple):** `#8b5cf6` (공식 모임 배지, 정산 액션, 가이드 포인트).
-  - **Subtle Tint:** `#fff1f2`(연핑크), `#f3e8ff`(연보라) 배경을 닉네임 프리뷰 박스와 공지 배너에 적용합니다.
-- **대표 이미지(`/healing78-logo.jpg`) 노출 원칙:**
-  - **로그인/온보딩 화면 (`/login`):** 상단에 대형 히어로 배너 이미지로 노출하여 커뮤니티 아이덴티티(`Healing78 since 2024`)를 강조합니다.
-  - **앱 내부 화면:** 상단 헤더 좌측에 `30px` 원형 썸네일 아이콘으로만 심플하게 표시합니다.
-  - **카카오톡 공유 미리보기 (`og:image`):** `https://healing78.web.app/healing78-logo.jpg`를 기본 오픈그래프 이미지로 제공합니다.
+### 1. 3-Way Theme System & Office Stealth Mode (`src/core/theme.js`, `src/styles/global.css`)
+- **기본 테마 (`mono`: 오피스 모노 — 무채색 화이트):**
+  - 최초 접속 시 기본 적용되는 테마로, 순백색(`#FFFFFF`) 배경과 차콜 슬레이트(`#1e293b` ~ `#334155`) 무채색 포인트만 사용하여 회사나 공공장소에서도 부담 없이 열람할 수 있습니다.
+  - 상단 원형 꽃/유니콘 로고, 로그인 화면 대형 대표 이미지, 화려한 이모지를 모두 숨기고 깔끔한 텍스트 중심으로 렌더링합니다.
+- **엑셀 시트 테마 (`excel`: 스프레드시트 업무 모드):**
+  - MS Excel 시그니처 딥 그린(`#107c41`)과 직각 셀 격자 테두리(`1px solid #d1d5db`), 짝수 행 교차 배경(`#f9fafb`), 상단 `fx` 수식 표시줄 및 `A | B | C` 열 헤더, 하단 시트 탭 디자인을 적용하여 업무용 스프레드시트 화면처럼 보이게 합니다.
+- **힐링 로즈 테마 (`rose`: 대표 이미지 화사한 테마):**
+  - `Healing78` 대표 이미지의 로즈 핑크(`#e11d48`) & 바이올렛(`#8b5cf6`) 컬러와 로그인 대형 히어로 이미지, 상단 원형 썸네일 아이콘을 모두 표시합니다.
+- **상단 원터치 테마 전환기 (`.mobile-theme-toggle`, `.theme-switcher-group`):**
+  - 모바일 상단 헤더 우측과 PC 좌측 사이드바 상단에 `[무채색 | 엑셀 | 로즈]` 3단 토글 스위치 제공.
+  - 선택된 테마는 `localStorage`(`healing78_ui_theme_v1`)에 영구 저장되며 `<html data-theme="...">` 속성과 `<meta name="theme-color">`에 즉시 반영됩니다.
 
 ### 2. Mobile Divider-List Layout & Adaptive Desktop Sidebar
 - **모바일 웹 (`< 768px`):**

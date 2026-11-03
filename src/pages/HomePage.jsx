@@ -71,7 +71,7 @@ export default function HomePage({
               className="btn btn-outline btn-sm"
               onClick={handleCopyNickname}
             >
-              {copied ? '✅ 복사됨' : '📋 닉네임 복사'}
+              {copied ? '복사 완료' : '닉네임 복사'}
             </button>
           </div>
 
@@ -115,7 +115,7 @@ export default function HomePage({
               style={{ flex: 1 }}
               onClick={() => onNavigateTab('login')}
             >
-              💬 로그인 · 신입 등록
+              로그인 · 신입 등록
             </button>
             <button
               type="button"
@@ -123,7 +123,7 @@ export default function HomePage({
               style={{ flex: 1 }}
               onClick={() => onNavigateTab('nickname')}
             >
-              🏷️ 신입 닉네임 생성기
+              신입 닉네임 생성기
             </button>
           </div>
         </section>
@@ -166,10 +166,10 @@ export default function HomePage({
                       >
                         {mtg.type === 'Official' ? '공식 모임' : '자율/번개'}
                       </span>
-                      <span className="location-pill">📍 {mtg.location}</span>
+                      <span className="location-pill">{mtg.location}</span>
                       {scorePreview.isExpedition && (
                         <span className="expedition-pill">
-                          🚀 원정 +2점 (총 +{scorePreview.total}점)
+                          원정 +2점 (총 +{scorePreview.total}점)
                         </span>
                       )}
                     </div>
@@ -193,7 +193,7 @@ export default function HomePage({
                           className="btn btn-outline btn-sm"
                           onClick={() => onShareMeeting(mtg)}
                         >
-                          🔗 벙 공유
+                          벙 공유
                         </button>
                       )}
                       <button

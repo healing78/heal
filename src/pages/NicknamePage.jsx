@@ -51,7 +51,7 @@ export default function NicknamePage({
               className="btn btn-outline btn-sm"
               onClick={onSharePage}
             >
-              🔗 이 페이지 공유
+              이 페이지 공유
             </button>
           )}
         </div>
@@ -69,7 +69,7 @@ export default function NicknamePage({
             className="btn btn-primary"
             onClick={handleCopy}
           >
-            {copied ? '✅ 복사 완료!' : '📋 닉네임 복사'}
+            {copied ? '복사 완료' : '닉네임 복사'}
           </button>
         </div>
       </section>
