@@ -13,6 +13,7 @@ export default function HomePage({
   communityConfig,
   onToggleApplyMeeting,
   onNavigateTab,
+  onOpenMeetingDetail,
   onShareMeeting
 }) {
   const [copied, setCopied] = useState(false);
@@ -159,33 +160,58 @@ export default function HomePage({
                 <div key={mtg.id} className="list-item-row meeting-item">
                   <div className="meeting-top">
                     <div className="badge-group">
+                      <span className="platform-badge">#{mtg.id}</span>
                       <span
                         className={`type-pill ${
                           mtg.type === 'Official' ? 'official' : 'casual'
                         }`}
                       >
-                        {mtg.type === 'Official' ? '공식 모임' : '자율/번개'}
+                        {mtg.type === 'Official' ? '공식' : '자율'}
                       </span>
                       <span className="location-pill">{mtg.location}</span>
                       {scorePreview.isExpedition && (
                         <span className="expedition-pill">
-                          원정 +2점 (총 +{scorePreview.total}점)
+                          {scorePreview.label}
                         </span>
                       )}
                     </div>
-                    <span className="muted-text">{mtg.date}</span>
+                    <strong className="concise-datetime">{mtg.date}</strong>
                   </div>
 
-                  <h3>{mtg.title}</h3>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className="concise-title-box"
+                    onClick={() =>
+                      onOpenMeetingDetail
+                        ? onOpenMeetingDetail(mtg.id)
+                        : onNavigateTab('meetings', { id: mtg.id })
+                    }
+                    onKeyDown={(e) =>
+                      e.key === 'Enter' &&
+                      (onOpenMeetingDetail
+                        ? onOpenMeetingDetail(mtg.id)
+                        : onNavigateTab('meetings', { id: mtg.id }))
+                    }
+                  >
+                    <h3 className="concise-title">{mtg.title}</h3>
+                  </div>
                   <p className="muted-text">
-                    장소: {mtg.placeDetail} · 벙주:{' '}
-                    {hostMember ? formatMemberNickname(hostMember) : mtg.hostUid}
+                    벙주: {hostMember ? formatMemberNickname(hostMember) : mtg.hostUid}
                   </p>
 
                   <div className="meeting-footer">
-                    <span className="applicant-count">
-                      참석 신청 <strong>{mtg.applicants.length}명</strong>
-                    </span>
+                    <button
+                      type="button"
+                      className="btn-link"
+                      onClick={() =>
+                        onOpenMeetingDetail
+                          ? onOpenMeetingDetail(mtg.id)
+                          : onNavigateTab('meetings', { id: mtg.id })
+                      }
+                    >
+                      벙 상세·정산 (#{mtg.id}) →
+                    </button>
                     <div className="btn-row">
                       {onShareMeeting && (
                         <button
@@ -193,7 +219,7 @@ export default function HomePage({
                           className="btn btn-outline btn-sm"
                           onClick={() => onShareMeeting(mtg)}
                         >
-                          벙 공유
+                          공유
                         </button>
                       )}
                       <button
@@ -206,7 +232,7 @@ export default function HomePage({
                         {isApplied
                           ? '신청 취소'
                           : currentUser
-                            ? '빠른 참석 신청'
+                            ? `참석 신청 (${(mtg.applicants || []).length}명)`
                             : '로그인 후 신청'}
                       </button>
                     </div>

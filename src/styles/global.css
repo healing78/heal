@@ -1296,6 +1296,184 @@ h3 {
   background: var(--color-subtle-bg);
 }
 
+/* Concise Meeting List Cards (/meetings) */
+.concise-meeting-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.concise-datetime {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.concise-title-box {
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.concise-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.35;
+}
+
+.concise-title-box:hover .concise-title {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.concise-nicknames-box {
+  background: var(--color-subtle-bg);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-base);
+  padding: 8px 10px;
+}
+
+/* Individual Meeting Detail Page (/meetings/YYMMDD01) */
+.meeting-detail-hero {
+  padding: 8px 0 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meeting-datetime-emphasis {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.meeting-title-emphasis {
+  font-size: 1.24rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.35;
+}
+
+.meeting-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: var(--color-subtle-bg);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-base);
+  padding: 10px 12px;
+  margin-top: 6px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.84rem;
+}
+
+.meta-label {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.meeting-quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.inline-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.inline-input-row input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  font-size: 0.85rem;
+}
+
+/* Member Toggle Chips (Round Attendance Check) */
+.member-chip-btn {
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: #ffffff;
+  color: var(--color-text);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.12s ease;
+}
+
+.member-chip-btn.active {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.member-chip-btn.inactive {
+  background: #f8fafc;
+  color: var(--color-text-muted);
+  border-color: var(--color-divider);
+}
+
+.member-chip-btn:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+/* Round Finance & Receipt Box */
+.round-finance-box {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--color-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.round-extra-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.receipt-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.receipt-preview-box {
+  margin-top: 4px;
+}
+
+.receipt-preview-img {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border);
+  object-fit: contain;
+  background: #f8fafc;
+}
+
 /* Desktop Breakpoint (>= 768px) */
 @media (min-width: 768px) {
   .pc-sidebar {

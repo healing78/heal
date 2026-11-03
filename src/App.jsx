@@ -27,12 +27,14 @@ import {
   subscribeCommunityData,
   toggleMeetingApplicant,
   updateCommunityConfig,
+  updateMeetingDetails,
   updateMemberProfile
 } from './services/communityService';
 import { logoutFromKakao } from './services/kakaoAuthService';
 import LoginOnboardingPage from './pages/LoginOnboardingPage';
 import HomePage from './pages/HomePage';
 import MeetingsPage from './pages/MeetingsPage';
+import ReportsPage from './pages/ReportsPage';
 import RankingPage from './pages/RankingPage';
 import NicknamePage from './pages/NicknamePage';
 import ProfilePage from './pages/ProfilePage';
@@ -104,6 +106,10 @@ export default function App() {
   const handleSelectMeetingId = (meetingId) => {
     setSelectedMeetingId(meetingId);
     pushRouteUrl('meetings', meetingId ? { id: meetingId } : {});
+  };
+
+  const handleOpenMeetingDetail = (meetingId) => {
+    navigateToTab('meetings', { id: meetingId });
   };
 
   // Compute dynamic 20-char top header summary & document.title for current page (Before & After Login)
@@ -201,6 +207,10 @@ export default function App() {
     );
   };
 
+  const handleUpdateMeeting = async (meetingId, patch) => {
+    await updateMeetingDetails(meetingId, patch);
+  };
+
   const handleUpdateProfile = async (updatedFields) => {
     if (!currentUser) return;
     await updateMemberProfile(currentUser.uid, updatedFields);
@@ -272,8 +282,21 @@ export default function App() {
           onShareMeeting={handleShareSpecificMeeting}
           onToggleApplyMeeting={handleToggleApplyMeeting}
           onCreateMeeting={handleCreateMeeting}
+          onUpdateMeeting={handleUpdateMeeting}
           onSettleMeeting={handleSettleMeeting}
+          onUpdateMemberProfile={handleUpdateProfile}
           onNavigateTab={navigateToTab}
+        />
+      );
+    }
+
+    if (activeTab === 'reports') {
+      return (
+        <ReportsPage
+          currentUser={currentUser}
+          members={members}
+          meetings={meetings}
+          onOpenMeetingDetail={handleOpenMeetingDetail}
         />
       );
     }
@@ -321,6 +344,7 @@ export default function App() {
         communityConfig={communityConfig}
         onToggleApplyMeeting={handleToggleApplyMeeting}
         onNavigateTab={navigateToTab}
+        onOpenMeetingDetail={handleOpenMeetingDetail}
         onShareMeeting={handleShareSpecificMeeting}
       />
     );

@@ -7,6 +7,7 @@ export const HERO_IMAGE_URL = `${SITE_ORIGIN}${HERO_IMAGE_PATH}`;
 export const VALID_TABS = [
   'home',
   'meetings',
+  'reports',
   'ranking',
   'nickname',
   'profile',
@@ -17,6 +18,7 @@ export const VALID_TABS = [
 export const PAGE_LABELS = {
   home: '홈 · 전체 공지',
   meetings: '모임(벙) 일정',
+  reports: '모임·개인 리포트',
   ranking: '랭킹 · 친구 정보',
   nickname: '신입 규격 닉네임 생성',
   profile: '내 정보 · 프로필 관리',
@@ -51,42 +53,72 @@ export function formatCompactDate(dateStr) {
 
 /**
  * Parse current browser URL into { tab, meetingId, memberQuery }
+ * Supports both '/meetings/26110701' and '/meetings?id=26110701'
  */
 export function parseCurrentRoute() {
   if (typeof window === 'undefined') {
     return { tab: 'home', meetingId: null, memberQuery: '' };
   }
 
-  const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  const segments = window.location.pathname
+    .replace(/^\/+|\/+$/g, '')
+    .split('/')
+    .filter(Boolean);
+
+  const firstSeg = (segments[0] || '').toLowerCase();
+  const secondSeg = segments[1] || null;
+
   const params = new URLSearchParams(window.location.search);
-  const meetingId = params.get('id') || null;
+  const queryMeetingId = params.get('id') || null;
   const memberQuery = params.get('q') || '';
 
-  if (!rawPath || rawPath === 'home') {
-    return { tab: 'home', meetingId, memberQuery };
+  if (!firstSeg || firstSeg === 'home') {
+    return { tab: 'home', meetingId: queryMeetingId, memberQuery };
   }
 
-  if (VALID_TABS.includes(rawPath)) {
-    return { tab: rawPath, meetingId, memberQuery };
+  if (firstSeg === 'meetings') {
+    return {
+      tab: 'meetings',
+      meetingId: secondSeg || queryMeetingId,
+      memberQuery
+    };
   }
 
-  return { tab: 'home', meetingId, memberQuery };
+  // Also support direct '/26110701' (8-digit YYMMDDXX) URLs if shared directly
+  if (/^\d{8}$/.test(firstSeg)) {
+    return {
+      tab: 'meetings',
+      meetingId: firstSeg,
+      memberQuery
+    };
+  }
+
+  if (VALID_TABS.includes(firstSeg)) {
+    return { tab: firstSeg, meetingId: queryMeetingId, memberQuery };
+  }
+
+  return { tab: 'home', meetingId: null, memberQuery };
 }
 
 /**
- * Push browser history URL for a given tab and optional query params
+ * Push browser history URL for a given tab and optional query/path params
  */
 export function pushRouteUrl(tab, params = {}) {
   if (typeof window === 'undefined') return;
   const cleanTab = VALID_TABS.includes(tab) ? tab : 'home';
-  const path = cleanTab === 'home' ? '/' : `/${cleanTab}`;
+
+  let path = cleanTab === 'home' ? '/' : `/${cleanTab}`;
   const searchParams = new URLSearchParams();
 
-  Object.entries(params).forEach(([key, val]) => {
-    if (val !== undefined && val !== null && String(val).trim() !== '') {
-      searchParams.set(key, String(val).trim());
-    }
-  });
+  if (cleanTab === 'meetings' && params.id) {
+    path = `/meetings/${encodeURIComponent(String(params.id).trim())}`;
+  } else {
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && String(val).trim() !== '') {
+        searchParams.set(key, String(val).trim());
+      }
+    });
+  }
 
   const queryString = searchParams.toString();
   const nextUrl = queryString ? `${path}?${queryString}` : path;
@@ -98,7 +130,6 @@ export function pushRouteUrl(tab, params = {}) {
 
 /**
  * Build 20-char top header summary, document.title, and share URL for current state
- * Works identically before and after login so each page always displays its 20-char summary at the top.
  */
 export function buildRouteMeta({
   tab,
@@ -113,10 +144,10 @@ export function buildRouteMeta({
     .sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
   const selectedMeeting = meetingId
-    ? meetings.find((m) => m.id === meetingId)
+    ? meetings.find((m) => String(m.id) === String(meetingId))
     : null;
 
-  // 1. Meetings (/meetings): "1103 인천, 1104 수원" format
+  // 1. Meetings (/meetings or /meetings/26110701)
   if (tab === 'meetings') {
     if (selectedMeeting) {
       const mmdd = formatCompactDate(selectedMeeting.date);
@@ -124,9 +155,9 @@ export function buildRouteMeta({
       const headerSummary = toShortSummary(rawSummary, 20);
       return {
         headerSummary,
-        pageTitle: `${headerSummary} | Healing78 모임`,
-        description: `일시: ${selectedMeeting.date} · 지역: ${selectedMeeting.location} (${selectedMeeting.title})`,
-        sharePath: `/meetings?id=${encodeURIComponent(selectedMeeting.id)}`
+        pageTitle: `${headerSummary} | Healing78 벙`,
+        description: `[#${selectedMeeting.id}] 일시: ${selectedMeeting.date} · 지역: ${selectedMeeting.location} (${selectedMeeting.title})`,
+        sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}`
       };
     }
 
@@ -146,7 +177,18 @@ export function buildRouteMeta({
     };
   }
 
-  // 2. Ranking (/ranking): "1위 김민준, 2위 이서연" format
+  // 2. Reports (/reports)
+  if (tab === 'reports') {
+    const headerSummary = toShortSummary('모임별·개인별 정산 리포트', 20);
+    return {
+      headerSummary,
+      pageTitle: `${headerSummary} | Healing78 리포트`,
+      description: '모임별 차수/찬조/골든벨 정산 내역 및 개인별 참석·회비·점수 리포트',
+      sharePath: '/reports'
+    };
+  }
+
+  // 3. Ranking (/ranking): "1위 김민준, 2위 이서연" format
   if (tab === 'ranking') {
     const sorted = [...members].sort((a, b) => b.totalScore - a.totalScore);
     const rankText =
@@ -165,7 +207,7 @@ export function buildRouteMeta({
     };
   }
 
-  // 3. Nickname (/nickname): 신입 공지 (Newcomer Notice Summary)
+  // 4. Nickname (/nickname): 신입 공지 (Newcomer Notice Summary)
   if (tab === 'nickname') {
     const rawNewcomer =
       communityConfig?.newcomerSummary ||
@@ -181,7 +223,7 @@ export function buildRouteMeta({
     };
   }
 
-  // 4. Profile (/profile): Before login vs After login
+  // 5. Profile (/profile)
   if (tab === 'profile') {
     const headerSummary = currentUser
       ? toShortSummary(formatMemberNickname(currentUser), 20)
@@ -189,12 +231,12 @@ export function buildRouteMeta({
     return {
       headerSummary,
       pageTitle: `${headerSummary} | Healing78 내정보`,
-      description: '내 프로필 수정 및 카카오톡 오픈채팅방 규격 닉네임 원클릭 복사',
+      description: '내 프로필·계좌 수정 및 카카오톡 오픈채팅방 규격 닉네임 원클릭 복사',
       sharePath: '/profile'
     };
   }
 
-  // 5. Admin (/admin)
+  // 6. Admin (/admin)
   if (tab === 'admin') {
     const headerSummary = toShortSummary(`운영관리 · 회원 ${members.length}명`, 20);
     return {
@@ -205,7 +247,7 @@ export function buildRouteMeta({
     };
   }
 
-  // 6. Login (/login)
+  // 7. Login (/login)
   if (tab === 'login') {
     const headerSummary = toShortSummary(
       communityConfig?.homeSummary || '공지 · 규격 닉네임 및 벙 규칙',
@@ -219,7 +261,7 @@ export function buildRouteMeta({
     };
   }
 
-  // 7. Default: Home ('home'): 홈 공지 (Home Notice Summary)
+  // 8. Default: Home ('home')
   const rawHomeNotice =
     communityConfig?.homeSummary ||
     communityConfig?.noticeTitle ||

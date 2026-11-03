@@ -17,36 +17,47 @@
   - `uid`: string (Firebase Auth UID)
   - `realName`: string (실명)
   - `city`: string (거주 도시/지역)
-  - `maritalStatus`: string (결혼 여부: 'M' = 기혼, 'S' = 미혼, 'D' = 돌싱)
-  - `gender`: string (성별: 'M' = 남성, 'F' = 여성)
-  - `role`: string (회원 등급: Leader, Deputy, VIP, Member 등)
-  - `badge`: string (참석 횟수 또는 가입일 기반 뱃지/이모지, 예: '0829')
-  - `entryDate`: timestamp (가입일자)
-  - `homeCity`: string (홈 지역/연고지 - 원정/지역 보너스 계산용)
+  - `maritalStatus`: string (결혼 여부: `'single'` = 미혼, `'married'` = 기혼, `'divorced'` = 돌싱)
+  - `gender`: string (성별: `'남'` = 남성, `'여'` = 여성)
+  - `role`: string (회원 등급: `Leader`, `Deputy`, `VIP`, `Member`, `Wanderer`, `Withdrawn`, `Expelled`)
+  - `entryBadge`: string (가입일 기반 4자리 뱃지, 예: `'0829'`)
+  - `customBadge`: string (운영진 부여 커스텀 뱃지)
+  - `bankAccount`: string (개인별 정산용 은행 및 계좌번호)
+  - `homeCity`: string (홈 지역/연고지 - 7대 권역 원정 보너스 계산용)
   - `attendanceCount`: number (정산 완료된 누적 모임 참석 횟수 - 1회 이상 참석 시 자율벙 개설 자격 부여)
-  - `totalScore`: number (누적 점수 = 기본 참석 점수 + 원정 보너스 점수 + 수동 이벤트 점수)
+  - `totalScore`: number (누적 점수 = 기본 참석 점수 + 원정/해외 보너스 점수 + 수동 이벤트 점수)
 - **meetings (모임/벙)**:
-  - `id`: string (모임 고유 ID)
+  - `id`: string (모임 고유 ID - `YYMMDD` + `01` 형식, 예: `'26110701'`)
   - `title`: string (모임 제목)
-  - `date`: timestamp (모임 일시)
-  - `location`: string (모임 장소/지역)
-  - `hostUid`: string (주최자/벙주 Firebase UID)
+  - `dateOnly`: string (모임 날짜 `'YYYY-MM-DD'`)
+  - `startTime`: string (모임 시작 시간 `'HH:mm'`)
+  - `date`: string (`'YYYY-MM-DD HH:mm'`)
+  - `location`: string (7대 권역 기준 모임 지역)
+  - `hostUid`: string (주최자/벙주 UID)
+  - `treasurerUid`: string (총무 UID - 참석자 입금 계좌 기준)
   - `applicants`: array of uids (사전 참석 신청자 UID 목록)
   - `confirmedParticipants`: array of uids (모임 종료 후 정산 확정된 실참석자 UID 목록)
+  - `rounds`: array of objects (`1차`, `2차`, `3차` 등 차수별 장소명, 네이버/카카오 지도 링크, 참석자, 결제자, 비용, 영수증 사진, 골든벨 여부)
+  - `sponsorships`: array of objects (찬조자 및 찬조 금액 내역)
+  - `manualAmounts`: object (벙주/총무 수동 조정 개인별 정산 금액)
+  - `paymentStatuses`: object (참석자별 `'unpaid' | 'paid_reported' | 'confirmed'` 입금 상태)
+  - `safeReturns`: object (참석자별 귀가완료 체크 시간)
   - `status`: string (`'open'` = 모집/진행중, `'settled'` = 마감 및 점수 정산 완료)
   - `type`: string (모임 유형: `'Official'` = 공식 모임, `'Casual'` = 자율/번개 모임)
   - `description`: string (모임 설명 및 상세 정보)
 
 ### Key Features
 - **Nickname Generator (닉네임 생성기):** `이름 지역 결혼여부 성별 뱃지` 형태의 규칙화된 닉네임 생성, 원클릭 복사 및 검증 로직.
-- **Meeting Creation & Attendance Settlement (모임 개설 및 2단계 정산 로직):**
-  - 모임 개설 자격: **모임(벙)에 1회 이상 참석한 회원(`attendanceCount >= 1`)** 또는 운영진(`Leader`, `Deputy`)만 모임 개설 가능 (공식 모임은 운영진 전용).
-  - 2단계 정산: 회원들이 먼저 `[참석 신청]`을 하고, 모임 종료 후 벙주(개설자) 또는 운영진이 실참석자를 체크하여 `[모임 마감 · 점수 정산]`을 실행하면 점수와 참석 횟수가 일괄 반영됨.
-- **Attendance & Scoring Logic (참석 및 점수 산정 로직):**
-  - 기본 점수: 모임 실참석 확정 시 1점 부여.
-  - 지역 보너스 점수: 모임 장소(`meeting.location`)가 회원의 연고지(`member.homeCity`)와 다를 경우 원정 보너스 +2점 부여.
+- **Individual Meeting Pages & Multi-Round Settlement (개별 벙 전용 페이지 및 다차수 1/N 정산):**
+  - 모임 개설 시 `YYMMDD01` 고유 번호와 `/meetings/YYMMDD01` 전용 페이지가 생성되며, 모임 리스트에서는 일시·벙제목과 참석자 닉네임만 간결하게 표시.
+  - 차수별(`1차`, `2차`...) 동적 장소 추가 및 네이버·카카오 지도 링크 연결, 참석자 본인 체크, 결제자 직접 비용·영수증 등록, 골든벨(1/N 제외) 및 찬조금 차감, 총무 계좌 안내, `[입금 완료]` → `[입금 컨펌]`, `[귀가완료]` 기능 제공.
+  - 전용 `[리포트]`(`/reports`) 탭에서 모임별 정산 리포트와 개인별 활동·정산 리포트를 통합 조회.
+- **Attendance & 7-Region Scoring Logic (7대 권역 분리 및 점수 산정 로직):**
+  - 7대 권역: ① `서울, 경기` ② `강원도` ③ `충청남북도, 대전` ④ `전라남북도, 광주` ⑤ `경상남북도, 부산` ⑥ `제주도` ⑦ `해외`.
+  - 기본 점수: 모임 실참석 확정 시 **`+1점`** 부여.
+  - 원정 및 해외 보너스 점수: 회원의 연고지(`member.homeCity`) 권역과 다른 국내 타 권역(`1~6`) 모임 참석 시 **원정 `+1점`**(총 `+2점`), **`해외(7)`** 모임 참석 시 **해외 `+2점`**(총 `+3점`) 부여.
   - 이벤트 점수: 운영진이 `[운영 관리]` 페이지에서 사유와 함께 수동으로 가감 가능.
-- **Role & Page Management (역할 및 페이지 구조):** 기본 4개 메뉴(`홈`, `모임(벙)`, `랭킹·점수`, `내 정보`)와 운영진 전용 조건부 메뉴(`운영 관리`)로 구성. 상세 화면 설계는 `docs/specs/features/page-structure.md` 문서를 참조합니다.
+- **Role & Page Management (역할 및 페이지 구조):** 기본 6개 메뉴(`홈`, `모임(벙)`, `리포트`, `랭킹·친구`, `신입닉네임`, `내 정보`)와 운영진 전용 조건부 메뉴(`운영 관리`)로 구성. 상세 화면 설계는 `docs/specs/features/page-structure.md` 문서를 참조합니다.
 
 ### Tech Stack
 - **Frontend & Build:** React 18, Vite (빠른 HMR 및 PWA/Capacitor 플러그인 호환성을 위한 모던 번들러).

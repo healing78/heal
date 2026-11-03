@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import {
   calculateMeetingScoreForMember,
   canCreateMeeting,
-  canSettleMeeting,
   formatMemberNickname,
-  isAdminRole
+  isAdminRole,
+  REGION_GROUPS
 } from '../core/communityRules';
+import MeetingDetailPage from './MeetingDetailPage';
 
 export default function MeetingsPage({
   currentUser,
@@ -16,26 +17,52 @@ export default function MeetingsPage({
   onShareMeeting,
   onToggleApplyMeeting,
   onCreateMeeting,
+  onUpdateMeeting,
+  onUpdateMemberProfile,
   onSettleMeeting,
   onNavigateTab
 }) {
   const [subTab, setSubTab] = useState('open'); // 'open' | 'settled' | 'mine'
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createWarning, setCreateWarning] = useState('');
-  const [settlingMeetingId, setSettlingMeetingId] = useState(null);
-  const [selectedParticipantUids, setSelectedParticipantUids] = useState([]);
 
   const [newMeeting, setNewMeeting] = useState({
     title: '',
-    date: '2026-11-15 19:00',
+    dateOnly: '2026-11-15',
+    startTime: '19:00',
     location: currentUser?.city || '서울',
-    placeDetail: '',
+    treasurerUid: currentUser?.uid || '',
     type: 'Casual',
-    description: ''
+    description: '',
+    rounds: [
+      { id: 'r-1', placeName: '', mapUrl: '' }
+    ]
   });
 
   const adminUser = currentUser ? isAdminRole(currentUser.role) : false;
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
+
+  // If a specific meeting ID is selected (/meetings/26110701), render its dedicated page
+  const activeMeeting = selectedMeetingId
+    ? meetings.find((m) => String(m.id) === String(selectedMeetingId))
+    : null;
+
+  if (activeMeeting) {
+    return (
+      <MeetingDetailPage
+        meeting={activeMeeting}
+        currentUser={currentUser}
+        members={members}
+        onBackToList={() => onSelectMeetingId(null)}
+        onShareMeeting={onShareMeeting}
+        onToggleApplyMeeting={onToggleApplyMeeting}
+        onUpdateMeeting={onUpdateMeeting}
+        onUpdateMemberProfile={onUpdateMemberProfile}
+        onSettleMeeting={onSettleMeeting}
+        onNavigateTab={onNavigateTab}
+      />
+    );
+  }
 
   const handleOpenCreateModal = () => {
     if (!currentUser) {
@@ -53,44 +80,53 @@ export default function MeetingsPage({
     setShowCreateForm((prev) => !prev);
   };
 
-  const handleSubmitNewMeeting = (e) => {
+  const handleAddCreateRound = () => {
+    setNewMeeting((prev) => ({
+      ...prev,
+      rounds: [
+        ...prev.rounds,
+        { id: `r-${prev.rounds.length + 1}`, placeName: '', mapUrl: '' }
+      ]
+    }));
+  };
+
+  const handleRemoveCreateRound = (idx) => {
+    setNewMeeting((prev) => ({
+      ...prev,
+      rounds: prev.rounds.filter((_, i) => i !== idx)
+    }));
+  };
+
+  const handleCreateRoundChange = (idx, patch) => {
+    setNewMeeting((prev) => ({
+      ...prev,
+      rounds: prev.rounds.map((r, i) => (i === idx ? { ...r, ...patch } : r))
+    }));
+  };
+
+  const handleSubmitNewMeeting = async (e) => {
     e.preventDefault();
     if (!newMeeting.title.trim() || !newMeeting.location.trim()) return;
-    onCreateMeeting({
+    const created = await onCreateMeeting({
       ...newMeeting,
+      treasurerUid: newMeeting.treasurerUid || currentUser.uid,
       type: adminUser ? newMeeting.type : 'Casual'
     });
     setNewMeeting({
       title: '',
-      date: '2026-11-15 19:00',
+      dateOnly: '2026-11-15',
+      startTime: '19:00',
       location: currentUser?.city || '서울',
-      placeDetail: '',
+      treasurerUid: currentUser?.uid || '',
       type: 'Casual',
-      description: ''
+      description: '',
+      rounds: [{ id: 'r-1', placeName: '', mapUrl: '' }]
     });
     setShowCreateForm(false);
+    if (created?.id && onSelectMeetingId) {
+      onSelectMeetingId(created.id);
+    }
   };
-
-  const startSettleMode = (meeting) => {
-    setSettlingMeetingId(meeting.id);
-    setSelectedParticipantUids([...meeting.applicants]);
-  };
-
-  const toggleConfirmedParticipant = (uid) => {
-    setSelectedParticipantUids((prev) =>
-      prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid]
-    );
-  };
-
-  const handleConfirmSettle = (meetingId) => {
-    onSettleMeeting(meetingId, selectedParticipantUids);
-    setSettlingMeetingId(null);
-    setSelectedParticipantUids([]);
-  };
-
-  const focusedMeeting = selectedMeetingId
-    ? meetings.find((m) => m.id === selectedMeetingId)
-    : null;
 
   const filteredMeetings = meetings.filter((m) => {
     if (subTab === 'open') return m.status === 'open';
@@ -99,29 +135,23 @@ export default function MeetingsPage({
       if (!currentUser) return false;
       return (
         m.hostUid === currentUser.uid ||
-        m.applicants.includes(currentUser.uid) ||
-        m.confirmedParticipants.includes(currentUser.uid)
+        m.treasurerUid === currentUser.uid ||
+        (m.applicants || []).includes(currentUser.uid) ||
+        (m.confirmedParticipants || []).includes(currentUser.uid)
       );
     }
     return true;
   });
 
-  const displayList = focusedMeeting
-    ? [
-        focusedMeeting,
-        ...filteredMeetings.filter((m) => m.id !== focusedMeeting.id)
-      ]
-    : filteredMeetings;
-
   return (
     <div className="list-container">
-      {/* Page Top Header & Create Button */}
+      {/* Page Header & Create Button */}
       <section className="list-section">
         <div className="section-title-row">
           <div>
-            <h2>모임(벙) 일정 및 참석</h2>
+            <h2>모임(벙) 목록</h2>
             <p className="muted-text">
-              참석 기본 +1점 · 타지역 원정 +2점 추가 · 1회 이상 참석 시 자율벙 개설 가능
+              참석 +1점 · 타권역 원정 +1점 · 해외 +2점 · 각 벙을 클릭하면 개별 벙 페이지(정산·장소·귀가)로 이동합니다.
             </p>
           </div>
           <button
@@ -136,21 +166,6 @@ export default function MeetingsPage({
         {createWarning && (
           <div className="warning-banner" role="alert">
             ⚠️ {createWarning}
-          </div>
-        )}
-
-        {focusedMeeting && (
-          <div className="focused-meeting-bar">
-            <span>
-              선택된 벙: <strong>{focusedMeeting.title}</strong>
-            </span>
-            <button
-              type="button"
-              className="btn-link"
-              onClick={() => onSelectMeetingId && onSelectMeetingId(null)}
-            >
-              선택 해제 ✕
-            </button>
           </div>
         )}
 
@@ -182,14 +197,18 @@ export default function MeetingsPage({
         </div>
       </section>
 
-      {/* Create Meeting Form */}
+      {/* Create Meeting Form (Calendar Date + Separate Time + Multi-Round Venues) */}
       {showCreateForm && (
         <section className="list-section highlight-section">
-          <h3>새 모임(벙) 개설하기</h3>
-          <form onSubmit={handleSubmitNewMeeting} className="stack-gap" style={{ marginTop: '12px' }}>
+          <h3>새 모임(벙) 개설하기 (YYMMDD+01 전용 페이지 자동 생성)</h3>
+          <form
+            onSubmit={handleSubmitNewMeeting}
+            className="stack-gap"
+            style={{ marginTop: '12px' }}
+          >
             <div className="form-grid">
               <div className="form-field">
-                <label htmlFor="mtg-title">모임 제목</label>
+                <label htmlFor="mtg-title">모임 제목 (필수)</label>
                 <input
                   id="mtg-title"
                   type="text"
@@ -201,45 +220,77 @@ export default function MeetingsPage({
                   }
                 />
               </div>
+
               <div className="form-field">
-                <label htmlFor="mtg-date">일시</label>
-                <input
-                  id="mtg-date"
-                  type="text"
-                  placeholder="YYYY-MM-DD HH:mm"
-                  required
-                  value={newMeeting.date}
-                  onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, date: e.target.value })
-                  }
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="mtg-loc">모임 지역 (원정 판별 기준 도시)</label>
+                <label htmlFor="mtg-loc">
+                  모임 지역 (서울·경기 / 강원 / 충청·대전 / 전라·광주 / 경상·부산 / 제주 / 해외)
+                </label>
                 <input
                   id="mtg-loc"
                   type="text"
-                  placeholder="예: 서울, 경기, 인천, 부산"
+                  list="create-region-list"
+                  placeholder="예: 서울, 수원, 인천, 대전, 부산, 제주, 해외"
                   required
                   value={newMeeting.location}
                   onChange={(e) =>
                     setNewMeeting({ ...newMeeting, location: e.target.value })
                   }
                 />
+                <datalist id="create-region-list">
+                  {REGION_GROUPS.map((g) => (
+                    <option key={g.id} value={g.keywords[0]}>
+                      {g.name}
+                    </option>
+                  ))}
+                </datalist>
               </div>
+
               <div className="form-field">
-                <label htmlFor="mtg-place">상세 집합 장소</label>
+                <label htmlFor="mtg-date-only">날짜 선택 (달력)</label>
                 <input
-                  id="mtg-place"
-                  type="text"
-                  placeholder="예: 성수역 3번 출구 앞"
+                  id="mtg-date-only"
+                  type="date"
                   required
-                  value={newMeeting.placeDetail}
+                  value={newMeeting.dateOnly}
                   onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, placeDetail: e.target.value })
+                    setNewMeeting({ ...newMeeting, dateOnly: e.target.value })
                   }
                 />
               </div>
+
+              <div className="form-field">
+                <label htmlFor="mtg-start-time">시작 시간 선택</label>
+                <input
+                  id="mtg-start-time"
+                  type="time"
+                  required
+                  value={newMeeting.startTime}
+                  onChange={(e) =>
+                    setNewMeeting({ ...newMeeting, startTime: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="mtg-treasurer">총무 지정 (입금 계좌 기준)</label>
+                <select
+                  id="mtg-treasurer"
+                  value={newMeeting.treasurerUid || currentUser?.uid || ''}
+                  onChange={(e) =>
+                    setNewMeeting({
+                      ...newMeeting,
+                      treasurerUid: e.target.value
+                    })
+                  }
+                >
+                  {members.map((m) => (
+                    <option key={m.uid} value={m.uid}>
+                      {formatMemberNickname(m)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="form-field">
                 <label htmlFor="mtg-type">모임 유형</label>
                 <select
@@ -252,13 +303,74 @@ export default function MeetingsPage({
                 >
                   <option value="Casual">자율/번개 모임 (Casual)</option>
                   {adminUser && (
-                    <option value="Official">공식 정기 모임 (Official - 운영진 전용)</option>
+                    <option value="Official">
+                      공식 정기 모임 (Official - 운영진 전용)
+                    </option>
                   )}
                 </select>
               </div>
             </div>
+
+            {/* Dynamic Multi-Round Venues (1차, 2차... Optional) */}
+            <div className="round-finance-box">
+              <div className="section-title-row" style={{ marginBottom: '8px' }}>
+                <strong>차수별 장소 및 지도 링크 (선택 입력 · 개설 후 추가/변경 가능)</strong>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={handleAddCreateRound}
+                >
+                  + {newMeeting.rounds.length + 1}차 장소 추가
+                </button>
+              </div>
+
+              <div className="stack-gap">
+                {newMeeting.rounds.map((r, idx) => (
+                  <div key={r.id || idx} className="form-grid">
+                    <div className="form-field">
+                      <label>{idx + 1}차 장소명 (선택)</label>
+                      <input
+                        type="text"
+                        placeholder={`예: ${idx + 1}차 식당/카페 이름`}
+                        value={r.placeName}
+                        onChange={(e) =>
+                          handleCreateRoundChange(idx, {
+                            placeName: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label>네이버 / 카카오 지도 링크 (선택)</label>
+                      <div className="inline-input-row">
+                        <input
+                          type="url"
+                          placeholder="https://map.kakao.com/... 또는 네이버 지도 URL"
+                          value={r.mapUrl}
+                          onChange={(e) =>
+                            handleCreateRoundChange(idx, {
+                              mapUrl: e.target.value
+                            })
+                          }
+                        />
+                        {newMeeting.rounds.length > 1 && (
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            onClick={() => handleRemoveCreateRound(idx)}
+                          >
+                            삭제
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="form-field">
-              <label htmlFor="mtg-desc">모임 상세 안내</label>
+              <label htmlFor="mtg-desc">모임 간단 안내 (선택)</label>
               <input
                 id="mtg-desc"
                 type="text"
@@ -269,6 +381,7 @@ export default function MeetingsPage({
                 }
               />
             </div>
+
             <div className="btn-row">
               <button
                 type="button"
@@ -278,48 +391,47 @@ export default function MeetingsPage({
                 취소
               </button>
               <button type="submit" className="btn btn-primary">
-                모임 등록 완료 (내가 벙주)
+                벙 개설 및 전용 페이지 생성
               </button>
             </div>
           </form>
         </section>
       )}
 
-      {/* Meetings Divider List */}
+      {/* Concise Meetings List (Emphasize Title & Date/Time, Show Nicknames Only) */}
       <section className="list-section">
-        {displayList.length === 0 ? (
+        {filteredMeetings.length === 0 ? (
           <p className="muted-text">해당 탭에 표시할 모임이 없습니다.</p>
         ) : (
           <div className="divider-list">
-            {displayList.map((mtg) => {
-              const hostMember = members.find((m) => m.uid === mtg.hostUid);
+            {filteredMeetings.map((mtg) => {
               const isApplied = currentUser
-                ? mtg.applicants.includes(currentUser.uid)
-                : false;
-              const canSettle = currentUser
-                ? canSettleMeeting(currentUser, mtg)
+                ? (mtg.applicants || []).includes(currentUser.uid)
                 : false;
               const myScoreInfo = currentUser
                 ? calculateMeetingScoreForMember(currentUser, mtg.location)
-                : { isExpedition: false, total: 1 };
-              const isSettlingThis = settlingMeetingId === mtg.id;
-              const isFocused = focusedMeeting && focusedMeeting.id === mtg.id;
+                : { isExpedition: false, label: '' };
+
+              const participantUids =
+                mtg.status === 'settled'
+                  ? mtg.confirmedParticipants || []
+                  : mtg.applicants || [];
 
               return (
                 <article
                   key={mtg.id}
-                  className={`list-item-row meeting-item ${
-                    isFocused ? 'focused-meeting-item' : ''
-                  }`}
+                  className="list-item-row concise-meeting-card"
                 >
+                  {/* Top Row: ID Badge, Location, Date/Time Emphasis */}
                   <div className="meeting-top">
                     <div className="badge-group">
+                      <span className="platform-badge">#{mtg.id}</span>
                       <span
                         className={`type-pill ${
                           mtg.type === 'Official' ? 'official' : 'casual'
                         }`}
                       >
-                        {mtg.type === 'Official' ? '공식 모임' : '자율/번개'}
+                        {mtg.type === 'Official' ? '공식' : '자율'}
                       </span>
                       <span className="location-pill">{mtg.location}</span>
                       <span
@@ -327,83 +439,67 @@ export default function MeetingsPage({
                           mtg.status === 'settled' ? 'settled' : 'open'
                         }`}
                       >
-                        {mtg.status === 'settled' ? '정산 완료' : '모집중'}
+                        {mtg.status === 'settled' ? '마감' : '모집중'}
                       </span>
                       {mtg.status === 'open' && myScoreInfo.isExpedition && (
                         <span className="expedition-pill">
-                          원정 +2점 대상
+                          {myScoreInfo.label}
                         </span>
                       )}
                     </div>
-                    <span className="muted-text">{mtg.date}</span>
+                    <strong className="concise-datetime">{mtg.date}</strong>
                   </div>
 
-                  <div>
-                    <h3>{mtg.title}</h3>
-                    <p className="muted-text">
-                      집합 장소: {mtg.placeDetail} · 벙주:{' '}
-                      <strong>
-                        {hostMember
-                          ? formatMemberNickname(hostMember)
-                          : mtg.hostUid}
-                      </strong>
-                    </p>
-                    {mtg.description && (
-                      <p className="mtg-desc">{mtg.description}</p>
-                    )}
+                  {/* Emphasized Title (Clickable to open individual meeting page) */}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className="concise-title-box"
+                    onClick={() => onSelectMeetingId(mtg.id)}
+                    onKeyDown={(e) =>
+                      e.key === 'Enter' && onSelectMeetingId(mtg.id)
+                    }
+                  >
+                    <h3 className="concise-title">{mtg.title}</h3>
                   </div>
 
-                  {/* Applicants / Confirmed Participants List */}
-                  <div className="participants-box">
-                    <div className="participants-title">
-                      {mtg.status === 'settled'
-                        ? `최종 참석 확정 인원 (${mtg.confirmedParticipants.length}명)`
-                        : `현재 참석 신청자 (${mtg.applicants.length}명)`}
-                    </div>
-                    <div className="chip-list">
-                      {(mtg.status === 'settled'
-                        ? mtg.confirmedParticipants
-                        : mtg.applicants
-                      ).map((uid) => {
+                  {/* Participants by Nickname Only */}
+                  <div className="concise-nicknames-box">
+                    <span className="sub-meta">
+                      참석({participantUids.length}):{' '}
+                    </span>
+                    <div className="chip-list" style={{ display: 'inline-flex' }}>
+                      {participantUids.map((uid) => {
                         const m = members.find((mem) => mem.uid === uid);
                         if (!m) return null;
-                        const scoreCalc = calculateMeetingScoreForMember(
-                          m,
-                          mtg.location
-                        );
                         return (
                           <span key={uid} className="member-chip">
                             {formatMemberNickname(m)}
-                            {scoreCalc.isExpedition && (
-                              <em className="chip-exp"> (원정+2)</em>
-                            )}
                           </span>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Quick Actions: Open Dedicated Page / Share / Apply */}
                   <div className="meeting-footer">
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => onShareMeeting && onShareMeeting(mtg)}
+                      className="btn-link"
+                      onClick={() => onSelectMeetingId(mtg.id)}
                     >
-                      이 벙 카톡 공유
+                      벙 상세·정산 페이지 (#{mtg.id}) 열기 →
                     </button>
 
-                    {mtg.status === 'open' && (
-                      <div className="btn-row">
-                        {canSettle && !isSettlingThis && (
-                          <button
-                            type="button"
-                            className="btn btn-settle btn-sm"
-                            onClick={() => startSettleMode(mtg)}
-                          >
-                            마감·정산
-                          </button>
-                        )}
+                    <div className="btn-row">
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => onShareMeeting && onShareMeeting(mtg)}
+                      >
+                        공유
+                      </button>
+                      {mtg.status === 'open' && (
                         <button
                           type="button"
                           className={`btn btn-sm ${
@@ -411,68 +507,11 @@ export default function MeetingsPage({
                           }`}
                           onClick={() => onToggleApplyMeeting(mtg.id)}
                         >
-                          {isApplied
-                            ? '참석 신청 취소'
-                            : currentUser
-                              ? '참석 신청하기'
-                              : '로그인 후 참석 신청'}
+                          {isApplied ? '신청 취소' : '참석 신청'}
                         </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 2-Step Settlement Panel for Host / Admin */}
-                  {isSettlingThis && (
-                    <div className="settle-panel">
-                      <h4>실제 참석자 체크 및 점수 정산</h4>
-                      <p className="muted-text">
-                        체크된 실참석자에게 기본 +1점(타지역 원정 시 +2점 추가)과 참석 횟수 +1회가 부여됩니다.
-                      </p>
-                      <div className="settle-checklist">
-                        {mtg.applicants.map((uid) => {
-                          const m = members.find((mem) => mem.uid === uid);
-                          if (!m) return null;
-                          const calc = calculateMeetingScoreForMember(
-                            m,
-                            mtg.location
-                          );
-                          const checked = selectedParticipantUids.includes(uid);
-                          return (
-                            <label key={uid} className="check-item">
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => toggleConfirmedParticipant(uid)}
-                              />
-                              <span>
-                                <strong>{formatMemberNickname(m)}</strong> — 기본 +
-                                {calc.base}점
-                                {calc.isExpedition
-                                  ? ` + 원정 +${calc.expedition}점 (합계 +${calc.total}점)`
-                                  : ` (합계 +${calc.total}점)`}
-                              </span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                      <div className="btn-row">
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => setSettlingMeetingId(null)}
-                        >
-                          취소
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm"
-                          onClick={() => handleConfirmSettle(mtg.id)}
-                        >
-                          {selectedParticipantUids.length}명 실참석 확정 및 점수 지급
-                        </button>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </article>
               );
             })}

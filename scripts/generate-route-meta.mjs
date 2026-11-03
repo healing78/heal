@@ -15,7 +15,12 @@ const ROUTE_METAS = [
   {
     route: 'meetings',
     title: '1107 서울, 1108 경기 | Healing78 모임일정',
-    description: '진행 예정 벙 일정 및 참석 신청 (참석 기본 +1점, 타지역 원정 +2점)'
+    description: '진행 예정 벙 일정 및 참석 신청 (참석 기본 +1점, 타지역 원정 +1점, 해외 +2점)'
+  },
+  {
+    route: 'reports',
+    title: '모임·개인 정산 리포트 | Healing78 리포트',
+    description: '차수별 정산 내역, 1/N 부담금, 찬조금 및 개인별 참석·지출 리포트를 확인하세요.'
   },
   {
     route: 'ranking',

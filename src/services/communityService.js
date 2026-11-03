@@ -7,7 +7,10 @@ import {
   updateDoc,
   writeBatch
 } from 'firebase/firestore';
-import { calculateMeetingScoreForMember } from '../core/communityRules';
+import {
+  calculateMeetingScoreForMember,
+  generateMeetingId
+} from '../core/communityRules';
 import {
   INITIAL_COMMUNITY_CONFIG,
   INITIAL_MEETINGS,
@@ -17,11 +20,11 @@ import {
 import { db, isFirebaseConfigured } from './firebase';
 
 const STORAGE_KEYS = {
-  members: 'heal_community_v1_members',
-  meetings: 'heal_community_v1_meetings',
-  scoreLogs: 'heal_community_v1_score_logs',
-  config: 'heal_community_v1_config',
-  currentUserUid: 'heal_community_v1_current_uid'
+  members: 'heal_community_v2_members',
+  meetings: 'heal_community_v2_meetings',
+  scoreLogs: 'heal_community_v2_score_logs',
+  config: 'heal_community_v2_config',
+  currentUserUid: 'heal_community_v2_current_uid'
 };
 
 const localListeners = new Set();
@@ -82,26 +85,38 @@ export const saveCurrentUserUid = (uid) => {
 };
 
 /**
- * Seeds initial demo data into Firestore if the 'members' collection is completely empty.
+ * Seeds initial demo data into Firestore if the 'members' collection is completely empty,
+ * or migrates legacy 'mtg-*' demo meetings to the v2 YYMMDD01 schema.
  */
 const ensureFirestoreSeeded = async () => {
   if (!isFirebaseConfigured || !db) return;
   try {
-    const existingMembers = await getDocs(collection(db, 'members'));
-    if (!existingMembers.empty) return;
+    const existingMeetings = await getDocs(collection(db, 'meetings'));
+    const hasV2Meeting = existingMeetings.docs.some((d) =>
+      /^\d{8}$/.test(String(d.id))
+    );
 
-    const batch = writeBatch(db);
-    for (const m of INITIAL_MEMBERS) {
-      batch.set(doc(db, 'members', m.uid), m);
+    if (existingMeetings.empty || !hasV2Meeting) {
+      const batch = writeBatch(db);
+      for (const m of INITIAL_MEMBERS) {
+        batch.set(doc(db, 'members', m.uid), m, { merge: true });
+      }
+      for (const oldDoc of existingMeetings.docs) {
+        if (String(oldDoc.id).startsWith('mtg-')) {
+          batch.delete(doc(db, 'meetings', oldDoc.id));
+        }
+      }
+      for (const mtg of INITIAL_MEETINGS) {
+        batch.set(doc(db, 'meetings', mtg.id), mtg);
+      }
+      for (const log of INITIAL_SCORE_LOGS) {
+        batch.set(doc(db, 'scoreLogs', log.id), log, { merge: true });
+      }
+      batch.set(doc(db, 'settings', 'community'), INITIAL_COMMUNITY_CONFIG, {
+        merge: true
+      });
+      await batch.commit();
     }
-    for (const mtg of INITIAL_MEETINGS) {
-      batch.set(doc(db, 'meetings', mtg.id), mtg);
-    }
-    for (const log of INITIAL_SCORE_LOGS) {
-      batch.set(doc(db, 'scoreLogs', log.id), log);
-    }
-    batch.set(doc(db, 'settings', 'community'), INITIAL_COMMUNITY_CONFIG);
-    await batch.commit();
   } catch (err) {
     console.warn('Firestore initial seed skipped:', err);
   }
@@ -232,6 +247,7 @@ export const registerOnboardingMember = async (form, customUid) => {
     role: 'Member',
     entryBadge: `${mm}${dd}`,
     customBadge: '',
+    bankAccount: (form.bankAccount || '').trim(),
     attendanceCount: 0,
     baseScore: 0,
     expeditionScore: 0,
@@ -276,29 +292,45 @@ export const updateMemberProfile = async (uid, updatedFields) => {
 };
 
 /**
- * Toggles meeting attendance application for a member.
+ * Toggles meeting attendance application for a member (and syncs 1차 round participation).
  */
 export const toggleMeetingApplicant = async (meetingId, uid) => {
   const { meetings } = getLocalState();
-  const target = meetings.find((m) => m.id === meetingId);
+  const target = meetings.find((m) => String(m.id) === String(meetingId));
   if (!target || target.status !== 'open') return;
 
-  const exists = target.applicants.includes(uid);
+  const exists = (target.applicants || []).includes(uid);
   const nextApplicants = exists
     ? target.applicants.filter((id) => id !== uid)
-    : [...target.applicants, uid];
+    : [...(target.applicants || []), uid];
+
+  // Also sync 1st round participants by default when applying/cancelling
+  const currentRounds = Array.isArray(target.rounds) ? target.rounds : [];
+  const nextRounds = currentRounds.map((r, idx) => {
+    const rParts = Array.isArray(r.participants) ? r.participants : [];
+    if (exists) {
+      return { ...r, participants: rParts.filter((id) => id !== uid) };
+    }
+    if (idx === 0 && !rParts.includes(uid)) {
+      return { ...r, participants: [...rParts, uid] };
+    }
+    return r;
+  });
+
+  const patch = {
+    applicants: nextApplicants,
+    rounds: nextRounds
+  };
 
   const nextMeetings = meetings.map((m) =>
-    m.id === meetingId ? { ...m, applicants: nextApplicants } : m
+    String(m.id) === String(meetingId) ? { ...m, ...patch } : m
   );
   writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
   notifyLocalListeners();
 
   if (isFirebaseConfigured && db) {
     try {
-      await updateDoc(doc(db, 'meetings', meetingId), {
-        applicants: nextApplicants
-      });
+      await updateDoc(doc(db, 'meetings', String(meetingId)), patch);
     } catch (err) {
       console.warn('Firestore write fallback (toggleMeetingApplicant):', err.code);
     }
@@ -306,24 +338,71 @@ export const toggleMeetingApplicant = async (meetingId, uid) => {
 };
 
 /**
- * Creates a new meeting (벙).
+ * Creates a new meeting (벙) with YYMMDD + 01 ID format and multi-round structure.
  */
 export const createMeeting = async (hostUid, meetingInput) => {
+  const { meetings } = getLocalState();
+  const dateOnly = meetingInput.dateOnly || '2026-11-15';
+  const startTime = meetingInput.startTime || '19:00';
+  const combinedDate = `${dateOnly} ${startTime}`;
+  const newId = generateMeetingId(dateOnly, meetings);
+
+  const inputRounds =
+    Array.isArray(meetingInput.rounds) && meetingInput.rounds.length > 0
+      ? meetingInput.rounds.map((r, idx) => ({
+          id: r.id || `r-${idx + 1}`,
+          label: `${idx + 1}차`,
+          placeName: (r.placeName || '').trim(),
+          mapUrl: (r.mapUrl || '').trim(),
+          participants: Array.isArray(r.participants)
+            ? r.participants
+            : idx === 0
+              ? [hostUid]
+              : [],
+          payerUid: r.payerUid || meetingInput.treasurerUid || hostUid,
+          cost: Number(r.cost) || 0,
+          receiptUrl: r.receiptUrl || '',
+          isGoldenBell: Boolean(r.isGoldenBell),
+          goldenBellUid: r.goldenBellUid || ''
+        }))
+      : [
+          {
+            id: 'r-1',
+            label: '1차',
+            placeName: (meetingInput.placeDetail || '').trim(),
+            mapUrl: '',
+            participants: [hostUid],
+            payerUid: meetingInput.treasurerUid || hostUid,
+            cost: 0,
+            receiptUrl: '',
+            isGoldenBell: false,
+            goldenBellUid: ''
+          }
+        ];
+
   const created = {
-    id: `mtg-${Date.now()}`,
-    title: meetingInput.title,
-    date: meetingInput.date,
-    location: meetingInput.location,
-    placeDetail: meetingInput.placeDetail,
+    id: newId,
+    title: meetingInput.title.trim(),
+    dateOnly,
+    startTime,
+    date: combinedDate,
+    location: meetingInput.location.trim(),
+    placeDetail: inputRounds[0]?.placeName || (meetingInput.placeDetail || '').trim(),
     hostUid,
-    type: meetingInput.type,
+    treasurerUid: meetingInput.treasurerUid || hostUid,
+    type: meetingInput.type || 'Casual',
     status: 'open',
     applicants: [hostUid],
     confirmedParticipants: [],
-    description: meetingInput.description
+    description: (meetingInput.description || '').trim(),
+    roundingRule: 'floor100',
+    rounds: inputRounds,
+    sponsorships: [],
+    manualAmounts: {},
+    paymentStatuses: {},
+    safeReturns: {}
   };
 
-  const { meetings } = getLocalState();
   writeLocalJson(STORAGE_KEYS.meetings, [created, ...meetings]);
   notifyLocalListeners();
 
@@ -335,6 +414,26 @@ export const createMeeting = async (hostUid, meetingInput) => {
     }
   }
   return created;
+};
+
+/**
+ * Updates any field of a meeting (info, rounds, sponsorships, manualAmounts, paymentStatuses, safeReturns).
+ */
+export const updateMeetingDetails = async (meetingId, patch) => {
+  const { meetings } = getLocalState();
+  const nextMeetings = meetings.map((m) =>
+    String(m.id) === String(meetingId) ? { ...m, ...patch } : m
+  );
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'meetings', String(meetingId)), patch);
+    } catch (err) {
+      console.warn('Firestore write fallback (updateMeetingDetails):', err.code);
+    }
+  }
 };
 
 /**
@@ -365,9 +464,11 @@ export const settleMeetingWithScores = async (
       uid: member.uid,
       type: 'meeting',
       title: `${targetMeeting.title} 참석 확정${
-        calc.isExpedition
-          ? ` (${member.homeCity}→${targetMeeting.location} 원정)`
-          : ''
+        calc.isOverseas
+          ? ' (해외 원정 +2점)'
+          : calc.isExpedition
+            ? ` (${calc.label})`
+            : ''
       }`,
       baseDelta: calc.base,
       expeditionDelta: calc.expedition,

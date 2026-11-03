@@ -20,7 +20,8 @@ export default function ProfilePage({
     city: currentUser.city,
     homeCity: currentUser.homeCity,
     maritalStatus: currentUser.maritalStatus,
-    gender: currentUser.gender
+    gender: currentUser.gender,
+    bankAccount: currentUser.bankAccount || ''
   });
   const [savedBanner, setSavedBanner] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -31,7 +32,8 @@ export default function ProfilePage({
       city: currentUser.city,
       homeCity: currentUser.homeCity,
       maritalStatus: currentUser.maritalStatus,
-      gender: currentUser.gender
+      gender: currentUser.gender,
+      bankAccount: currentUser.bankAccount || ''
     });
   }, [currentUser]);
 
@@ -115,13 +117,25 @@ export default function ProfilePage({
               />
             </div>
             <div className="form-field">
-              <label htmlFor="prof-home">연고지 (원정 보너스 +2점 판별 기준)</label>
+              <label htmlFor="prof-home">연고지 (타권역 원정 +1점 · 해외 +2점 기준)</label>
               <input
                 id="prof-home"
                 type="text"
                 required
                 value={form.homeCity}
                 onChange={(e) => setForm({ ...form, homeCity: e.target.value })}
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="prof-bank">내 정산용 계좌번호 (벙주·총무·대납 정산 시 표시)</label>
+              <input
+                id="prof-bank"
+                type="text"
+                placeholder="예: 카카오뱅크 3333-01-1234567 (예금주: 홍길동)"
+                value={form.bankAccount}
+                onChange={(e) =>
+                  setForm({ ...form, bankAccount: e.target.value })
+                }
               />
             </div>
             <div className="form-field">

@@ -13,20 +13,20 @@
   - `onSnapshot` 리스너를 통해 회원(`members`), 모임(`meetings`), 점수 로그(`scoreLogs`), 공지 설정(`settings/community`) 변경 사항이 모든 접속 기기에 실시간으로 반영됩니다.
   - DB가 비어 있는 최초 연결 시 초기 시드 데이터(`INITIAL_MEMBERS`, `INITIAL_MEETINGS` 등)를 자동으로 초기화할 수 있는 부트스트랩 로직을 포함합니다.
 - **LocalStorage Persistent Fallback Mode (`isFirebaseConfigured === false`):**
-  - 아직 `.env` 파일을 생성하지 않은 로컬 개발 단계에서는 브라우저 `localStorage`(`heal_community_v1_*`)에 모든 상태 변경을 자동 저장합니다.
+  - 아직 `.env` 파일을 생성하지 않은 로컬 개발 단계에서는 브라우저 `localStorage`(`heal_community_v2_*`)에 모든 상태 변경을 자동 저장합니다.
   - 브라우저를 새로고침(`F5`)하더라도 온보딩으로 가입한 회원, 개설한 모임, 정산된 점수가 초기화되지 않고 그대로 유지됩니다.
 
 ### 2. Atomic Batch Settlement for Meetings (`writeBatch`)
 - 모임 마감 및 점수 정산(`settleMeetingWithScores`) 실행 시 데이터 정합성을 보장하기 위해 단일 원자적 배치(`writeBatch`)로 다음 작업을 동시 처리합니다.
   1. 대상 모임(`meetings/{meetingId}`)의 `status`를 `'settled'`로 변경하고 `confirmedParticipants` 목록을 확정합니다.
-  2. 실참석 확정된 각 회원(`members/{uid}`)의 `attendanceCount`를 `+1` 증가시키고, `baseScore`(`+1`), `expeditionScore`(타지역 원정 시 `+2`), `totalScore`, `monthlyScore`를 가산합니다.
+  2. 실참석 확정된 각 회원(`members/{uid}`)의 `attendanceCount`를 `+1` 증가시키고, `baseScore`(`+1`), `expeditionScore`(7대 권역 기준 국내 타 권역 원정 시 `+1`, 해외 원정 시 `+2`), `totalScore`, `monthlyScore`를 가산합니다.
   3. 각 참석자별 점수 획득 이력을 `scoreLogs/{logId}` 컬렉션에 생성합니다.
 
 ### 3. Firestore Security Rules (`firestore.rules`)
 클라이언트 UI 우회 시도를 방지하기 위해 DB 레벨에서 다음 권한 규칙을 강제합니다.
 - **신규 회원 온보딩 (`members` 생성):** 본인 UID 문서만 생성 가능하며, 초기 `role`은 반드시 `'Member'`, 초기 점수(`totalScore`)와 참석 횟수(`attendanceCount`)는 `0`이어야 합니다.
-- **프로필 수정 (`members` 수정):** 일반 회원은 본인의 프로필 기본 항목(`realName`, `city`, `homeCity`, `maritalStatus`, `gender`)만 수정할 수 있으며, `role`(등급)이나 `customBadge`는 운영진(`Leader`, `Deputy`)만 변경할 수 있습니다.
-- **모임 개설 (`meetings` 생성):** `attendanceCount >= 1`인 정식 회원 또는 운영진(`Leader`, `Deputy`)만 생성 가능하며, 공식 모임(`type == 'Official'`)은 운영진만 생성할 수 있습니다.
+- **프로필 수정 (`members` 수정):** 일반 회원은 본인의 프로필 기본 항목(`realName`, `city`, `homeCity`, `maritalStatus`, `gender`, `bankAccount`)만 수정할 수 있으며, `role`(등급)이나 `customBadge`는 운영진(`Leader`, `Deputy`)만 변경할 수 있습니다.
+- **모임 개설 및 정산 (`meetings` 생성/수정):** `attendanceCount >= 1`인 정식 회원 또는 운영진(`Leader`, `Deputy`)만 생성 가능하며, 공식 모임(`type == 'Official'`)은 운영진만 생성할 수 있습니다. 활성 회원은 참석 신청, 차수별 참석 체크, 결제 비용/영수증 입력, 입금 완료 보고, 귀가완료 체크를 수행할 수 있으며, 벙주/총무/운영진은 모임 상세 정보 및 정산 내역을 수정·컨펌할 수 있습니다.
 - **공지 및 설정 변경 (`settings/community`):** 운영진(`Leader`, `Deputy`)만 쓰기 권한을 가집니다.
 
 ### 4. Step-by-Step Firebase Console Setup Guide (사용자 설정 가이드)
@@ -62,9 +62,10 @@
 - `subscribeCommunityData(callbacks)`: 실시간 데이터 구독 (Firestore `onSnapshot` 또는 LocalStorage 이벤트 연결).
 - `registerOnboardingMember(form)`: 신규 회원 온보딩 등록.
 - `updateMemberProfile(uid, fields)`: 내 정보 프로필 업데이트.
-- `toggleMeetingApplicant(meetingId, uid)`: 모임 참석 신청/취소 토글.
-- `createMeeting(hostMember, meetingInput)`: 신규 모임(벙) 등록.
-- `settleMeetingWithScores(meetingId, confirmedUids)`: 모임 마감 및 실참석자 점수·참석횟수 일괄 정산.
+- `toggleMeetingApplicant(meetingId, uid)`: 모임 참석 신청/취소 토글 (1차 참석자 기본 연동).
+- `createMeeting(hostUid, meetingInput)`: `YYMMDD01` 채번 및 다차수 구조를 포함한 신규 모임(벙) 등록.
+- `updateMeetingDetails(meetingId, patch)`: 모임 기본 정보, 차수별 장소/참석자/비용/영수증/골든벨, 찬조금, 수동 정산 금액, 입금 상태, 귀가완료 상태 업데이트.
+- `settleMeetingWithScores(meetingId, confirmedUids, currentMembers, currentMeetings)`: 모임 마감 및 실참석자 점수·참석횟수 일괄 정산.
 - `adminUpdateMember(targetUid, patch)`: 운영진 회원 등급/커스텀 뱃지 수정.
 - `adminAdjustEventScore(targetUid, delta, reason)`: 운영진 수동 이벤트 점수 부여/차감.
 - `updateCommunityConfig(configPatch)`: 운영진 공지사항/규칙 설정 저장.
