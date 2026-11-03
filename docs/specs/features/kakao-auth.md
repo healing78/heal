@@ -27,7 +27,7 @@ Firebase 무료 플랜(Spark)과 유료 플랜(Blaze + Cloud Functions) 모두�
    - **[Web 플랫폼 등록]** 클릭 → 사이트 도메인에 아래 주소 등록:
      - `http://localhost:3000`
      - `http://172.30.1.29:3000` (동일 Wi-Fi 모바일 테스트용)
-     - `https://heal-community-d09d7.web.app` (추후 Firebase Hosting 배포 도메인)
+     - `https://healing78.web.app` (추후 Firebase Hosting 배포 도메인)
 2. **카카오 로그인 활성화 설정 ON:**
    - 좌측 메뉴 **`[제품 설정] → [카카오 로그인]`** 이동
    - **활성화 설정**의 상태를 **`ON`**으로 변경

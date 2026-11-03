@@ -1,7 +1,7 @@
 # Web Deployment and PWA Specification
 
 ## Overview
-힐(Heal) 커뮤니티 관리 시스템을 **Firebase Hosting**을 통해 실제 인터넷 도메인(`https://heal-community-d09d7.web.app` 및 `https://heal-community-d09d7.firebaseapp.com`)으로 배포하고, 카카오톡 오픈채팅방 링크 공유 미리보기(Open Graph) 및 스마트폰 홈 화면 추가(PWA) 환경을 제공하는 명세서입니다.
+힐(Heal) 커뮤니티 관리 시스템을 **Firebase Hosting**을 통해 실제 인터넷 도메인(`https://healing78.web.app` 및 `https://healing78.firebaseapp.com`)으로 배포하고, 카카오톡 오픈채팅방 링크 공유 미리보기(Open Graph) 및 스마트폰 홈 화면 추가(PWA) 환경을 제공하는 명세서입니다.
 
 ## Business Rules & Logic
 
@@ -11,7 +11,7 @@
 - 모든 트래픽은 Firebase Hosting이 기본 제공하는 무료 SSL 인증서를 통해 **HTTPS**로 서비스됩니다.
 
 ### 2. KakaoTalk Link Preview (Open Graph Metadata)
-- 카카오톡 오픈채팅방(단톡방) 공지나 대화창에 배포 URL(`https://heal-community-d09d7.web.app`)을 공유했을 때 신뢰감 있는 미리보기 카드가 표시되도록 `index.html`에 다음 Open Graph 메타 태그를 포함합니다.
+- 카카오톡 오픈채팅방(단톡방) 공지나 대화창에 배포 URL(`https://healing78.web.app`)을 공유했을 때 신뢰감 있는 미리보기 카드가 표시되도록 `index.html`에 다음 Open Graph 메타 태그를 포함합니다.
   - `og:title`: `Heal - 힐 커뮤니티 관리 시스템`
   - `og:description`: `규격 닉네임 생성, 모임(벙) 참석 신청 및 활동 점수·랭킹을 한곳에서 확인하세요.`
   - `og:type`: `website`
@@ -37,14 +37,14 @@ npm run deploy:hosting
 ```
 
 배포가 완료되면 터미널에 아래와 같이 실제 접속 주소가 출력됩니다:
-- **Hosting URL:** `https://heal-community-d09d7.web.app`
+- **Hosting URL:** `https://healing78.web.app`
 
 #### B. 배포 후 Kakao Developers 도메인 추가 (필수)
-실서버 주소(`https://heal-community-d09d7.web.app`)에서도 카카오 로그인이 동작하려면 [Kakao Developers](https://developers.kakao.com/) 콘솔에서 배포 도메인을 추가해야 합니다:
+실서버 주소(`https://healing78.web.app`)에서도 카카오 로그인이 동작하려면 [Kakao Developers](https://developers.kakao.com/) 콘솔에서 배포 도메인을 추가해야 합니다:
 1. **`[앱 설정] → [플랫폼] → [Web 플랫폼 수정]`**의 사이트 도메인에 아래 두 주소 추가:
-   - `https://heal-community-d09d7.web.app`
-   - `https://heal-community-d09d7.firebaseapp.com`
-2. **`[제품 설정] → [카카오 로그인] → [Redirect URI]`**에도 `https://heal-community-d09d7.web.app` 추가.
+   - `https://healing78.web.app`
+   - `https://healing78.firebaseapp.com`
+2. **`[제품 설정] → [카카오 로그인] → [Redirect URI]`**에도 `https://healing78.web.app` 추가.
 
 ## Data Schema & API
 
@@ -62,4 +62,4 @@ npm run deploy:hosting
 1. **정적 빌드 산출물 검증:**
    - `npm run build` 실행 후 `dist/index.html`, `dist/manifest.json`, `dist/icon.svg` 파일이 모두 정상 생성되는지 확인.
 2. **실서버 접속 및 모바일 반응형 검증:**
-   - 배포 완료 후 스마트폰 카카오톡 채팅방에 `https://heal-community-d09d7.web.app` 링크를 전송하여 미리보기 카드와 모바일 웹 레이아웃(하단 탭바), 실시간 Firestore 데이터 조회가 정상 동작하는지 확인.
+   - 배포 완료 후 스마트폰 카카오톡 채팅방에 `https://healing78.web.app` 링크를 전송하여 미리보기 카드와 모바일 웹 레이아웃(하단 탭바), 실시간 Firestore 데이터 조회가 정상 동작하는지 확인.

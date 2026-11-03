@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
@@ -18,6 +19,7 @@ export const isFirebaseConfigured = Boolean(
 );
 
 let app = null;
+let analytics = null;
 let db = null;
 let auth = null;
 let functions = null;
@@ -25,6 +27,9 @@ let functions = null;
 if (isFirebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
+    if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+      analytics = getAnalytics(app);
+    }
     db = getFirestore(app);
     auth = getAuth(app);
     functions = getFunctions(app);
@@ -33,4 +38,4 @@ if (isFirebaseConfigured) {
   }
 }
 
-export { app, db, auth, functions };
+export { app, analytics, db, auth, functions };
