@@ -10,12 +10,11 @@
 - 모든 경로 요청(`**`)을 `/index.html`로 리라이트(`rewrites`)하여 클라이언트 사이드 라우팅 및 새로고침 시 404 에러가 발생하지 않도록 보장합니다.
 - 모든 트래픽은 Firebase Hosting이 기본 제공하는 무료 SSL 인증서를 통해 **HTTPS**로 서비스됩니다.
 
-### 2. KakaoTalk Link Preview (Open Graph Metadata)
-- 카카오톡 오픈채팅방(단톡방) 공지나 대화창에 배포 URL(`https://healing78.web.app`)을 공유했을 때 신뢰감 있는 미리보기 카드가 표시되도록 `index.html`에 다음 Open Graph 메타 태그를 포함합니다.
-  - `og:title`: `Heal - 힐 커뮤니티 관리 시스템`
-  - `og:description`: `규격 닉네임 생성, 모임(벙) 참석 신청 및 활동 점수·랭킹을 한곳에서 확인하세요.`
-  - `og:type`: `website`
-  - `og:locale`: `ko_KR`
+### 2. KakaoTalk Link Preview (Open Graph Metadata & Sub-Route Static HTML)
+- 카카오톡 오픈채팅방(단톡방) 공지나 대화창에 배포 URL(`https://healing78.web.app` 및 하위 주소 `/meetings`, `/nickname`, `/ranking` 등)을 공유했을 때 각 하위 주소에 맞는 미리보기 카드와 대표 이미지(`/healing78-logo.jpg`)가 표시되도록 구성합니다.
+  - `og:site_name`: `Healing78`
+  - `og:image`: `https://healing78.web.app/healing78-logo.jpg`
+  - 빌드 시점(`npm run build`)에 `scripts/generate-route-meta.mjs`가 실행되어 `dist/meetings/index.html`, `dist/nickname/index.html`, `dist/ranking/index.html`, `dist/profile/index.html`, `dist/login/index.html`, `dist/admin/index.html`에 하위 주소별 맞춤 `<title>`, `og:title`, `og:description`을 생성합니다.
 
 ### 3. Progressive Web App (PWA) Support for Mobile Web
 - 모바일 브라우저(iOS Safari, Android Chrome)에서 별도 앱 스토어 설치 전에도 **'홈 화면에 추가(Add to Home Screen)'**를 통해 전체 화면 독립 실행(`display: "standalone"`)이 가능하도록 `public/manifest.json`과 벡터 앱 아이콘(`public/icon.svg`)을 제공합니다.

@@ -21,6 +21,7 @@
   - 시스템/아키텍처 전반: `docs/specs/system-overview.md`
   - 멀티플랫폼 설계: `docs/specs/features/multi-platform-architecture.md`
   - 페이지 구조 및 네비게이션: `docs/specs/features/page-structure.md`
+  - 모바일 웹 디자인 및 하위 주소 공유 명세: `docs/specs/features/mobile-design-and-routing.md`
   - 개발 프로세스 및 로컬 검증 가이드: `docs/specs/features/development-workflow.md`
   - Firebase 및 Firestore 연동 명세: `docs/specs/features/firebase-integration.md`
   - 카카오 OAuth 인증 연동 명세: `docs/specs/features/kakao-auth.md`

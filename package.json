@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-route-meta.mjs",
     "preview": "vite preview",
     "firebase:login": "npx firebase-tools login",
     "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting",

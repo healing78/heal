@@ -5,10 +5,14 @@ import {
   resolveMemberBadge,
   ROLE_META
 } from '../core/communityRules';
+import { isFirebaseConfigured } from '../services/firebase';
 
 export default function ProfilePage({
   currentUser,
+  members = [],
   onUpdateProfile,
+  onSwitchUser,
+  onResetDemoData,
   onLogout
 }) {
   const [form, setForm] = useState({
@@ -38,6 +42,7 @@ export default function ProfilePage({
   const generatedNickname = formatMemberNickname(previewMember);
   const currentBadge = resolveMemberBadge(currentUser);
   const hostEligible = canCreateMeeting(currentUser);
+  const dbLabel = isFirebaseConfigured ? 'Firestore DB 연결됨' : 'Local DB (영구저장)';
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -57,14 +62,14 @@ export default function ProfilePage({
   };
 
   return (
-    <div className="stack-gap">
-      {/* Nickname Auto-Generator & One-Click Copy Card */}
-      <section className="card">
+    <div className="list-container">
+      {/* Nickname Auto-Generator & One-Click Copy */}
+      <section className="list-section">
         <div className="section-title-row">
           <div>
             <h2>내 정보 및 규격 닉네임 관리</h2>
             <p className="muted-text">
-              프로필을 수정하면 규격 닉네임이 자동 생성됩니다. 복사하여 카카오톡 오픈채팅방 프로필에 적용해 주세요.
+              프로필을 수정하면 규격 닉네임이 자동 생성됩니다. 복사하여 카카오톡 오픈채팅방에 적용하세요.
             </p>
           </div>
           <span
@@ -78,12 +83,12 @@ export default function ProfilePage({
         <div className="nickname-preview-box">
           <div>
             <div className="preview-caption">
-              자동 생성 규격 닉네임 (현재 적용 뱃지: {currentBadge})
+              자동 생성 규격 닉네임 (적용 뱃지: {currentBadge})
             </div>
             <div className="preview-value">{generatedNickname}</div>
           </div>
-          <button type="button" className="btn btn-primary" onClick={handleCopy}>
-            {copied ? '복사 완료!' : '닉네임 원클릭 복사'}
+          <button type="button" className="btn btn-primary btn-sm" onClick={handleCopy}>
+            {copied ? '✅ 복사됨' : '📋 닉네임 복사'}
           </button>
         </div>
 
@@ -169,38 +174,78 @@ export default function ProfilePage({
               className="btn btn-outline"
               onClick={onLogout}
             >
-              로그아웃 / 계정 전환 화면으로
+              로그아웃
             </button>
           </div>
         </form>
       </section>
 
-      {/* Activity & Eligibility Status Card */}
-      <section className="card">
-        <h3>내 커뮤니티 활동 자격 현황</h3>
+      {/* Activity & Eligibility Status */}
+      <section className="list-section">
+        <h3 style={{ marginBottom: '10px' }}>내 활동 자격 현황</h3>
         <div className="stats-grid">
           <div className="stat-box">
-            <span className="stat-label">모임 참석 횟수</span>
+            <span className="stat-label">참석 횟수</span>
             <strong className="stat-value">{currentUser.attendanceCount}회</strong>
             <span className="stat-sub">정산 확정 기준</span>
           </div>
           <div className="stat-box">
-            <span className="stat-label">모임(벙) 개설 자격</span>
+            <span className="stat-label">벙 개설 자격</span>
             <strong className="stat-value">
-              {hostEligible ? '개설 가능 ✅' : '미충족 (1회 참석 필요)'}
+              {hostEligible ? '개설 가능' : '미충족'}
             </strong>
-            <span className="stat-sub">1회 이상 참석 회원 개설 가능</span>
+            <span className="stat-sub">1회 이상 참석 시</span>
           </div>
           <div className="stat-box">
-            <span className="stat-label">누적 점수 구성</span>
+            <span className="stat-label">누적 점수</span>
             <strong className="stat-value">{currentUser.totalScore}점</strong>
             <span className="stat-sub">
-              기본 {currentUser.baseScore} / 원정 {currentUser.expeditionScore} / 이벤트{' '}
-              {currentUser.eventScore}
+              기본 {currentUser.baseScore}·원정 {currentUser.expeditionScore}
             </span>
           </div>
         </div>
       </section>
+
+      {/* Bottom Test Account Switcher & System Info (Moved from Mobile Header) */}
+      {onSwitchUser && (
+        <section className="list-section">
+          <div className="section-title-row">
+            <div>
+              <h3>권한 체험용 계정 전환</h3>
+              <p className="muted-text">
+                방장·부방장·일반회원·신입 권한을 빠르게 전환하여 테스트할 수 있습니다.
+              </p>
+            </div>
+            <span className="platform-badge">{dbLabel}</span>
+          </div>
+          <div className="stack-gap">
+            <select
+              aria-label="계정 전환"
+              className="switcher-select"
+              value={currentUser.uid}
+              onChange={(e) => onSwitchUser(e.target.value)}
+            >
+              {members.map((m) => (
+                <option key={m.uid} value={m.uid}>
+                  [{ROLE_META[m.role]?.label}] {formatMemberNickname(m)} (참석{' '}
+                  {m.attendanceCount}회)
+                </option>
+              ))}
+              <option value="__LOGOUT__">→ 비로그인 / 신규 온보딩 화면</option>
+            </select>
+
+            {!isFirebaseConfigured && onResetDemoData && (
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={onResetDemoData}
+              >
+                데모 데이터 초기화
+              </button>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

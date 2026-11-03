@@ -8,6 +8,13 @@ import {
   INITIAL_SCORE_LOGS
 } from './core/initialData';
 import {
+  buildRouteMeta,
+  parseCurrentRoute,
+  pushRouteUrl,
+  shareRouteInfo,
+  syncDocumentMeta
+} from './core/routeMeta';
+import {
   adminAdjustEventScore,
   adminUpdateMember,
   createMeeting,
@@ -26,6 +33,7 @@ import LoginOnboardingPage from './pages/LoginOnboardingPage';
 import HomePage from './pages/HomePage';
 import MeetingsPage from './pages/MeetingsPage';
 import RankingPage from './pages/RankingPage';
+import NicknamePage from './pages/NicknamePage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
 
@@ -40,7 +48,13 @@ export default function App() {
   const [currentUserUid, setCurrentUserUid] = useState(() =>
     getSavedCurrentUserUid()
   );
-  const [activeTab, setActiveTab] = useState('home');
+
+  const initialRoute = parseCurrentRoute();
+  const [activeTab, setActiveTab] = useState(initialRoute.tab);
+  const [selectedMeetingId, setSelectedMeetingId] = useState(
+    initialRoute.meetingId
+  );
+  const [shareToast, setShareToast] = useState('');
 
   useEffect(() => {
     const unsubscribe = subscribeCommunityData((snapshot) => {
@@ -52,20 +66,98 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // Listen to browser Back/Forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const route = parseCurrentRoute();
+      setActiveTab(route.tab);
+      setSelectedMeetingId(route.meetingId);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const currentUser = members.find((m) => m.uid === currentUserUid) || null;
+
+  const navigateToTab = (nextTab, params = {}) => {
+    const meetingParam =
+      nextTab === 'meetings' ? params.id ?? null : null;
+    setActiveTab(nextTab);
+    setSelectedMeetingId(meetingParam);
+    pushRouteUrl(nextTab, meetingParam ? { id: meetingParam } : {});
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSelectMeetingId = (meetingId) => {
+    setSelectedMeetingId(meetingId);
+    pushRouteUrl('meetings', meetingId ? { id: meetingId } : {});
+  };
+
+  // Compute dynamic 20-char top header summary & document.title
+  const currentMeta = buildRouteMeta({
+    tab: !currentUser && activeTab === 'profile' ? 'login' : activeTab,
+    meetingId: selectedMeetingId,
+    meetings,
+    members,
+    currentUser
+  });
+
+  useEffect(() => {
+    syncDocumentMeta(currentMeta);
+  }, [currentMeta]);
+
+  const showShareFeedback = (msg) => {
+    setShareToast(msg);
+    setTimeout(() => setShareToast(''), 2500);
+  };
+
+  const handleShareCurrentRoute = async () => {
+    const result = await shareRouteInfo(currentMeta);
+    if (result.copied) {
+      showShareFeedback(
+        `📋 카톡 공유 문구 복사됨: "${currentMeta.headerSummary}"`
+      );
+    }
+  };
+
+  const handleShareSpecificMeeting = async (meeting) => {
+    if (!meeting) return;
+    setActiveTab('meetings');
+    setSelectedMeetingId(meeting.id);
+    pushRouteUrl('meetings', { id: meeting.id });
+
+    const mtgMeta = buildRouteMeta({
+      tab: 'meetings',
+      meetingId: meeting.id,
+      meetings,
+      members,
+      currentUser
+    });
+    syncDocumentMeta(mtgMeta);
+
+    const result = await shareRouteInfo(mtgMeta);
+    if (result.copied) {
+      showShareFeedback(`📋 벙 안내 복사됨: "${mtgMeta.headerSummary}"`);
+    }
+  };
 
   const handleSwitchUser = (uid) => {
     if (uid === '__LOGOUT__') {
       logoutFromKakao();
       setCurrentUserUid(null);
       saveCurrentUserUid(null);
+      navigateToTab('login');
       return;
     }
     setCurrentUserUid(uid);
     saveCurrentUserUid(uid);
     const nextUser = members.find((m) => m.uid === uid);
     if (activeTab === 'admin' && (!nextUser || !isAdminRole(nextUser.role))) {
-      setActiveTab('home');
+      navigateToTab('home');
+    } else if (activeTab === 'login') {
+      navigateToTab('home');
     }
   };
 
@@ -73,16 +165,22 @@ export default function App() {
     const newMember = await registerOnboardingMember(form, customUid);
     setCurrentUserUid(newMember.uid);
     saveCurrentUserUid(newMember.uid);
-    setActiveTab('home');
+    navigateToTab('home');
   };
 
   const handleToggleApplyMeeting = async (meetingId) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      navigateToTab('login');
+      return;
+    }
     await toggleMeetingApplicant(meetingId, currentUser.uid);
   };
 
   const handleCreateMeeting = async (meetingInput) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      navigateToTab('login');
+      return;
+    }
     await createMeeting(currentUser.uid, meetingInput);
   };
 
@@ -115,31 +213,33 @@ export default function App() {
   const handleResetDemoData = () => {
     resetToInitialDemoData();
     setCurrentUserUid('kakao:1001');
-    setActiveTab('home');
+    navigateToTab('home');
   };
 
-  if (!currentUser) {
-    return (
-      <LoginOnboardingPage
-        members={members}
-        onSelectExistingMember={(uid) => {
-          setCurrentUserUid(uid);
-          saveCurrentUserUid(uid);
-          setActiveTab('home');
-        }}
-        onCompleteOnboarding={handleCompleteOnboarding}
-      />
-    );
-  }
+  const renderLoginView = () => (
+    <LoginOnboardingPage
+      members={members}
+      onSelectExistingMember={(uid) => {
+        setCurrentUserUid(uid);
+        saveCurrentUserUid(uid);
+        navigateToTab('home');
+      }}
+      onCompleteOnboarding={handleCompleteOnboarding}
+      onNavigateTab={navigateToTab}
+    />
+  );
 
   return (
     <AppLayout
       activeTab={activeTab}
-      onChangeTab={setActiveTab}
+      onChangeTab={navigateToTab}
       currentUser={currentUser}
       members={members}
       onSwitchUser={handleSwitchUser}
       onResetDemoData={handleResetDemoData}
+      headerSummary={currentMeta.headerSummary}
+      onShareCurrentRoute={handleShareCurrentRoute}
+      shareToast={shareToast}
     >
       {activeTab === 'home' && (
         <HomePage
@@ -148,7 +248,8 @@ export default function App() {
           meetings={meetings}
           communityConfig={communityConfig}
           onToggleApplyMeeting={handleToggleApplyMeeting}
-          onNavigateTab={setActiveTab}
+          onNavigateTab={navigateToTab}
+          onShareMeeting={handleShareSpecificMeeting}
         />
       )}
 
@@ -157,9 +258,13 @@ export default function App() {
           currentUser={currentUser}
           members={members}
           meetings={meetings}
+          selectedMeetingId={selectedMeetingId}
+          onSelectMeetingId={handleSelectMeetingId}
+          onShareMeeting={handleShareSpecificMeeting}
           onToggleApplyMeeting={handleToggleApplyMeeting}
           onCreateMeeting={handleCreateMeeting}
           onSettleMeeting={handleSettleMeeting}
+          onNavigateTab={navigateToTab}
         />
       )}
 
@@ -171,23 +276,42 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'profile' && (
-        <ProfilePage
+      {activeTab === 'nickname' && (
+        <NicknamePage
           currentUser={currentUser}
-          onUpdateProfile={handleUpdateProfile}
-          onLogout={() => handleSwitchUser('__LOGOUT__')}
+          onNavigateTab={navigateToTab}
+          onSharePage={handleShareCurrentRoute}
         />
       )}
 
-      {activeTab === 'admin' && isAdminRole(currentUser.role) && (
-        <AdminPage
-          members={members}
-          communityConfig={communityConfig}
-          onAdminUpdateMember={handleAdminUpdateMember}
-          onAdminAdjustEventScore={handleAdminAdjustEventScore}
-          onAdminUpdateConfig={handleAdminUpdateConfig}
-        />
-      )}
+      {activeTab === 'login' && renderLoginView()}
+
+      {activeTab === 'profile' &&
+        (currentUser ? (
+          <ProfilePage
+            currentUser={currentUser}
+            members={members}
+            onUpdateProfile={handleUpdateProfile}
+            onSwitchUser={handleSwitchUser}
+            onResetDemoData={handleResetDemoData}
+            onLogout={() => handleSwitchUser('__LOGOUT__')}
+          />
+        ) : (
+          renderLoginView()
+        ))}
+
+      {activeTab === 'admin' &&
+        (currentUser && isAdminRole(currentUser.role) ? (
+          <AdminPage
+            members={members}
+            communityConfig={communityConfig}
+            onAdminUpdateMember={handleAdminUpdateMember}
+            onAdminAdjustEventScore={handleAdminAdjustEventScore}
+            onAdminUpdateConfig={handleAdminUpdateConfig}
+          />
+        ) : (
+          renderLoginView()
+        ))}
     </AppLayout>
   );
 }

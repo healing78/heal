@@ -25,14 +25,16 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
       return b.totalScore - a.totalScore;
     });
 
-  const myLogs = scoreLogs.filter((log) => log.uid === currentUser.uid);
+  const myLogs = currentUser
+    ? scoreLogs.filter((log) => log.uid === currentUser.uid)
+    : [];
 
   return (
-    <div className="stack-gap">
-      <div className="card">
-        <h2>랭킹 및 활동 점수 현황</h2>
+    <div className="list-container">
+      <section className="list-section">
+        <h2>친구 정보 · 활동 점수 랭킹</h2>
         <p className="muted-text">
-          모임 참석(기본 +1점), 타지역 원정 보너스(+2점), 운영진 이벤트 점수가 합산된 실시간 순위입니다.
+          모임 참석(기본 +1점), 타지역 원정 보너스(+2점), 이벤트 점수가 합산된 실시간 순위입니다.
         </p>
 
         <div className="subtab-bar">
@@ -41,7 +43,7 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
             className={`subtab-btn ${subTab === 'total' ? 'active' : ''}`}
             onClick={() => setSubTab('total')}
           >
-            전체 누적 랭킹
+            전체 누적 랭킹 ({members.length})
           </button>
           <button
             type="button"
@@ -50,20 +52,22 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
           >
             이번 달 랭킹
           </button>
-          <button
-            type="button"
-            className={`subtab-btn ${subTab === 'history' ? 'active' : ''}`}
-            onClick={() => setSubTab('history')}
-          >
-            내 점수 상세 내역 ({myLogs.length})
-          </button>
+          {currentUser && (
+            <button
+              type="button"
+              className={`subtab-btn ${subTab === 'history' ? 'active' : ''}`}
+              onClick={() => setSubTab('history')}
+            >
+              내 점수 내역 ({myLogs.length})
+            </button>
+          )}
         </div>
 
         {subTab !== 'history' && (
           <div className="filter-bar">
             <input
               type="text"
-              placeholder="닉네임 또는 이름 검색..."
+              placeholder="친구 이름 또는 닉네임 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -79,23 +83,31 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
             </select>
           </div>
         )}
-      </div>
+      </section>
 
-      {subTab === 'history' ? (
-        <section className="card stack-gap">
-          <h3>{formatMemberNickname(currentUser)}님의 점수 적립·차감 내역</h3>
+      {subTab === 'history' && currentUser ? (
+        <section className="list-section">
+          <h3>{formatMemberNickname(currentUser)}님의 점수 내역</h3>
           {myLogs.length === 0 ? (
-            <p className="muted-text">아직 적립된 점수 내역이 없습니다.</p>
+            <p className="muted-text" style={{ marginTop: '8px' }}>
+              아직 적립된 점수 내역이 없습니다.
+            </p>
           ) : (
-            <div className="stack-gap">
+            <div className="divider-list" style={{ marginTop: '8px' }}>
               {myLogs.map((log) => (
-                <div key={log.id} className="sub-card score-log-item">
+                <div key={log.id} className="list-item-row score-log-item">
                   <div>
                     <strong>{log.title}</strong>
                     <div className="sub-meta">
-                      {log.date} · 기본 {log.baseDelta >= 0 ? `+${log.baseDelta}` : log.baseDelta}{' '}
-                      · 원정 {log.expeditionDelta >= 0 ? `+${log.expeditionDelta}` : log.expeditionDelta}{' '}
-                      · 이벤트 {log.eventDelta >= 0 ? `+${log.eventDelta}` : log.eventDelta}
+                      {log.date} · 기본{' '}
+                      {log.baseDelta >= 0 ? `+${log.baseDelta}` : log.baseDelta} · 원정{' '}
+                      {log.expeditionDelta >= 0
+                        ? `+${log.expeditionDelta}`
+                        : log.expeditionDelta}{' '}
+                      · 이벤트{' '}
+                      {log.eventDelta >= 0
+                        ? `+${log.eventDelta}`
+                        : log.eventDelta}
                     </div>
                   </div>
                   <span
@@ -103,7 +115,9 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
                       log.totalDelta >= 0 ? 'positive' : 'negative'
                     }`}
                   >
-                    {log.totalDelta >= 0 ? `+${log.totalDelta}점` : `${log.totalDelta}점`}
+                    {log.totalDelta >= 0
+                      ? `+${log.totalDelta}점`
+                      : `${log.totalDelta}점`}
                   </span>
                 </div>
               ))}
@@ -111,9 +125,8 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
           )}
         </section>
       ) : (
-        <section className="card">
-          {/* Desktop Table View + Mobile Adaptive Rows */}
-          <div className="ranking-preview-list">
+        <section className="list-section">
+          <div className="divider-list">
             {filteredMembers.map((member, index) => {
               const displayScore =
                 subTab === 'monthly'
@@ -124,7 +137,9 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
                 <div
                   key={member.uid}
                   className={`ranking-row ${
-                    member.uid === currentUser.uid ? 'highlight-me' : ''
+                    currentUser && member.uid === currentUser.uid
+                      ? 'highlight-me'
+                      : ''
                   }`}
                 >
                   <div className="rank-left">

@@ -62,11 +62,11 @@ export default function AdminPage({
   };
 
   return (
-    <div className="stack-gap">
-      <div className="card">
+    <div className="list-container">
+      <section className="list-section">
         <div className="section-title-row">
           <div>
-            <h2>운영진 전용 관리 센터 (방장 · 부방장)</h2>
+            <h2>운영진 관리 센터 (방장 · 부방장)</h2>
             <p className="muted-text">
               회원 등급/상태(VIP·일반·방랑자·탈퇴·강퇴) 및 커스텀 뱃지 변경, 수동 이벤트 점수 가감, 홈 공지 설정을 관리합니다.
             </p>
@@ -80,29 +80,29 @@ export default function AdminPage({
             className={`subtab-btn ${subTab === 'members' ? 'active' : ''}`}
             onClick={() => setSubTab('members')}
           >
-            회원 · 역할 관리 ({members.length})
+            회원·역할 관리 ({members.length})
           </button>
           <button
             type="button"
             className={`subtab-btn ${subTab === 'scores' ? 'active' : ''}`}
             onClick={() => setSubTab('scores')}
           >
-            수동 점수 부여 · 차감
+            수동 점수 가감
           </button>
           <button
             type="button"
             className={`subtab-btn ${subTab === 'config' ? 'active' : ''}`}
             onClick={() => setSubTab('config')}
           >
-            공지 및 역할/규칙 설정
+            공지·규칙 설정
           </button>
         </div>
-      </div>
+      </section>
 
       {/* Sub-tab 1: Member & Role Management */}
       {subTab === 'members' && (
-        <section className="card stack-gap">
-          <div className="filter-bar">
+        <section className="list-section">
+          <div className="filter-bar" style={{ marginTop: 0, marginBottom: '12px' }}>
             <input
               type="text"
               placeholder="회원 이름 또는 닉네임 검색..."
@@ -111,9 +111,9 @@ export default function AdminPage({
             />
           </div>
 
-          <div className="admin-member-list">
+          <div className="divider-list">
             {filteredMembers.map((m) => (
-              <div key={m.uid} className="sub-card admin-member-row">
+              <div key={m.uid} className="list-item-row admin-member-row">
                 <div className="admin-member-info">
                   <div className="rank-name-line">
                     <strong>{formatMemberNickname(m)}</strong>
@@ -171,9 +171,9 @@ export default function AdminPage({
 
       {/* Sub-tab 2: Manual Event Score Grant / Deduct */}
       {subTab === 'scores' && (
-        <section className="card">
+        <section className="list-section">
           <h3>이벤트 점수 수동 부여 · 차감</h3>
-          <p className="muted-text">
+          <p className="muted-text" style={{ marginBottom: '12px' }}>
             특정 회원에게 이벤트 가산점(+) 또는 규정 위반 감점(-)을 부여하고 점수 내역에 사유를 기록합니다.
           </p>
 
@@ -237,8 +237,8 @@ export default function AdminPage({
 
       {/* Sub-tab 3: Notice & Community Rules Settings */}
       {subTab === 'config' && (
-        <section className="card">
-          <h3>홈 공지사항 및 커뮤니티 규칙 설정</h3>
+        <section className="list-section">
+          <h3 style={{ marginBottom: '12px' }}>홈 공지사항 및 커뮤니티 규칙 설정</h3>
           <form onSubmit={handleConfigSubmit} className="stack-gap">
             <div className="form-field">
               <label htmlFor="cfg-title">공지 배너 제목</label>

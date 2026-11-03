@@ -1,10 +1,10 @@
 import { generateNickname } from '../nicknameUtils';
 
 export const ROLE_META = {
-  Leader: { label: '방장', badgeColor: '#0f766e', isAdmin: true },
-  Deputy: { label: '부방장', badgeColor: '#0369a1', isAdmin: true },
-  VIP: { label: 'VIP', badgeColor: '#7c3aed', isAdmin: false },
-  Member: { label: '일반회원', badgeColor: '#334155', isAdmin: false },
+  Leader: { label: '방장', badgeColor: '#e11d48', isAdmin: true },
+  Deputy: { label: '부방장', badgeColor: '#7c3aed', isAdmin: true },
+  VIP: { label: 'VIP', badgeColor: '#db2777', isAdmin: false },
+  Member: { label: '일반회원', badgeColor: '#475569', isAdmin: false },
   Wanderer: { label: '방랑자', badgeColor: '#d97706', isAdmin: false },
   Withdrawn: { label: '탈퇴자', badgeColor: '#94a3b8', isAdmin: false },
   Expelled: { label: '강퇴자', badgeColor: '#dc2626', isAdmin: false }

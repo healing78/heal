@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { suggestNewMemberNickname } from '../nicknameUtils';
 import { formatMemberNickname, ROLE_META } from '../core/communityRules';
+import { HERO_IMAGE_PATH } from '../core/routeMeta';
 import {
   isKakaoConfigured,
   loginWithKakao
@@ -9,21 +10,14 @@ import {
 export default function LoginOnboardingPage({
   members,
   onSelectExistingMember,
-  onCompleteOnboarding
+  onCompleteOnboarding,
+  onNavigateTab
 }) {
   const [step, setStep] = useState('login'); // 'login' | 'onboarding'
   const [copied, setCopied] = useState(false);
   const [kakaoLoading, setKakaoLoading] = useState(false);
   const [kakaoError, setKakaoError] = useState('');
   const [pendingKakaoUser, setPendingKakaoUser] = useState(null);
-
-  // Quick nickname generator (available before login)
-  const [quickForm, setQuickForm] = useState({
-    name: '홍길동',
-    city: '서울',
-    maritalStatus: 'single',
-    gender: '남'
-  });
 
   // New member onboarding form
   const [onboardingForm, setOnboardingForm] = useState({
@@ -34,7 +28,6 @@ export default function LoginOnboardingPage({
     gender: '남'
   });
 
-  const quickNickname = suggestNewMemberNickname(quickForm);
   const onboardingPreview = suggestNewMemberNickname({
     name: onboardingForm.realName || '이름',
     city: onboardingForm.city || '지역',
@@ -69,7 +62,6 @@ export default function LoginOnboardingPage({
         return;
       }
 
-      // First-time Kakao user -> go to Onboarding with pre-filled name & Kakao UID
       setPendingKakaoUser(kakaoUser);
       setOnboardingForm((prev) => ({
         ...prev,
@@ -82,7 +74,7 @@ export default function LoginOnboardingPage({
         err?.message ||
         JSON.stringify(err || '알 수 없는 오류');
       setKakaoError(
-        `카카오 로그인 안내: ${detail} (Kakao Developers 콘솔의 [앱 설정 > 플랫폼 > Web]에 현재 주소(${window.location.origin}) 등록 및 [카카오 로그인 > 활성화 설정 ON] 여부를 확인해 주세요.)`
+        `카카오 로그인 안내: ${detail} (Kakao Developers 콘솔의 [앱 설정 > 플랫폼 > Web]에 현재 주소(${window.location.origin}) 등록 여부를 확인해 주세요.)`
       );
     } finally {
       setKakaoLoading(false);
@@ -97,8 +89,8 @@ export default function LoginOnboardingPage({
 
   if (step === 'onboarding') {
     return (
-      <div className="auth-wrapper">
-        <div className="card auth-card">
+      <div className="list-container">
+        <section className="list-section">
           <div className="section-header">
             <span className="platform-badge">
               {pendingKakaoUser
@@ -107,7 +99,7 @@ export default function LoginOnboardingPage({
             </span>
             <h2>프로필 및 규격 닉네임 설정</h2>
             <p className="muted-text">
-              입력 완료 즉시 <strong>일반회원(Member)</strong>으로 커뮤니티를 이용할 수 있습니다.
+              입력 완료 즉시 <strong>일반회원(Member)</strong>으로 커뮤니티 모임과 랭킹을 이용할 수 있습니다.
             </p>
           </div>
 
@@ -147,7 +139,7 @@ export default function LoginOnboardingPage({
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="onboard-home">연고지 (원정 보너스 +2점 판별 기준)</label>
+                <label htmlFor="onboard-home">연고지 (원정 보너스 +2점 기준)</label>
                 <input
                   id="onboard-home"
                   type="text"
@@ -203,7 +195,7 @@ export default function LoginOnboardingPage({
               </div>
               <button
                 type="button"
-                className="btn btn-outline"
+                className="btn btn-outline btn-sm"
                 onClick={() => handleCopy(onboardingPreview)}
               >
                 {copied ? '복사됨!' : '복사'}
@@ -222,160 +214,111 @@ export default function LoginOnboardingPage({
                 이전으로
               </button>
               <button type="submit" className="btn btn-primary">
-                프로필 저장 후 커뮤니티 입장
+                프로필 저장 후 입장하기
               </button>
             </div>
           </form>
-        </div>
+        </section>
       </div>
     );
   }
 
   return (
-    <div className="auth-wrapper">
-      {/* Main Kakao Login Card */}
-      <div className="card auth-card">
-        <div className="section-header">
-          <div className="badge-group">
-            <span className="platform-badge">Heal Community</span>
+    <div className="list-container">
+      {/* Hero Banner with Uploaded Healing78 Representative Image */}
+      <section className="login-hero-section">
+        <div className="login-hero-image-wrap">
+          <img
+            src={HERO_IMAGE_PATH}
+            alt="Healing78 since 2024 대표 이미지"
+            className="login-hero-image"
+          />
+        </div>
+        <div className="login-hero-text">
+          <div className="badge-group" style={{ justifyContent: 'center' }}>
+            <span className="platform-badge">Healing78 · since 2024</span>
             {isKakaoConfigured && (
-              <span className="platform-badge">Kakao SDK 연동됨</span>
+              <span className="platform-badge">Kakao 로그인 연동</span>
             )}
           </div>
-          <h2>힐(Heal) 커뮤니티 관리 시스템</h2>
+          <h2>Healing78 커뮤니티</h2>
           <p className="muted-text">
-            카카오 계정으로 로그인하세요. 기존 회원은 즉시 입장하며, 미등록 신규 회원은 프로필/닉네임 설정(온보딩) 화면으로 자동 이동합니다.
+            카카오 계정으로 간편하게 로그인하거나 신입 프로필을 등록하세요.
           </p>
         </div>
 
-        <div className="stack-gap">
+        <div className="stack-gap" style={{ marginTop: '16px' }}>
           <button
             type="button"
             className="btn btn-kakao"
             disabled={kakaoLoading}
             onClick={handleKakaoLoginClick}
           >
-            {kakaoLoading ? '카카오 인증 창 연결 중...' : '카카오 계정으로 로그인'}
+            {kakaoLoading ? '카카오 인증 창 연결 중...' : '💬 카카오 계정으로 로그인'}
           </button>
 
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={() => {
-              setPendingKakaoUser(null);
-              setStep('onboarding');
-            }}
-          >
-            신규 회원 온보딩 화면 바로 체험하기
-          </button>
+          <div className="login-sub-actions">
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ flex: 1 }}
+              onClick={() => {
+                setPendingKakaoUser(null);
+                setStep('onboarding');
+              }}
+            >
+              ✨ 신입 회원 프로필 등록
+            </button>
+            {onNavigateTab && (
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ flex: 1 }}
+                onClick={() => onNavigateTab('nickname')}
+              >
+                🏷️ 닉네임 생성기 바로가기
+              </button>
+            )}
+          </div>
 
           {kakaoError && (
             <div className="warning-banner" role="alert">
               ⚠️ {kakaoError}
             </div>
           )}
+        </div>
+      </section>
 
-          <div className="divider-label">또는 등록된 회원 계정으로 빠른 로그인 체험</div>
-          <div className="demo-account-list">
-            {members.map((m) => (
-              <button
-                key={m.uid}
-                type="button"
-                className="demo-account-btn"
-                onClick={() => onSelectExistingMember(m.uid)}
-              >
-                <div>
-                  <strong>{formatMemberNickname(m)}</strong>
-                  <span className="sub-meta">
-                    {' '}
-                    · 참석 {m.attendanceCount}회 · {m.totalScore}점
-                  </span>
-                </div>
-                <span
-                  className="role-pill"
-                  style={{ backgroundColor: ROLE_META[m.role]?.badgeColor }}
-                >
-                  {ROLE_META[m.role]?.label}
+      {/* Quick Demo Member Login List */}
+      <section className="list-section">
+        <div className="divider-label" style={{ textAlign: 'left', marginBottom: '10px' }}>
+          등록된 회원 계정으로 빠른 로그인 체험
+        </div>
+        <div className="divider-list">
+          {members.map((m) => (
+            <button
+              key={m.uid}
+              type="button"
+              className="demo-account-btn"
+              onClick={() => onSelectExistingMember(m.uid)}
+            >
+              <div>
+                <strong>{formatMemberNickname(m)}</strong>
+                <span className="sub-meta">
+                  {' '}
+                  · 참석 {m.attendanceCount}회 · {m.totalScore}점
                 </span>
-              </button>
-            ))}
-          </div>
+              </div>
+              <span
+                className="role-pill"
+                style={{ backgroundColor: ROLE_META[m.role]?.badgeColor }}
+              >
+                {ROLE_META[m.role]?.label}
+              </span>
+            </button>
+          ))}
         </div>
-      </div>
-
-      {/* Quick Nickname Generator available before login */}
-      <div className="card auth-card">
-        <div className="section-header">
-          <h3>로그인 전 빠른 닉네임 생성기</h3>
-          <p className="muted-text">
-            오픈채팅방 입장 전 규격 닉네임([이름 지역 결혼여부 성별 가입일])을 미리 만들고 복사할 수 있습니다.
-          </p>
-        </div>
-        <div className="form-grid">
-          <div className="form-field">
-            <label htmlFor="quick-name">이름</label>
-            <input
-              id="quick-name"
-              type="text"
-              value={quickForm.name}
-              onChange={(e) =>
-                setQuickForm({ ...quickForm, name: e.target.value })
-              }
-            />
-          </div>
-          <div className="form-field">
-            <label htmlFor="quick-city">지역</label>
-            <input
-              id="quick-city"
-              type="text"
-              value={quickForm.city}
-              onChange={(e) =>
-                setQuickForm({ ...quickForm, city: e.target.value })
-              }
-            />
-          </div>
-          <div className="form-field">
-            <label htmlFor="quick-marital">결혼 여부</label>
-            <select
-              id="quick-marital"
-              value={quickForm.maritalStatus}
-              onChange={(e) =>
-                setQuickForm({ ...quickForm, maritalStatus: e.target.value })
-              }
-            >
-              <option value="single">미혼 (미)</option>
-              <option value="married">기혼 (기)</option>
-              <option value="divorced">돌싱 (돌)</option>
-            </select>
-          </div>
-          <div className="form-field">
-            <label htmlFor="quick-gender">성별</label>
-            <select
-              id="quick-gender"
-              value={quickForm.gender}
-              onChange={(e) =>
-                setQuickForm({ ...quickForm, gender: e.target.value })
-              }
-            >
-              <option value="남">남성 (남)</option>
-              <option value="여">여성 (여)</option>
-            </select>
-          </div>
-        </div>
-        <div className="nickname-preview-box">
-          <div>
-            <div className="preview-caption">규격 닉네임 미리보기</div>
-            <div className="preview-value">{quickNickname}</div>
-          </div>
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={() => handleCopy(quickNickname)}
-          >
-            {copied ? '복사됨!' : '닉네임 복사'}
-          </button>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

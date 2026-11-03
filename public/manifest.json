@@ -1,14 +1,20 @@
 {
-  "short_name": "Heal",
-  "name": "Heal 커뮤니티 관리 시스템",
-  "description": "힐(Heal) 커뮤니티 규격 닉네임, 모임(벙) 참석 및 활동 점수·랭킹 관리 플랫폼",
+  "short_name": "Healing78",
+  "name": "Healing78 커뮤니티 (since 2024)",
+  "description": "Healing78 규격 닉네임 생성, 모임(벙) 참석 및 활동 점수·랭킹 관리 플랫폼",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#0f766e",
+  "background_color": "#ffffff",
+  "theme_color": "#e11d48",
   "orientation": "portrait-primary",
   "icons": [
+    {
+      "src": "/healing78-logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
     {
       "src": "/icon.svg",
       "sizes": "any",
