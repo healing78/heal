@@ -4,6 +4,7 @@ import { formatMemberNickname } from '../core/communityRules';
 
 export default function NicknamePage({
   currentUser,
+  communityConfig = {},
   onNavigateTab,
   onSharePage
 }) {
@@ -22,6 +23,12 @@ export default function NicknamePage({
     gender: form.gender
   });
 
+  const newcomerSummary =
+    communityConfig.newcomerSummary || '신입공지 · 입장 즉시 닉네임 변경';
+  const newcomerNoticeBody =
+    communityConfig.newcomerNoticeBody ||
+    'Healing78 오픈채팅방 입장 후 아래 생성기에서 본인 정보를 입력하고 [닉네임 복사]를 눌러 카톡방 프로필 이름을 변경해 주세요.';
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(generatedNickname);
@@ -34,15 +41,22 @@ export default function NicknamePage({
 
   return (
     <div className="list-container">
-      {/* Top Info Section */}
+      {/* 1. Newcomer Notice Banner */}
+      <section className="list-section notice-section">
+        <div className="notice-header">
+          <span className="platform-badge">신입 공지</span>
+          <h3>{newcomerSummary}</h3>
+        </div>
+        <p className="notice-body">{newcomerNoticeBody}</p>
+      </section>
+
+      {/* 2. Nickname Generator Preview & Copy */}
       <section className="list-section">
         <div className="section-title-row">
           <div>
-            <span className="platform-badge">신입 필수 안내</span>
-            <h2 style={{ marginTop: '6px' }}>신입 규격 닉네임 자동 생성기</h2>
+            <h2>신입 규격 닉네임 자동 생성기</h2>
             <p className="muted-text">
-              Healing78 오픈채팅방 입장 후 아래 생성기에서 본인 정보를 입력하고{' '}
-              <strong>[닉네임 복사]</strong>를 눌러 카톡방 프로필 이름을 변경해 주세요.
+              로그인 전에도 누구나 규격 닉네임을 만들고 복사할 수 있습니다.
             </p>
           </div>
           {onSharePage && (
@@ -74,7 +88,7 @@ export default function NicknamePage({
         </div>
       </section>
 
-      {/* Generator Input Form */}
+      {/* 3. Generator Input Form */}
       <section className="list-section">
         <h3>내 정보 입력</h3>
         <div className="form-grid" style={{ marginTop: '12px' }}>
@@ -126,7 +140,7 @@ export default function NicknamePage({
         </div>
       </section>
 
-      {/* Naming Rules Guide */}
+      {/* 4. Naming Rules Guide */}
       <section className="list-section">
         <h3>Healing78 닉네임 규격 안내</h3>
         <div className="rules-list" style={{ marginTop: '10px' }}>

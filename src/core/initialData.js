@@ -1,7 +1,11 @@
 export const INITIAL_COMMUNITY_CONFIG = {
-  noticeTitle: '힐(Heal) 커뮤니티 닉네임 및 모임(벙) 운영 규칙 안내',
+  homeSummary: '공지 · 규격 닉네임 및 벙 규칙',
+  noticeTitle: 'Healing78 커뮤니티 닉네임 및 모임(벙) 운영 규칙 안내',
   noticeBody:
     '1) 모든 회원은 [이름 지역 결혼여부 성별 뱃지] 규격 닉네임을 유지해야 합니다.\n2) 모임(벙) 참석 시 기본 +1점, 연고지 외 타지역 원정 참석 시 +2점 보너스가 부여됩니다.\n3) 모임(벙) 개설은 최소 1회 이상 모임에 참석한 회원부터 가능합니다.',
+  newcomerSummary: '신입공지 · 입장 즉시 닉네임 변경',
+  newcomerNoticeBody:
+    'Healing78 오픈채팅방 입장 후 24시간 이내에 아래 자동 생성기로 규격 닉네임([이름 지역 미/기/돌 남/여 가입일])을 만들어 카톡방 프로필을 변경해 주세요.',
   baseAttendancePoint: 1,
   expeditionBonusPoint: 2,
   minAttendanceForHost: 1

@@ -47,7 +47,10 @@ const getLocalState = () => ({
   members: readLocalJson(STORAGE_KEYS.members, INITIAL_MEMBERS),
   meetings: readLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS),
   scoreLogs: readLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS),
-  communityConfig: readLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG)
+  communityConfig: {
+    ...INITIAL_COMMUNITY_CONFIG,
+    ...readLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG)
+  }
 });
 
 const notifyLocalListeners = () => {
@@ -188,7 +191,10 @@ export const subscribeCommunityData = (onUpdate) => {
       if (snap.exists()) {
         currentData = {
           ...currentData,
-          communityConfig: snap.data()
+          communityConfig: {
+            ...INITIAL_COMMUNITY_CONFIG,
+            ...snap.data()
+          }
         };
         writeLocalJson(STORAGE_KEYS.config, currentData.communityConfig);
         onUpdate(currentData);

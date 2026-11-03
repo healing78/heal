@@ -1,3 +1,5 @@
+import { formatMemberNickname } from './communityRules';
+
 export const SITE_ORIGIN = 'https://healing78.web.app';
 export const HERO_IMAGE_PATH = '/healing78-logo.jpg';
 export const HERO_IMAGE_URL = `${SITE_ORIGIN}${HERO_IMAGE_PATH}`;
@@ -12,6 +14,16 @@ export const VALID_TABS = [
   'login'
 ];
 
+export const PAGE_LABELS = {
+  home: '홈 · 전체 공지',
+  meetings: '모임(벙) 일정',
+  ranking: '랭킹 · 친구 정보',
+  nickname: '신입 규격 닉네임 생성',
+  profile: '내 정보 · 프로필 관리',
+  admin: '운영진 관리 센터',
+  login: '로그인 · 신입 등록'
+};
+
 /**
  * Truncate string cleanly to around maxLen characters (default 20)
  */
@@ -22,15 +34,19 @@ export function toShortSummary(text, maxLen = 20) {
 }
 
 /**
- * Format "2026-11-08 18:00" -> "11/08"
+ * Format "2026-11-08 18:00" -> "1108" (4-digit MMDD format)
  */
-export function formatShortDate(dateStr) {
+export function formatCompactDate(dateStr) {
   if (!dateStr) return '';
   const match = String(dateStr).match(/(\d{4})-(\d{2})-(\d{2})/);
   if (match) {
-    return `${match[2]}/${match[3]}`;
+    return `${match[2]}${match[3]}`;
   }
-  return String(dateStr).slice(0, 5);
+  const digits = String(dateStr).replace(/\D/g, '');
+  if (digits.length >= 8) {
+    return digits.slice(4, 8);
+  }
+  return String(dateStr).slice(0, 4);
 }
 
 /**
@@ -82,84 +98,103 @@ export function pushRouteUrl(tab, params = {}) {
 
 /**
  * Build 20-char top header summary, document.title, and share URL for current state
+ * Works identically before and after login so each page always displays its 20-char summary at the top.
  */
 export function buildRouteMeta({
   tab,
   meetingId,
   meetings = [],
   members = [],
+  communityConfig = {},
   currentUser = null
 }) {
-  const openMeetings = meetings.filter((m) => m.status === 'open');
+  const openMeetings = [...meetings]
+    .filter((m) => m.status === 'open')
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
   const selectedMeeting = meetingId
     ? meetings.find((m) => m.id === meetingId)
     : null;
 
+  // 1. Meetings (/meetings): "1103 인천, 1104 수원" format
   if (tab === 'meetings') {
     if (selectedMeeting) {
-      const shortDate = formatShortDate(selectedMeeting.date);
-      const rawSummary = `[${shortDate} ${selectedMeeting.location}] ${selectedMeeting.title}`;
+      const mmdd = formatCompactDate(selectedMeeting.date);
+      const rawSummary = `${mmdd} ${selectedMeeting.location} ${selectedMeeting.title}`;
       const headerSummary = toShortSummary(rawSummary, 20);
       return {
         headerSummary,
-        pageTitle: `${headerSummary} | Healing78 벙 안내`,
-        description: `일시: ${selectedMeeting.date} · 장소: ${selectedMeeting.placeDetail} (현재 참석 신청 ${selectedMeeting.applicants.length}명)`,
+        pageTitle: `${headerSummary} | Healing78 모임`,
+        description: `일시: ${selectedMeeting.date} · 지역: ${selectedMeeting.location} (${selectedMeeting.title})`,
         sharePath: `/meetings?id=${encodeURIComponent(selectedMeeting.id)}`
       };
     }
 
-    const firstOpen = openMeetings[0];
-    const headerSummary = firstOpen
-      ? toShortSummary(
-          `모집벙 ${openMeetings.length}건·${firstOpen.location} 등`,
-          20
-        )
-      : 'Healing78 모임(벙) 일정';
+    const scheduleListText =
+      openMeetings.length > 0
+        ? openMeetings
+            .map((m) => `${formatCompactDate(m.date)} ${m.location}`)
+            .join(', ')
+        : '현재 모집중 모임 없음';
 
+    const headerSummary = toShortSummary(scheduleListText, 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 모임정보`,
-      description: `현재 모집 중인 모임 ${openMeetings.length}건 · 참석 기본 +1점, 타지역 원정 +2점`,
+      pageTitle: `${headerSummary} | Healing78 모임일정`,
+      description: `진행 예정 벙 일정: ${scheduleListText}`,
       sharePath: '/meetings'
     };
   }
 
+  // 2. Ranking (/ranking): "1위 김민준, 2위 이서연" format
   if (tab === 'ranking') {
-    const topMember = [...members].sort((a, b) => b.totalScore - a.totalScore)[0];
-    const headerSummary = topMember
-      ? toShortSummary(`활동랭킹 1위 ${topMember.realName}(${topMember.totalScore}점)`, 20)
-      : 'Healing78 회원·활동 랭킹';
+    const sorted = [...members].sort((a, b) => b.totalScore - a.totalScore);
+    const rankText =
+      sorted.length >= 2
+        ? `1위 ${sorted[0].realName}, 2위 ${sorted[1].realName}`
+        : sorted.length === 1
+          ? `1위 ${sorted[0].realName}(${sorted[0].totalScore}점)`
+          : 'Healing78 활동 랭킹';
 
+    const headerSummary = toShortSummary(rankText, 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 친구·랭킹`,
-      description: `Healing78 전체 회원 ${members.length}명 실시간 활동 점수 및 지역별 친구 정보`,
+      pageTitle: `${headerSummary} | Healing78 랭킹`,
+      description: `Healing78 실시간 활동 점수 순위 (${rankText})`,
       sharePath: '/ranking'
     };
   }
 
+  // 3. Nickname (/nickname): 신입 공지 (Newcomer Notice Summary)
   if (tab === 'nickname') {
-    const headerSummary = '신입 규격 닉네임 생성·변경';
+    const rawNewcomer =
+      communityConfig?.newcomerSummary ||
+      '신입공지 · 입장 즉시 닉네임 변경';
+    const headerSummary = toShortSummary(rawNewcomer, 20);
     return {
-      headerSummary: toShortSummary(headerSummary, 20),
-      pageTitle: '신입 규격 닉네임 생성·변경 | Healing78',
-      description: '이름·지역·결혼여부·성별 선택 시 오픈채팅방 규격 닉네임을 자동 생성하고 복사합니다.',
+      headerSummary,
+      pageTitle: `${headerSummary} | Healing78 신입안내`,
+      description:
+        communityConfig?.newcomerNoticeBody ||
+        '이름·지역·결혼여부·성별 선택 시 오픈채팅방 규격 닉네임을 자동 생성하고 복사합니다.',
       sharePath: '/nickname'
     };
   }
 
+  // 4. Profile (/profile): Before login vs After login
   if (tab === 'profile') {
     const headerSummary = currentUser
-      ? toShortSummary(`내정보 · ${currentUser.realName}(${currentUser.totalScore}점)`, 20)
-      : '내 프로필 · 닉네임 관리';
+      ? toShortSummary(formatMemberNickname(currentUser), 20)
+      : '회원 전용 프로필 관리';
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78`,
+      pageTitle: `${headerSummary} | Healing78 내정보`,
       description: '내 프로필 수정 및 카카오톡 오픈채팅방 규격 닉네임 원클릭 복사',
       sharePath: '/profile'
     };
   }
 
+  // 5. Admin (/admin)
   if (tab === 'admin') {
     const headerSummary = toShortSummary(`운영관리 · 회원 ${members.length}명`, 20);
     return {
@@ -170,26 +205,33 @@ export function buildRouteMeta({
     };
   }
 
+  // 6. Login (/login)
   if (tab === 'login') {
-    const headerSummary = 'Healing78 로그인·신입 가입';
+    const headerSummary = toShortSummary(
+      communityConfig?.homeSummary || '공지 · 규격 닉네임 및 벙 규칙',
+      20
+    );
     return {
-      headerSummary: toShortSummary(headerSummary, 20),
-      pageTitle: 'Healing78 로그인·신입 가입 | since 2024',
+      headerSummary,
+      pageTitle: `${headerSummary} | Healing78 로그인`,
       description: '카카오 계정 로그인 및 신입 회원 규격 닉네임 온보딩',
       sharePath: '/login'
     };
   }
 
-  // Default: 'home'
-  const headerSummary =
-    openMeetings.length > 0
-      ? toShortSummary(`Healing78 · 모집벙 ${openMeetings.length}건`, 20)
-      : 'Healing78 커뮤니티 홈';
+  // 7. Default: Home ('home'): 홈 공지 (Home Notice Summary)
+  const rawHomeNotice =
+    communityConfig?.homeSummary ||
+    communityConfig?.noticeTitle ||
+    '공지 · 규격 닉네임 및 벙 규칙';
+  const headerSummary = toShortSummary(rawHomeNotice, 20);
 
   return {
     headerSummary,
     pageTitle: `${headerSummary} | Healing78`,
-    description: 'Healing78 (since 2024) 공지사항, 실시간 모임(벙) 참석 신청 및 활동 랭킹',
+    description:
+      communityConfig?.noticeBody ||
+      'Healing78 (since 2024) 공지사항, 실시간 모임(벙) 참석 신청 및 활동 랭킹',
     sharePath: '/'
   };
 }
@@ -244,7 +286,7 @@ export async function shareRouteInfo({ headerSummary, description, sharePath }) 
       });
       return { shared: true, copied, shareText, fullUrl };
     } catch {
-      // User cancelled native share sheet or unsupported; fall back to clipboard copy result
+      // User cancelled native share sheet or unsupported
     }
   }
 

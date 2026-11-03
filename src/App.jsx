@@ -106,12 +106,13 @@ export default function App() {
     pushRouteUrl('meetings', meetingId ? { id: meetingId } : {});
   };
 
-  // Compute dynamic 20-char top header summary & document.title
+  // Compute dynamic 20-char top header summary & document.title for current page (Before & After Login)
   const currentMeta = buildRouteMeta({
-    tab: !currentUser && activeTab === 'profile' ? 'login' : activeTab,
+    tab: activeTab,
     meetingId: selectedMeetingId,
     meetings,
     members,
+    communityConfig,
     currentUser
   });
 
@@ -144,6 +145,7 @@ export default function App() {
       meetingId: meeting.id,
       meetings,
       members,
+      communityConfig,
       currentUser
     });
     syncDocumentMeta(mtgMeta);
@@ -159,7 +161,6 @@ export default function App() {
       logoutFromKakao();
       setCurrentUserUid(null);
       saveCurrentUserUid(null);
-      navigateToTab('login');
       return;
     }
     setCurrentUserUid(uid);
@@ -176,22 +177,18 @@ export default function App() {
     const newMember = await registerOnboardingMember(form, customUid);
     setCurrentUserUid(newMember.uid);
     saveCurrentUserUid(newMember.uid);
-    navigateToTab('home');
+    if (activeTab === 'login') {
+      navigateToTab('home');
+    }
   };
 
   const handleToggleApplyMeeting = async (meetingId) => {
-    if (!currentUser) {
-      navigateToTab('login');
-      return;
-    }
+    if (!currentUser) return;
     await toggleMeetingApplicant(meetingId, currentUser.uid);
   };
 
   const handleCreateMeeting = async (meetingInput) => {
-    if (!currentUser) {
-      navigateToTab('login');
-      return;
-    }
+    if (!currentUser) return;
     await createMeeting(currentUser.uid, meetingInput);
   };
 
@@ -227,18 +224,107 @@ export default function App() {
     navigateToTab('home');
   };
 
-  const renderLoginView = () => (
+  // Common Before-Login View (retains current sub-route so logging in opens that exact page)
+  const renderBeforeLoginView = () => (
     <LoginOnboardingPage
+      activeTab={activeTab}
+      headerSummary={currentMeta.headerSummary}
       members={members}
       onSelectExistingMember={(uid) => {
         setCurrentUserUid(uid);
         saveCurrentUserUid(uid);
-        navigateToTab('home');
+        if (activeTab === 'login') {
+          navigateToTab('home');
+        }
       }}
       onCompleteOnboarding={handleCompleteOnboarding}
       onNavigateTab={navigateToTab}
     />
   );
+
+  // Determine main body content:
+  // - '/nickname' is always accessible before and after login
+  // - All other tabs show Before-Login screen when !currentUser, and After-Login screen when currentUser is present
+  const renderPageBody = () => {
+    if (activeTab === 'nickname') {
+      return (
+        <NicknamePage
+          currentUser={currentUser}
+          communityConfig={communityConfig}
+          onNavigateTab={navigateToTab}
+          onSharePage={handleShareCurrentRoute}
+        />
+      );
+    }
+
+    if (!currentUser || activeTab === 'login') {
+      return renderBeforeLoginView();
+    }
+
+    if (activeTab === 'meetings') {
+      return (
+        <MeetingsPage
+          currentUser={currentUser}
+          members={members}
+          meetings={meetings}
+          selectedMeetingId={selectedMeetingId}
+          onSelectMeetingId={handleSelectMeetingId}
+          onShareMeeting={handleShareSpecificMeeting}
+          onToggleApplyMeeting={handleToggleApplyMeeting}
+          onCreateMeeting={handleCreateMeeting}
+          onSettleMeeting={handleSettleMeeting}
+          onNavigateTab={navigateToTab}
+        />
+      );
+    }
+
+    if (activeTab === 'ranking') {
+      return (
+        <RankingPage
+          currentUser={currentUser}
+          members={members}
+          scoreLogs={scoreLogs}
+        />
+      );
+    }
+
+    if (activeTab === 'profile') {
+      return (
+        <ProfilePage
+          currentUser={currentUser}
+          members={members}
+          onUpdateProfile={handleUpdateProfile}
+          onSwitchUser={handleSwitchUser}
+          onResetDemoData={handleResetDemoData}
+          onLogout={() => handleSwitchUser('__LOGOUT__')}
+        />
+      );
+    }
+
+    if (activeTab === 'admin' && isAdminRole(currentUser.role)) {
+      return (
+        <AdminPage
+          members={members}
+          communityConfig={communityConfig}
+          onAdminUpdateMember={handleAdminUpdateMember}
+          onAdminAdjustEventScore={handleAdminAdjustEventScore}
+          onAdminUpdateConfig={handleAdminUpdateConfig}
+        />
+      );
+    }
+
+    return (
+      <HomePage
+        currentUser={currentUser}
+        members={members}
+        meetings={meetings}
+        communityConfig={communityConfig}
+        onToggleApplyMeeting={handleToggleApplyMeeting}
+        onNavigateTab={navigateToTab}
+        onShareMeeting={handleShareSpecificMeeting}
+      />
+    );
+  };
 
   return (
     <AppLayout
@@ -254,77 +340,7 @@ export default function App() {
       theme={theme}
       onChangeTheme={handleChangeTheme}
     >
-      {activeTab === 'home' && (
-        <HomePage
-          currentUser={currentUser}
-          members={members}
-          meetings={meetings}
-          communityConfig={communityConfig}
-          onToggleApplyMeeting={handleToggleApplyMeeting}
-          onNavigateTab={navigateToTab}
-          onShareMeeting={handleShareSpecificMeeting}
-        />
-      )}
-
-      {activeTab === 'meetings' && (
-        <MeetingsPage
-          currentUser={currentUser}
-          members={members}
-          meetings={meetings}
-          selectedMeetingId={selectedMeetingId}
-          onSelectMeetingId={handleSelectMeetingId}
-          onShareMeeting={handleShareSpecificMeeting}
-          onToggleApplyMeeting={handleToggleApplyMeeting}
-          onCreateMeeting={handleCreateMeeting}
-          onSettleMeeting={handleSettleMeeting}
-          onNavigateTab={navigateToTab}
-        />
-      )}
-
-      {activeTab === 'ranking' && (
-        <RankingPage
-          currentUser={currentUser}
-          members={members}
-          scoreLogs={scoreLogs}
-        />
-      )}
-
-      {activeTab === 'nickname' && (
-        <NicknamePage
-          currentUser={currentUser}
-          onNavigateTab={navigateToTab}
-          onSharePage={handleShareCurrentRoute}
-        />
-      )}
-
-      {activeTab === 'login' && renderLoginView()}
-
-      {activeTab === 'profile' &&
-        (currentUser ? (
-          <ProfilePage
-            currentUser={currentUser}
-            members={members}
-            onUpdateProfile={handleUpdateProfile}
-            onSwitchUser={handleSwitchUser}
-            onResetDemoData={handleResetDemoData}
-            onLogout={() => handleSwitchUser('__LOGOUT__')}
-          />
-        ) : (
-          renderLoginView()
-        ))}
-
-      {activeTab === 'admin' &&
-        (currentUser && isAdminRole(currentUser.role) ? (
-          <AdminPage
-            members={members}
-            communityConfig={communityConfig}
-            onAdminUpdateMember={handleAdminUpdateMember}
-            onAdminAdjustEventScore={handleAdminAdjustEventScore}
-            onAdminUpdateConfig={handleAdminUpdateConfig}
-          />
-        ) : (
-          renderLoginView()
-        ))}
+      {renderPageBody()}
     </AppLayout>
   );
 }

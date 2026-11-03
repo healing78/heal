@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { suggestNewMemberNickname } from '../nicknameUtils';
 import { formatMemberNickname, ROLE_META } from '../core/communityRules';
-import { HERO_IMAGE_PATH } from '../core/routeMeta';
+import { HERO_IMAGE_PATH, PAGE_LABELS } from '../core/routeMeta';
 import {
   isKakaoConfigured,
   loginWithKakao
 } from '../services/kakaoAuthService';
 
 export default function LoginOnboardingPage({
+  activeTab = 'home',
+  headerSummary = '',
   members,
   onSelectExistingMember,
   onCompleteOnboarding,
@@ -34,6 +36,8 @@ export default function LoginOnboardingPage({
     maritalStatus: onboardingForm.maritalStatus,
     gender: onboardingForm.gender
   });
+
+  const currentPageLabel = PAGE_LABELS[activeTab] || PAGE_LABELS.home;
 
   const handleCopy = async (text) => {
     try {
@@ -198,7 +202,7 @@ export default function LoginOnboardingPage({
                 className="btn btn-outline btn-sm"
                 onClick={() => handleCopy(onboardingPreview)}
               >
-                {copied ? '복사됨!' : '복사'}
+                {copied ? '복사 완료' : '복사'}
               </button>
             </div>
 
@@ -225,7 +229,18 @@ export default function LoginOnboardingPage({
 
   return (
     <div className="list-container">
-      {/* Hero Banner (Image visible only in 'rose' theme; clean typography in 'mono'/'excel' themes) */}
+      {/* Page-Specific Pre-Login Summary Strip */}
+      <section className="list-section notice-section">
+        <div className="section-title-row" style={{ marginBottom: '4px' }}>
+          <span className="platform-badge">{currentPageLabel} (로그인 전)</span>
+          <span className="sub-meta">로그인 즉시 본문 열람</span>
+        </div>
+        <p className="notice-body">
+          상단 요약: <strong>{headerSummary}</strong>
+        </p>
+      </section>
+
+      {/* Common Login Section (Hero Image visible only in 'rose' theme) */}
       <section className="login-hero-section">
         <div className="login-hero-image-wrap rose-only">
           <img
@@ -241,9 +256,9 @@ export default function LoginOnboardingPage({
               <span className="platform-badge">Kakao 로그인 연동</span>
             )}
           </div>
-          <h2>Healing78 커뮤니티</h2>
+          <h2>Healing78 회원 로그인</h2>
           <p className="muted-text">
-            카카오 계정으로 간편하게 로그인하거나 신입 프로필을 등록하세요.
+            로그인하시면 현재 페이지(<strong>{currentPageLabel}</strong>)의 상세 정보를 바로 확인하실 수 있습니다.
           </p>
         </div>
 
@@ -276,7 +291,7 @@ export default function LoginOnboardingPage({
                 style={{ flex: 1 }}
                 onClick={() => onNavigateTab('nickname')}
               >
-                닉네임 생성기 바로가기
+                신입 닉네임 생성기 (비로그인 가능)
               </button>
             )}
           </div>
@@ -289,10 +304,10 @@ export default function LoginOnboardingPage({
         </div>
       </section>
 
-      {/* Quick Demo Member Login List */}
+      {/* Quick Demo Member Login List (Always Expanded) */}
       <section className="list-section">
         <div className="divider-label" style={{ textAlign: 'left', marginBottom: '10px' }}>
-          등록된 회원 계정으로 빠른 로그인 체험
+          등록된 회원 계정으로 빠른 로그인 체험 (클릭 시 현재 페이지 즉시 열람)
         </div>
         <div className="divider-list">
           {members.map((m) => (

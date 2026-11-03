@@ -25,8 +25,15 @@ export default function AdminPage({
 
   // Community notice/rules config form state
   const [configForm, setConfigForm] = useState({
+    homeSummary:
+      communityConfig.homeSummary || '공지 · 규격 닉네임 및 벙 규칙',
     noticeTitle: communityConfig.noticeTitle,
-    noticeBody: communityConfig.noticeBody
+    noticeBody: communityConfig.noticeBody,
+    newcomerSummary:
+      communityConfig.newcomerSummary || '신입공지 · 입장 즉시 닉네임 변경',
+    newcomerNoticeBody:
+      communityConfig.newcomerNoticeBody ||
+      'Healing78 오픈채팅방 입장 후 24시간 이내에 아래 자동 생성기로 규격 닉네임을 만들어 카톡방 프로필을 변경해 주세요.'
   });
   const [configNotice, setConfigNotice] = useState('');
 
@@ -238,10 +245,52 @@ export default function AdminPage({
       {/* Sub-tab 3: Notice & Community Rules Settings */}
       {subTab === 'config' && (
         <section className="list-section">
-          <h3 style={{ marginBottom: '12px' }}>홈 공지사항 및 커뮤니티 규칙 설정</h3>
+          <h3 style={{ marginBottom: '12px' }}>
+            홈 공지 및 신입 공지 (상단 20자 요약 포함) 설정
+          </h3>
           <form onSubmit={handleConfigSubmit} className="stack-gap">
+            <div className="form-grid">
+              <div className="form-field">
+                <label htmlFor="cfg-home-summary">
+                  홈 상단 20자 요약 공지 (카톡 미리보기 타이틀)
+                </label>
+                <input
+                  id="cfg-home-summary"
+                  type="text"
+                  maxLength={25}
+                  required
+                  value={configForm.homeSummary}
+                  onChange={(e) =>
+                    setConfigForm({
+                      ...configForm,
+                      homeSummary: e.target.value
+                    })
+                  }
+                />
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="cfg-newcomer-summary">
+                  신입 닉네임 상단 20자 신입 공지 요약
+                </label>
+                <input
+                  id="cfg-newcomer-summary"
+                  type="text"
+                  maxLength={25}
+                  required
+                  value={configForm.newcomerSummary}
+                  onChange={(e) =>
+                    setConfigForm({
+                      ...configForm,
+                      newcomerSummary: e.target.value
+                    })
+                  }
+                />
+              </div>
+            </div>
+
             <div className="form-field">
-              <label htmlFor="cfg-title">공지 배너 제목</label>
+              <label htmlFor="cfg-title">홈 공지 배너 제목</label>
               <input
                 id="cfg-title"
                 type="text"
@@ -254,7 +303,7 @@ export default function AdminPage({
             </div>
 
             <div className="form-field">
-              <label htmlFor="cfg-body">공지 및 규칙 본문</label>
+              <label htmlFor="cfg-body">홈 공지 및 규칙 본문</label>
               <textarea
                 id="cfg-body"
                 rows={4}
@@ -262,6 +311,24 @@ export default function AdminPage({
                 value={configForm.noticeBody}
                 onChange={(e) =>
                   setConfigForm({ ...configForm, noticeBody: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="cfg-newcomer-body">
+                신입 닉네임 페이지(/nickname) 안내 공지 본문
+              </label>
+              <textarea
+                id="cfg-newcomer-body"
+                rows={3}
+                required
+                value={configForm.newcomerNoticeBody}
+                onChange={(e) =>
+                  setConfigForm({
+                    ...configForm,
+                    newcomerNoticeBody: e.target.value
+                  })
                 }
               />
             </div>
