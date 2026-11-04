@@ -50,14 +50,84 @@ sequenceDiagram
 - **하단 메인 탭바 & PC 사이드바 `앨범` 메뉴 (`/album`):**
   - 전체 일정들의 앨범을 월별·일정별로 모아보는 전용 메뉴를 제공합니다.
 
-### 4. Access Control & Extensible Permission Rules (Base Rule + Custom Rules)
-- **기본 규칙 (Base Rule — 확정 기초안):**
-  - 각 일정의 앨범 열람 및 미디어 업로드는 **해당 일정 참석자(`applicants` / `confirmedParticipants`), 주최자·총무, 그리고 운영진(`Leader`, `Deputy`)**에게 허용하는 것을 기본 원칙으로 합니다.
-- **확장 규칙 슬롯 (Extensible Rule Hooks — 추가 규칙 연구·반영 예정):**
-  - 기본 참석자 권한 규칙 위에 아래와 같은 커뮤니티 운영 조건을 조합(AND/OR)할 수 있도록 권한 판별 함수(`canViewMeetingAlbum(member, meeting, communityConfig)`, `canUploadMeetingMedia(member, meeting, communityConfig)`)를 분리 설계합니다:
-    - *예시 확장 조건 A:* 최소 참석 횟수(`attendanceCount >= N`) 또는 특정 등급(`VIP` 이상) 전체 앨범 열람 허용 여부
-    - *예시 확장 조건 B:* 업로더가 개별 사진마다 `[참석자만 공개 / 전체 회원 공개]` 범위를 선택하거나 대표 사진 1장만 전체 공개하는 옵션
-    - *예시 확장 조건 C:* 앨범 업로드 시 활동/이벤트 보너스 점수 연동 여부
+### 4. Access Control & "Random Box" (랜덤 박스) Unlock System
+
+#### A. 기본 열람 및 업로드 권한 (Base Rule)
+- **기본 허용 대상:** 해당 일정의 참석자(`applicants` / `confirmedParticipants`), 주최자(벙주), 총무, 그리고 운영진(`Leader`, `Deputy`).
+- **미참석자 기본 상태:** 앨범 탭 접근 시 미디어 목록이 블러(Blur) 실루엣으로 처리되고, **"랜덤 박스"** 해제 화면이 제공됩니다.
+
+#### B. 랜덤 박스 (Random Box) 시스템 개요
+미참석 회원이라도 커뮤니티 활동도, 벙주와의 친분, 또는 벙주가 출제한 수수께끼를 해결하여 **랜덤 박스를 해제(Unlock)**하면 해당 일정 앨범의 열람 권한을 취득할 수 있는 게이미피케이션 권한 체계입니다.
+- **해제 조건:** 벙주가 세팅한 후보 랜덤 박스들 중 **지정된 개수(기본 1개)**만 통과하면 즉시 해당 모임의 앨범이 영구 열람 가능 상태로 전환됩니다.
+- **벙주의 자율 선택권:** 일정 등록 및 수정 시 `랜덤 박스 허용 여부(ON/OFF)`를 벙주가 직접 결정할 수 있어, 사생활 보호가 극히 민감한 소수 모임은 완전히 비공개(참석자 전용)로 유지할 수 있습니다.
+
+#### C. 초기 확정 3대 퀘스트 랜덤 박스 조합
+1. **[활동 조건형] 성실 힐러 박스 (`ACTIVITY_ATTENDANCE`)**
+   - **판별 기준:** 커뮤니티 가입 기간 14일 이상 + 누적 벙 참석 횟수 10회 이상
+   - **동작 방식:** 회원의 활동 프로필 데이터를 시스템이 자동 검증하여, 조건을 만족하는 우수 활동자는 클릭 한 번으로 즉시 잠금 해제.
+2. **[관계·인연형] 벙주와의 인연 박스 (`HOST_RELATIONSHIP`)**
+   - **판별 기준:** 현재 사용자와 해당 일정 벙주가 과거 완료된 모임에 **함께 참석한 누적 횟수 3회 이상**
+   - **동작 방식:** 전체 모임 내역의 교집합을 자동 계산(`getMetCountWithHost`)하여, 벙주와 이미 여러 번 만난 친분이 입증되면 즉시 해제.
+3. **[인터랙션형] 벙주 시크릿 퀴즈 박스 (`MEETING_QUIZ`)**
+   - **판별 기준:** 벙주가 등록 시 입력한 수수께끼·질문(예: *"오늘 2차로 간 카페 이름은?"*, *"구워 먹은 고기 부위는?"*)의 정답 일치
+   - **동작 방식:** 답안을 입력받아 정답과 비교(공백/대소문자 정규화) 후 정답 시 해제. 모임 후기나 단톡방 소통을 유도.
+
+#### D. 향후 추가 개발을 고려한 확장형 아키텍처 (Quest Handler Registry)
+새로운 종류의 랜덤 박스(예: 마니또 박스, 1일 1회 출석 럭키 박스, 가위바위보 미션 등)를 코어 로직 수정 없이 독립 모듈 형태로 즉시 플러그인할 수 있도록 **Registry 패턴**으로 설계합니다.
+
+```javascript
+// src/services/randomBoxRegistry.js (확장 아키텍처 규격)
+export const RandomBoxQuestRegistry = {
+  // 1. 성실 힐러 박스
+  ACTIVITY_ATTENDANCE: {
+    type: 'ACTIVITY_ATTENDANCE',
+    name: '성실 힐러 박스',
+    icon: '🏆',
+    description: '가입 14일 이상 & 누적 벙 10회 이상 참석 시 해제',
+    checkAutoEligible: (user, meeting, context) => {
+      const daysSinceJoin = (Date.now() - new Date(user.joinedAt).getTime()) / (1000 * 60 * 60 * 24);
+      return daysSinceJoin >= 14 && (user.attendanceCount || 0) >= 10;
+    }
+  },
+  // 2. 벙주와의 인연 박스
+  HOST_RELATIONSHIP: {
+    type: 'HOST_RELATIONSHIP',
+    name: '벙주와의 인연 박스',
+    icon: '🤝',
+    description: '벙주와 함께한 벙 3회 이상 시 해제',
+    checkAutoEligible: (user, meeting, context) => {
+      const metCount = context.getMetCountWithHost(user.uid, meeting.hostId);
+      return metCount >= (meeting.randomBoxConfig?.minMetCount || 3);
+    }
+  },
+  // 3. 벙주 시크릿 퀴즈 박스
+  MEETING_QUIZ: {
+    type: 'MEETING_QUIZ',
+    name: '벙주 시크릿 퀴즈 박스',
+    icon: '🧩',
+    description: '벙주가 낸 수수께끼 정답을 맞추면 해제',
+    requiresInput: true,
+    verifyAnswer: (userAnswer, meeting) => {
+      const target = (meeting.randomBoxConfig?.quizAnswer || '').trim().toLowerCase();
+      const input = (userAnswer || '').trim().toLowerCase();
+      return target && input === target;
+    }
+  }
+  // [미래 확장 슬롯]: 여기에 새로운 퀘스트(예: LUCKY_DRAW, SECRET_CODE 등)를 핸들러 단위로 추가 등록
+};
+```
+
+#### E. 권한 및 잠금 해제 데이터 모델
+- **모임 문서 (`meeting.randomBoxConfig`):**
+  - `enabled`: boolean (기본값 `true`, 벙주가 비활성화 가능)
+  - `requiredBoxes`: number (해제에 필요한 박스 수, 기본 `1`)
+  - `allowedQuestTypes`: array (`['ACTIVITY_ATTENDANCE', 'HOST_RELATIONSHIP', 'MEETING_QUIZ']`)
+  - `quizQuestion`: string (선택 질문)
+  - `quizAnswer`: string (선택 정답)
+  - `minMetCount`: number (기본 `3`)
+  - `minAttendanceCount`: number (기본 `10`)
+- **사용자 문서 (`user.unlockedAlbums`):**
+  - `unlockedAlbums`: array of string (랜덤 박스를 해제하여 열람 권한을 취득한 모임 ID 목록)
 
 ## Data Schema & API
 
