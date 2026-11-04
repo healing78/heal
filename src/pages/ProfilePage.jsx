@@ -193,7 +193,7 @@ export default function ProfilePage({
             <strong className="stat-value">{currentUser.attendanceCount}회</strong>
           </div>
           <div className="stat-box">
-            <span className="stat-label">벙 개설</span>
+            <span className="stat-label">모임 개설</span>
             <strong className="stat-value">
               {hostEligible ? '가능' : '대기'}
             </strong>

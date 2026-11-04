@@ -63,6 +63,7 @@ export default function MeetingDetailPage({
       meeting.dateOnly || String(meeting.date || '').slice(0, 10) || '2026-11-07',
     startTime:
       meeting.startTime || String(meeting.date || '').slice(11, 16) || '19:00',
+    endTime: meeting.endTime || '23:00',
     location: meeting.location || '서울',
     treasurerUid: meeting.treasurerUid || meeting.hostUid,
     type: meeting.type || 'Casual',
@@ -114,6 +115,7 @@ export default function MeetingDetailPage({
       title: infoForm.title.trim(),
       dateOnly: infoForm.dateOnly,
       startTime: infoForm.startTime,
+      endTime: infoForm.endTime || '23:00',
       date: combinedDate,
       location: infoForm.location.trim(),
       treasurerUid: infoForm.treasurerUid,
@@ -326,10 +328,10 @@ export default function MeetingDetailPage({
   // Copy meeting settlement summary report text for KakaoTalk
   const handleCopySettlementReport = async () => {
     const lines = [
-      `[Healing78 벙 정산 리포트 #${meeting.id}]`,
+      `[Healing78 모임 정산 리포트 #${meeting.id}]`,
       `■ 모임명: ${meeting.title}`,
       `■ 일시/지역: ${meeting.date} (${meeting.location})`,
-      `■ 벙주: ${hostMember ? formatMemberNickname(hostMember) : meeting.hostUid}`,
+      `■ 주최: ${hostMember ? formatMemberNickname(hostMember) : meeting.hostUid}`,
       `■ 총무(입금계좌): ${
         treasurerMember ? formatMemberNickname(treasurerMember) : treasurerUid
       } / ${treasurerMember?.bankAccount || '계좌 미등록'}`,
@@ -370,7 +372,7 @@ export default function MeetingDetailPage({
             className="btn btn-outline btn-sm"
             onClick={onBackToList}
           >
-            ← 벙 목록으로
+            ← 모임 목록으로
           </button>
           <div className="badge-group">
             <span className="platform-badge">#{meeting.id}</span>
@@ -419,7 +421,7 @@ export default function MeetingDetailPage({
 
           <div className="meeting-meta-grid">
             <div>
-              <span className="sub-meta">벙주: </span>
+              <span className="sub-meta">주최: </span>
               <strong>
                 {hostMember ? formatMemberNickname(hostMember) : meeting.hostUid}
               </strong>
@@ -443,7 +445,7 @@ export default function MeetingDetailPage({
               className={`btn ${isApplied ? 'btn-outline' : 'btn-primary'}`}
               onClick={() => onToggleApplyMeeting(meeting.id)}
             >
-              {isApplied ? '참석 신청 취소' : '이 벙 참석 신청'}
+              {isApplied ? '참석 신청 취소' : '이 모임 참석 신청'}
             </button>
           )}
 
@@ -461,7 +463,7 @@ export default function MeetingDetailPage({
               className="btn btn-outline"
               onClick={() => setEditingInfo((prev) => !prev)}
             >
-              {editingInfo ? '수정 닫기' : '벙 정보 수정'}
+              {editingInfo ? '수정 닫기' : '모임 정보 수정'}
             </button>
           )}
         </div>
@@ -477,10 +479,10 @@ export default function MeetingDetailPage({
               borderTop: '1px solid var(--color-divider)'
             }}
           >
-            <h3>벙 정보 수정</h3>
+            <h3>모임 정보 수정</h3>
             <div className="form-grid">
               <div className="form-field">
-                <label htmlFor="edit-mtg-title">벙 제목</label>
+                <label htmlFor="edit-mtg-title">모임 제목</label>
                 <input
                   id="edit-mtg-title"
                   type="text"
@@ -532,6 +534,17 @@ export default function MeetingDetailPage({
                   value={infoForm.startTime}
                   onChange={(e) =>
                     setInfoForm({ ...infoForm, startTime: e.target.value })
+                  }
+                />
+              </div>
+              <div className="form-field">
+                <label htmlFor="edit-mtg-end-time">종료 시간</label>
+                <input
+                  id="edit-mtg-end-time"
+                  type="time"
+                  value={infoForm.endTime}
+                  onChange={(e) =>
+                    setInfoForm({ ...infoForm, endTime: e.target.value })
                   }
                 />
               </div>

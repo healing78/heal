@@ -46,14 +46,43 @@ const writeLocalJson = (key, value) => {
   }
 };
 
+const sanitizeBungText = (str) =>
+  typeof str === 'string'
+    ? str
+        .replace(/\s*\(공식벙\)/g, '')
+        .replace(/\s*\(벙\)/g, '')
+        .replace(/벙 규칙/g, '모임 규칙')
+    : str;
+
+const sanitizeMeetingItem = (mtg) =>
+  mtg ? { ...mtg, title: sanitizeBungText(mtg.title) } : mtg;
+
+const sanitizeConfig = (cfg) => {
+  if (!cfg) return INITIAL_COMMUNITY_CONFIG;
+  return {
+    ...INITIAL_COMMUNITY_CONFIG,
+    ...cfg,
+    homeSummary: sanitizeBungText(
+      cfg.homeSummary || INITIAL_COMMUNITY_CONFIG.homeSummary
+    ),
+    noticeTitle: sanitizeBungText(
+      cfg.noticeTitle || INITIAL_COMMUNITY_CONFIG.noticeTitle
+    ),
+    noticeBody: sanitizeBungText(
+      cfg.noticeBody || INITIAL_COMMUNITY_CONFIG.noticeBody
+    )
+  };
+};
+
 const getLocalState = () => ({
   members: readLocalJson(STORAGE_KEYS.members, INITIAL_MEMBERS),
-  meetings: readLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS),
+  meetings: readLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS).map(
+    sanitizeMeetingItem
+  ),
   scoreLogs: readLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS),
-  communityConfig: {
-    ...INITIAL_COMMUNITY_CONFIG,
-    ...readLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG)
-  }
+  communityConfig: sanitizeConfig(
+    readLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG)
+  )
 });
 
 const notifyLocalListeners = () => {
@@ -176,7 +205,7 @@ export const subscribeCommunityData = (onUpdate) => {
       if (!snap.empty) {
         currentData = {
           ...currentData,
-          meetings: snap.docs.map((d) => d.data())
+          meetings: snap.docs.map((d) => sanitizeMeetingItem(d.data()))
         };
         writeLocalJson(STORAGE_KEYS.meetings, currentData.meetings);
         onUpdate(currentData);
@@ -206,10 +235,7 @@ export const subscribeCommunityData = (onUpdate) => {
       if (snap.exists()) {
         currentData = {
           ...currentData,
-          communityConfig: {
-            ...INITIAL_COMMUNITY_CONFIG,
-            ...snap.data()
-          }
+          communityConfig: sanitizeConfig(snap.data())
         };
         writeLocalJson(STORAGE_KEYS.config, currentData.communityConfig);
         onUpdate(currentData);
@@ -338,12 +364,13 @@ export const toggleMeetingApplicant = async (meetingId, uid) => {
 };
 
 /**
- * Creates a new meeting (벙) with YYMMDD + 01 ID format and multi-round structure.
+ * Creates a new meeting with YYMMDD + 01 ID format and multi-round structure.
  */
 export const createMeeting = async (hostUid, meetingInput) => {
   const { meetings } = getLocalState();
   const dateOnly = meetingInput.dateOnly || '2026-11-15';
   const startTime = meetingInput.startTime || '19:00';
+  const endTime = meetingInput.endTime || '23:00';
   const combinedDate = `${dateOnly} ${startTime}`;
   const newId = generateMeetingId(dateOnly, meetings);
 
@@ -382,9 +409,10 @@ export const createMeeting = async (hostUid, meetingInput) => {
 
   const created = {
     id: newId,
-    title: meetingInput.title.trim(),
+    title: sanitizeBungText(meetingInput.title.trim()),
     dateOnly,
     startTime,
+    endTime,
     date: combinedDate,
     location: meetingInput.location.trim(),
     placeDetail: inputRounds[0]?.placeName || (meetingInput.placeDetail || '').trim(),

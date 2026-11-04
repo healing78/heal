@@ -158,7 +158,7 @@ export default function App() {
 
     const result = await shareRouteInfo(mtgMeta);
     if (result.copied) {
-      showShareFeedback(`벙 안내 복사됨: "${mtgMeta.headerSummary}"`);
+      showShareFeedback(`모임 안내 복사됨: "${mtgMeta.headerSummary}"`);
     }
   };
 

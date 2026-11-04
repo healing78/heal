@@ -26,7 +26,7 @@ export default function AdminPage({
   // Community notice/rules config form state
   const [configForm, setConfigForm] = useState({
     homeSummary:
-      communityConfig.homeSummary || '공지 · 규격 닉네임 및 벙 규칙',
+      communityConfig.homeSummary || '공지 · 규격 닉네임 및 모임 규칙',
     noticeTitle: communityConfig.noticeTitle,
     noticeBody: communityConfig.noticeBody,
     newcomerSummary:
@@ -215,7 +215,7 @@ export default function AdminPage({
                 id="score-reason"
                 type="text"
                 required
-                placeholder="예: 11월 벙주왕 이벤트 보너스"
+                placeholder="예: 11월 우수 모임장 이벤트 보너스"
                 value={scoreForm.reason}
                 onChange={(e) =>
                   setScoreForm({ ...scoreForm, reason: e.target.value })

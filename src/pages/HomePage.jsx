@@ -123,7 +123,7 @@ export default function HomePage({
       {/* 3. Upcoming Meetings Quick Attendance */}
       <section className="list-section">
         <div className="section-title-row">
-          <h2>진행 예정 모임(벙) ({upcomingMeetings.length})</h2>
+          <h2>진행 예정 모임 ({upcomingMeetings.length})</h2>
           <button
             type="button"
             className="btn-link"
@@ -187,7 +187,7 @@ export default function HomePage({
                     <h3 className="concise-title">{mtg.title}</h3>
                   </div>
                   <p className="muted-text">
-                    벙주: {hostMember ? formatMemberNickname(hostMember) : mtg.hostUid}
+                    주최: {hostMember ? formatMemberNickname(hostMember) : mtg.hostUid}
                   </p>
 
                   <div className="meeting-footer">
@@ -200,7 +200,7 @@ export default function HomePage({
                           : onNavigateTab('meetings', { id: mtg.id })
                       }
                     >
-                      벙 상세·정산 (#{mtg.id}) →
+                      모임 상세·정산 (#{mtg.id}) →
                     </button>
                     <div className="btn-row">
                       {onShareMeeting && (

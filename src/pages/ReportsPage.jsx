@@ -76,7 +76,7 @@ export default function ReportsPage({
 
     const text = [
       `[Healing78 모임 정산 리포트 #${mtg.id}]`,
-      `■ 벙 제목: ${mtg.title}`,
+      `■ 모임 제목: ${mtg.title}`,
       `■ 일시/지역: ${mtg.date} (${mtg.location})`,
       `■ 총무 계좌: ${treasurerMember?.bankAccount || '미등록'} (${
         treasurerMember ? formatMemberNickname(treasurerMember) : treasurerUid
@@ -201,7 +201,7 @@ export default function ReportsPage({
                         onOpenMeetingDetail && onOpenMeetingDetail(mtg.id)
                       }
                     >
-                      벙 페이지 열기 →
+                      모임 페이지 열기 →
                     </button>
                   </div>
                 </div>
@@ -464,7 +464,7 @@ export default function ReportsPage({
                           onOpenMeetingDetail && onOpenMeetingDetail(mtg.id)
                         }
                       >
-                        벙 보기
+                        모임 보기
                       </button>
                     </div>
                   </div>

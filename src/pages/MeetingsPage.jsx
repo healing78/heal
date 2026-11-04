@@ -1,12 +1,66 @@
 import React, { useState } from 'react';
 import {
-  calculateMeetingScoreForMember,
   canCreateMeeting,
   formatMemberNickname,
   isAdminRole,
   REGION_GROUPS
 } from '../core/communityRules';
 import MeetingDetailPage from './MeetingDetailPage';
+
+const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
+
+function formatKoreanAmPm(timeStr) {
+  if (!timeStr) return '';
+  const match = String(timeStr).trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return timeStr;
+  const hour24 = Number(match[1]);
+  const minute = match[2];
+  const period = hour24 < 12 ? '오전' : '오후';
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  return `${period} ${hour12}:${minute}`;
+}
+
+function addHoursToTime(timeStr, hoursToAdd = 4) {
+  const match = String(timeStr || '19:00').trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return '23:00';
+  const nextHour = Math.min(23, Number(match[1]) + hoursToAdd);
+  return `${String(nextHour).padStart(2, '0')}:${match[2]}`;
+}
+
+function buildScheduleMeta(mtg) {
+  const rawDate = mtg.dateOnly || String(mtg.date || '').slice(0, 10) || '2026-11-01';
+  const parts = rawDate.split('-');
+  const year = Number(parts[0]) || 2026;
+  const month = Number(parts[1]) || 11;
+  const day = Number(parts[2]) || 1;
+
+  const dateObj = new Date(year, month - 1, day);
+  const weekday = WEEKDAY_KO[dateObj.getDay()] || '';
+
+  const startTime =
+    mtg.startTime || String(mtg.date || '').slice(11, 16) || '19:00';
+  const endTime = mtg.endTime || addHoursToTime(startTime, 4);
+  const timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
+
+  const firstRoundPlace = mtg.rounds?.[0]?.placeName || mtg.placeDetail || '';
+  const baseLocation = (mtg.location || '').trim();
+  let locationText = baseLocation;
+  if (firstRoundPlace) {
+    locationText = firstRoundPlace.startsWith(baseLocation)
+      ? firstRoundPlace
+      : `${baseLocation} ${firstRoundPlace}`.trim();
+  }
+
+  return {
+    monthKey: `${year}-${String(month).padStart(2, '0')}`,
+    monthLabel: `${year}년 ${month}월`,
+    dateKey: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+    weekday,
+    day,
+    timeRangeText,
+    locationText
+  };
+}
 
 export default function MeetingsPage({
   currentUser,
@@ -30,13 +84,12 @@ export default function MeetingsPage({
     title: '',
     dateOnly: '2026-11-15',
     startTime: '19:00',
+    endTime: '23:00',
     location: currentUser?.city || '서울',
     treasurerUid: currentUser?.uid || '',
     type: 'Casual',
     description: '',
-    rounds: [
-      { id: 'r-1', placeName: '', mapUrl: '' }
-    ]
+    rounds: [{ id: 'r-1', placeName: '', mapUrl: '' }]
   });
 
   const adminUser = currentUser ? isAdminRole(currentUser.role) : false;
@@ -71,7 +124,7 @@ export default function MeetingsPage({
     }
     if (!hostEligible) {
       setCreateWarning(
-        `모임(벙) 개설은 최소 1회 이상 모임에 참석한 회원만 가능합니다. (현재 내 참석 횟수: ${currentUser.attendanceCount}회)`
+        `모임 개설은 최소 1회 이상 모임에 참석한 회원만 가능합니다. (현재 내 참석 횟수: ${currentUser.attendanceCount}회)`
       );
       setShowCreateForm(false);
       return;
@@ -116,6 +169,7 @@ export default function MeetingsPage({
       title: '',
       dateOnly: '2026-11-15',
       startTime: '19:00',
+      endTime: '23:00',
       location: currentUser?.city || '서울',
       treasurerUid: currentUser?.uid || '',
       type: 'Casual',
@@ -143,18 +197,40 @@ export default function MeetingsPage({
     return true;
   });
 
+  // Sort chronologically and group by Year-Month (e.g., "2026년 10월", "2026년 11월")
+  const sortedMeetings = [...filteredMeetings].sort((a, b) =>
+    String(a.date || a.dateOnly || '').localeCompare(
+      String(b.date || b.dateOnly || '')
+    )
+  );
+
+  const monthGroups = [];
+  for (const mtg of sortedMeetings) {
+    const meta = buildScheduleMeta(mtg);
+    let group = monthGroups.find((g) => g.monthKey === meta.monthKey);
+    if (!group) {
+      group = {
+        monthKey: meta.monthKey,
+        monthLabel: meta.monthLabel,
+        items: []
+      };
+      monthGroups.push(group);
+    }
+    group.items.push({ mtg, meta });
+  }
+
   return (
     <div className="list-container">
       {/* Page Header & Create Button */}
       <section className="list-section">
         <div className="section-title-row">
-          <h2>모임(벙) 목록</h2>
+          <h2>모임 목록</h2>
           <button
             type="button"
             className="btn btn-primary btn-sm"
             onClick={handleOpenCreateModal}
           >
-            {showCreateForm ? '닫기' : '+ 벙 개설'}
+            {showCreateForm ? '닫기' : '+ 모임 개설'}
           </button>
         </div>
 
@@ -192,10 +268,10 @@ export default function MeetingsPage({
         </div>
       </section>
 
-      {/* Create Meeting Form (Calendar Date + Separate Time + Multi-Round Venues) */}
+      {/* Create Meeting Form */}
       {showCreateForm && (
         <section className="list-section highlight-section">
-          <h3>새 모임(벙) 개설</h3>
+          <h3>새 모임 개설</h3>
           <form
             onSubmit={handleSubmitNewMeeting}
             className="stack-gap"
@@ -265,6 +341,18 @@ export default function MeetingsPage({
               </div>
 
               <div className="form-field">
+                <label htmlFor="mtg-end-time">종료 시간</label>
+                <input
+                  id="mtg-end-time"
+                  type="time"
+                  value={newMeeting.endTime}
+                  onChange={(e) =>
+                    setNewMeeting({ ...newMeeting, endTime: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-field">
                 <label htmlFor="mtg-treasurer">총무</label>
                 <select
                   id="mtg-treasurer"
@@ -295,9 +383,7 @@ export default function MeetingsPage({
                   }
                 >
                   <option value="Casual">자율/번개</option>
-                  {adminUser && (
-                    <option value="Official">공식 모임</option>
-                  )}
+                  {adminUser && <option value="Official">공식 모임</option>}
                 </select>
               </div>
             </div>
@@ -389,123 +475,79 @@ export default function MeetingsPage({
         </section>
       )}
 
-      {/* Concise Meetings List (Emphasize Title & Date/Time, Show Nicknames Only) */}
-      <section className="list-section">
-        {filteredMeetings.length === 0 ? (
+      {/* Calendar Agenda Schedule List (Month Header + Left Weekday/Day + Vertical Pill + Right Title/Time/Location) */}
+      <section className="list-section schedule-list-section">
+        {monthGroups.length === 0 ? (
           <p className="muted-text">해당 탭에 표시할 모임이 없습니다.</p>
         ) : (
-          <div className="divider-list">
-            {filteredMeetings.map((mtg) => {
-              const isApplied = currentUser
-                ? (mtg.applicants || []).includes(currentUser.uid)
-                : false;
-              const myScoreInfo = currentUser
-                ? calculateMeetingScoreForMember(currentUser, mtg.location)
-                : { isExpedition: false, label: '' };
+          <div className="schedule-month-list">
+            {monthGroups.map((group) => (
+              <div key={group.monthKey} className="schedule-month-group">
+                <div className="schedule-month-header">{group.monthLabel}</div>
 
-              const participantUids =
-                mtg.status === 'settled'
-                  ? mtg.confirmedParticipants || []
-                  : mtg.applicants || [];
+                <div className="schedule-items-wrap">
+                  {group.items.map(({ mtg, meta }, idx) => {
+                    const prevMeta = group.items[idx - 1]?.meta;
+                    const nextMeta = group.items[idx + 1]?.meta;
+                    const isSameDateAsPrev =
+                      prevMeta && prevMeta.dateKey === meta.dateKey;
+                    const isSameDateAsNext =
+                      nextMeta && nextMeta.dateKey === meta.dateKey;
+                    const isSettled = mtg.status === 'settled';
 
-              return (
-                <article
-                  key={mtg.id}
-                  className="list-item-row concise-meeting-card"
-                >
-                  {/* Top Row: ID Badge, Location, Date/Time Emphasis */}
-                  <div className="meeting-top">
-                    <div className="badge-group">
-                      <span className="platform-badge">#{mtg.id}</span>
-                      <span
-                        className={`type-pill ${
-                          mtg.type === 'Official' ? 'official' : 'casual'
+                    return (
+                      <article
+                        key={mtg.id}
+                        role="button"
+                        tabIndex={0}
+                        className={`schedule-row ${
+                          isSameDateAsNext ? 'same-date-next' : ''
                         }`}
+                        onClick={() => onSelectMeetingId(mtg.id)}
+                        onKeyDown={(e) =>
+                          e.key === 'Enter' && onSelectMeetingId(mtg.id)
+                        }
                       >
-                        {mtg.type === 'Official' ? '공식' : '자율'}
-                      </span>
-                      <span className="location-pill">{mtg.location}</span>
-                      <span
-                        className={`status-pill ${
-                          mtg.status === 'settled' ? 'settled' : 'open'
-                        }`}
-                      >
-                        {mtg.status === 'settled' ? '마감' : '모집중'}
-                      </span>
-                      {mtg.status === 'open' && myScoreInfo.isExpedition && (
-                        <span className="expedition-pill">
-                          {myScoreInfo.label}
-                        </span>
-                      )}
-                    </div>
-                    <strong className="concise-datetime">{mtg.date}</strong>
-                  </div>
+                        <div className="schedule-date-col">
+                          {!isSameDateAsPrev && (
+                            <>
+                              <span className="schedule-weekday">
+                                {meta.weekday}
+                              </span>
+                              <span className="schedule-day-num">
+                                {meta.day}
+                              </span>
+                            </>
+                          )}
+                        </div>
 
-                  {/* Emphasized Title (Clickable to open individual meeting page) */}
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    className="concise-title-box"
-                    onClick={() => onSelectMeetingId(mtg.id)}
-                    onKeyDown={(e) =>
-                      e.key === 'Enter' && onSelectMeetingId(mtg.id)
-                    }
-                  >
-                    <h3 className="concise-title">{mtg.title}</h3>
-                  </div>
+                        <div className="schedule-bar-col" aria-hidden="true">
+                          <span className="schedule-bar" />
+                        </div>
 
-                  {/* Participants by Nickname Only */}
-                  <div className="concise-nicknames-box">
-                    <span className="sub-meta">
-                      참석({participantUids.length}):{' '}
-                    </span>
-                    <div className="chip-list" style={{ display: 'inline-flex' }}>
-                      {participantUids.map((uid) => {
-                        const m = members.find((mem) => mem.uid === uid);
-                        if (!m) return null;
-                        return (
-                          <span key={uid} className="member-chip">
-                            {formatMemberNickname(m)}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Quick Actions: Open Dedicated Page / Share / Apply */}
-                  <div className="meeting-footer">
-                    <button
-                      type="button"
-                      className="btn-link"
-                      onClick={() => onSelectMeetingId(mtg.id)}
-                    >
-                      벙 상세·정산 페이지 (#{mtg.id}) 열기 →
-                    </button>
-
-                    <div className="btn-row">
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => onShareMeeting && onShareMeeting(mtg)}
-                      >
-                        공유
-                      </button>
-                      {mtg.status === 'open' && (
-                        <button
-                          type="button"
-                          className={`btn btn-sm ${
-                            isApplied ? 'btn-outline' : 'btn-primary'
-                          }`}
-                          onClick={() => onToggleApplyMeeting(mtg.id)}
-                        >
-                          {isApplied ? '신청 취소' : '참석 신청'}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+                        <div className="schedule-info-col">
+                          <h3
+                            className={`schedule-title ${
+                              isSettled ? 'is-settled' : ''
+                            }`}
+                          >
+                            {mtg.title}
+                          </h3>
+                          <div className="schedule-time">
+                            {meta.timeRangeText}
+                          </div>
+                          {meta.locationText && (
+                            <div className="schedule-location">
+                              {meta.locationText}
+                            </div>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>

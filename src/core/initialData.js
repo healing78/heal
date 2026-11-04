@@ -1,8 +1,8 @@
 export const INITIAL_COMMUNITY_CONFIG = {
-  homeSummary: '공지 · 규격 닉네임 및 벙 규칙',
-  noticeTitle: 'Healing78 커뮤니티 닉네임 및 모임(벙) 운영 규칙 안내',
+  homeSummary: '공지 · 규격 닉네임 및 모임 규칙',
+  noticeTitle: 'Healing78 커뮤니티 닉네임 및 모임 운영 규칙 안내',
   noticeBody:
-    '1) 모든 회원은 [이름 지역 결혼여부 성별 뱃지] 규격 닉네임을 유지해야 합니다.\n2) 모임(벙) 참석 시 기본 +1점, 타권역(도 단위) 원정 참석 시 +1점, 해외 원정 시 +2점 보너스가 부여됩니다.\n3) 모임(벙) 개설은 최소 1회 이상 모임에 참석한 회원부터 가능합니다.',
+    '1) 모든 회원은 [이름 지역 결혼여부 성별 뱃지] 규격 닉네임을 유지해야 합니다.\n2) 모임 참석 시 기본 +1점, 타권역(도 단위) 원정 참석 시 +1점, 해외 원정 시 +2점 보너스가 부여됩니다.\n3) 모임 개설은 최소 1회 이상 모임에 참석한 회원부터 가능합니다.',
   newcomerSummary: '신입공지 · 입장 즉시 닉네임 변경',
   newcomerNoticeBody:
     'Healing78 오픈채팅방 입장 후 24시간 이내에 아래 자동 생성기로 규격 닉네임([이름 지역 미/기/돌 남/여 가입일])을 만들어 카톡방 프로필을 변경해 주세요.',
@@ -108,9 +108,10 @@ export const INITIAL_MEMBERS = [
 export const INITIAL_MEETINGS = [
   {
     id: '26110701',
-    title: '11월 서울 강남 정기 모임 (공식벙)',
+    title: '11월 서울 강남 정기 모임',
     dateOnly: '2026-11-07',
     startTime: '19:00',
+    endTime: '23:00',
     date: '2026-11-07 19:00',
     location: '서울',
     placeDetail: '강남역 11번 출구 인근 라운지',
@@ -169,9 +170,10 @@ export const INITIAL_MEETINGS = [
   },
   {
     id: '26110801',
-    title: '수원 광교 호수공원 주말 산책 & 커피 번개',
+    title: '수원 광교 호수공원 주말 산책 & 커피 모임',
     dateOnly: '2026-11-08',
     startTime: '15:00',
+    endTime: '19:00',
     date: '2026-11-08 15:00',
     location: '수원',
     placeDetail: '광교호수공원 제1주차장 집결',
@@ -182,7 +184,7 @@ export const INITIAL_MEETINGS = [
     applicants: ['kakao:1004', 'kakao:1001', 'kakao:1003'],
     confirmedParticipants: [],
     description:
-      '가볍게 산책하고 브런치 카페 가는 주말 자율 벙입니다.',
+      '가볍게 산책하고 브런치 카페 가는 주말 자율 모임입니다.',
     roundingRule: 'floor100',
     rounds: [
       {
@@ -205,9 +207,10 @@ export const INITIAL_MEETINGS = [
   },
   {
     id: '26102401',
-    title: '10월 가을 남산 야경 산책 벙',
+    title: '10월 가을 남산 야경 산책 모임',
     dateOnly: '2026-10-24',
     startTime: '18:30',
+    endTime: '22:30',
     date: '2026-10-24 18:30',
     location: '서울',
     placeDetail: '동대입구역 6번 출구',
@@ -255,7 +258,7 @@ export const INITIAL_SCORE_LOGS = [
     id: 'log-1',
     uid: 'kakao:1004',
     type: 'meeting',
-    title: '10월 가을 남산 야경 산책 벙 참석 (충청·대전→서울·경기 원정)',
+    title: '10월 가을 남산 야경 산책 모임 참석 (충청·대전→서울·경기 원정)',
     baseDelta: 1,
     expeditionDelta: 1,
     eventDelta: 0,
@@ -266,7 +269,7 @@ export const INITIAL_SCORE_LOGS = [
     id: 'log-2',
     uid: 'kakao:1004',
     type: 'meeting',
-    title: '10월 대전 둔산동 커피 번개 참석',
+    title: '10월 대전 둔산동 커피 모임 참석',
     baseDelta: 1,
     expeditionDelta: 0,
     eventDelta: 0,
@@ -277,7 +280,7 @@ export const INITIAL_SCORE_LOGS = [
     id: 'log-3',
     uid: 'kakao:1001',
     type: 'event',
-    title: '커뮤니티 10월 베스트 벙주 이벤트 보너스',
+    title: '커뮤니티 10월 우수 모임장 이벤트 보너스',
     baseDelta: 0,
     expeditionDelta: 0,
     eventDelta: 3,
@@ -288,7 +291,7 @@ export const INITIAL_SCORE_LOGS = [
     id: 'log-4',
     uid: 'kakao:1003',
     type: 'meeting',
-    title: '10월 가을 남산 야경 산책 벙 참석 (경상·부산→서울·경기 원정)',
+    title: '10월 가을 남산 야경 산책 모임 참석 (경상·부산→서울·경기 원정)',
     baseDelta: 1,
     expeditionDelta: 1,
     eventDelta: 0,

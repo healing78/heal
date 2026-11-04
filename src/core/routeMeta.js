@@ -17,7 +17,7 @@ export const VALID_TABS = [
 
 export const PAGE_LABELS = {
   home: '홈 · 전체 공지',
-  meetings: '모임(벙) 일정',
+  meetings: '모임 일정',
   reports: '모임·개인 리포트',
   ranking: '랭킹 · 친구 정보',
   nickname: '신입 규격 닉네임 생성',
@@ -155,7 +155,7 @@ export function buildRouteMeta({
       const headerSummary = toShortSummary(rawSummary, 20);
       return {
         headerSummary,
-        pageTitle: `${headerSummary} | Healing78 벙`,
+        pageTitle: `${headerSummary} | Healing78 모임`,
         description: `[#${selectedMeeting.id}] 일시: ${selectedMeeting.date} · 지역: ${selectedMeeting.location} (${selectedMeeting.title})`,
         sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}`
       };
@@ -172,7 +172,7 @@ export function buildRouteMeta({
     return {
       headerSummary,
       pageTitle: `${headerSummary} | Healing78 모임일정`,
-      description: `진행 예정 벙 일정: ${scheduleListText}`,
+      description: `진행 예정 모임 일정: ${scheduleListText}`,
       sharePath: '/meetings'
     };
   }
@@ -250,7 +250,7 @@ export function buildRouteMeta({
   // 7. Login (/login)
   if (tab === 'login') {
     const headerSummary = toShortSummary(
-      communityConfig?.homeSummary || '공지 · 규격 닉네임 및 벙 규칙',
+      communityConfig?.homeSummary || '공지 · 규격 닉네임 및 모임 규칙',
       20
     );
     return {
@@ -265,7 +265,7 @@ export function buildRouteMeta({
   const rawHomeNotice =
     communityConfig?.homeSummary ||
     communityConfig?.noticeTitle ||
-    '공지 · 규격 닉네임 및 벙 규칙';
+    '공지 · 규격 닉네임 및 모임 규칙';
   const headerSummary = toShortSummary(rawHomeNotice, 20);
 
   return {
@@ -273,7 +273,7 @@ export function buildRouteMeta({
     pageTitle: `${headerSummary} | Healing78`,
     description:
       communityConfig?.noticeBody ||
-      'Healing78 (since 2024) 공지사항, 실시간 모임(벙) 참석 신청 및 활동 랭킹',
+      'Healing78 (since 2024) 공지사항, 실시간 모임 참석 신청 및 활동 랭킹',
     sharePath: '/'
   };
 }

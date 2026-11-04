@@ -15,7 +15,7 @@ const ROUTE_METAS = [
   {
     route: 'meetings',
     title: '1107 서울, 1108 경기 | Healing78 모임일정',
-    description: '진행 예정 벙 일정 및 참석 신청 (참석 기본 +1점, 타지역 원정 +1점, 해외 +2점)'
+    description: '진행 예정 모임 일정 및 참석 신청 (참석 기본 +1점, 타지역 원정 +1점, 해외 +2점)'
   },
   {
     route: 'reports',
@@ -39,7 +39,7 @@ const ROUTE_METAS = [
   },
   {
     route: 'login',
-    title: '공지 · 규격 닉네임 및 벙 규칙 | Healing78 로그인',
+    title: '공지 · 규격 닉네임 및 모임 규칙 | Healing78 로그인',
     description: '카카오 계정으로 간편하게 로그인하고 신입 회원 프로필을 등록하세요.'
   },
   {

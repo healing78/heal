@@ -1,7 +1,7 @@
 # Heal - Community Management System
 
 ## Project Overview
-힐(Heal) 커뮤니티 관리 시스템은 회원의 프로필, 고유 닉네임 규격, 역할/권한 체계, 모임(벙) 참석 및 활동 점수를 관리하기 위한 웹 애플리케이션입니다.
+힐(Heal) 커뮤니티 관리 시스템은 회원의 프로필, 고유 닉네임 규격, 역할/권한 체계, 모임 참석 및 활동 점수를 관리하기 위한 웹 애플리케이션입니다.
 
 ## Technology Stack
 - **Target Platforms:** PC Web, Mobile Web (PWA), Android, iOS (Single Codebase)
