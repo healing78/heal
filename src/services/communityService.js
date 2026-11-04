@@ -156,6 +156,12 @@ const ensureFirestoreSeeded = async () => {
  * Subscribes to community data in real-time (Firestore onSnapshot or LocalStorage fallback).
  */
 export const subscribeCommunityData = (onUpdate) => {
+  // Always register localListener so that local state changes (create/update) immediately update React UI!
+  localListeners.add(onUpdate);
+
+  // Immediately notify listener with current local state
+  onUpdate(getLocalState());
+
   if (!isFirebaseConfigured || !db) {
     // Ensure initial local state is saved once
     if (!localStorage.getItem(STORAGE_KEYS.members)) {
@@ -164,19 +170,12 @@ export const subscribeCommunityData = (onUpdate) => {
       writeLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS);
       writeLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG);
     }
-    localListeners.add(onUpdate);
-    onUpdate(getLocalState());
     return () => {
       localListeners.delete(onUpdate);
     };
   }
 
-  let currentData = {
-    members: INITIAL_MEMBERS,
-    meetings: INITIAL_MEETINGS,
-    scoreLogs: INITIAL_SCORE_LOGS,
-    communityConfig: INITIAL_COMMUNITY_CONFIG
-  };
+  let currentData = getLocalState();
 
   ensureFirestoreSeeded();
 
@@ -246,6 +245,7 @@ export const subscribeCommunityData = (onUpdate) => {
   );
 
   return () => {
+    localListeners.delete(onUpdate);
     unsubMembers();
     unsubMeetings();
     unsubLogs();

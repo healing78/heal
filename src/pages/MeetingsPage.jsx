@@ -223,10 +223,8 @@ export default function MeetingsPage({
       reminder: '15분 전',
       requestAttendance: false
     });
+    setSubTab('open');
     setShowCreateForm(false);
-    if (created?.id && onSelectMeetingId) {
-      onSelectMeetingId(created.id);
-    }
   };
 
   const filteredMeetings = meetings.filter((m) => {
