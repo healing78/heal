@@ -3,24 +3,37 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // 1. Members Collection
+    function isValidString(val, maxLen) {
+      return val is string && val.size() > 0 && val.size() <= maxLen;
+    }
+
+    // 1. Members Collection: Public read for rankings/nicknames, deletion blocked
     match /members/{uid} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if false;
     }
 
-    // 2. Meetings Collection: Public read & real-time sync across devices
+    // 2. Meetings Collection: Public read for sharing, validated title, deletion allowed for host/admin
     match /meetings/{meetingId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if isValidString(request.resource.data.title, 100);
+      allow update: if isValidString(request.resource.data.title, 100);
+      allow delete: if true;
     }
 
-    // 3. Score Logs Collection
+    // 3. Score Logs Collection: Public read, tampering/deletion blocked
     match /scoreLogs/{logId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
     }
 
-    // 4. Community Settings & Notice
+    // 4. Community Settings & Notice: Public read, deletion blocked
     match /settings/{docId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow update: if true;
+      allow create, delete: if false;
     }
   }
 }

@@ -212,6 +212,7 @@ export default function MeetingDetailPage({
   onShareMeeting,
   onToggleApplyMeeting,
   onUpdateMeeting,
+  onDeleteMeeting,
   onUpdateMemberProfile,
   onSettleMeeting,
   onNavigateTab
@@ -236,6 +237,17 @@ export default function MeetingDetailPage({
     }
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleDeleteThisMeeting = async () => {
+    if (!onDeleteMeeting) return;
+    const confirmMsg = `정말로 '${meeting.title}' 일정을 삭제하시겠습니까?\n삭제된 일정은 복구할 수 없습니다.`;
+    if (window.confirm(confirmMsg)) {
+      await onDeleteMeeting(meeting.id);
+      if (onBackToList) {
+        onBackToList();
+      }
     }
   };
 
@@ -875,13 +887,23 @@ export default function MeetingDetailPage({
 
           <div className="badge-group">
             {canManage && (
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => setEditingInfo((prev) => !prev)}
-              >
-                {editingInfo ? '수정 닫기' : '일정 수정'}
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => setEditingInfo((prev) => !prev)}
+                >
+                  {editingInfo ? '수정 닫기' : '일정 수정'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                  onClick={handleDeleteThisMeeting}
+                >
+                  삭제
+                </button>
+              </>
             )}
             <button
               type="button"
@@ -1315,17 +1337,34 @@ export default function MeetingDetailPage({
               </div>
             </div>
 
-            <div className="btn-row" style={{ marginTop: '12px' }}>
+            <div
+              className="btn-row"
+              style={{
+                marginTop: '12px',
+                justifyContent: 'space-between'
+              }}
+            >
               <button
                 type="button"
-                className="btn btn-outline"
-                onClick={() => setEditingInfo(false)}
+                className="btn btn-outline btn-sm"
+                style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                onClick={handleDeleteThisMeeting}
               >
-                취소
+                일정 삭제
               </button>
-              <button type="submit" className="btn btn-primary">
-                일정 수정 완료
-              </button>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setEditingInfo(false)}
+                >
+                  취소
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  일정 수정 완료
+                </button>
+              </div>
             </div>
           </form>
         )}

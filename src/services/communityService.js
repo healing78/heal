@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDocs,
   onSnapshot,
@@ -520,6 +521,26 @@ export const updateMeetingDetails = async (meetingId, patch) => {
       await updateDoc(doc(db, 'meetings', String(meetingId)), patch);
     } catch (err) {
       console.warn('Firestore write fallback (updateMeetingDetails):', err.code);
+    }
+  }
+};
+
+/**
+ * Deletes a meeting from Firestore and local storage.
+ */
+export const deleteMeeting = async (meetingId) => {
+  const { meetings } = getLocalState();
+  const nextMeetings = meetings.filter(
+    (m) => String(m.id) !== String(meetingId)
+  );
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, 'meetings', String(meetingId)));
+    } catch (err) {
+      console.warn('Firestore write fallback (deleteMeeting):', err.code);
     }
   }
 };

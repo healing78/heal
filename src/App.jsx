@@ -28,7 +28,8 @@ import {
   toggleMeetingApplicant,
   updateCommunityConfig,
   updateMeetingDetails,
-  updateMemberProfile
+  updateMemberProfile,
+  deleteMeeting
 } from './services/communityService';
 import { logoutFromKakao } from './services/kakaoAuthService';
 import LoginOnboardingPage from './pages/LoginOnboardingPage';
@@ -229,6 +230,11 @@ export default function App() {
     await updateMeetingDetails(meetingId, patch);
   };
 
+  const handleDeleteMeeting = async (meetingId) => {
+    await deleteMeeting(meetingId);
+    handleSelectMeetingId(null);
+  };
+
   const handleUpdateProfile = async (updatedFields) => {
     if (!currentUser) return;
     await updateMemberProfile(currentUser.uid, updatedFields);
@@ -306,6 +312,7 @@ export default function App() {
           onToggleApplyMeeting={handleToggleApplyMeeting}
           onCreateMeeting={handleCreateMeeting}
           onUpdateMeeting={handleUpdateMeeting}
+          onDeleteMeeting={handleDeleteMeeting}
           onSettleMeeting={handleSettleMeeting}
           onUpdateMemberProfile={handleUpdateProfile}
           onNavigateTab={navigateToTab}
