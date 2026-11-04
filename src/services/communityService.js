@@ -147,6 +147,21 @@ const ensureFirestoreSeeded = async () => {
       });
       await batch.commit();
     }
+
+    // Auto-sync any custom meetings created locally that are not yet in Firestore (e.g. from prior permission-denied periods)
+    const localState = getLocalState();
+    const existingMeetingIds = new Set(
+      existingMeetings.docs.map((d) => String(d.id))
+    );
+    for (const mtg of localState.meetings) {
+      if (mtg && mtg.id && !existingMeetingIds.has(String(mtg.id))) {
+        try {
+          await setDoc(doc(db, 'meetings', String(mtg.id)), mtg);
+        } catch (syncErr) {
+          console.warn('Local meeting sync to Firestore skipped:', syncErr);
+        }
+      }
+    }
   } catch (err) {
     console.warn('Firestore initial seed skipped:', err);
   }
