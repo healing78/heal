@@ -463,7 +463,9 @@ export const createMeeting = async (hostUid, meetingInput) => {
     sponsorships: [],
     manualAmounts: {},
     paymentStatuses: {},
-    safeReturns: {}
+    safeReturns: {},
+    likes: [],
+    comments: []
   };
 
   writeLocalJson(STORAGE_KEYS.meetings, [created, ...meetings]);

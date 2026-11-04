@@ -166,7 +166,22 @@ export const INITIAL_MEETINGS = [
     },
     safeReturns: {
       'kakao:1005': '22:40 귀가완료'
-    }
+    },
+    likes: ['kakao:1001', 'kakao:1002', 'kakao:1003', 'kakao:1004'],
+    comments: [
+      {
+        id: 'cmt-1',
+        uid: 'kakao:1002',
+        text: '고기 좋아! 기대됩니다 ❤️',
+        createdAt: '17시간 전'
+      },
+      {
+        id: 'cmt-2',
+        uid: 'kakao:1004',
+        text: '대전에서 원정 갑니다 👍',
+        createdAt: '12시간 전'
+      }
+    ]
   },
   {
     id: '26110801',
