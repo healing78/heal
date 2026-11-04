@@ -397,10 +397,9 @@ export const createMeeting = async (hostUid, meetingInput) => {
     meetingInput.location ??
     ''
   ).trim();
-  const resolvedLocation = extractRegionFromLocationInput(
-    rawPlaceInput,
-    hostMember?.city || '서울'
-  );
+  const resolvedLocation = rawPlaceInput
+    ? extractRegionFromLocationInput(rawPlaceInput, '')
+    : '';
 
   const inputRounds =
     Array.isArray(meetingInput.rounds) && meetingInput.rounds.length > 0
@@ -450,7 +449,7 @@ export const createMeeting = async (hostUid, meetingInput) => {
         : true,
     date: combinedDate,
     location: resolvedLocation,
-    placeDetail: inputRounds[0]?.placeName || rawPlaceInput,
+    placeDetail: rawPlaceInput,
     hostUid,
     treasurerUid: meetingInput.treasurerUid || hostUid,
     type: meetingInput.type || 'Casual',

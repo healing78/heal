@@ -150,13 +150,20 @@ export function buildRouteMeta({
   // 1. Meetings (/meetings or /meetings/26110701)
   if (tab === 'meetings') {
     if (selectedMeeting) {
+      const isBung = selectedMeeting.requestAttendance !== false;
       const mmdd = formatCompactDate(selectedMeeting.date);
-      const rawSummary = `${mmdd} ${selectedMeeting.location} ${selectedMeeting.title}`;
+      const loc = selectedMeeting.location ? ` ${selectedMeeting.location}` : '';
+      const prefix = isBung
+        ? `[벙대기실 #${selectedMeeting.id}]`
+        : `[일정 #${selectedMeeting.id}]`;
+      const rawSummary = `${prefix} ${selectedMeeting.title}`;
       const headerSummary = toShortSummary(rawSummary, 20);
       return {
         headerSummary,
-        pageTitle: `${headerSummary} | Healing78 일정`,
-        description: `[#${selectedMeeting.id}] 일시: ${selectedMeeting.date} · 지역: ${selectedMeeting.location} (${selectedMeeting.title})`,
+        pageTitle: `${headerSummary} | Healing78`,
+        description: isBung
+          ? `${selectedMeeting.title} 벙대기실 (일시: ${selectedMeeting.date}${loc}) - 고유 링크: /meetings/${selectedMeeting.id}`
+          : `${selectedMeeting.title} 일정 상세 (일시: ${selectedMeeting.date}${loc}) - 고유 링크: /meetings/${selectedMeeting.id}`,
         sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}`
       };
     }

@@ -207,6 +207,30 @@ export default function MeetingDetailPage({
   const [previewReceiptUrl, setPreviewReceiptUrl] = useState('');
   const [commentInput, setCommentInput] = useState('');
 
+  const isBungMeeting = meeting.requestAttendance !== false;
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleCopyDirectLink = async () => {
+    const origin =
+      typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'https://healing78.web.app';
+    const directUrl = `${origin}/meetings/${meeting.id}`;
+    const shareText = isBungMeeting
+      ? `[Healing78 벙대기실 #${meeting.id}] ${meeting.title}\n일시: ${meeting.date}\n${directUrl}`
+      : `[Healing78 일정] ${meeting.title}\n일시: ${meeting.date}\n${directUrl}`;
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareText);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      }
+    } catch (err) {
+      console.warn('Copy failed:', err);
+    }
+  };
+
   const canManage = canManageMeeting(currentUser, meeting);
   const adminUser = isAdminRole(currentUser?.role);
   const applicants = meeting.applicants || [];
@@ -760,6 +784,14 @@ export default function MeetingDetailPage({
             <button
               type="button"
               className="btn btn-outline btn-sm"
+              onClick={handleCopyDirectLink}
+              title={`고유 링크 복사: meetings/${meeting.id}`}
+            >
+              {copiedLink ? '링크 복사됨 ✓' : `🔗 meetings/${meeting.id}`}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
               onClick={() => onShareMeeting(meeting)}
             >
               공유
@@ -799,29 +831,34 @@ export default function MeetingDetailPage({
             )}
 
             <div className="detail-card-actions">
-              <div>
-                {meeting.status === 'open' &&
-                  meeting.requestAttendance !== false && (
-                    <button
-                      type="button"
-                      className={`detail-attend-pill ${
-                        isApplied ? 'is-attending' : ''
-                      }`}
-                      onClick={() => onToggleApplyMeeting(meeting.id)}
-                    >
-                      {isApplied ? '참석 ✓' : '참석'}
-                    </button>
-                  )}
-              </div>
+              {isBungMeeting ? (
+                <>
+                  <div>
+                    {meeting.status === 'open' && (
+                      <button
+                        type="button"
+                        className={`detail-attend-pill ${
+                          isApplied ? 'is-attending' : ''
+                        }`}
+                        onClick={() => onToggleApplyMeeting(meeting.id)}
+                      >
+                        {isApplied ? '참석 ✓' : '참석'}
+                      </button>
+                    )}
+                  </div>
 
-              <button
-                type="button"
-                className="detail-attendee-count-btn"
-                onClick={() => setShowAttendeeDrawer((prev) => !prev)}
-              >
-                <span>{displayAttendeeUids.length} 명 참석</span>
-                <span aria-hidden="true">&gt;</span>
-              </button>
+                  <button
+                    type="button"
+                    className="detail-attendee-count-btn"
+                    onClick={() => setShowAttendeeDrawer((prev) => !prev)}
+                  >
+                    <span>{displayAttendeeUids.length} 명 참석</span>
+                    <span aria-hidden="true">&gt;</span>
+                  </button>
+                </>
+              ) : (
+                <span className="sub-meta">참석 응답 미요청 일정</span>
+              )}
             </div>
           </div>
 
@@ -997,24 +1034,37 @@ export default function MeetingDetailPage({
         )}
       </section>
 
-      {/* 2. "벙대기실" (Accessible ONLY to Attendees & Admins/Host/Treasurer) */}
-      <section className="list-section">
-        <div className="section-title-row">
-          <div className="badge-group">
-            <h2>벙대기실</h2>
-            <span className="platform-badge">#{meeting.id}</span>
-            {adminUser && !isApplied && (
-              <span className="location-pill">운영진 열람</span>
-            )}
+      {/* 2. "벙대기실" (Only rendered when requestAttendance !== false) */}
+      {isBungMeeting && (
+        <section className="list-section" id="bung-lounge">
+          <div className="section-title-row">
+            <div className="badge-group">
+              <h2>벙대기실</h2>
+              <span className="platform-badge" title="벙대기실 고유 링크">
+                #{meeting.id}
+              </span>
+              {adminUser && !isApplied && (
+                <span className="location-pill">운영진 열람</span>
+              )}
+            </div>
+            <div className="badge-group">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={handleCopyDirectLink}
+                title={`벙대기실 링크 복사: meetings/${meeting.id}`}
+              >
+                {copiedLink ? '링크 복사됨 ✓' : `🔗 meetings/${meeting.id}`}
+              </button>
+              {canAccessLounge && (
+                <span className="sub-meta">
+                  주최:{' '}
+                  {hostMember ? hostMember.realName : meeting.hostUid} · 총무:{' '}
+                  {treasurerMember ? treasurerMember.realName : treasurerUid}
+                </span>
+              )}
+            </div>
           </div>
-          {canAccessLounge && (
-            <span className="sub-meta">
-              주최:{' '}
-              {hostMember ? hostMember.realName : meeting.hostUid} · 총무:{' '}
-              {treasurerMember ? treasurerMember.realName : treasurerUid}
-            </span>
-          )}
-        </div>
 
         <div className="lounge-body">
           {/* 4-Tab Segmented Navigation inside 벙대기실 */}
@@ -2196,6 +2246,7 @@ export default function MeetingDetailPage({
           )}
         </div>
       </section>
+      )}
 
       {/* 3. Likes (❤️) & One-Line Comments Feed (Matches Uploaded Screenshot Bottom) */}
       <section className="list-section">

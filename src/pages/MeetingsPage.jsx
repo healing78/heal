@@ -202,13 +202,13 @@ export default function MeetingsPage({
       startTime: newSchedule.allDay ? '00:00' : newSchedule.startTime,
       endTime: newSchedule.allDay ? '23:59' : newSchedule.endTime,
       allDay: newSchedule.allDay,
-      location: placeInput || currentUser?.city || '서울',
+      location: placeInput,
       placeDetail: placeInput,
       reminder: newSchedule.reminder,
       requestAttendance: newSchedule.requestAttendance,
       treasurerUid: currentUser.uid,
       type: 'Casual',
-      rounds: [{ id: 'r-1', placeName: placeInput, mapUrl: '' }]
+      rounds: placeInput ? [{ id: 'r-1', placeName: placeInput, mapUrl: '' }] : []
     });
 
     const resetDate = getTodayDateString();
