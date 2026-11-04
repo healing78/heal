@@ -372,7 +372,7 @@ export default function MeetingDetailPage({
             className="btn btn-outline btn-sm"
             onClick={onBackToList}
           >
-            ← 모임 목록으로
+            ← 일정 목록으로
           </button>
           <div className="badge-group">
             <span className="platform-badge">#{meeting.id}</span>
@@ -439,13 +439,13 @@ export default function MeetingDetailPage({
 
         {/* Primary User Actions: Attendance Apply + Safe Return Home + Host Edit */}
         <div className="meeting-quick-actions">
-          {meeting.status === 'open' && (
+          {meeting.status === 'open' && meeting.requestAttendance !== false && (
             <button
               type="button"
               className={`btn ${isApplied ? 'btn-outline' : 'btn-primary'}`}
               onClick={() => onToggleApplyMeeting(meeting.id)}
             >
-              {isApplied ? '참석 신청 취소' : '이 모임 참석 신청'}
+              {isApplied ? '참석 신청 취소' : '일정 참석 신청'}
             </button>
           )}
 
@@ -463,7 +463,7 @@ export default function MeetingDetailPage({
               className="btn btn-outline"
               onClick={() => setEditingInfo((prev) => !prev)}
             >
-              {editingInfo ? '수정 닫기' : '모임 정보 수정'}
+              {editingInfo ? '수정 닫기' : '일정 정보 수정'}
             </button>
           )}
         </div>
@@ -479,10 +479,10 @@ export default function MeetingDetailPage({
               borderTop: '1px solid var(--color-divider)'
             }}
           >
-            <h3>모임 정보 수정</h3>
+            <h3>일정 정보 수정</h3>
             <div className="form-grid">
               <div className="form-field">
-                <label htmlFor="edit-mtg-title">모임 제목</label>
+                <label htmlFor="edit-mtg-title">일정 제목</label>
                 <input
                   id="edit-mtg-title"
                   type="text"

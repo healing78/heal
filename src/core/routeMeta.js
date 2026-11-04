@@ -17,7 +17,7 @@ export const VALID_TABS = [
 
 export const PAGE_LABELS = {
   home: '홈 · 전체 공지',
-  meetings: '모임 일정',
+  meetings: '일정',
   reports: '모임·개인 리포트',
   ranking: '랭킹 · 친구 정보',
   nickname: '신입 규격 닉네임 생성',
@@ -155,7 +155,7 @@ export function buildRouteMeta({
       const headerSummary = toShortSummary(rawSummary, 20);
       return {
         headerSummary,
-        pageTitle: `${headerSummary} | Healing78 모임`,
+        pageTitle: `${headerSummary} | Healing78 일정`,
         description: `[#${selectedMeeting.id}] 일시: ${selectedMeeting.date} · 지역: ${selectedMeeting.location} (${selectedMeeting.title})`,
         sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}`
       };
@@ -166,13 +166,13 @@ export function buildRouteMeta({
         ? openMeetings
             .map((m) => `${formatCompactDate(m.date)} ${m.location}`)
             .join(', ')
-        : '현재 모집중 모임 없음';
+        : '현재 예정된 일정 없음';
 
     const headerSummary = toShortSummary(scheduleListText, 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 모임일정`,
-      description: `진행 예정 모임 일정: ${scheduleListText}`,
+      pageTitle: `${headerSummary} | Healing78 일정`,
+      description: `진행 예정 일정: ${scheduleListText}`,
       sharePath: '/meetings'
     };
   }

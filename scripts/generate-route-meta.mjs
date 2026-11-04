@@ -14,8 +14,8 @@ const baseHtml = fs.readFileSync(baseHtmlPath, 'utf8');
 const ROUTE_METAS = [
   {
     route: 'meetings',
-    title: '1107 서울, 1108 경기 | Healing78 모임일정',
-    description: '진행 예정 모임 일정 및 참석 신청 (참석 기본 +1점, 타지역 원정 +1점, 해외 +2점)'
+    title: '1107 서울, 1108 경기 | Healing78 일정',
+    description: '진행 예정 일정 및 참석 신청 (참석 기본 +1점, 타지역 원정 +1점, 해외 +2점)'
   },
   {
     route: 'reports',

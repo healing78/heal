@@ -158,7 +158,7 @@ export default function App() {
 
     const result = await shareRouteInfo(mtgMeta);
     if (result.copied) {
-      showShareFeedback(`모임 안내 복사됨: "${mtgMeta.headerSummary}"`);
+      showShareFeedback(`일정 안내 복사됨: "${mtgMeta.headerSummary}"`);
     }
   };
 
@@ -194,8 +194,8 @@ export default function App() {
   };
 
   const handleCreateMeeting = async (meetingInput) => {
-    if (!currentUser) return;
-    await createMeeting(currentUser.uid, meetingInput);
+    if (!currentUser) return null;
+    return await createMeeting(currentUser.uid, meetingInput);
   };
 
   const handleSettleMeeting = async (meetingId, confirmedUids) => {

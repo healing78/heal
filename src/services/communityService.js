@@ -9,7 +9,8 @@ import {
 } from 'firebase/firestore';
 import {
   calculateMeetingScoreForMember,
-  generateMeetingId
+  generateMeetingId,
+  REGION_GROUPS
 } from '../core/communityRules';
 import {
   INITIAL_COMMUNITY_CONFIG,
@@ -364,22 +365,49 @@ export const toggleMeetingApplicant = async (meetingId, uid) => {
 };
 
 /**
- * Creates a new meeting with YYMMDD + 01 ID format and multi-round structure.
+ * Extracts a short city/region keyword from a free-form location string for 7-region expedition scoring.
+ */
+const extractRegionFromLocationInput = (rawInput, fallbackCity = '서울') => {
+  const clean = String(rawInput || '').trim();
+  if (!clean) return fallbackCity || '서울';
+
+  for (const group of REGION_GROUPS) {
+    const matched = group.keywords.find((kw) => clean.includes(kw));
+    if (matched) return matched;
+  }
+  return clean.split(/\s+/)[0] || fallbackCity || '서울';
+};
+
+/**
+ * Creates a new schedule/meeting with YYMMDD + 01 ID format and multi-round structure.
  */
 export const createMeeting = async (hostUid, meetingInput) => {
-  const { meetings } = getLocalState();
-  const dateOnly = meetingInput.dateOnly || '2026-11-15';
-  const startTime = meetingInput.startTime || '19:00';
-  const endTime = meetingInput.endTime || '23:00';
+  const { meetings, members } = getLocalState();
+  const hostMember = members.find((m) => m.uid === hostUid);
+  const dateOnly = meetingInput.dateOnly || '2026-11-04';
+  const endDateOnly = meetingInput.endDateOnly || dateOnly;
+  const allDay = Boolean(meetingInput.allDay);
+  const startTime = allDay ? '00:00' : meetingInput.startTime || '12:00';
+  const endTime = allDay ? '23:59' : meetingInput.endTime || '13:00';
   const combinedDate = `${dateOnly} ${startTime}`;
   const newId = generateMeetingId(dateOnly, meetings);
+
+  const rawPlaceInput = (
+    meetingInput.placeDetail ??
+    meetingInput.location ??
+    ''
+  ).trim();
+  const resolvedLocation = extractRegionFromLocationInput(
+    rawPlaceInput,
+    hostMember?.city || '서울'
+  );
 
   const inputRounds =
     Array.isArray(meetingInput.rounds) && meetingInput.rounds.length > 0
       ? meetingInput.rounds.map((r, idx) => ({
           id: r.id || `r-${idx + 1}`,
           label: `${idx + 1}차`,
-          placeName: (r.placeName || '').trim(),
+          placeName: (r.placeName || rawPlaceInput).trim(),
           mapUrl: (r.mapUrl || '').trim(),
           participants: Array.isArray(r.participants)
             ? r.participants
@@ -396,7 +424,7 @@ export const createMeeting = async (hostUid, meetingInput) => {
           {
             id: 'r-1',
             label: '1차',
-            placeName: (meetingInput.placeDetail || '').trim(),
+            placeName: rawPlaceInput,
             mapUrl: '',
             participants: [hostUid],
             payerUid: meetingInput.treasurerUid || hostUid,
@@ -411,11 +439,18 @@ export const createMeeting = async (hostUid, meetingInput) => {
     id: newId,
     title: sanitizeBungText(meetingInput.title.trim()),
     dateOnly,
+    endDateOnly,
     startTime,
     endTime,
+    allDay,
+    reminder: meetingInput.reminder || '15분 전',
+    requestAttendance:
+      meetingInput.requestAttendance !== undefined
+        ? Boolean(meetingInput.requestAttendance)
+        : true,
     date: combinedDate,
-    location: meetingInput.location.trim(),
-    placeDetail: inputRounds[0]?.placeName || (meetingInput.placeDetail || '').trim(),
+    location: resolvedLocation,
+    placeDetail: inputRounds[0]?.placeName || rawPlaceInput,
     hostUid,
     treasurerUid: meetingInput.treasurerUid || hostUid,
     type: meetingInput.type || 'Casual',

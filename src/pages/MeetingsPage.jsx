@@ -1,13 +1,37 @@
 import React, { useState } from 'react';
-import {
-  canCreateMeeting,
-  formatMemberNickname,
-  isAdminRole,
-  REGION_GROUPS
-} from '../core/communityRules';
+import { canCreateMeeting, REGION_GROUPS } from '../core/communityRules';
 import MeetingDetailPage from './MeetingDetailPage';
 
-const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAY_FULL_KO = [
+  '일요일',
+  '월요일',
+  '화요일',
+  '수요일',
+  '목요일',
+  '금요일',
+  '토요일'
+];
+
+const REMINDER_OPTIONS = [
+  '15분 전',
+  '30분 전',
+  '1시간 전',
+  '1일 전',
+  '정각',
+  '알림 없음'
+];
+
+function formatKoreanFullDate(dateStr) {
+  const clean = String(dateStr || '2026-11-04').slice(0, 10);
+  const parts = clean.split('-');
+  const year = Number(parts[0]) || 2026;
+  const month = Number(parts[1]) || 11;
+  const day = Number(parts[2]) || 4;
+  const dateObj = new Date(year, month - 1, day);
+  const weekdayFull = WEEKDAY_FULL_KO[dateObj.getDay()] || '';
+  return `${year}. ${month}. ${day} ${weekdayFull}`;
+}
 
 function formatKoreanAmPm(timeStr) {
   if (!timeStr) return '';
@@ -20,27 +44,31 @@ function formatKoreanAmPm(timeStr) {
   return `${period} ${hour12}:${minute}`;
 }
 
-function addHoursToTime(timeStr, hoursToAdd = 4) {
-  const match = String(timeStr || '19:00').trim().match(/^(\d{1,2}):(\d{2})/);
-  if (!match) return '23:00';
+function addHoursToTime(timeStr, hoursToAdd = 1) {
+  const match = String(timeStr || '12:00').trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return '13:00';
   const nextHour = Math.min(23, Number(match[1]) + hoursToAdd);
   return `${String(nextHour).padStart(2, '0')}:${match[2]}`;
 }
 
 function buildScheduleMeta(mtg) {
-  const rawDate = mtg.dateOnly || String(mtg.date || '').slice(0, 10) || '2026-11-01';
+  const rawDate =
+    mtg.dateOnly || String(mtg.date || '').slice(0, 10) || '2026-11-04';
   const parts = rawDate.split('-');
   const year = Number(parts[0]) || 2026;
   const month = Number(parts[1]) || 11;
-  const day = Number(parts[2]) || 1;
+  const day = Number(parts[2]) || 4;
 
   const dateObj = new Date(year, month - 1, day);
-  const weekday = WEEKDAY_KO[dateObj.getDay()] || '';
+  const weekday = WEEKDAY_SHORT_KO[dateObj.getDay()] || '';
 
-  const startTime =
-    mtg.startTime || String(mtg.date || '').slice(11, 16) || '19:00';
-  const endTime = mtg.endTime || addHoursToTime(startTime, 4);
-  const timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
+  let timeRangeText = '하루 종일';
+  if (!mtg.allDay) {
+    const startTime =
+      mtg.startTime || String(mtg.date || '').slice(11, 16) || '19:00';
+    const endTime = mtg.endTime || addHoursToTime(startTime, 4);
+    timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
+  }
 
   const firstRoundPlace = mtg.rounds?.[0]?.placeName || mtg.placeDetail || '';
   const baseLocation = (mtg.location || '').trim();
@@ -62,6 +90,14 @@ function buildScheduleMeta(mtg) {
   };
 }
 
+function getTodayDateString() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export default function MeetingsPage({
   currentUser,
   members,
@@ -80,22 +116,23 @@ export default function MeetingsPage({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createWarning, setCreateWarning] = useState('');
 
-  const [newMeeting, setNewMeeting] = useState({
+  const defaultDate = getTodayDateString();
+
+  const [newSchedule, setNewSchedule] = useState({
     title: '',
-    dateOnly: '2026-11-15',
-    startTime: '19:00',
-    endTime: '23:00',
-    location: currentUser?.city || '서울',
-    treasurerUid: currentUser?.uid || '',
-    type: 'Casual',
-    description: '',
-    rounds: [{ id: 'r-1', placeName: '', mapUrl: '' }]
+    dateOnly: defaultDate,
+    endDateOnly: defaultDate,
+    startTime: '12:00',
+    endTime: '13:00',
+    allDay: false,
+    placeDetail: '',
+    reminder: '15분 전',
+    requestAttendance: false
   });
 
-  const adminUser = currentUser ? isAdminRole(currentUser.role) : false;
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
 
-  // If a specific meeting ID is selected (/meetings/26110701), render its dedicated page
+  // If a specific schedule ID is selected (/meetings/26110701), render its dedicated page
   const activeMeeting = selectedMeetingId
     ? meetings.find((m) => String(m.id) === String(selectedMeetingId))
     : null;
@@ -124,7 +161,7 @@ export default function MeetingsPage({
     }
     if (!hostEligible) {
       setCreateWarning(
-        `모임 개설은 최소 1회 이상 모임에 참석한 회원만 가능합니다. (현재 내 참석 횟수: ${currentUser.attendanceCount}회)`
+        `일정 등록은 최소 1회 이상 참석한 회원만 가능합니다. (현재 내 참석 횟수: ${currentUser.attendanceCount}회)`
       );
       setShowCreateForm(false);
       return;
@@ -133,48 +170,55 @@ export default function MeetingsPage({
     setShowCreateForm((prev) => !prev);
   };
 
-  const handleAddCreateRound = () => {
-    setNewMeeting((prev) => ({
+  const handleStartDateChange = (nextDate) => {
+    setNewSchedule((prev) => ({
       ...prev,
-      rounds: [
-        ...prev.rounds,
-        { id: `r-${prev.rounds.length + 1}`, placeName: '', mapUrl: '' }
-      ]
+      dateOnly: nextDate,
+      endDateOnly:
+        prev.endDateOnly < nextDate ? nextDate : prev.endDateOnly
     }));
   };
 
-  const handleRemoveCreateRound = (idx) => {
-    setNewMeeting((prev) => ({
+  const handleStartTimeChange = (nextStart) => {
+    setNewSchedule((prev) => ({
       ...prev,
-      rounds: prev.rounds.filter((_, i) => i !== idx)
+      startTime: nextStart,
+      endTime: addHoursToTime(nextStart, 1)
     }));
   };
 
-  const handleCreateRoundChange = (idx, patch) => {
-    setNewMeeting((prev) => ({
-      ...prev,
-      rounds: prev.rounds.map((r, i) => (i === idx ? { ...r, ...patch } : r))
-    }));
-  };
-
-  const handleSubmitNewMeeting = async (e) => {
+  const handleSubmitNewSchedule = async (e) => {
     e.preventDefault();
-    if (!newMeeting.title.trim() || !newMeeting.location.trim()) return;
+    if (!newSchedule.title.trim()) return;
+
+    const placeInput = newSchedule.placeDetail.trim();
     const created = await onCreateMeeting({
-      ...newMeeting,
-      treasurerUid: newMeeting.treasurerUid || currentUser.uid,
-      type: adminUser ? newMeeting.type : 'Casual'
-    });
-    setNewMeeting({
-      title: '',
-      dateOnly: '2026-11-15',
-      startTime: '19:00',
-      endTime: '23:00',
-      location: currentUser?.city || '서울',
-      treasurerUid: currentUser?.uid || '',
+      title: newSchedule.title.trim(),
+      dateOnly: newSchedule.dateOnly,
+      endDateOnly: newSchedule.endDateOnly || newSchedule.dateOnly,
+      startTime: newSchedule.allDay ? '00:00' : newSchedule.startTime,
+      endTime: newSchedule.allDay ? '23:59' : newSchedule.endTime,
+      allDay: newSchedule.allDay,
+      location: placeInput || currentUser?.city || '서울',
+      placeDetail: placeInput,
+      reminder: newSchedule.reminder,
+      requestAttendance: newSchedule.requestAttendance,
+      treasurerUid: currentUser.uid,
       type: 'Casual',
-      description: '',
-      rounds: [{ id: 'r-1', placeName: '', mapUrl: '' }]
+      rounds: [{ id: 'r-1', placeName: placeInput, mapUrl: '' }]
+    });
+
+    const resetDate = getTodayDateString();
+    setNewSchedule({
+      title: '',
+      dateOnly: resetDate,
+      endDateOnly: resetDate,
+      startTime: '12:00',
+      endTime: '13:00',
+      allDay: false,
+      placeDetail: '',
+      reminder: '15분 전',
+      requestAttendance: false
     });
     setShowCreateForm(false);
     if (created?.id && onSelectMeetingId) {
@@ -219,18 +263,28 @@ export default function MeetingsPage({
     group.items.push({ mtg, meta });
   }
 
+  const openPicker = (e) => {
+    if (typeof e.target.showPicker === 'function') {
+      try {
+        e.target.showPicker();
+      } catch {
+        // Fallback to default browser behavior
+      }
+    }
+  };
+
   return (
     <div className="list-container">
-      {/* Page Header & Create Button */}
+      {/* Page Header & Register Schedule Button */}
       <section className="list-section">
         <div className="section-title-row">
-          <h2>모임 목록</h2>
+          <h2>일정 목록</h2>
           <button
             type="button"
             className="btn btn-primary btn-sm"
             onClick={handleOpenCreateModal}
           >
-            {showCreateForm ? '닫기' : '+ 모임 개설'}
+            {showCreateForm ? '닫기' : '+ 일정 등록'}
           </button>
         </div>
 
@@ -262,204 +316,273 @@ export default function MeetingsPage({
               className={`subtab-btn ${subTab === 'mine' ? 'active' : ''}`}
               onClick={() => setSubTab('mine')}
             >
-              내 모임
+              내 일정
             </button>
           )}
         </div>
       </section>
 
-      {/* Create Meeting Form */}
+      {/* Calendar-Style Schedule Registration Card */}
       {showCreateForm && (
-        <section className="list-section highlight-section">
-          <h3>새 모임 개설</h3>
-          <form
-            onSubmit={handleSubmitNewMeeting}
-            className="stack-gap"
-            style={{ marginTop: '12px' }}
-          >
-            <div className="form-grid">
-              <div className="form-field">
-                <label htmlFor="mtg-title">모임 제목</label>
+        <section className="list-section calendar-create-section">
+          <form onSubmit={handleSubmitNewSchedule}>
+            <div className="calendar-create-card">
+              {/* Row 1: Schedule Title */}
+              <div className="calendar-title-row">
                 <input
-                  id="mtg-title"
                   type="text"
-                  placeholder="모임 제목 입력"
+                  className="calendar-title-input"
+                  placeholder="일정 제목"
+                  aria-label="일정 제목"
                   required
-                  value={newMeeting.title}
+                  autoFocus
+                  value={newSchedule.title}
                   onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, title: e.target.value })
+                    setNewSchedule({ ...newSchedule, title: e.target.value })
                   }
                 />
               </div>
 
-              <div className="form-field">
-                <label htmlFor="mtg-loc">모임 지역</label>
-                <input
-                  id="mtg-loc"
-                  type="text"
-                  list="create-region-list"
-                  placeholder="서울, 경기, 강원, 대전, 광주, 부산, 제주, 해외"
-                  required
-                  value={newMeeting.location}
-                  onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, location: e.target.value })
-                  }
-                />
-                <datalist id="create-region-list">
-                  {REGION_GROUPS.map((g) => (
-                    <option key={g.id} value={g.keywords[0]}>
-                      {g.name}
-                    </option>
-                  ))}
-                </datalist>
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="mtg-date-only">날짜</label>
-                <input
-                  id="mtg-date-only"
-                  type="date"
-                  required
-                  value={newMeeting.dateOnly}
-                  onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, dateOnly: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="mtg-start-time">시작 시간</label>
-                <input
-                  id="mtg-start-time"
-                  type="time"
-                  required
-                  value={newMeeting.startTime}
-                  onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, startTime: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="mtg-end-time">종료 시간</label>
-                <input
-                  id="mtg-end-time"
-                  type="time"
-                  value={newMeeting.endTime}
-                  onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, endTime: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="mtg-treasurer">총무</label>
-                <select
-                  id="mtg-treasurer"
-                  value={newMeeting.treasurerUid || currentUser?.uid || ''}
-                  onChange={(e) =>
-                    setNewMeeting({
-                      ...newMeeting,
-                      treasurerUid: e.target.value
-                    })
-                  }
-                >
-                  {members.map((m) => (
-                    <option key={m.uid} value={m.uid}>
-                      {formatMemberNickname(m)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="mtg-type">모임 유형</label>
-                <select
-                  id="mtg-type"
-                  value={adminUser ? newMeeting.type : 'Casual'}
-                  disabled={!adminUser}
-                  onChange={(e) =>
-                    setNewMeeting({ ...newMeeting, type: e.target.value })
-                  }
-                >
-                  <option value="Casual">자율/번개</option>
-                  {adminUser && <option value="Official">공식 모임</option>}
-                </select>
-              </div>
-            </div>
-
-            {/* Dynamic Multi-Round Venues (1차, 2차... Optional) */}
-            <div className="round-finance-box">
-              <div className="section-title-row" style={{ marginBottom: '8px' }}>
-                <strong>차수별 장소 · 지도</strong>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={handleAddCreateRound}
-                >
-                  + {newMeeting.rounds.length + 1}차 추가
-                </button>
-              </div>
-
-              <div className="stack-gap">
-                {newMeeting.rounds.map((r, idx) => (
-                  <div key={r.id || idx} className="form-grid">
-                    <div className="form-field">
-                      <label>{idx + 1}차 장소</label>
+              {/* Row 2: Start Date & Time with Clock Icon */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <polyline points="12 7 12 12 15.5 12" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col has-divider">
+                  <div className="calendar-datetime-inline">
+                    <label className="calendar-picker-label">
+                      <span>{formatKoreanFullDate(newSchedule.dateOnly)}</span>
                       <input
-                        type="text"
-                        placeholder={`${idx + 1}차 상호명`}
-                        value={r.placeName}
+                        type="date"
+                        className="calendar-hidden-picker"
+                        value={newSchedule.dateOnly}
+                        onClick={openPicker}
+                        onChange={(e) => handleStartDateChange(e.target.value)}
+                      />
+                    </label>
+
+                    {!newSchedule.allDay && (
+                      <label className="calendar-picker-label">
+                        <span>{formatKoreanAmPm(newSchedule.startTime)}</span>
+                        <input
+                          type="time"
+                          className="calendar-hidden-picker"
+                          value={newSchedule.startTime}
+                          onClick={openPicker}
+                          onChange={(e) =>
+                            handleStartTimeChange(e.target.value)
+                          }
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: End Date & Time (Indented) */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true" />
+                <div className="calendar-body-col has-divider">
+                  <div className="calendar-datetime-inline">
+                    <label className="calendar-picker-label">
+                      <span>
+                        {formatKoreanFullDate(newSchedule.endDateOnly)}
+                      </span>
+                      <input
+                        type="date"
+                        className="calendar-hidden-picker"
+                        min={newSchedule.dateOnly}
+                        value={newSchedule.endDateOnly}
+                        onClick={openPicker}
                         onChange={(e) =>
-                          handleCreateRoundChange(idx, {
-                            placeName: e.target.value
+                          setNewSchedule({
+                            ...newSchedule,
+                            endDateOnly: e.target.value
                           })
                         }
                       />
-                    </div>
-                    <div className="form-field">
-                      <label>지도 링크</label>
-                      <div className="inline-input-row">
+                    </label>
+
+                    {!newSchedule.allDay && (
+                      <label className="calendar-picker-label">
+                        <span>{formatKoreanAmPm(newSchedule.endTime)}</span>
                         <input
-                          type="url"
-                          placeholder="네이버/카카오 지도 URL"
-                          value={r.mapUrl}
+                          type="time"
+                          className="calendar-hidden-picker"
+                          value={newSchedule.endTime}
+                          onClick={openPicker}
                           onChange={(e) =>
-                            handleCreateRoundChange(idx, {
-                              mapUrl: e.target.value
+                            setNewSchedule({
+                              ...newSchedule,
+                              endTime: e.target.value
                             })
                           }
                         />
-                        {newMeeting.rounds.length > 1 && (
-                          <button
-                            type="button"
-                            className="btn btn-outline btn-sm"
-                            onClick={() => handleRemoveCreateRound(idx)}
-                          >
-                            삭제
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                      </label>
+                    )}
                   </div>
-                ))}
+                </div>
+              </div>
+
+              {/* Row 4: All-Day Toggle (Indented) */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true" />
+                <div className="calendar-body-col has-divider calendar-toggle-row">
+                  <span className="calendar-row-text">하루 종일</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={newSchedule.allDay}
+                    aria-label="하루 종일"
+                    className={`calendar-switch ${
+                      newSchedule.allDay ? 'is-on' : ''
+                    }`}
+                    onClick={() =>
+                      setNewSchedule((prev) => ({
+                        ...prev,
+                        allDay: !prev.allDay
+                      }))
+                    }
+                  >
+                    <span className="calendar-switch-thumb">
+                      <span className="calendar-switch-dash" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Row 5: Location Input (Optional) */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z" />
+                    <circle cx="12" cy="11" r="2.2" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col has-divider">
+                  <input
+                    type="text"
+                    list="schedule-region-list"
+                    className="calendar-plain-input"
+                    placeholder="위치 입력(선택)"
+                    aria-label="위치 입력(선택)"
+                    value={newSchedule.placeDetail}
+                    onChange={(e) =>
+                      setNewSchedule({
+                        ...newSchedule,
+                        placeDetail: e.target.value
+                      })
+                    }
+                  />
+                  <datalist id="schedule-region-list">
+                    {REGION_GROUPS.map((g) => (
+                      <option key={g.id} value={g.keywords[0]}>
+                        {g.name}
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
+              </div>
+
+              {/* Row 6: Reminder Select */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col has-divider">
+                  <select
+                    aria-label="알림 시간"
+                    className="calendar-plain-select"
+                    value={newSchedule.reminder}
+                    onChange={(e) =>
+                      setNewSchedule({
+                        ...newSchedule,
+                        reminder: e.target.value
+                      })
+                    }
+                  >
+                    {REMINDER_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 7: Attendance Response Request Toggle */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col calendar-toggle-row">
+                  <span className="calendar-row-text">
+                    참석 여부 응답 요청
+                  </span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={newSchedule.requestAttendance}
+                    aria-label="참석 여부 응답 요청"
+                    className={`calendar-switch ${
+                      newSchedule.requestAttendance ? 'is-on' : ''
+                    }`}
+                    onClick={() =>
+                      setNewSchedule((prev) => ({
+                        ...prev,
+                        requestAttendance: !prev.requestAttendance
+                      }))
+                    }
+                  >
+                    <span className="calendar-switch-thumb">
+                      <span className="calendar-switch-dash" />
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="form-field">
-              <label htmlFor="mtg-desc">안내 메모</label>
-              <input
-                id="mtg-desc"
-                type="text"
-                placeholder="안내 사항 (선택)"
-                value={newMeeting.description}
-                onChange={(e) =>
-                  setNewMeeting({ ...newMeeting, description: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="btn-row">
+            <div className="btn-row" style={{ marginTop: '12px' }}>
               <button
                 type="button"
                 className="btn btn-outline"
@@ -468,17 +591,17 @@ export default function MeetingsPage({
                 취소
               </button>
               <button type="submit" className="btn btn-primary">
-                개설 완료
+                일정 등록
               </button>
             </div>
           </form>
         </section>
       )}
 
-      {/* Calendar Agenda Schedule List (Month Header + Left Weekday/Day + Vertical Pill + Right Title/Time/Location) */}
+      {/* Calendar Agenda Schedule List */}
       <section className="list-section schedule-list-section">
         {monthGroups.length === 0 ? (
-          <p className="muted-text">해당 탭에 표시할 모임이 없습니다.</p>
+          <p className="muted-text">해당 탭에 표시할 일정이 없습니다.</p>
         ) : (
           <div className="schedule-month-list">
             {monthGroups.map((group) => (
