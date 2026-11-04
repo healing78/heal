@@ -102,6 +102,7 @@ export default function MeetingsPage({
   currentUser,
   members,
   meetings,
+  communityConfig,
   selectedMeetingId,
   onSelectMeetingId,
   onShareMeeting,
@@ -141,8 +142,10 @@ export default function MeetingsPage({
     return (
       <MeetingDetailPage
         meeting={activeMeeting}
+        allMeetings={meetings}
         currentUser={currentUser}
         members={members}
+        communityConfig={communityConfig}
         onBackToList={() => onSelectMeetingId(null)}
         onShareMeeting={onShareMeeting}
         onToggleApplyMeeting={onToggleApplyMeeting}

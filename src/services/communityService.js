@@ -465,7 +465,16 @@ export const createMeeting = async (hostUid, meetingInput) => {
     paymentStatuses: {},
     safeReturns: {},
     likes: [],
-    comments: []
+    comments: [],
+    album: [],
+    randomBoxConfig: meetingInput.randomBoxConfig || {
+      enabled: true,
+      requiredBoxes: 1,
+      quizQuestion: meetingInput.quizQuestion || '',
+      quizAnswer: meetingInput.quizAnswer || '',
+      minMetCount: 3,
+      minAttendanceCount: 10
+    }
   };
 
   writeLocalJson(STORAGE_KEYS.meetings, [created, ...meetings]);
@@ -674,6 +683,90 @@ export const updateCommunityConfig = async (nextConfig) => {
       await setDoc(doc(db, 'settings', 'community'), nextConfig, { merge: true });
     } catch (err) {
       console.warn('Firestore write fallback (updateCommunityConfig):', err.code);
+    }
+  }
+};
+
+/**
+ * Adds a media item (photo or video) to a meeting's album.
+ */
+export const addMeetingMediaItem = async (meetingId, mediaItem) => {
+  const { meetings } = getLocalState();
+  const target = meetings.find((m) => String(m.id) === String(meetingId));
+  if (!target) return;
+
+  const currentAlbum = Array.isArray(target.album) ? target.album : [];
+  const nextAlbum = [mediaItem, ...currentAlbum];
+
+  const nextMeetings = meetings.map((m) =>
+    String(m.id) === String(meetingId) ? { ...m, album: nextAlbum } : m
+  );
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'meetings', String(meetingId)), { album: nextAlbum });
+    } catch (err) {
+      console.warn('Firestore write fallback (addMeetingMediaItem):', err.code);
+    }
+  }
+};
+
+/**
+ * Removes a media item from a meeting's album.
+ */
+export const deleteMeetingMediaItem = async (meetingId, mediaId) => {
+  const { meetings } = getLocalState();
+  const target = meetings.find((m) => String(m.id) === String(meetingId));
+  if (!target) return;
+
+  const currentAlbum = Array.isArray(target.album) ? target.album : [];
+  const nextAlbum = currentAlbum.filter((item) => item.id !== mediaId);
+
+  const nextMeetings = meetings.map((m) =>
+    String(m.id) === String(meetingId) ? { ...m, album: nextAlbum } : m
+  );
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'meetings', String(meetingId)), { album: nextAlbum });
+    } catch (err) {
+      console.warn('Firestore write fallback (deleteMeetingMediaItem):', err.code);
+    }
+  }
+};
+
+/**
+ * Unlocks a meeting's album for a user via Random Box.
+ */
+export const unlockMeetingAlbumForUser = async (userUid, meetingId) => {
+  const { members } = getLocalState();
+  const member = members.find((m) => m.uid === userUid);
+  if (!member) return;
+
+  const currentUnlocked = Array.isArray(member.unlockedAlbums)
+    ? member.unlockedAlbums
+    : [];
+  if (currentUnlocked.includes(meetingId)) return;
+
+  const nextUnlocked = [...currentUnlocked, meetingId];
+  const nextMembers = members.map((m) =>
+    m.uid === userUid ? { ...m, unlockedAlbums: nextUnlocked } : m
+  );
+
+  writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'members', userUid), {
+        unlockedAlbums: nextUnlocked
+      });
+    } catch (err) {
+      console.warn('Firestore write fallback (unlockMeetingAlbumForUser):', err.code);
     }
   }
 };

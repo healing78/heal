@@ -9,7 +9,8 @@ export const INITIAL_COMMUNITY_CONFIG = {
   baseAttendancePoint: 1,
   expeditionBonusPoint: 1,
   overseasBonusPoint: 2,
-  minAttendanceForHost: 1
+  minAttendanceForHost: 1,
+  googleDriveBridgeUrl: ''
 };
 
 export const INITIAL_MEMBERS = [
@@ -29,7 +30,9 @@ export const INITIAL_MEMBERS = [
     expeditionScore: 3,
     eventScore: 3,
     totalScore: 18,
-    monthlyScore: 6
+    monthlyScore: 6,
+    joinedAt: '2026-03-15',
+    unlockedAlbums: []
   },
   {
     uid: 'kakao:1002',
@@ -47,7 +50,9 @@ export const INITIAL_MEMBERS = [
     expeditionScore: 3,
     eventScore: 2,
     totalScore: 14,
-    monthlyScore: 5
+    monthlyScore: 5,
+    joinedAt: '2026-04-02',
+    unlockedAlbums: []
   },
   {
     uid: 'kakao:1003',
@@ -65,7 +70,9 @@ export const INITIAL_MEMBERS = [
     expeditionScore: 4,
     eventScore: 1,
     totalScore: 11,
-    monthlyScore: 4
+    monthlyScore: 4,
+    joinedAt: '2026-05-20',
+    unlockedAlbums: []
   },
   {
     uid: 'kakao:1004',
@@ -83,7 +90,9 @@ export const INITIAL_MEMBERS = [
     expeditionScore: 1,
     eventScore: 0,
     totalScore: 3,
-    monthlyScore: 3
+    monthlyScore: 3,
+    joinedAt: '2026-08-29',
+    unlockedAlbums: []
   },
   {
     uid: 'kakao:1005',
@@ -101,7 +110,9 @@ export const INITIAL_MEMBERS = [
     expeditionScore: 0,
     eventScore: 0,
     totalScore: 0,
-    monthlyScore: 0
+    monthlyScore: 0,
+    joinedAt: '2026-11-02',
+    unlockedAlbums: []
   }
 ];
 
@@ -181,7 +192,46 @@ export const INITIAL_MEETINGS = [
         text: '대전에서 원정 갑니다 👍',
         createdAt: '12시간 전'
       }
-    ]
+    ],
+    album: [
+      {
+        id: 'media-demo-1',
+        meetingId: '26110701',
+        uploaderUid: 'kakao:1001',
+        uploaderName: '김민준',
+        mediaType: 'image',
+        url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%25" stop-color="%231e293b"/><stop offset="100%25" stop-color="%23334155"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g1)"/><circle cx="400" cy="250" r="110" fill="%23f59e0b" opacity="0.35"/><text x="50%25" y="47%25" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="30" font-weight="bold">1차 강남역 고기집 본가 단체컷</text><text x="50%25" y="55%25" text-anchor="middle" fill="%23cbd5e1" font-family="sans-serif" font-size="18">Healing78 11월 정기 교류 모임</text></svg>',
+        thumbUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360"><rect width="360" height="360" fill="%231e293b"/><text x="50%25" y="52%25" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="20" font-weight="bold">📸 1차 단체컷</text></svg>',
+        driveFileId: '',
+        driveDownloadUrl: '',
+        caption: '1차 강남역 고기집 본가 단체 사진입니다!',
+        createdAt: '2026-11-07 20:30',
+        likes: ['kakao:1001', 'kakao:1002', 'kakao:1004']
+      },
+      {
+        id: 'media-demo-2',
+        meetingId: '26110701',
+        uploaderUid: 'kakao:1002',
+        uploaderName: '이서연',
+        mediaType: 'image',
+        url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%25" stop-color="%230f172a"/><stop offset="100%25" stop-color="%231e1b4b"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g2)"/><circle cx="400" cy="250" r="110" fill="%23ec4899" opacity="0.35"/><text x="50%25" y="47%25" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="30" font-weight="bold">2차 수제맥주 라운지 건배</text><text x="50%25" y="55%25" text-anchor="middle" fill="%23cbd5e1" font-family="sans-serif" font-size="18">모두 수고 많으셨습니다!</text></svg>',
+        thumbUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360"><rect width="360" height="360" fill="%231e1b4b"/><text x="50%25" y="52%25" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="20" font-weight="bold">🍻 2차 라운지</text></svg>',
+        driveFileId: '',
+        driveDownloadUrl: '',
+        caption: '2차 수제맥주 라운지 건배 사진',
+        createdAt: '2026-11-07 22:15',
+        likes: ['kakao:1002', 'kakao:1004']
+      }
+    ],
+    randomBoxConfig: {
+      enabled: true,
+      requiredBoxes: 1,
+      allowedQuestTypes: ['ACTIVITY_ATTENDANCE', 'HOST_RELATIONSHIP', 'MEETING_QUIZ'],
+      quizQuestion: '오늘 2차로 방문한 수제맥주집 이름은?',
+      quizAnswer: '수제맥주 라운지',
+      minMetCount: 3,
+      minAttendanceCount: 10
+    }
   },
   {
     id: '26110801',
@@ -218,7 +268,17 @@ export const INITIAL_MEETINGS = [
     sponsorships: [],
     manualAmounts: {},
     paymentStatuses: {},
-    safeReturns: {}
+    safeReturns: {},
+    album: [],
+    randomBoxConfig: {
+      enabled: true,
+      requiredBoxes: 1,
+      allowedQuestTypes: ['ACTIVITY_ATTENDANCE', 'HOST_RELATIONSHIP', 'MEETING_QUIZ'],
+      quizQuestion: '오늘 집결한 주차장 번호는?',
+      quizAnswer: '제1주차장',
+      minMetCount: 3,
+      minAttendanceCount: 10
+    }
   },
   {
     id: '26102401',
@@ -264,6 +324,29 @@ export const INITIAL_MEETINGS = [
       'kakao:1002': '23:25 귀가완료',
       'kakao:1003': '23:50 귀가완료',
       'kakao:1004': '23:40 귀가완료'
+    },
+    album: [
+      {
+        id: 'media-demo-3',
+        meetingId: '26102401',
+        uploaderUid: 'kakao:1002',
+        uploaderName: '이서연',
+        mediaType: 'image',
+        url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%25" stop-color="%231e1b4b"/><stop offset="100%25" stop-color="%23064e3b"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g3)"/><circle cx="400" cy="220" r="100" fill="%2310b981" opacity="0.35"/><text x="50%25" y="47%25" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="30" font-weight="bold">남산 둘레길 야경 뷰포인트</text><text x="50%25" y="55%25" text-anchor="middle" fill="%23cbd5e1" font-family="sans-serif" font-size="18">가을 정취 가득했던 산책</text></svg>',
+        thumbUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360"><rect width="360" height="360" fill="%23064e3b"/><text x="50%25" y="52%25" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="20" font-weight="bold">🍁 남산 야경</text></svg>',
+        caption: '남산 타워 야경 둘레길 코스',
+        createdAt: '2026-10-24 21:00',
+        likes: ['kakao:1001', 'kakao:1002', 'kakao:1003', 'kakao:1004']
+      }
+    ],
+    randomBoxConfig: {
+      enabled: true,
+      requiredBoxes: 1,
+      allowedQuestTypes: ['ACTIVITY_ATTENDANCE', 'HOST_RELATIONSHIP', 'MEETING_QUIZ'],
+      quizQuestion: '1차로 맛있게 먹은 음식 메뉴는?',
+      quizAnswer: '돈까스',
+      minMetCount: 3,
+      minAttendanceCount: 10
     }
   }
 ];

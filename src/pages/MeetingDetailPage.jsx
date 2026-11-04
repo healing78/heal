@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   calculateMeetingScoreForMember,
   calculateMeetingSettlement,
@@ -7,6 +7,27 @@ import {
   isAdminRole,
   REGION_GROUPS
 } from '../core/communityRules';
+import {
+  compressImage,
+  extractVideoThumbnail,
+  MAX_VIDEO_BYTES,
+  MAX_VIDEO_DURATION_SEC
+} from '../utils/mediaCompressor';
+import {
+  getGoogleDriveBridgeUrl,
+  uploadMediaToGoogleDrive
+} from '../services/googleDriveBridge';
+import {
+  RandomBoxQuestRegistry,
+  getMetCountWithHost,
+  canViewMeetingAlbum,
+  canUploadMeetingMedia
+} from '../services/randomBoxRegistry';
+import {
+  addMeetingMediaItem,
+  deleteMeetingMediaItem,
+  unlockMeetingAlbumForUser
+} from '../services/communityService';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const AVATAR_BG_PALETTE = [
@@ -127,20 +148,35 @@ function compressReceiptImage(file) {
 
 export default function MeetingDetailPage({
   meeting,
+  allMeetings = [],
   currentUser,
   members,
+  communityConfig,
   onBackToList,
   onShareMeeting,
   onToggleApplyMeeting,
   onUpdateMeeting,
   onUpdateMemberProfile,
-  onSettleMeeting
+  onSettleMeeting,
+  onNavigateTab
 }) {
-  const [loungeTab, setLoungeTab] = useState('rounds'); // 'rounds' | 'settlement' | 'returns'
+  const [loungeTab, setLoungeTab] = useState('rounds'); // 'rounds' | 'settlement' | 'returns' | 'album'
   const [showAttendeeDrawer, setShowAttendeeDrawer] = useState(false);
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
   const [showManagerTools, setShowManagerTools] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
+
+  // Album & Random Box states
+  const album = Array.isArray(meeting.album) ? meeting.album : [];
+  const canViewAlbum = canViewMeetingAlbum(currentUser, meeting);
+  const canUpload = canUploadMeetingMedia(currentUser, meeting);
+
+  const [activeLightboxItem, setActiveLightboxItem] = useState(null);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [quizInput, setQuizInput] = useState('');
+  const [quizMessage, setQuizMessage] = useState({ text: '', type: '' });
+  const fileInputRef = useRef(null);
 
   const [infoForm, setInfoForm] = useState({
     title: meeting.title || '',
@@ -495,6 +531,191 @@ export default function MeetingDetailPage({
     });
   };
 
+  // Handle Media File Selection & Upload (Image Compression & Video Thumbnail & GAS Bridge)
+  const handleMediaUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !currentUser) return;
+
+    setUploadingMedia(true);
+    setUploadStatus(`총 ${files.length}개 파일 준비 중...`);
+
+    const bridgeUrl = getGoogleDriveBridgeUrl(communityConfig);
+    const newItems = [];
+
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
+      setUploadStatus(`${i + 1}/${files.length} 처리 중: ${file.name}`);
+
+      try {
+        const isVideo = file.type.startsWith('video');
+
+        if (isVideo) {
+          const videoThumb = await extractVideoThumbnail(file);
+          const base64Data = await new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.onerror = rej;
+            reader.readAsDataURL(file);
+          });
+
+          let driveRes = null;
+          if (bridgeUrl) {
+            driveRes = await uploadMediaToGoogleDrive({
+              bridgeUrl,
+              meetingId: meeting.id,
+              meetingTitle: meeting.title,
+              uploaderName: currentUser.realName || '회원',
+              mimeType: file.type,
+              base64Data
+            });
+          }
+
+          const mediaItem = {
+            id: `media-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            meetingId: meeting.id,
+            uploaderUid: currentUser.uid,
+            uploaderName: currentUser.realName || '회원',
+            mediaType: 'video',
+            url: driveRes?.viewUrl || base64Data,
+            thumbUrl: videoThumb.thumbUrl,
+            driveFileId: driveRes?.fileId || '',
+            driveDownloadUrl: driveRes?.downloadUrl || '',
+            durationSec: videoThumb.duration || 0,
+            caption: '',
+            likes: [],
+            createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+          };
+          newItems.push(mediaItem);
+        } else {
+          const compressed = await compressImage(file, 1280, 0.78);
+          let driveRes = null;
+          if (bridgeUrl) {
+            driveRes = await uploadMediaToGoogleDrive({
+              bridgeUrl,
+              meetingId: meeting.id,
+              meetingTitle: meeting.title,
+              uploaderName: currentUser.realName || '회원',
+              mimeType: compressed.mimeType,
+              base64Data: compressed.dataUrl
+            });
+          }
+
+          const mediaItem = {
+            id: `media-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            meetingId: meeting.id,
+            uploaderUid: currentUser.uid,
+            uploaderName: currentUser.realName || '회원',
+            mediaType: 'image',
+            url: driveRes?.viewUrl || compressed.dataUrl,
+            thumbUrl: compressed.thumbUrl,
+            driveFileId: driveRes?.fileId || '',
+            driveDownloadUrl: driveRes?.downloadUrl || '',
+            durationSec: 0,
+            caption: '',
+            likes: [],
+            createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+          };
+          newItems.push(mediaItem);
+        }
+      } catch (err) {
+        console.error('File upload error:', err);
+        alert(err.message || '업로드 중 오류가 발생했습니다.');
+      }
+    }
+
+    if (newItems.length > 0) {
+      const nextAlbum = [...newItems, ...album];
+      await onUpdateMeeting(meeting.id, { album: nextAlbum });
+    }
+
+    setUploadingMedia(false);
+    setUploadStatus('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDeleteMedia = async (mediaId) => {
+    if (!window.confirm('이 사진/동영상을 삭제하시겠습니까?')) return;
+    const nextAlbum = album.filter((item) => item.id !== mediaId);
+    await onUpdateMeeting(meeting.id, { album: nextAlbum });
+    setActiveLightboxItem(null);
+  };
+
+  const handleToggleMediaLike = async (mediaId) => {
+    if (!currentUser) return;
+    const nextAlbum = album.map((item) => {
+      if (item.id !== mediaId) return item;
+      const currentLikes = Array.isArray(item.likes) ? item.likes : [];
+      const hasLiked = currentLikes.includes(currentUser.uid);
+      const nextLikes = hasLiked
+        ? currentLikes.filter((uid) => uid !== currentUser.uid)
+        : [...currentLikes, currentUser.uid];
+      return { ...item, likes: nextLikes };
+    });
+    await onUpdateMeeting(meeting.id, { album: nextAlbum });
+    if (activeLightboxItem && activeLightboxItem.id === mediaId) {
+      setActiveLightboxItem((prev) =>
+        prev
+          ? {
+              ...prev,
+              likes: (prev.likes || []).includes(currentUser.uid)
+                ? prev.likes.filter((uid) => uid !== currentUser.uid)
+                : [...(prev.likes || []), currentUser.uid]
+            }
+          : null
+      );
+    }
+  };
+
+  // Random Box Unlock Handlers
+  const handleUnlockRandomBox = async (questType) => {
+    if (!currentUser) {
+      if (onNavigateTab) onNavigateTab('login');
+      return;
+    }
+    await unlockMeetingAlbumForUser(currentUser.uid, meeting.id);
+    if (onUpdateMemberProfile) {
+      const currentUnlocked = currentUser.unlockedAlbums || [];
+      if (!currentUnlocked.includes(meeting.id)) {
+        await onUpdateMemberProfile({
+          unlockedAlbums: [...currentUnlocked, meeting.id]
+        });
+      }
+    }
+  };
+
+  const handleQuizSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentUser) {
+      if (onNavigateTab) onNavigateTab('login');
+      return;
+    }
+    const isCorrect = RandomBoxQuestRegistry.MEETING_QUIZ.verifyAnswer(
+      quizInput,
+      meeting
+    );
+    if (isCorrect) {
+      await unlockMeetingAlbumForUser(currentUser.uid, meeting.id);
+      if (onUpdateMemberProfile) {
+        const currentUnlocked = currentUser.unlockedAlbums || [];
+        if (!currentUnlocked.includes(meeting.id)) {
+          await onUpdateMemberProfile({
+            unlockedAlbums: [...currentUnlocked, meeting.id]
+          });
+        }
+      }
+      setQuizMessage({
+        text: '정답입니다! 앨범 열람 권한이 부여되었습니다 🎉',
+        type: 'success'
+      });
+      setQuizInput('');
+    } else {
+      setQuizMessage({
+        text: '정답이 일치하지 않습니다. 다시 시도해 주세요!',
+        type: 'error'
+      });
+    }
+  };
+
   const displayAttendeeUids =
     meeting.status === 'settled' && confirmedList.length > 0
       ? confirmedList
@@ -795,53 +1016,67 @@ export default function MeetingDetailPage({
           )}
         </div>
 
-        {!canAccessLounge ? (
-          <div className="lounge-locked-box">
-            <strong>🔒 참석자 및 운영진 전용 공간입니다</strong>
-            <p className="muted-text">
-              상단 카드에서 [참석] 버튼을 누르면 1·2차 장소 코스, 회비 정산, 귀가
-              현황을 확인할 수 있습니다.
-            </p>
+        <div className="lounge-body">
+          {/* 4-Tab Segmented Navigation inside 벙대기실 */}
+          <div className="lounge-tab-bar" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={loungeTab === 'rounds'}
+              className={`lounge-tab-btn ${
+                loungeTab === 'rounds' ? 'active' : ''
+              }`}
+              onClick={() => setLoungeTab('rounds')}
+            >
+              장소·코스 ({rounds.length}차)
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={loungeTab === 'settlement'}
+              className={`lounge-tab-btn ${
+                loungeTab === 'settlement' ? 'active' : ''
+              }`}
+              onClick={() => setLoungeTab('settlement')}
+            >
+              정산·회비
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={loungeTab === 'returns'}
+              className={`lounge-tab-btn ${
+                loungeTab === 'returns' ? 'active' : ''
+              }`}
+              onClick={() => setLoungeTab('returns')}
+            >
+              귀가현황 ({Object.keys(safeReturns).length}/
+              {displayAttendeeUids.length})
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={loungeTab === 'album'}
+              className={`lounge-tab-btn ${
+                loungeTab === 'album' ? 'active' : ''
+              }`}
+              onClick={() => setLoungeTab('album')}
+            >
+              📸 앨범 ({album.length})
+            </button>
           </div>
-        ) : (
-          <div className="lounge-body">
-            {/* 3-Tab Segmented Navigation inside 벙대기실 */}
-            <div className="lounge-tab-bar" role="tablist">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={loungeTab === 'rounds'}
-                className={`lounge-tab-btn ${
-                  loungeTab === 'rounds' ? 'active' : ''
-                }`}
-                onClick={() => setLoungeTab('rounds')}
-              >
-                장소·코스 ({rounds.length}차)
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={loungeTab === 'settlement'}
-                className={`lounge-tab-btn ${
-                  loungeTab === 'settlement' ? 'active' : ''
-                }`}
-                onClick={() => setLoungeTab('settlement')}
-              >
-                정산·회비
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={loungeTab === 'returns'}
-                className={`lounge-tab-btn ${
-                  loungeTab === 'returns' ? 'active' : ''
-                }`}
-                onClick={() => setLoungeTab('returns')}
-              >
-                귀가현황 ({Object.keys(safeReturns).length}/
-                {displayAttendeeUids.length})
-              </button>
+
+          {!canAccessLounge && loungeTab !== 'album' ? (
+            <div className="lounge-locked-box">
+              <strong>🔒 참석자 및 운영진 전용 공간입니다</strong>
+              <p className="muted-text">
+                상단 카드에서 [참석] 버튼을 누르면 1·2차 장소 코스, 회비 정산, 귀가
+                현황을 확인할 수 있습니다.
+                (사진은 [📸 앨범] 탭에서 랜덤 박스를 통해 열람하실 수 있습니다.)
+              </p>
             </div>
+          ) : (
+            <>
 
             {/* TAB 1: 장소·코스 (Read-only cards by default, toggle edit per round) */}
             {loungeTab === 'rounds' && (
@@ -1601,8 +1836,365 @@ export default function MeetingDetailPage({
                 </div>
               </div>
             )}
-          </div>
-        )}
+
+            {/* TAB 4: 📸 앨범 (미디어 갤러리 & 랜덤 박스 잠금 해제) */}
+            {loungeTab === 'album' && (
+              <div className="stack-gap">
+                {canViewAlbum ? (
+                  <>
+                    <div className="album-header-bar">
+                      <span className="album-count-text">
+                        전체 미디어 ({album.length}장)
+                      </span>
+                      {canUpload ? (
+                        <div>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*,video/mp4,video/quicktime,video/webm"
+                            multiple
+                            style={{ display: 'none' }}
+                            onChange={handleMediaUpload}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            disabled={uploadingMedia}
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            {uploadingMedia
+                              ? '업로드 중...'
+                              : '+ 사진·동영상 올리기'}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="location-pill">🎁 랜덤 박스 열람 중</span>
+                      )}
+                    </div>
+
+                    {uploadingMedia && (
+                      <div
+                        className="lounge-settle-hero"
+                        style={{ padding: '10px 14px' }}
+                      >
+                        <div className="preview-caption">미디어 처리 중</div>
+                        <div
+                          className="preview-value"
+                          style={{ fontSize: '0.9rem' }}
+                        >
+                          {uploadStatus || '자동 압축 및 저장 중...'}
+                        </div>
+                      </div>
+                    )}
+
+                    {album.length === 0 ? (
+                      <div className="album-empty-box">
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="32"
+                          height="32"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect
+                            x="3"
+                            y="3"
+                            width="18"
+                            height="18"
+                            rx="2"
+                            ry="2"
+                          />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <strong>등록된 사진이나 동영상이 없습니다</strong>
+                        <span className="sub-meta">
+                          {canUpload
+                            ? '첫 번째 사진을 올려 일정을 기록해 보세요!'
+                            : '참석자가 미디어를 올리면 바로 확인할 수 있습니다.'}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="album-grid">
+                        {album.map((item) => {
+                          const isVideo = item.mediaType === 'video';
+                          const likesCount = Array.isArray(item.likes)
+                            ? item.likes.length
+                            : 0;
+                          return (
+                            <div
+                              key={item.id}
+                              className="album-item-card"
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => setActiveLightboxItem(item)}
+                              onKeyDown={(e) =>
+                                e.key === 'Enter' && setActiveLightboxItem(item)
+                              }
+                            >
+                              <img
+                                src={item.thumbUrl || item.url}
+                                alt={item.caption || '모임 사진'}
+                                className="album-item-thumb"
+                                loading="lazy"
+                              />
+                              {isVideo && (
+                                <span className="album-video-pill">
+                                  ▶{' '}
+                                  {item.durationSec
+                                    ? `${item.durationSec}s`
+                                    : '영상'}
+                                </span>
+                              )}
+                              <div className="album-item-overlay">
+                                <span className="album-item-uploader">
+                                  {item.uploaderName}
+                                </span>
+                                {likesCount > 0 && <span>♥ {likesCount}</span>}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Random Box (랜덤 박스) Unlock UI for Non-attendees */
+                  <div className="stack-gap">
+                    {/* Blurred silhouette preview */}
+                    <div
+                      style={{
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderRadius: 'var(--radius-base)'
+                      }}
+                    >
+                      <div
+                        className="album-grid"
+                        style={{
+                          filter: 'blur(8px)',
+                          opacity: 0.55,
+                          pointerEvents: 'none'
+                        }}
+                      >
+                        {[1, 2, 3].map((n) => (
+                          <div
+                            key={n}
+                            className="album-item-card"
+                            style={{ background: '#334155' }}
+                          />
+                        ))}
+                      </div>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '1rem',
+                          background: 'rgba(0, 0, 0, 0.45)',
+                          textShadow: '0 1px 3px rgba(0,0,0,0.8)'
+                        }}
+                      >
+                        🔒 비공개 앨범
+                      </div>
+                    </div>
+
+                    {meeting.randomBoxConfig?.enabled !== false ? (
+                      <div className="random-box-panel">
+                        <div className="random-box-header">
+                          <span className="random-box-badge">랜덤 박스</span>
+                          <div>
+                            <h3 className="random-box-title">
+                              랜덤 박스로 앨범 열기
+                            </h3>
+                            <p className="random-box-desc">
+                              아래 3가지 퀘스트 중 <strong>1개</strong>를
+                              해제하면 이 모임의 앨범을 볼 수 있습니다.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="random-box-grid">
+                          {/* Box 1: 성실 힐러 박스 */}
+                          <div className="random-box-card">
+                            <div className="random-box-card-top">
+                              <span className="random-box-card-title">
+                                <span>
+                                  {
+                                    RandomBoxQuestRegistry.ACTIVITY_ATTENDANCE
+                                      .icon
+                                  }
+                                </span>
+                                <span>
+                                  {
+                                    RandomBoxQuestRegistry.ACTIVITY_ATTENDANCE
+                                      .name
+                                  }
+                                </span>
+                              </span>
+                              {RandomBoxQuestRegistry.ACTIVITY_ATTENDANCE.checkAutoEligible(
+                                currentUser,
+                                meeting
+                              ) ? (
+                                <button
+                                  type="button"
+                                  className="btn btn-primary btn-sm"
+                                  onClick={() =>
+                                    handleUnlockRandomBox('ACTIVITY_ATTENDANCE')
+                                  }
+                                >
+                                  🎁 해제하기
+                                </button>
+                              ) : (
+                                <span className="status-pill settled">
+                                  미충족
+                                </span>
+                              )}
+                            </div>
+                            <div className="random-box-card-desc">
+                              {
+                                RandomBoxQuestRegistry.ACTIVITY_ATTENDANCE
+                                  .description
+                              }
+                            </div>
+                            <div className="random-box-progress">
+                              {RandomBoxQuestRegistry.ACTIVITY_ATTENDANCE.getProgressText(
+                                currentUser,
+                                meeting
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Box 2: 벙주와의 인연 박스 */}
+                          <div className="random-box-card">
+                            <div className="random-box-card-top">
+                              <span className="random-box-card-title">
+                                <span>
+                                  {RandomBoxQuestRegistry.HOST_RELATIONSHIP.icon}
+                                </span>
+                                <span>
+                                  {RandomBoxQuestRegistry.HOST_RELATIONSHIP.name}
+                                </span>
+                              </span>
+                              {RandomBoxQuestRegistry.HOST_RELATIONSHIP.checkAutoEligible(
+                                currentUser,
+                                meeting,
+                                allMeetings
+                              ) ? (
+                                <button
+                                  type="button"
+                                  className="btn btn-primary btn-sm"
+                                  onClick={() =>
+                                    handleUnlockRandomBox('HOST_RELATIONSHIP')
+                                  }
+                                >
+                                  🎁 해제하기
+                                </button>
+                              ) : (
+                                <span className="status-pill settled">
+                                  미충족
+                                </span>
+                              )}
+                            </div>
+                            <div className="random-box-card-desc">
+                              {
+                                RandomBoxQuestRegistry.HOST_RELATIONSHIP
+                                  .description
+                              }{' '}
+                              (벙주:{' '}
+                              {hostMember ? hostMember.realName : '벙주'})
+                            </div>
+                            <div className="random-box-progress">
+                              {RandomBoxQuestRegistry.HOST_RELATIONSHIP.getProgressText(
+                                currentUser,
+                                meeting,
+                                allMeetings
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Box 3: 벙주 시크릿 퀴즈 박스 */}
+                          <div className="random-box-card">
+                            <div className="random-box-card-top">
+                              <span className="random-box-card-title">
+                                <span>
+                                  {RandomBoxQuestRegistry.MEETING_QUIZ.icon}
+                                </span>
+                                <span>
+                                  {RandomBoxQuestRegistry.MEETING_QUIZ.name}
+                                </span>
+                              </span>
+                            </div>
+                            <div className="random-box-card-desc">
+                              질문:{' '}
+                              <strong>
+                                {RandomBoxQuestRegistry.MEETING_QUIZ.getQuestion(
+                                  meeting
+                                )}
+                              </strong>
+                            </div>
+                            <form
+                              onSubmit={handleQuizSubmit}
+                              className="random-box-quiz-row"
+                            >
+                              <input
+                                type="text"
+                                className="random-box-quiz-input"
+                                placeholder="정답을 입력하세요"
+                                value={quizInput}
+                                onChange={(e) => {
+                                  setQuizInput(e.target.value);
+                                  setQuizMessage({ text: '', type: '' });
+                                }}
+                              />
+                              <button
+                                type="submit"
+                                className="btn btn-outline btn-sm"
+                              >
+                                정답 확인
+                              </button>
+                            </form>
+                            {quizMessage.text && (
+                              <div
+                                style={{
+                                  fontSize: '0.8rem',
+                                  fontWeight: 600,
+                                  color:
+                                    quizMessage.type === 'success'
+                                      ? '#10b981'
+                                      : '#ef4444'
+                                }}
+                              >
+                                {quizMessage.text}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="lounge-locked-box">
+                        <strong>
+                          🔒 이 모임의 앨범은 참석자 전용 비공개 앨범입니다
+                        </strong>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            </>
+          )}
+        </div>
       </section>
 
       {/* 3. Likes (❤️) & One-Line Comments Feed (Matches Uploaded Screenshot Bottom) */}
@@ -1706,6 +2298,108 @@ export default function MeetingDetailPage({
           </button>
         </form>
       </section>
+
+      {/* Lightbox Modal for Photo / Video Full View */}
+      {activeLightboxItem && (
+        <div
+          className="lightbox-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setActiveLightboxItem(null)}
+        >
+          <div
+            className="lightbox-top-bar"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div>
+              <strong>{activeLightboxItem.uploaderName}님의 미디어</strong>
+              <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                {activeLightboxItem.createdAt}
+              </div>
+            </div>
+            <button
+              type="button"
+              className="lightbox-close-btn"
+              onClick={() => setActiveLightboxItem(null)}
+              aria-label="닫기"
+            >
+              ×
+            </button>
+          </div>
+
+          <div
+            className="lightbox-main-view"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {activeLightboxItem.mediaType === 'video' ? (
+              <video
+                src={activeLightboxItem.url}
+                controls
+                autoPlay
+                className="lightbox-video"
+              />
+            ) : (
+              <img
+                src={activeLightboxItem.url}
+                alt={activeLightboxItem.caption || '모임 사진'}
+                className="lightbox-img"
+              />
+            )}
+          </div>
+
+          <div
+            className="lightbox-bottom-bar"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                style={{
+                  color: '#ffffff',
+                  borderColor: 'rgba(255,255,255,0.4)'
+                }}
+                onClick={() => handleToggleMediaLike(activeLightboxItem.id)}
+              >
+                ♥ {activeLightboxItem.likes?.length || 0}
+              </button>
+              {activeLightboxItem.caption && (
+                <span>{activeLightboxItem.caption}</span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {activeLightboxItem.driveDownloadUrl && (
+                <a
+                  href={activeLightboxItem.driveDownloadUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline btn-sm"
+                  style={{
+                    color: '#ffffff',
+                    borderColor: 'rgba(255,255,255,0.4)'
+                  }}
+                >
+                  드라이브 원본
+                </a>
+              )}
+              {(currentUser?.uid === activeLightboxItem.uploaderUid ||
+                adminUser) && (
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{ color: '#f87171', borderColor: '#f87171' }}
+                  onClick={() => handleDeleteMedia(activeLightboxItem.id)}
+                >
+                  삭제
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

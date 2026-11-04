@@ -33,7 +33,8 @@ export default function AdminPage({
       communityConfig.newcomerSummary || '신입공지 · 입장 즉시 닉네임 변경',
     newcomerNoticeBody:
       communityConfig.newcomerNoticeBody ||
-      'Healing78 오픈채팅방 입장 후 24시간 이내에 아래 자동 생성기로 규격 닉네임을 만들어 카톡방 프로필을 변경해 주세요.'
+      'Healing78 오픈채팅방 입장 후 24시간 이내에 아래 자동 생성기로 규격 닉네임을 만들어 카톡방 프로필을 변경해 주세요.',
+    googleDriveBridgeUrl: communityConfig.googleDriveBridgeUrl || ''
   });
   const [configNotice, setConfigNotice] = useState('');
 
@@ -320,6 +321,24 @@ export default function AdminPage({
                   setConfigForm({
                     ...configForm,
                     newcomerNoticeBody: e.target.value
+                  })
+                }
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="cfg-drive-url">
+                개인 구글 드라이브 앨범 브릿지 URL (Google Apps Script Web App)
+              </label>
+              <input
+                id="cfg-drive-url"
+                type="url"
+                placeholder="https://script.google.com/macros/s/.../exec"
+                value={configForm.googleDriveBridgeUrl || ''}
+                onChange={(e) =>
+                  setConfigForm({
+                    ...configForm,
+                    googleDriveBridgeUrl: e.target.value
                   })
                 }
               />

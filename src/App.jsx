@@ -277,6 +277,7 @@ export default function App() {
           currentUser={currentUser}
           members={members}
           meetings={meetings}
+          communityConfig={communityConfig}
           selectedMeetingId={selectedMeetingId}
           onSelectMeetingId={handleSelectMeetingId}
           onShareMeeting={handleShareSpecificMeeting}
