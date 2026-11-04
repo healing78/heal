@@ -30,6 +30,46 @@ import {
 } from '../services/communityService';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAY_FULL_KO = [
+  '일요일',
+  '월요일',
+  '화요일',
+  '수요일',
+  '목요일',
+  '금요일',
+  '토요일'
+];
+
+const REMINDER_OPTIONS = [
+  '15분 전',
+  '30분 전',
+  '1시간 전',
+  '1일 전',
+  '정각',
+  '알림 없음'
+];
+
+function formatKoreanFullDate(dateStr) {
+  const clean = String(dateStr || '2026-11-04').slice(0, 10);
+  const parts = clean.split('-');
+  const year = Number(parts[0]) || 2026;
+  const month = Number(parts[1]) || 11;
+  const day = Number(parts[2]) || 4;
+  const dateObj = new Date(year, month - 1, day);
+  const weekdayFull = WEEKDAY_FULL_KO[dateObj.getDay()] || '';
+  return `${year}. ${month}. ${day} ${weekdayFull}`;
+}
+
+const openPicker = (e) => {
+  if (typeof e.target.showPicker === 'function') {
+    try {
+      e.target.showPicker();
+    } catch {
+      // Fallback
+    }
+  }
+};
+
 const AVATAR_BG_PALETTE = [
   '#dbeafe',
   '#fce7f3',
@@ -183,11 +223,19 @@ export default function MeetingDetailPage({
     dateOnly:
       meeting.dateOnly ||
       String(meeting.date || '').slice(0, 10) ||
-      '2026-11-07',
+      '2026-11-04',
+    endDateOnly:
+      meeting.endDateOnly ||
+      meeting.dateOnly ||
+      String(meeting.date || '').slice(0, 10) ||
+      '2026-11-04',
     startTime:
-      meeting.startTime || String(meeting.date || '').slice(11, 16) || '19:00',
-    endTime: meeting.endTime || '23:00',
-    location: meeting.location || '서울',
+      meeting.startTime || String(meeting.date || '').slice(11, 16) || '12:00',
+    endTime: meeting.endTime || '13:00',
+    allDay: Boolean(meeting.allDay),
+    placeDetail: meeting.placeDetail || meeting.location || '',
+    reminder: meeting.reminder || '15분 전',
+    requestAttendance: meeting.requestAttendance !== false,
     treasurerUid: meeting.treasurerUid || meeting.hostUid,
     type: meeting.type || 'Casual',
     description: meeting.description || ''
@@ -268,15 +316,23 @@ export default function MeetingDetailPage({
   // Save edited basic schedule info (Host / Treasurer / Admin)
   const handleSaveBasicInfo = async (e) => {
     e.preventDefault();
-    if (!infoForm.title.trim() || !infoForm.location.trim()) return;
-    const combinedDate = `${infoForm.dateOnly} ${infoForm.startTime}`;
+    if (!infoForm.title.trim()) return;
+    const combinedDate = `${infoForm.dateOnly} ${
+      infoForm.allDay ? '00:00' : infoForm.startTime
+    }`;
+    const cleanPlace = (infoForm.placeDetail || '').trim();
     await onUpdateMeeting(meeting.id, {
       title: infoForm.title.trim(),
       dateOnly: infoForm.dateOnly,
-      startTime: infoForm.startTime,
-      endTime: infoForm.endTime || '23:00',
+      endDateOnly: infoForm.endDateOnly || infoForm.dateOnly,
+      startTime: infoForm.allDay ? '00:00' : infoForm.startTime,
+      endTime: infoForm.allDay ? '23:59' : (infoForm.endTime || '13:00'),
+      allDay: infoForm.allDay,
       date: combinedDate,
-      location: infoForm.location.trim(),
+      location: cleanPlace,
+      placeDetail: cleanPlace,
+      reminder: infoForm.reminder || '15분 전',
+      requestAttendance: infoForm.requestAttendance,
       treasurerUid: infoForm.treasurerUid,
       type: adminUser ? infoForm.type : meeting.type,
       description: infoForm.description.trim()
@@ -784,14 +840,6 @@ export default function MeetingDetailPage({
             <button
               type="button"
               className="btn btn-outline btn-sm"
-              onClick={handleCopyDirectLink}
-              title={`고유 링크 복사: meetings/${meeting.id}`}
-            >
-              {copiedLink ? '링크 복사됨 ✓' : `🔗 meetings/${meeting.id}`}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
               onClick={() => onShareMeeting(meeting)}
             >
               공유
@@ -910,24 +958,24 @@ export default function MeetingDetailPage({
           )}
         </div>
 
-        {/* Host / Treasurer / Admin Basic Info Edit Form */}
+        {/* Host / Treasurer / Admin Basic Info Edit Form (Matches Calendar Card Style) */}
         {editingInfo && canManage && (
           <form
             onSubmit={handleSaveBasicInfo}
-            className="stack-gap"
             style={{
-              marginTop: '14px',
-              paddingTop: '14px',
+              marginTop: '16px',
+              paddingTop: '16px',
               borderTop: '1px solid var(--color-divider)'
             }}
           >
-            <h3>일정 정보 수정</h3>
-            <div className="form-grid">
-              <div className="form-field">
-                <label htmlFor="edit-mtg-title">일정 제목</label>
+            <div className="calendar-create-card">
+              {/* Row 1: Schedule Title */}
+              <div className="calendar-title-row">
                 <input
-                  id="edit-mtg-title"
                   type="text"
+                  className="calendar-title-input"
+                  placeholder="일정 제목"
+                  aria-label="일정 제목"
                   required
                   value={infoForm.title}
                   onChange={(e) =>
@@ -935,99 +983,302 @@ export default function MeetingDetailPage({
                   }
                 />
               </div>
-              <div className="form-field">
-                <label htmlFor="edit-mtg-loc">지역</label>
-                <input
-                  id="edit-mtg-loc"
-                  type="text"
-                  list="region-suggestions"
-                  required
-                  value={infoForm.location}
-                  onChange={(e) =>
-                    setInfoForm({ ...infoForm, location: e.target.value })
-                  }
-                />
-                <datalist id="region-suggestions">
-                  {REGION_GROUPS.map((g) => (
-                    <option key={g.id} value={g.keywords[0]}>
-                      {g.name}
-                    </option>
-                  ))}
-                </datalist>
+
+              {/* Row 2: Start Date & Time with Clock Icon */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <polyline points="12 7 12 12 15.5 12" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col has-divider">
+                  <div className="calendar-datetime-inline">
+                    <label className="calendar-picker-label">
+                      <span>{formatKoreanFullDate(infoForm.dateOnly)}</span>
+                      <input
+                        type="date"
+                        className="calendar-hidden-picker"
+                        value={infoForm.dateOnly}
+                        onClick={openPicker}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setInfoForm((prev) => ({
+                            ...prev,
+                            dateOnly: val,
+                            endDateOnly:
+                              prev.endDateOnly < val ? val : prev.endDateOnly
+                          }));
+                        }}
+                      />
+                    </label>
+
+                    {!infoForm.allDay && (
+                      <label className="calendar-picker-label">
+                        <span>{formatKoreanAmPm(infoForm.startTime)}</span>
+                        <input
+                          type="time"
+                          className="calendar-hidden-picker"
+                          value={infoForm.startTime}
+                          onClick={openPicker}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setInfoForm((prev) => ({
+                              ...prev,
+                              startTime: val,
+                              endTime: addHoursToTime(val, 1)
+                            }));
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="form-field">
-                <label htmlFor="edit-mtg-date">날짜</label>
-                <input
-                  id="edit-mtg-date"
-                  type="date"
-                  required
-                  value={infoForm.dateOnly}
-                  onChange={(e) =>
-                    setInfoForm({ ...infoForm, dateOnly: e.target.value })
-                  }
-                />
+
+              {/* Row 3: End Date & Time (Indented) */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true" />
+                <div className="calendar-body-col has-divider">
+                  <div className="calendar-datetime-inline">
+                    <label className="calendar-picker-label">
+                      <span>{formatKoreanFullDate(infoForm.endDateOnly)}</span>
+                      <input
+                        type="date"
+                        className="calendar-hidden-picker"
+                        min={infoForm.dateOnly}
+                        value={infoForm.endDateOnly}
+                        onClick={openPicker}
+                        onChange={(e) =>
+                          setInfoForm({
+                            ...infoForm,
+                            endDateOnly: e.target.value
+                          })
+                        }
+                      />
+                    </label>
+
+                    {!infoForm.allDay && (
+                      <label className="calendar-picker-label">
+                        <span>{formatKoreanAmPm(infoForm.endTime)}</span>
+                        <input
+                          type="time"
+                          className="calendar-hidden-picker"
+                          value={infoForm.endTime}
+                          onClick={openPicker}
+                          onChange={(e) =>
+                            setInfoForm({
+                              ...infoForm,
+                              endTime: e.target.value
+                            })
+                          }
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="form-field">
-                <label htmlFor="edit-mtg-time">시작 시간</label>
-                <input
-                  id="edit-mtg-time"
-                  type="time"
-                  required
-                  value={infoForm.startTime}
-                  onChange={(e) =>
-                    setInfoForm({ ...infoForm, startTime: e.target.value })
-                  }
-                />
+
+              {/* Row 4: All-Day Toggle (Indented) */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true" />
+                <div className="calendar-body-col has-divider calendar-toggle-row">
+                  <span className="calendar-row-text">하루 종일</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={infoForm.allDay}
+                    aria-label="하루 종일"
+                    className={`calendar-switch ${
+                      infoForm.allDay ? 'is-on' : ''
+                    }`}
+                    onClick={() =>
+                      setInfoForm((prev) => ({
+                        ...prev,
+                        allDay: !prev.allDay
+                      }))
+                    }
+                  >
+                    <span className="calendar-switch-thumb">
+                      <span className="calendar-switch-dash" />
+                    </span>
+                  </button>
+                </div>
               </div>
-              <div className="form-field">
-                <label htmlFor="edit-mtg-end-time">종료 시간</label>
-                <input
-                  id="edit-mtg-end-time"
-                  type="time"
-                  value={infoForm.endTime}
-                  onChange={(e) =>
-                    setInfoForm({ ...infoForm, endTime: e.target.value })
-                  }
-                />
+
+              {/* Row 5: Location Input (Optional) */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z" />
+                    <circle cx="12" cy="11" r="2.2" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col has-divider">
+                  <input
+                    type="text"
+                    list="edit-schedule-region-list"
+                    className="calendar-plain-input"
+                    placeholder="위치 입력(선택)"
+                    aria-label="위치 입력(선택)"
+                    value={infoForm.placeDetail}
+                    onChange={(e) =>
+                      setInfoForm({
+                        ...infoForm,
+                        placeDetail: e.target.value
+                      })
+                    }
+                  />
+                  <datalist id="edit-schedule-region-list">
+                    {REGION_GROUPS.map((g) => (
+                      <option key={g.id} value={g.keywords[0]}>
+                        {g.name}
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
               </div>
-              <div className="form-field">
-                <label htmlFor="edit-mtg-treasurer">총무</label>
-                <select
-                  id="edit-mtg-treasurer"
-                  value={infoForm.treasurerUid}
-                  onChange={(e) =>
-                    setInfoForm({ ...infoForm, treasurerUid: e.target.value })
-                  }
-                >
-                  {members.map((m) => (
-                    <option key={m.uid} value={m.uid}>
-                      {formatMemberNickname(m)}
-                    </option>
-                  ))}
-                </select>
+
+              {/* Row 6: Reminder Select */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col has-divider">
+                  <select
+                    aria-label="알림 시간"
+                    className="calendar-plain-select"
+                    value={infoForm.reminder}
+                    onChange={(e) =>
+                      setInfoForm({
+                        ...infoForm,
+                        reminder: e.target.value
+                      })
+                    }
+                  >
+                    {REMINDER_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="form-field">
-                <label htmlFor="edit-mtg-desc">안내 메모</label>
-                <input
-                  id="edit-mtg-desc"
-                  type="text"
-                  value={infoForm.description}
-                  onChange={(e) =>
-                    setInfoForm({ ...infoForm, description: e.target.value })
-                  }
-                />
+
+              {/* Row 7: Attendance Response Request Toggle */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col calendar-toggle-row">
+                  <span className="calendar-row-text">
+                    참석 여부 응답 요청
+                  </span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={infoForm.requestAttendance}
+                    aria-label="참석 여부 응답 요청"
+                    className={`calendar-switch ${
+                      infoForm.requestAttendance ? 'is-on' : ''
+                    }`}
+                    onClick={() =>
+                      setInfoForm((prev) => ({
+                        ...prev,
+                        requestAttendance: !prev.requestAttendance
+                      }))
+                    }
+                  >
+                    <span className="calendar-switch-thumb">
+                      <span className="calendar-switch-dash" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Row 8: Description / Memo (Optional) */}
+              <div className="calendar-field-row">
+                <div className="calendar-icon-col" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="calendar-line-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
+                </div>
+                <div className="calendar-body-col">
+                  <input
+                    type="text"
+                    className="calendar-plain-input"
+                    placeholder="안내 메모(선택)"
+                    aria-label="안내 메모(선택)"
+                    value={infoForm.description}
+                    onChange={(e) =>
+                      setInfoForm({
+                        ...infoForm,
+                        description: e.target.value
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
-            <div className="btn-row">
+
+            <div className="btn-row" style={{ marginTop: '12px' }}>
               <button
                 type="button"
-                className="btn btn-outline btn-sm"
+                className="btn btn-outline"
                 onClick={() => setEditingInfo(false)}
               >
                 취소
               </button>
-              <button type="submit" className="btn btn-primary btn-sm">
-                저장
+              <button type="submit" className="btn btn-primary">
+                일정 수정 완료
               </button>
             </div>
           </form>
