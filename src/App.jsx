@@ -120,6 +120,9 @@ export default function App() {
       ...(meetingId ? { id: meetingId } : {}),
       ...(subView ? { subView } : {})
     });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleOpenMeetingDetail = (meetingId, subView = null) => {
