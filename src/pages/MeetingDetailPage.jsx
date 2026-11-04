@@ -186,6 +186,20 @@ function compressReceiptImage(file) {
   });
 }
 
+export function getOptimizedMediaUrl(item) {
+  if (!item) return '';
+  const fileId =
+    item.driveFileId ||
+    (item.url && item.url.includes('drive.google.com')
+      ? item.url.match(/id=([a-zA-Z0-9_-]+)/)?.[1]
+      : '');
+  if (fileId) {
+    // Google official CDN thumbnail endpoint renders full high-res images in <img> tags without 302 login redirects
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
+  }
+  return item.url || item.thumbUrl || '';
+}
+
 export default function MeetingDetailPage({
   meeting,
   allMeetings = [],
@@ -702,16 +716,25 @@ export default function MeetingDetailPage({
             });
           }
 
+          const driveFileId = driveRes?.fileId || '';
+          const driveViewUrl = driveFileId
+            ? `https://drive.google.com/thumbnail?id=${driveFileId}&sz=w1600`
+            : driveRes?.viewUrl || '';
+
           const mediaItem = {
             id: `media-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
             meetingId: meeting.id,
             uploaderUid: currentUser.uid,
             uploaderName: currentUser.realName || '회원',
             mediaType: 'image',
-            url: driveRes?.viewUrl || compressed.dataUrl,
+            url: driveViewUrl || compressed.dataUrl,
             thumbUrl: compressed.thumbUrl,
-            driveFileId: driveRes?.fileId || '',
-            driveDownloadUrl: driveRes?.downloadUrl || '',
+            driveFileId,
+            driveDownloadUrl:
+              driveRes?.downloadUrl ||
+              (driveFileId
+                ? `https://drive.google.com/uc?export=download&id=${driveFileId}`
+                : ''),
             durationSec: 0,
             caption: '',
             likes: [],
@@ -2724,9 +2747,17 @@ export default function MeetingDetailPage({
               />
             ) : (
               <img
-                src={activeLightboxItem.url}
+                src={getOptimizedMediaUrl(activeLightboxItem)}
                 alt={activeLightboxItem.caption || '모임 사진'}
                 className="lightbox-img"
+                onError={(e) => {
+                  if (
+                    activeLightboxItem.thumbUrl &&
+                    e.currentTarget.src !== activeLightboxItem.thumbUrl
+                  ) {
+                    e.currentTarget.src = activeLightboxItem.thumbUrl;
+                  }
+                }}
               />
             )}
           </div>

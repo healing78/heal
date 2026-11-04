@@ -56,9 +56,9 @@ function doPost(e) {
       fileId: fileId,
       fileName: fileName,
       folderName: subFolderName,
-      viewUrl: `https://drive.google.com/uc?export=view&id=${fileId}`,
+      viewUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`,
       downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}`,
-      thumbnailUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1280`
+      thumbnailUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`
     };
 
     return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(
