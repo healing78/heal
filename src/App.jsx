@@ -57,6 +57,9 @@ export default function App() {
   const [selectedMeetingId, setSelectedMeetingId] = useState(
     initialRoute.meetingId
   );
+  const [selectedMeetingSubView, setSelectedMeetingSubView] = useState(
+    initialRoute.subView
+  );
   const [shareToast, setShareToast] = useState('');
   const [theme, setTheme] = useState(() => getSavedTheme());
 
@@ -85,6 +88,7 @@ export default function App() {
       const route = parseCurrentRoute();
       setActiveTab(route.tab);
       setSelectedMeetingId(route.meetingId);
+      setSelectedMeetingSubView(route.subView);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -95,27 +99,38 @@ export default function App() {
   const navigateToTab = (nextTab, params = {}) => {
     const meetingParam =
       nextTab === 'meetings' ? params.id ?? null : null;
+    const subViewParam =
+      nextTab === 'meetings' ? params.subView ?? null : null;
     setActiveTab(nextTab);
     setSelectedMeetingId(meetingParam);
-    pushRouteUrl(nextTab, meetingParam ? { id: meetingParam } : {});
+    setSelectedMeetingSubView(subViewParam);
+    pushRouteUrl(nextTab, {
+      ...(meetingParam ? { id: meetingParam } : {}),
+      ...(subViewParam ? { subView: subViewParam } : {})
+    });
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const handleSelectMeetingId = (meetingId) => {
+  const handleSelectMeetingId = (meetingId, subView = null) => {
     setSelectedMeetingId(meetingId);
-    pushRouteUrl('meetings', meetingId ? { id: meetingId } : {});
+    setSelectedMeetingSubView(subView);
+    pushRouteUrl('meetings', {
+      ...(meetingId ? { id: meetingId } : {}),
+      ...(subView ? { subView } : {})
+    });
   };
 
-  const handleOpenMeetingDetail = (meetingId) => {
-    navigateToTab('meetings', { id: meetingId });
+  const handleOpenMeetingDetail = (meetingId, subView = null) => {
+    navigateToTab('meetings', { id: meetingId, subView });
   };
 
   // Compute dynamic 20-char top header summary & document.title for current page (Before & After Login)
   const currentMeta = buildRouteMeta({
     tab: activeTab,
     meetingId: selectedMeetingId,
+    subView: selectedMeetingSubView,
     meetings,
     members,
     communityConfig,
@@ -279,7 +294,11 @@ export default function App() {
           meetings={meetings}
           communityConfig={communityConfig}
           selectedMeetingId={selectedMeetingId}
+          selectedMeetingSubView={selectedMeetingSubView}
           onSelectMeetingId={handleSelectMeetingId}
+          onSelectMeetingSubView={(sub) =>
+            handleSelectMeetingId(selectedMeetingId, sub)
+          }
           onShareMeeting={handleShareSpecificMeeting}
           onToggleApplyMeeting={handleToggleApplyMeeting}
           onCreateMeeting={handleCreateMeeting}

@@ -1,10 +1,69 @@
 import React, { useState } from 'react';
 import {
-  calculateMeetingScoreForMember,
   canCreateMeeting,
   formatMemberNickname,
   ROLE_META
 } from '../core/communityRules';
+
+const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
+
+function formatKoreanAmPm(timeStr) {
+  if (!timeStr) return '';
+  const parts = String(timeStr).split(':');
+  const h = Number(parts[0]) || 0;
+  const m = Number(parts[1]) || 0;
+  const mm = String(m).padStart(2, '0');
+  if (h === 0) return `오전 12:${mm}`;
+  if (h < 12) return `오전 ${h}:${mm}`;
+  if (h === 12) return `오후 12:${mm}`;
+  return `오후 ${h - 12}:${mm}`;
+}
+
+function addHoursToTime(timeStr, hoursToAdd = 4) {
+  const match = String(timeStr || '19:00').match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return '23:00';
+  const nextHour = Math.min(23, Number(match[1]) + hoursToAdd);
+  return `${String(nextHour).padStart(2, '0')}:${match[2]}`;
+}
+
+function buildScheduleMeta(mtg) {
+  const rawDate =
+    mtg.dateOnly || String(mtg.date || '').slice(0, 10) || '2026-11-04';
+  const parts = rawDate.split('-');
+  const year = Number(parts[0]) || 2026;
+  const month = Number(parts[1]) || 11;
+  const day = Number(parts[2]) || 4;
+
+  const dateObj = new Date(year, month - 1, day);
+  const weekday = WEEKDAY_SHORT_KO[dateObj.getDay()] || '';
+
+  let timeRangeText = '하루 종일';
+  if (!mtg.allDay) {
+    const startTime =
+      mtg.startTime || String(mtg.date || '').slice(11, 16) || '19:00';
+    const endTime = mtg.endTime || addHoursToTime(startTime, 4);
+    timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
+  }
+
+  const firstRoundPlace = mtg.rounds?.[0]?.placeName || mtg.placeDetail || '';
+  const baseLocation = (mtg.location || '').trim();
+  let locationText = baseLocation;
+  if (firstRoundPlace) {
+    locationText = firstRoundPlace.startsWith(baseLocation)
+      ? firstRoundPlace
+      : `${baseLocation} ${firstRoundPlace}`.trim();
+  }
+
+  return {
+    monthKey: `${year}-${String(month).padStart(2, '0')}`,
+    monthLabel: `${year}년 ${month}월`,
+    dateKey: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+    weekday,
+    day,
+    timeRangeText,
+    locationText
+  };
+}
 
 export default function HomePage({
   currentUser,
@@ -24,6 +83,26 @@ export default function HomePage({
     : '-';
   const top5Members = sortedMembers.slice(0, 5);
   const upcomingMeetings = meetings.filter((m) => m.status === 'open');
+  const sortedUpcoming = [...upcomingMeetings].sort((a, b) =>
+    String(a.dateOnly || a.date || '').localeCompare(
+      String(b.dateOnly || b.date || '')
+    )
+  );
+
+  const monthGroups = [];
+  for (const mtg of sortedUpcoming) {
+    const meta = buildScheduleMeta(mtg);
+    let group = monthGroups.find((g) => g.monthKey === meta.monthKey);
+    if (!group) {
+      group = {
+        monthKey: meta.monthKey,
+        monthLabel: meta.monthLabel,
+        items: []
+      };
+      monthGroups.push(group);
+    }
+    group.items.push({ mtg, meta });
+  }
   const myNickname = currentUser ? formatMemberNickname(currentUser) : '';
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
 
@@ -120,10 +199,10 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 3. Upcoming Meetings Quick Attendance */}
-      <section className="list-section">
+      {/* 3. Upcoming Schedule Agenda List (Matches MeetingsPage Style) */}
+      <section className="list-section schedule-list-section">
         <div className="section-title-row">
-          <h2>진행 예정 모임 ({upcomingMeetings.length})</h2>
+          <h2>진행 예정 일정 ({upcomingMeetings.length})</h2>
           <button
             type="button"
             className="btn-link"
@@ -133,103 +212,77 @@ export default function HomePage({
           </button>
         </div>
 
-        {upcomingMeetings.length === 0 ? (
-          <p className="muted-text">현재 모집 중인 모임이 없습니다.</p>
+        {monthGroups.length === 0 ? (
+          <p className="muted-text">현재 예정된 일정이 없습니다.</p>
         ) : (
-          <div className="divider-list">
-            {upcomingMeetings.map((mtg) => {
-              const isApplied = currentUser
-                ? mtg.applicants.includes(currentUser.uid)
-                : false;
-              const scorePreview = currentUser
-                ? calculateMeetingScoreForMember(currentUser, mtg.location)
-                : { isExpedition: false, total: 1 };
-              const hostMember = members.find((m) => m.uid === mtg.hostUid);
+          <div className="schedule-month-list">
+            {monthGroups.map((group) => (
+              <div key={group.monthKey} className="schedule-month-group">
+                <div className="schedule-month-header">{group.monthLabel}</div>
 
-              return (
-                <div key={mtg.id} className="list-item-row meeting-item">
-                  <div className="meeting-top">
-                    <div className="badge-group">
-                      <span className="platform-badge">#{mtg.id}</span>
-                      <span
-                        className={`type-pill ${
-                          mtg.type === 'Official' ? 'official' : 'casual'
+                <div className="schedule-items-wrap">
+                  {group.items.map(({ mtg, meta }, idx) => {
+                    const prevMeta = group.items[idx - 1]?.meta;
+                    const nextMeta = group.items[idx + 1]?.meta;
+                    const isSameDateAsPrev =
+                      prevMeta && prevMeta.dateKey === meta.dateKey;
+                    const isSameDateAsNext =
+                      nextMeta && nextMeta.dateKey === meta.dateKey;
+
+                    return (
+                      <article
+                        key={mtg.id}
+                        role="button"
+                        tabIndex={0}
+                        className={`schedule-row ${
+                          isSameDateAsNext ? 'same-date-next' : ''
                         }`}
+                        onClick={() =>
+                          onOpenMeetingDetail
+                            ? onOpenMeetingDetail(mtg.id)
+                            : onNavigateTab('meetings', { id: mtg.id })
+                        }
+                        onKeyDown={(e) =>
+                          e.key === 'Enter' &&
+                          (onOpenMeetingDetail
+                            ? onOpenMeetingDetail(mtg.id)
+                            : onNavigateTab('meetings', { id: mtg.id }))
+                        }
                       >
-                        {mtg.type === 'Official' ? '공식' : '자율'}
-                      </span>
-                      <span className="location-pill">{mtg.location}</span>
-                      {scorePreview.isExpedition && (
-                        <span className="expedition-pill">
-                          {scorePreview.label}
-                        </span>
-                      )}
-                    </div>
-                    <strong className="concise-datetime">{mtg.date}</strong>
-                  </div>
+                        <div className="schedule-date-col">
+                          {!isSameDateAsPrev && (
+                            <>
+                              <span className="schedule-weekday">
+                                {meta.weekday}
+                              </span>
+                              <span className="schedule-day-num">
+                                {meta.day}
+                              </span>
+                            </>
+                          )}
+                        </div>
 
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    className="concise-title-box"
-                    onClick={() =>
-                      onOpenMeetingDetail
-                        ? onOpenMeetingDetail(mtg.id)
-                        : onNavigateTab('meetings', { id: mtg.id })
-                    }
-                    onKeyDown={(e) =>
-                      e.key === 'Enter' &&
-                      (onOpenMeetingDetail
-                        ? onOpenMeetingDetail(mtg.id)
-                        : onNavigateTab('meetings', { id: mtg.id }))
-                    }
-                  >
-                    <h3 className="concise-title">{mtg.title}</h3>
-                  </div>
-                  <p className="muted-text">
-                    주최: {hostMember ? formatMemberNickname(hostMember) : mtg.hostUid}
-                  </p>
+                        <div className="schedule-bar-col" aria-hidden="true">
+                          <span className="schedule-bar" />
+                        </div>
 
-                  <div className="meeting-footer">
-                    <button
-                      type="button"
-                      className="btn-link"
-                      onClick={() =>
-                        onOpenMeetingDetail
-                          ? onOpenMeetingDetail(mtg.id)
-                          : onNavigateTab('meetings', { id: mtg.id })
-                      }
-                    >
-                      모임 상세·정산 (#{mtg.id}) →
-                    </button>
-                    <div className="btn-row">
-                      {onShareMeeting && (
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => onShareMeeting(mtg)}
-                        >
-                          공유
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className={`btn btn-sm ${
-                          isApplied ? 'btn-outline' : 'btn-primary'
-                        }`}
-                        onClick={() => onToggleApplyMeeting(mtg.id)}
-                      >
-                        {isApplied
-                          ? '신청 취소'
-                          : currentUser
-                            ? `참석 신청 (${(mtg.applicants || []).length}명)`
-                            : '로그인 후 신청'}
-                      </button>
-                    </div>
-                  </div>
+                        <div className="schedule-info-col">
+                          <h3 className="schedule-title">{mtg.title}</h3>
+                          <div className="schedule-time">
+                            {meta.timeRangeText}
+                          </div>
+                          {meta.locationText && (
+                            <div className="schedule-location">
+                              {meta.locationText}
+                            </div>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </section>

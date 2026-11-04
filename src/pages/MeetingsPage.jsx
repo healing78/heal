@@ -104,7 +104,9 @@ export default function MeetingsPage({
   meetings,
   communityConfig,
   selectedMeetingId,
+  selectedMeetingSubView,
   onSelectMeetingId,
+  onSelectMeetingSubView,
   onShareMeeting,
   onToggleApplyMeeting,
   onCreateMeeting,
@@ -146,6 +148,8 @@ export default function MeetingsPage({
         currentUser={currentUser}
         members={members}
         communityConfig={communityConfig}
+        initialSubView={selectedMeetingSubView}
+        onUpdateSubView={onSelectMeetingSubView}
         onBackToList={() => onSelectMeetingId(null)}
         onShareMeeting={onShareMeeting}
         onToggleApplyMeeting={onToggleApplyMeeting}

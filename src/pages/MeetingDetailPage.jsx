@@ -192,6 +192,8 @@ export default function MeetingDetailPage({
   currentUser,
   members,
   communityConfig,
+  initialSubView = null,
+  onUpdateSubView,
   onBackToList,
   onShareMeeting,
   onToggleApplyMeeting,
@@ -200,6 +202,29 @@ export default function MeetingDetailPage({
   onSettleMeeting,
   onNavigateTab
 }) {
+  const isBungMeeting = meeting.requestAttendance !== false;
+  const [viewMode, setViewMode] = useState(() =>
+    initialSubView === 'lounge' && isBungMeeting ? 'lounge' : 'detail'
+  );
+
+  useEffect(() => {
+    if (initialSubView === 'lounge' && isBungMeeting) {
+      setViewMode('lounge');
+    } else if (!initialSubView) {
+      setViewMode('detail');
+    }
+  }, [initialSubView, isBungMeeting]);
+
+  const handleNavigateView = (nextView) => {
+    setViewMode(nextView);
+    if (onUpdateSubView) {
+      onUpdateSubView(nextView === 'lounge' ? 'lounge' : null);
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const [loungeTab, setLoungeTab] = useState('rounds'); // 'rounds' | 'settlement' | 'returns' | 'album'
   const [showAttendeeDrawer, setShowAttendeeDrawer] = useState(false);
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
@@ -255,7 +280,6 @@ export default function MeetingDetailPage({
   const [previewReceiptUrl, setPreviewReceiptUrl] = useState('');
   const [commentInput, setCommentInput] = useState('');
 
-  const isBungMeeting = meeting.requestAttendance !== false;
   const [copiedLink, setCopiedLink] = useState(false);
 
   const handleCopyDirectLink = async () => {
@@ -263,10 +287,8 @@ export default function MeetingDetailPage({
       typeof window !== 'undefined' && window.location?.origin
         ? window.location.origin
         : 'https://healing78.web.app';
-    const directUrl = `${origin}/meetings/${meeting.id}`;
-    const shareText = isBungMeeting
-      ? `[Healing78 벙대기실 #${meeting.id}] ${meeting.title}\n일시: ${meeting.date}\n${directUrl}`
-      : `[Healing78 일정] ${meeting.title}\n일시: ${meeting.date}\n${directUrl}`;
+    const directUrl = `${origin}/meetings/${meeting.id}/lounge`;
+    const shareText = `[Healing78 벙대기실 #${meeting.id}] ${meeting.title}\n일시: ${meeting.date}\n${directUrl}`;
 
     try {
       if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
@@ -803,29 +825,30 @@ export default function MeetingDetailPage({
 
   return (
     <div className="list-container">
-      {/* 1. Top Bar (`← 상세보기`) & Schedule Detail Card (Matches Uploaded Screenshot) */}
-      <section className="list-section">
-        <div className="detail-top-bar">
-          <button
-            type="button"
-            className="detail-back-btn"
-            onClick={onBackToList}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="22"
-              height="22"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-            <span>상세보기</span>
-          </button>
+      {/* 1. Schedule Detail View */}
+      {viewMode === 'detail' && (
+        <section className="list-section">
+            <div className="detail-top-bar">
+              <button
+                type="button"
+                className="detail-back-btn"
+                onClick={onBackToList}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="22"
+                  height="22"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="19" y1="12" x2="5" y2="12" />
+                  <polyline points="12 19 5 12 12 5" />
+                </svg>
+                <span>일정 목록</span>
+              </button>
 
           <div className="badge-group">
             {canManage && (
@@ -1283,29 +1306,73 @@ export default function MeetingDetailPage({
             </div>
           </form>
         )}
-      </section>
 
-      {/* 2. "벙대기실" (Only rendered when requestAttendance !== false) */}
-      {isBungMeeting && (
-        <section className="list-section" id="bung-lounge">
-          <div className="section-title-row">
-            <div className="badge-group">
-              <h2>벙대기실</h2>
-              <span className="platform-badge" title="벙대기실 고유 링크">
-                #{meeting.id}
-              </span>
-              {adminUser && !isApplied && (
-                <span className="location-pill">운영진 열람</span>
-              )}
+        {/* Prominent 벙대기실 Entry Banner/Card (Only rendered when requestAttendance !== false) */}
+        {isBungMeeting && (
+          <div
+            role="button"
+            tabIndex={0}
+            className="lounge-entry-card"
+            onClick={() => handleNavigateView('lounge')}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && handleNavigateView('lounge')
+            }
+          >
+            <div className="lounge-entry-body">
+              <div className="lounge-entry-title">
+                <span className="platform-badge">#{meeting.id}</span>
+                <strong>벙대기실 입장하기</strong>
+                {isApplied ? (
+                  <span className="lounge-attend-badge">참석 중</span>
+                ) : adminUser ? (
+                  <span className="location-pill">운영진 열람</span>
+                ) : null}
+              </div>
+              <p className="lounge-entry-desc">
+                1·2차 장소 코스 · N빵 정산 · 안심 귀가 · 사진 앨범
+              </p>
             </div>
+            <span className="lounge-entry-arrow" aria-hidden="true">
+              &gt;
+            </span>
+          </div>
+        )}
+      </section>
+      )}
+
+      {/* 2. Dedicated "벙대기실" View */}
+      {viewMode === 'lounge' && isBungMeeting && (
+        <section className="list-section" id="bung-lounge">
+          <div className="detail-top-bar">
+            <button
+              type="button"
+              className="detail-back-btn"
+              onClick={() => handleNavigateView('detail')}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+              </svg>
+              <span>일정 상세</span>
+            </button>
+
             <div className="badge-group">
               <button
                 type="button"
                 className="btn btn-outline btn-sm"
                 onClick={handleCopyDirectLink}
-                title={`벙대기실 링크 복사: meetings/${meeting.id}`}
+                title={`벙대기실 링크 복사: meetings/${meeting.id}/lounge`}
               >
-                {copiedLink ? '링크 복사됨 ✓' : `🔗 meetings/${meeting.id}`}
+                {copiedLink ? '링크 복사됨 ✓' : `🔗 meetings/${meeting.id}/lounge`}
               </button>
               {canAccessLounge && (
                 <span className="sub-meta">
@@ -1317,7 +1384,20 @@ export default function MeetingDetailPage({
             </div>
           </div>
 
-        <div className="lounge-body">
+          {/* Meeting Summary Banner */}
+          <div className="lounge-meeting-summary">
+            <div className="lounge-summary-title">{meeting.title}</div>
+            <div className="lounge-summary-meta">
+              <span>{meeting.date}</span>
+              {meeting.location && <span> · {meeting.location}</span>}
+              <span>
+                {' '}· 주최:{' '}
+                {hostMember ? hostMember.realName : meeting.hostUid}
+              </span>
+            </div>
+          </div>
+
+          <div className="lounge-body">
           {/* 4-Tab Segmented Navigation inside 벙대기실 */}
           <div className="lounge-tab-bar" role="tablist">
             <button
@@ -2499,8 +2579,9 @@ export default function MeetingDetailPage({
       </section>
       )}
 
-      {/* 3. Likes (❤️) & One-Line Comments Feed (Matches Uploaded Screenshot Bottom) */}
-      <section className="list-section">
+      {/* 3. Likes (❤️) & One-Line Comments Feed (Only in detail view) */}
+      {viewMode === 'detail' && (
+        <section className="list-section">
         {/* Likes Summary Row */}
         <div className="feed-likes-bar">
           <button
@@ -2600,6 +2681,7 @@ export default function MeetingDetailPage({
           </button>
         </form>
       </section>
+      )}
 
       {/* Lightbox Modal for Photo / Video Full View */}
       {activeLightboxItem && (

@@ -52,12 +52,15 @@ export function formatCompactDate(dateStr) {
 }
 
 /**
- * Parse current browser URL into { tab, meetingId, memberQuery }
- * Supports both '/meetings/26110701' and '/meetings?id=26110701'
+ * Parse current browser URL into { tab, meetingId, subView, memberQuery }
+ * Supports:
+ * - '/meetings/26110701' -> { tab: 'meetings', meetingId: '26110701', subView: null }
+ * - '/meetings/26110701/lounge' -> { tab: 'meetings', meetingId: '26110701', subView: 'lounge' }
+ * - '/meetings?id=26110701&view=lounge'
  */
 export function parseCurrentRoute() {
   if (typeof window === 'undefined') {
-    return { tab: 'home', meetingId: null, memberQuery: '' };
+    return { tab: 'home', meetingId: null, subView: null, memberQuery: '' };
   }
 
   const segments = window.location.pathname
@@ -67,19 +70,25 @@ export function parseCurrentRoute() {
 
   const firstSeg = (segments[0] || '').toLowerCase();
   const secondSeg = segments[1] || null;
+  const thirdSeg = (segments[2] || '').toLowerCase();
 
   const params = new URLSearchParams(window.location.search);
   const queryMeetingId = params.get('id') || null;
+  const querySubView =
+    params.get('view') || (params.get('lounge') === 'true' ? 'lounge' : null);
   const memberQuery = params.get('q') || '';
+  const subView =
+    thirdSeg === 'lounge' || querySubView === 'lounge' ? 'lounge' : null;
 
   if (!firstSeg || firstSeg === 'home') {
-    return { tab: 'home', meetingId: queryMeetingId, memberQuery };
+    return { tab: 'home', meetingId: queryMeetingId, subView, memberQuery };
   }
 
   if (firstSeg === 'meetings') {
     return {
       tab: 'meetings',
       meetingId: secondSeg || queryMeetingId,
+      subView,
       memberQuery
     };
   }
@@ -89,15 +98,16 @@ export function parseCurrentRoute() {
     return {
       tab: 'meetings',
       meetingId: firstSeg,
+      subView: secondSeg === 'lounge' ? 'lounge' : subView,
       memberQuery
     };
   }
 
   if (VALID_TABS.includes(firstSeg)) {
-    return { tab: firstSeg, meetingId: queryMeetingId, memberQuery };
+    return { tab: firstSeg, meetingId: queryMeetingId, subView, memberQuery };
   }
 
-  return { tab: 'home', meetingId: null, memberQuery };
+  return { tab: 'home', meetingId: null, subView: null, memberQuery };
 }
 
 /**
@@ -111,7 +121,12 @@ export function pushRouteUrl(tab, params = {}) {
   const searchParams = new URLSearchParams();
 
   if (cleanTab === 'meetings' && params.id) {
-    path = `/meetings/${encodeURIComponent(String(params.id).trim())}`;
+    const rawId = encodeURIComponent(String(params.id).trim());
+    if (params.subView === 'lounge') {
+      path = `/meetings/${rawId}/lounge`;
+    } else {
+      path = `/meetings/${rawId}`;
+    }
   } else {
     Object.entries(params).forEach(([key, val]) => {
       if (val !== undefined && val !== null && String(val).trim() !== '') {
@@ -134,6 +149,7 @@ export function pushRouteUrl(tab, params = {}) {
 export function buildRouteMeta({
   tab,
   meetingId,
+  subView,
   meetings = [],
   members = [],
   communityConfig = {},
@@ -147,23 +163,29 @@ export function buildRouteMeta({
     ? meetings.find((m) => String(m.id) === String(meetingId))
     : null;
 
-  // 1. Meetings (/meetings or /meetings/26110701)
+  // 1. Meetings (/meetings, /meetings/26110701, /meetings/26110701/lounge)
   if (tab === 'meetings') {
     if (selectedMeeting) {
       const isBung = selectedMeeting.requestAttendance !== false;
-      const mmdd = formatCompactDate(selectedMeeting.date);
       const loc = selectedMeeting.location ? ` ${selectedMeeting.location}` : '';
-      const prefix = isBung
-        ? `[벙대기실 #${selectedMeeting.id}]`
-        : `[일정 #${selectedMeeting.id}]`;
-      const rawSummary = `${prefix} ${selectedMeeting.title}`;
+
+      if (isBung && subView === 'lounge') {
+        const rawSummary = `[벙대기실 #${selectedMeeting.id}] ${selectedMeeting.title}`;
+        const headerSummary = toShortSummary(rawSummary, 20);
+        return {
+          headerSummary,
+          pageTitle: `${headerSummary} | Healing78`,
+          description: `${selectedMeeting.title} 벙대기실 (차수 장소·N빵 정산·귀가·앨범) - 고유 링크: /meetings/${selectedMeeting.id}/lounge`,
+          sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}/lounge`
+        };
+      }
+
+      const rawSummary = `[일정 #${selectedMeeting.id}] ${selectedMeeting.title}`;
       const headerSummary = toShortSummary(rawSummary, 20);
       return {
         headerSummary,
         pageTitle: `${headerSummary} | Healing78`,
-        description: isBung
-          ? `${selectedMeeting.title} 벙대기실 (일시: ${selectedMeeting.date}${loc}) - 고유 링크: /meetings/${selectedMeeting.id}`
-          : `${selectedMeeting.title} 일정 상세 (일시: ${selectedMeeting.date}${loc}) - 고유 링크: /meetings/${selectedMeeting.id}`,
+        description: `${selectedMeeting.title} 일정 상세 (일시: ${selectedMeeting.date}${loc}) - 고유 링크: /meetings/${selectedMeeting.id}`,
         sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}`
       };
     }
