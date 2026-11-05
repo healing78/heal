@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import RegionInput from '../components/RegionInput';
 import { suggestNewMemberNickname } from '../nicknameUtils';
 
 export default function NicknamePage({
@@ -147,12 +148,12 @@ export default function NicknamePage({
           </div>
           <div className="form-field">
             <label htmlFor="nick-city">거주 지역</label>
-            <input
+            <RegionInput
               id="nick-city"
-              type="text"
-              placeholder="서울, 경기, 부산"
+              required
+              placeholder="서울 구, 지방 시·군 입력 (예: 강남, 수원)"
               value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
+              onChange={(val) => setForm({ ...form, city: val })}
             />
           </div>
           <div className="form-field">

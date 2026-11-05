@@ -1,14 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  HOTSPOT_REGIONS,
-  searchKoreaRegions
-} from '../core/koreaRegions';
+import { searchKoreaRegions } from '../core/koreaRegions';
 
 /**
- * 전국 구·시·군 스마트 검색 자동완성 + 주요 핫스팟 퀵 칩(Quick Chips) 결합 컴포넌트
+ * 전국 구·시·군 스마트 검색 자동완성 입력 컴포넌트
  * - 자유 텍스트 직접 입력 100% 허용 (비강제)
- * - 타이핑 시 전국 행정구역 숏네임 자동완성 추천 드롭다운
- * - 주요 거주 핫스팟 1-Tap 퀵 칩 지원
+ * - 타이핑 시 전국 행정구역 숏네임 자동완성 추천 드롭다운 지원
  */
 export default function RegionInput({
   id = 'prof-city',
@@ -49,13 +45,6 @@ export default function RegionInput({
   const handleSelect = (selectedValue) => {
     if (onChange) {
       onChange(selectedValue);
-    }
-    setIsOpen(false);
-  };
-
-  const handleChipClick = (chip) => {
-    if (onChange) {
-      onChange(chip);
     }
     setIsOpen(false);
   };
@@ -159,62 +148,6 @@ export default function RegionInput({
           ))}
         </ul>
       )}
-
-      {/* Hotspot Quick Chips Bar */}
-      <div
-        className="region-chips-bar"
-        style={{
-          marginTop: '6px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '5px',
-          overflowX: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          paddingBottom: '2px',
-          scrollbarWidth: 'none'
-        }}
-      >
-        <span
-          style={{
-            fontSize: '11px',
-            color: 'var(--color-text-muted, #64748b)',
-            whiteSpace: 'nowrap',
-            marginRight: '2px'
-          }}
-        >
-          추천:
-        </span>
-        {HOTSPOT_REGIONS.map((chip) => {
-          const isSelected = value === chip;
-          return (
-            <button
-              key={chip}
-              type="button"
-              onClick={() => handleChipClick(chip)}
-              className="region-chip-btn"
-              style={{
-                fontSize: '12px',
-                padding: '3px 8px',
-                borderRadius: '9999px',
-                border: isSelected
-                  ? '1px solid var(--color-primary, #2563eb)'
-                  : '1px solid var(--color-divider, #e2e8f0)',
-                background: isSelected
-                  ? 'var(--color-primary, #2563eb)'
-                  : 'var(--color-surface, #ffffff)',
-                color: isSelected
-                  ? '#ffffff'
-                  : 'var(--color-text-primary, #0f172a)',
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              {chip}
-            </button>
-          );
-        })}
-      </div>
     </div>
   );
 }
