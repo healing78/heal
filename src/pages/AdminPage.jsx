@@ -5,15 +5,38 @@ import {
   ROLE_META
 } from '../core/communityRules';
 
+const AVATAR_BG_PALETTE = [
+  '#f59e0b',
+  '#3b82f6',
+  '#10b981',
+  '#8b5cf6',
+  '#ec4899',
+  '#06b6d4',
+  '#e11d48'
+];
+
+function getAvatarBg(uid) {
+  const str = String(uid || '');
+  let sum = 0;
+  for (let i = 0; i < str.length; i += 1) {
+    sum += str.charCodeAt(i);
+  }
+  return AVATAR_BG_PALETTE[sum % AVATAR_BG_PALETTE.length];
+}
+
 export default function AdminPage({
-  members,
-  communityConfig,
+  members = [],
+  meetings = [],
+  communityConfig = {},
+  onOpenMeetingDetail,
+  onDeleteMeeting,
   onAdminUpdateMember,
   onAdminAdjustEventScore,
   onAdminUpdateConfig
 }) {
-  const [subTab, setSubTab] = useState('members'); // 'members' | 'scores' | 'config'
+  const [subTab, setSubTab] = useState('members'); // 'members' | 'meetings' | 'scores' | 'config'
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedMeetingId, setExpandedMeetingId] = useState(null);
 
   // Manual event score form state
   const [scoreForm, setScoreForm] = useState({
@@ -84,6 +107,13 @@ export default function AdminPage({
             onClick={() => setSubTab('members')}
           >
             회원·역할 관리 ({members.length})
+          </button>
+          <button
+            type="button"
+            className={`subtab-btn ${subTab === 'meetings' ? 'active' : ''}`}
+            onClick={() => setSubTab('meetings')}
+          >
+            모임 관리 ({meetings.length})
           </button>
           <button
             type="button"
@@ -169,6 +199,189 @@ export default function AdminPage({
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Sub-tab: Meeting Management (확장형 모임 관리) */}
+      {subTab === 'meetings' && (
+        <section className="list-section">
+          <div className="section-title-row" style={{ marginBottom: '12px' }}>
+            <div>
+              <h3>모임 관리</h3>
+              <p className="sub-meta">최신순 전체 모임 목록 · 카드 클릭 시 모임 상세로 이동합니다.</p>
+            </div>
+            <span className="platform-badge">{meetings.length}건</span>
+          </div>
+
+          {meetings.length === 0 ? (
+            <p className="muted-text">등록된 모임이 없습니다.</p>
+          ) : (
+            <div className="divider-list">
+              {[...meetings]
+                .sort((a, b) => String(b.date || b.id).localeCompare(String(a.date || a.id)))
+                .map((m) => {
+                  const applicants = m.applicants || [];
+                  const isExpanded = expandedMeetingId === m.id;
+                  const treasurerUid = m.treasurerUid || m.hostUid;
+
+                  return (
+                    <div
+                      key={m.id}
+                      className="list-item-row admin-meeting-card"
+                      onClick={() => onOpenMeetingDetail && onOpenMeetingDetail(m.id)}
+                      style={{
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'stretch',
+                        gap: '8px'
+                      }}
+                    >
+                      {/* Compact Primary Row: 일시 · 제목 · 00명 참석 */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '10px',
+                          flexWrap: 'wrap'
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            flex: 1,
+                            minWidth: '200px'
+                          }}
+                        >
+                          <span className="muted-text" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>
+                            {m.date ? String(m.date).slice(5, 16) : '일시 미정'}
+                          </span>
+                          <strong style={{ fontSize: '15px' }}>{m.title}</strong>
+                          <span
+                            className={`status-pill ${
+                              m.status === 'settled' ? 'settled' : 'open'
+                            }`}
+                            style={{ fontSize: '11px', padding: '2px 6px' }}
+                          >
+                            {m.status === 'settled' ? '정산완료' : '진행중'}
+                          </span>
+                        </div>
+
+                        {/* Interactive Attendees Trigger & Extension Slot */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}
+                        >
+                          <button
+                            type="button"
+                            className={`btn btn-sm ${isExpanded ? 'btn-primary' : 'btn-outline'}`}
+                            style={{
+                              padding: '3px 9px',
+                              fontSize: '12px',
+                              borderRadius: '14px',
+                              whiteSpace: 'nowrap'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedMeetingId(isExpanded ? null : m.id);
+                            }}
+                            title="참석자 명단 펼치기/접기"
+                          >
+                            👥 {applicants.length}명 참석 {isExpanded ? '▲' : '▼'}
+                          </button>
+
+                          {/* Future Extension Action Slot (모임 취소/삭제/벙대기실 승인 등 확장 가능) */}
+                          <div
+                            className="admin-meeting-actions-slot"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ display: 'inline-flex', alignItems: 'center' }}
+                          >
+                            <span className="sub-meta" style={{ fontSize: '12px' }}>
+                              상세 →
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Inline Accordion: Attendees List */}
+                      {isExpanded && (
+                        <div
+                          className="admin-attendee-accordion"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            marginTop: '6px',
+                            padding: '10px 12px',
+                            background: 'var(--bg-subtle, rgba(0,0,0,0.03))',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border-color, #e5e7eb)'
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              marginBottom: '8px'
+                            }}
+                          >
+                            <span className="sub-meta" style={{ fontWeight: 600 }}>
+                              참석 신청자 명단 ({applicants.length}명)
+                            </span>
+                            <span className="muted-text" style={{ fontSize: '11px' }}>
+                              장소: {m.location}
+                            </span>
+                          </div>
+
+                          {applicants.length === 0 ? (
+                            <p className="muted-text" style={{ margin: 0, fontSize: '12px' }}>
+                              참석 신청자가 없습니다.
+                            </p>
+                          ) : (
+                            <div className="detail-attendee-grid" style={{ marginTop: 0 }}>
+                              {applicants.map((uid) => {
+                                const mem = members.find((memObj) => memObj.uid === uid);
+                                if (!mem) return null;
+                                const isHost = uid === m.hostUid;
+                                const isTreasurer = uid === treasurerUid;
+                                return (
+                                  <div key={uid} className="detail-attendee-item">
+                                    <span
+                                      className="feed-avatar-circle sm"
+                                      style={{ backgroundColor: getAvatarBg(uid) }}
+                                    >
+                                      {mem.realName ? mem.realName.slice(0, 1) : '?'}
+                                    </span>
+                                    <span className="detail-attendee-nick">
+                                      {formatMemberNickname(mem)}
+                                    </span>
+                                    {isHost && (
+                                      <span className="platform-badge" style={{ fontSize: '10px' }}>
+                                        주최
+                                      </span>
+                                    )}
+                                    {!isHost && isTreasurer && (
+                                      <span className="location-pill" style={{ fontSize: '10px' }}>
+                                        총무
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </section>
       )}
 

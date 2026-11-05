@@ -12,7 +12,6 @@ import { isFirebaseConfigured } from '../../services/firebase';
 const BASE_NAV_ITEMS = [
   { id: 'home', label: '홈', icon: '🏠' },
   { id: 'meetings', label: '일정', icon: '📅' },
-  { id: 'reports', label: '리포트', icon: '📊' },
   { id: 'ranking', label: '랭킹·친구', icon: '🏆' },
   { id: 'nickname', label: '신입닉네임', icon: '🏷️' },
   { id: 'profile', label: '내 정보', icon: '👤' }

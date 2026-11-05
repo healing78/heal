@@ -321,12 +321,30 @@ export default function App() {
     }
 
     if (activeTab === 'reports') {
+      if (isAdminRole(currentUser?.role)) {
+        return (
+          <AdminPage
+            members={members}
+            meetings={meetings}
+            communityConfig={communityConfig}
+            onOpenMeetingDetail={handleOpenMeetingDetail}
+            onDeleteMeeting={handleDeleteMeeting}
+            onAdminUpdateMember={handleAdminUpdateMember}
+            onAdminAdjustEventScore={handleAdminAdjustEventScore}
+            onAdminUpdateConfig={handleAdminUpdateConfig}
+          />
+        );
+      }
       return (
-        <ReportsPage
+        <ProfilePage
           currentUser={currentUser}
           members={members}
           meetings={meetings}
           onOpenMeetingDetail={handleOpenMeetingDetail}
+          onUpdateProfile={handleUpdateProfile}
+          onSwitchUser={handleSwitchUser}
+          onResetDemoData={handleResetDemoData}
+          onLogout={() => handleSwitchUser('__LOGOUT__')}
         />
       );
     }
@@ -346,6 +364,8 @@ export default function App() {
         <ProfilePage
           currentUser={currentUser}
           members={members}
+          meetings={meetings}
+          onOpenMeetingDetail={handleOpenMeetingDetail}
           onUpdateProfile={handleUpdateProfile}
           onSwitchUser={handleSwitchUser}
           onResetDemoData={handleResetDemoData}
@@ -358,7 +378,10 @@ export default function App() {
       return (
         <AdminPage
           members={members}
+          meetings={meetings}
           communityConfig={communityConfig}
+          onOpenMeetingDetail={handleOpenMeetingDetail}
+          onDeleteMeeting={handleDeleteMeeting}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminAdjustEventScore={handleAdminAdjustEventScore}
           onAdminUpdateConfig={handleAdminUpdateConfig}

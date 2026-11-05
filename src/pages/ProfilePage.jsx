@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
+  calculateMeetingScoreForMember,
+  calculateMeetingSettlement,
   canCreateMeeting,
   formatMemberNickname,
   resolveMemberBadge,
@@ -10,11 +12,14 @@ import { isFirebaseConfigured } from '../services/firebase';
 export default function ProfilePage({
   currentUser,
   members = [],
+  meetings = [],
+  onOpenMeetingDetail,
   onUpdateProfile,
   onSwitchUser,
   onResetDemoData,
   onLogout
 }) {
+  const [subTab, setSubTab] = useState('profile'); // 'profile' | 'report'
   const [form, setForm] = useState({
     realName: currentUser.realName,
     city: currentUser.city,
@@ -46,6 +51,45 @@ export default function ProfilePage({
   const hostEligible = canCreateMeeting(currentUser);
   const dbLabel = isFirebaseConfigured ? 'Firestore DB 연결됨' : 'Local DB (영구저장)';
 
+  // Compute personal report data across all meetings for currentUser
+  const personalMeetingRows = [];
+  let totalMyBurden = 0;
+  let totalMyOutOfPocket = 0;
+  let totalMySponsored = 0;
+
+  if (currentUser) {
+    for (const mtg of meetings) {
+      const settlement = calculateMeetingSettlement(mtg);
+      const myRow = settlement.participantRows.find(
+        (r) => r.uid === currentUser.uid
+      );
+
+      const mySponsors = (mtg.sponsorships || [])
+        .filter((s) => s.uid === currentUser.uid)
+        .reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
+      const myGoldenBells = (mtg.rounds || [])
+        .filter((r) => r.isGoldenBell && r.goldenBellUid === currentUser.uid)
+        .reduce((acc, r) => acc + (Number(r.cost) || 0), 0);
+
+      totalMySponsored += mySponsors + myGoldenBells;
+
+      if (myRow) {
+        totalMyBurden += myRow.finalShare;
+        totalMyOutOfPocket += myRow.paidOutOfPocket;
+        const scoreInfo = calculateMeetingScoreForMember(
+          currentUser,
+          mtg.location
+        );
+        personalMeetingRows.push({
+          meeting: mtg,
+          row: myRow,
+          sponsoredAmount: mySponsors + myGoldenBells,
+          scoreInfo
+        });
+      }
+    }
+  }
+
   const handleSave = (e) => {
     e.preventDefault();
     onUpdateProfile(form);
@@ -65,7 +109,7 @@ export default function ProfilePage({
 
   return (
     <div className="list-container">
-      {/* Nickname Auto-Generator & One-Click Copy */}
+      {/* Top Header & Sub-tab Bar */}
       <section className="list-section">
         <div className="section-title-row">
           <h2>내 정보</h2>
@@ -77,7 +121,29 @@ export default function ProfilePage({
           </span>
         </div>
 
-        <div className="nickname-preview-box">
+        <div className="subtab-bar" style={{ marginTop: '12px' }}>
+          <button
+            type="button"
+            className={`subtab-btn ${subTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setSubTab('profile')}
+          >
+            내 정보 수정
+          </button>
+          <button
+            type="button"
+            className={`subtab-btn ${subTab === 'report' ? 'active' : ''}`}
+            onClick={() => setSubTab('report')}
+          >
+            내 활동 리포트 ({personalMeetingRows.length})
+          </button>
+        </div>
+      </section>
+
+      {subTab === 'profile' ? (
+        <>
+          {/* Nickname Auto-Generator & One-Click Copy */}
+          <section className="list-section">
+            <div className="nickname-preview-box">
           <div>
             <div className="preview-caption">내 닉네임</div>
             <div className="preview-value">{generatedNickname}</div>
@@ -204,6 +270,128 @@ export default function ProfilePage({
           </div>
         </div>
       </section>
+        </>
+      ) : (
+        /* Sub-tab: Personal Activity & Settlement Report */
+        <section className="list-section stack-gap">
+          <div className="summary-header">
+            <div>
+              <span className="muted-text">내 활동 및 정산 요약</span>
+              <div className="my-nickname-row">
+                <h2>{formatMemberNickname(currentUser)}</h2>
+                <span
+                  className="role-pill"
+                  style={{
+                    backgroundColor: ROLE_META[currentUser.role]?.badgeColor
+                  }}
+                >
+                  {ROLE_META[currentUser.role]?.label}
+                </span>
+              </div>
+              <div className="sub-meta" style={{ marginTop: '4px' }}>
+                등록 계좌: {currentUser.bankAccount || '미등록'} · 연고지: {currentUser.homeCity}
+              </div>
+            </div>
+          </div>
+
+          <div className="stats-grid">
+            <div className="stat-box">
+              <span className="stat-label">누적 점수 / 참석</span>
+              <strong className="stat-value">
+                {currentUser.totalScore}점 ({currentUser.attendanceCount}회)
+              </strong>
+              <span className="stat-sub">
+                기본 {currentUser.baseScore} · 원정 {currentUser.expeditionScore} · 이벤트 {currentUser.eventScore}
+              </span>
+            </div>
+            <div className="stat-box">
+              <span className="stat-label">총 부담 회비</span>
+              <strong className="stat-value">
+                {totalMyBurden.toLocaleString()}원
+              </strong>
+              <span className="stat-sub">
+                참여 모임 {personalMeetingRows.length}건 합계
+              </span>
+            </div>
+            <div className="stat-box">
+              <span className="stat-label">총 결제 · 찬조액</span>
+              <strong className="stat-value">
+                {(totalMyOutOfPocket + totalMySponsored).toLocaleString()}원
+              </strong>
+              <span className="stat-sub">
+                대납 {totalMyOutOfPocket.toLocaleString()} / 찬조·골든벨 {totalMySponsored.toLocaleString()}
+              </span>
+            </div>
+          </div>
+
+          <h3 style={{ marginTop: '8px' }}>참여 모임별 정산·귀가 상세 내역</h3>
+          {personalMeetingRows.length === 0 ? (
+            <p className="muted-text">참여한 모임 내역이 없습니다.</p>
+          ) : (
+            <div className="divider-list">
+              {personalMeetingRows.map(({ meeting: mtg, row, sponsoredAmount, scoreInfo }) => (
+                <div key={mtg.id} className="list-item-row">
+                  <div className="meeting-top">
+                    <div className="badge-group">
+                      <span className="platform-badge">#{mtg.id}</span>
+                      <strong>{mtg.title}</strong>
+                      <span className="location-pill">{mtg.location}</span>
+                      <span className="platform-badge">
+                        +{scoreInfo.total}점 ({scoreInfo.label})
+                      </span>
+                    </div>
+                    <span className="muted-text">{mtg.date}</span>
+                  </div>
+
+                  <div className="meeting-footer" style={{ marginTop: '6px' }}>
+                    <div className="badge-group">
+                      <span className="sub-meta">
+                        참석: {row.attendedRounds.join(', ') || '미선택'}
+                      </span>
+                      <span
+                        className={`status-pill ${
+                          row.confirmed ? 'open' : 'settled'
+                        }`}
+                      >
+                        {row.confirmed
+                          ? '컨펌완료'
+                          : row.paid
+                            ? '입금완료'
+                            : '미입금'}
+                      </span>
+                      {row.safeReturnAt && (
+                        <span className="status-pill open">
+                          {row.safeReturnAt}
+                        </span>
+                      )}
+                      {sponsoredAmount > 0 && (
+                        <span className="expedition-pill">
+                          찬조·골든벨 {sponsoredAmount.toLocaleString()}원
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="badge-group">
+                      <strong className="score-highlight">
+                        부담금 {row.finalShare.toLocaleString()}원
+                      </strong>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() =>
+                          onOpenMeetingDetail && onOpenMeetingDetail(mtg.id)
+                        }
+                      >
+                        모임 보기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Bottom Test Account Switcher */}
       {onSwitchUser && (
