@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   formatMemberNickname,
-  isSuperAdmin,
   ROLE_KEYS,
   ROLE_META
 } from '../core/communityRules';
@@ -26,7 +25,6 @@ function getAvatarBg(uid) {
 }
 
 export default function AdminPage({
-  currentUser,
   members = [],
   meetings = [],
   communityConfig = {},
@@ -34,44 +32,11 @@ export default function AdminPage({
   onDeleteMeeting,
   onAdminUpdateMember,
   onAdminAdjustEventScore,
-  onAdminUpdateConfig,
-  onImpersonateUser
+  onAdminUpdateConfig
 }) {
   const [subTab, setSubTab] = useState('members'); // 'members' | 'meetings' | 'scores' | 'config'
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
-
-  const isSuper = isSuperAdmin(currentUser, communityConfig);
-
-  const handleDownloadBackup = () => {
-    const backupPayload = {
-      version: '1.0.0',
-      exportedAt: new Date().toISOString(),
-      communityConfig,
-      members,
-      meetings
-    };
-    const blob = new Blob([JSON.stringify(backupPayload, null, 2)], {
-      type: 'application/json'
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `healing78_backup_${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleAssignLeader = (targetUid) => {
-    const targetMember = members.find((m) => m.uid === targetUid);
-    const targetNick = targetMember ? formatMemberNickname(targetMember) : targetUid;
-    if (!window.confirm(`${targetNick} 님을 방장(Leader)으로 지정하시겠습니까?`)) {
-      return;
-    }
-    onAdminUpdateMember(targetUid, { role: 'Leader' });
-  };
 
   // Manual event score form state
   const [scoreForm, setScoreForm] = useState({
@@ -83,12 +48,8 @@ export default function AdminPage({
 
   // Community notice/rules config form state
   const [configForm, setConfigForm] = useState({
-    homeSummary:
-      communityConfig.homeSummary || '공지 · 규격 닉네임 및 모임 규칙',
-    noticeTitle: communityConfig.noticeTitle,
-    noticeBody: communityConfig.noticeBody,
-    newcomerSummary:
-      communityConfig.newcomerSummary || '신입공지 · 입장 즉시 닉네임 변경',
+    noticeTitle: communityConfig.noticeTitle || '',
+    noticeBody: communityConfig.noticeBody || '',
     newcomerNoticeBody:
       communityConfig.newcomerNoticeBody ||
       'Healing78 오픈채팅방 입장 후 24시간 이내에 아래 자동 생성기로 규격 닉네임을 만들어 카톡방 프로필을 변경해 주세요.',
@@ -122,8 +83,11 @@ export default function AdminPage({
 
   const handleConfigSubmit = (e) => {
     e.preventDefault();
-    onAdminUpdateConfig(configForm);
-    setConfigNotice('공지사항 및 커뮤니티 규칙 배너가 업데이트되었습니다.');
+    onAdminUpdateConfig({
+      ...communityConfig,
+      ...configForm
+    });
+    setConfigNotice('공지사항 및 시스템 연동 설정이 저장되었습니다.');
     setTimeout(() => setConfigNotice(''), 2500);
   };
 
@@ -170,42 +134,6 @@ export default function AdminPage({
       {/* Sub-tab 1: Member & Role Management */}
       {subTab === 'members' && (
         <section className="list-section">
-          {/* Super Admin Control Bar */}
-          {isSuper && (
-            <div
-              style={{
-                marginBottom: '14px',
-                padding: '12px 14px',
-                background: 'linear-gradient(135deg, rgba(15,23,42,0.06), rgba(30,41,59,0.03))',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '8px'
-              }}
-            >
-              <div>
-                <strong style={{ fontSize: '14px', color: '#0f172a' }}>
-                  👑 슈퍼 어드민 콘솔 (최고 관리자 전용)
-                </strong>
-                <div className="sub-meta" style={{ fontSize: '12px', marginTop: '2px' }}>
-                  전체 DB 백업 다운로드 · 최초 방장 지정 · 회원 시점 열람(Impersonate) 가능
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={handleDownloadBackup}
-                title="전체 데이터베이스(회원, 모임, 설정)를 JSON 파일로 다운로드합니다."
-              >
-                💾 전체 데이터 백업 (JSON 다운로드)
-              </button>
-            </div>
-          )}
-
           <div className="filter-bar" style={{ marginTop: 0, marginBottom: '12px' }}>
             <input
               type="text"
@@ -238,34 +166,6 @@ export default function AdminPage({
                 </div>
 
                 <div className="admin-member-controls">
-                  {/* Super Admin Special Actions: Impersonate & Assign Leader */}
-                  {isSuper && (
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      {m.uid !== currentUser?.uid && onImpersonateUser && (
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          style={{ fontSize: '11px', padding: '3px 7px' }}
-                          onClick={() => onImpersonateUser(m.uid)}
-                          title="해당 회원의 시점으로 화면을 열람합니다."
-                        >
-                          👁️ 이 회원으로 보기
-                        </button>
-                      )}
-                      {m.role !== 'Leader' && m.role !== 'SuperAdmin' && (
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          style={{ fontSize: '11px', padding: '3px 7px', color: '#f59e0b' }}
-                          onClick={() => handleAssignLeader(m.uid)}
-                          title="해당 회원을 방장(Leader)으로 지정합니다."
-                        >
-                          👑 방장 지정
-                        </button>
-                      )}
-                    </div>
-                  )}
-
                   <div className="control-inline">
                     <label htmlFor={`role-${m.uid}`}>등급</label>
                     <select
@@ -554,49 +454,9 @@ export default function AdminPage({
       {subTab === 'config' && (
         <section className="list-section">
           <h3 style={{ marginBottom: '12px' }}>
-            홈 공지 및 신입 공지 (상단 20자 요약 포함) 설정
+            공지 및 시스템 연동 설정
           </h3>
           <form onSubmit={handleConfigSubmit} className="stack-gap">
-            <div className="form-grid">
-              <div className="form-field">
-                <label htmlFor="cfg-home-summary">
-                  홈 상단 20자 요약 공지 (카톡 미리보기 타이틀)
-                </label>
-                <input
-                  id="cfg-home-summary"
-                  type="text"
-                  maxLength={25}
-                  required
-                  value={configForm.homeSummary}
-                  onChange={(e) =>
-                    setConfigForm({
-                      ...configForm,
-                      homeSummary: e.target.value
-                    })
-                  }
-                />
-              </div>
-
-              <div className="form-field">
-                <label htmlFor="cfg-newcomer-summary">
-                  신입 닉네임 상단 20자 신입 공지 요약
-                </label>
-                <input
-                  id="cfg-newcomer-summary"
-                  type="text"
-                  maxLength={25}
-                  required
-                  value={configForm.newcomerSummary}
-                  onChange={(e) =>
-                    setConfigForm({
-                      ...configForm,
-                      newcomerSummary: e.target.value
-                    })
-                  }
-                />
-              </div>
-            </div>
-
             <div className="form-field">
               <label htmlFor="cfg-title">홈 공지 배너 제목</label>
               <input

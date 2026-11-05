@@ -12,6 +12,7 @@ export const VALID_TABS = [
   'nickname',
   'profile',
   'admin',
+  'master',
   'login'
 ];
 
@@ -23,6 +24,7 @@ export const PAGE_LABELS = {
   nickname: '신입 규격 닉네임 생성',
   profile: '내 정보 · 프로필 관리',
   admin: '운영진 관리 센터',
+  master: '마스터 관리 센터',
   login: '로그인 · 신입 등록'
 };
 
@@ -143,8 +145,25 @@ export function pushRouteUrl(tab, params = {}) {
   }
 }
 
+export function getTodayDateString() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+export function isPastMeeting(mtg, todayStr = getTodayDateString()) {
+  const targetDate =
+    mtg.endDateOnly || mtg.dateOnly || String(mtg.date || '').slice(0, 10);
+  if (!targetDate) return false;
+  if (targetDate < todayStr) return true;
+  if (mtg.status === 'settled') return true;
+  return false;
+}
+
 /**
- * Build 20-char top header summary, document.title, and share URL for current state
+ * Build page header title, document.title, and share content for current state
  */
 export function buildRouteMeta({
   tab,
@@ -155,9 +174,16 @@ export function buildRouteMeta({
   communityConfig = {},
   currentUser = null
 }) {
-  const openMeetings = [...meetings]
-    .filter((m) => m.status === 'open')
+  const upcomingMeetings = [...meetings]
+    .filter((m) => !isPastMeeting(m))
     .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+  const scheduleLines = upcomingMeetings.map((m) => {
+    const mmdd = formatCompactDate(m.dateOnly || m.date);
+    return `${mmdd} ${m.title}`;
+  });
+  const scheduleShareLines = scheduleLines.length > 0 ? scheduleLines.join('\n') : '';
+  const homeAndMeetingsShareText = scheduleShareLines ? `힐링78\n${scheduleShareLines}` : '힐링78';
 
   const selectedMeeting = meetingId
     ? meetings.find((m) => String(m.id) === String(meetingId))
@@ -167,142 +193,116 @@ export function buildRouteMeta({
   if (tab === 'meetings') {
     if (selectedMeeting) {
       const isBung = selectedMeeting.requestAttendance !== false;
-      const loc = selectedMeeting.location ? ` ${selectedMeeting.location}` : '';
+      const time = selectedMeeting.startTime || (selectedMeeting.date ? selectedMeeting.date.slice(11, 16) : '');
+      const meetingShareText = `힐링78 ${selectedMeeting.title}${time ? ` ${time}` : ''}`.trim();
+      const sharePath =
+        isBung && subView === 'lounge'
+          ? `/meetings/${encodeURIComponent(selectedMeeting.id)}/lounge`
+          : `/meetings/${encodeURIComponent(selectedMeeting.id)}`;
 
-      if (isBung && subView === 'lounge') {
-        const rawSummary = `[벙대기실 #${selectedMeeting.id}] ${selectedMeeting.title}`;
-        const headerSummary = toShortSummary(rawSummary, 20);
-        return {
-          headerSummary,
-          pageTitle: '힐링78 - 일정',
-          description: `${selectedMeeting.title} 벙대기실 (차수 장소·N빵 정산·귀가·앨범) - 고유 링크: /meetings/${selectedMeeting.id}/lounge`,
-          sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}/lounge`
-        };
-      }
-
-      const rawSummary = `[일정 #${selectedMeeting.id}] ${selectedMeeting.title}`;
-      const headerSummary = toShortSummary(rawSummary, 20);
       return {
-        headerSummary,
+        headerSummary: '힐링78 - 일정',
         pageTitle: '힐링78 - 일정',
-        description: `${selectedMeeting.title} 일정 상세 (일시: ${selectedMeeting.date}${loc}) - 고유 링크: /meetings/${selectedMeeting.id}`,
-        sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}`
+        shareText: meetingShareText,
+        description: `${selectedMeeting.title} 일정 상세`,
+        sharePath
       };
     }
 
-    const scheduleListText =
-      openMeetings.length > 0
-        ? openMeetings
-            .map((m) => `${formatCompactDate(m.date)} ${m.location}`)
-            .join(', ')
-        : '현재 예정된 일정 없음';
-
-    const headerSummary = toShortSummary(scheduleListText, 20);
     return {
-      headerSummary,
+      headerSummary: '힐링78 - 일정',
       pageTitle: '힐링78 - 일정',
-      description: `진행 예정 일정: ${scheduleListText}`,
+      shareText: homeAndMeetingsShareText,
+      description: `진행 예정 일정:\n${scheduleShareLines}`,
       sharePath: '/meetings'
     };
   }
 
   // 2. Reports (/reports)
   if (tab === 'reports') {
-    const headerSummary = toShortSummary('모임별·개인별 정산 리포트', 20);
     return {
-      headerSummary,
+      headerSummary: '힐링78 - 리포트',
       pageTitle: '힐링78 - 리포트',
-      description: '모임별 차수/찬조/골든벨 정산 내역 및 개인별 참석·회비·점수 리포트',
+      shareText: '힐링78 리포트',
+      description: '모임별·개인별 정산 리포트',
       sharePath: '/reports'
     };
   }
 
-  // 3. Ranking (/ranking): "1위 김민준, 2위 이서연" format
+  // 3. Ranking (/ranking)
   if (tab === 'ranking') {
-    const sorted = [...members].sort((a, b) => b.totalScore - a.totalScore);
-    const rankText =
-      sorted.length >= 2
-        ? `1위 ${sorted[0].realName}, 2위 ${sorted[1].realName}`
-        : sorted.length === 1
-          ? `1위 ${sorted[0].realName}(${sorted[0].totalScore}점)`
-          : 'Healing78 활동 랭킹';
-
-    const headerSummary = toShortSummary(rankText, 20);
     return {
-      headerSummary,
+      headerSummary: '힐링78 - 랭킹·친구',
       pageTitle: '힐링78 - 랭킹·친구',
-      description: `Healing78 실시간 활동 점수 순위 (${rankText})`,
+      shareText: '힐링78 랭킹 친구',
+      description: 'Healing78 활동 랭킹 및 지역별 친구 정보',
       sharePath: '/ranking'
     };
   }
 
-  // 4. Nickname (/nickname): 신입 공지 (Newcomer Notice Summary)
+  // 4. Nickname (/nickname)
   if (tab === 'nickname') {
-    const rawNewcomer =
-      communityConfig?.newcomerSummary ||
-      '신입공지 · 입장 즉시 닉네임 변경';
-    const headerSummary = toShortSummary(rawNewcomer, 20);
     return {
-      headerSummary,
+      headerSummary: '힐링78 - 신입닉네임',
       pageTitle: '힐링78 - 신입닉네임',
-      description:
-        communityConfig?.newcomerNoticeBody ||
-        '이름·지역·결혼여부·성별 선택 시 오픈채팅방 규격 닉네임을 자동 생성하고 복사합니다.',
+      shareText: '힐링78 신입 닉네임 만들기',
+      description: '오픈채팅방 규격 닉네임 자동 생성기',
       sharePath: '/nickname'
     };
   }
 
   // 5. Profile (/profile)
   if (tab === 'profile') {
-    const headerSummary = currentUser
-      ? toShortSummary(formatMemberNickname(currentUser), 20)
-      : '회원 전용 프로필 관리';
+    const realName = currentUser?.realName || (currentUser ? formatMemberNickname(currentUser) : '');
+    const profileShareText = `힐링78 ${realName}`.trim();
     return {
-      headerSummary,
+      headerSummary: '힐링78 - 내 정보',
       pageTitle: '힐링78 - 내 정보',
-      description: '내 프로필·계좌 수정 및 카카오톡 오픈채팅방 규격 닉네임 원클릭 복사',
+      shareText: profileShareText,
+      description: '내 프로필 및 활동 리포트',
       sharePath: '/profile'
     };
   }
 
   // 6. Admin (/admin)
   if (tab === 'admin') {
-    const headerSummary = toShortSummary(`운영관리 · 회원 ${members.length}명`, 20);
     return {
-      headerSummary,
+      headerSummary: '힐링78 - 운영 관리',
       pageTitle: '힐링78 - 운영 관리',
-      description: '회원 등급·커스텀 뱃지·이벤트 점수 및 공지사항 운영 관리',
+      shareText: '힐링78 운영 관리',
+      description: '운영진 관리 센터',
       sharePath: '/admin'
     };
   }
 
-  // 7. Login (/login)
-  if (tab === 'login') {
-    const headerSummary = toShortSummary(
-      communityConfig?.homeSummary || '공지 · 규격 닉네임 및 모임 규칙',
-      20
-    );
+  // 7. Master (/master)
+  if (tab === 'master') {
     return {
-      headerSummary,
+      headerSummary: '힐링78 - 마스터',
+      pageTitle: '힐링78 - 마스터',
+      shareText: '힐링78 마스터',
+      description: '마스터 관리 센터',
+      sharePath: '/master'
+    };
+  }
+
+  // 8. Login (/login)
+  if (tab === 'login') {
+    return {
+      headerSummary: '힐링78 - 로그인',
       pageTitle: '힐링78 - 로그인',
-      description: '카카오 계정 로그인 및 신입 회원 규격 닉네임 온보딩',
+      shareText: '힐링78 로그인',
+      description: '카카오 계정 로그인 및 신입 회원 등록',
       sharePath: '/login'
     };
   }
 
-  // 8. Default: Home ('home')
-  const rawHomeNotice =
-    communityConfig?.homeSummary ||
-    communityConfig?.noticeTitle ||
-    '공지 · 규격 닉네임 및 모임 규칙';
-  const headerSummary = toShortSummary(rawHomeNotice, 20);
-
+  // Default: Home ('home')
   return {
-    headerSummary,
+    headerSummary: '힐링78 - 홈',
     pageTitle: '힐링78 - 홈',
-    description:
-      communityConfig?.noticeBody ||
-      'Healing78 (since 2024) 공지사항, 실시간 모임 참석 신청 및 활동 랭킹',
+    shareText: homeAndMeetingsShareText,
+    description: `진행 예정 일정:\n${scheduleShareLines}`,
     sharePath: '/'
   };
 }
@@ -328,15 +328,16 @@ export function syncDocumentMeta(meta) {
 }
 
 /**
- * Share formatted 20-char summary + URL for KakaoTalk / Mobile Share / Clipboard
+ * Share formatted text + URL for KakaoTalk / Mobile Share / Clipboard
  */
-export async function shareRouteInfo({ headerSummary, description, sharePath }) {
+export async function shareRouteInfo({ shareText: customShareText, headerSummary, sharePath }) {
   const origin =
     typeof window !== 'undefined' && window.location?.origin
       ? window.location.origin
       : SITE_ORIGIN;
   const fullUrl = `${origin}${sharePath || '/'}`;
-  const shareText = `[Healing78] ${headerSummary}\n${description ? `${description}\n` : ''}${fullUrl}`;
+  const baseText = customShareText || `힐링78 - ${headerSummary || ''}`.trim();
+  const shareText = `${baseText}\n${fullUrl}`;
 
   let copied = false;
   if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
@@ -351,8 +352,8 @@ export async function shareRouteInfo({ headerSummary, description, sharePath }) 
   if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
     try {
       await navigator.share({
-        title: `[Healing78] ${headerSummary}`,
-        text: `${headerSummary} — ${description || 'Healing78 커뮤니티'}`,
+        title: baseText.split('\n')[0],
+        text: baseText,
         url: fullUrl
       });
       return { shared: true, copied, shareText, fullUrl };

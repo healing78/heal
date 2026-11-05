@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from './components/layout/AppLayout';
-import { isAdminRole, isAdminUser } from './core/communityRules';
+import { isAdminRole, isAdminUser, isSuperAdmin } from './core/communityRules';
 import {
   INITIAL_COMMUNITY_CONFIG,
   INITIAL_MEETINGS,
@@ -40,6 +40,7 @@ import RankingPage from './pages/RankingPage';
 import NicknamePage from './pages/NicknamePage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
+import SuperAdminPage from './pages/SuperAdminPage';
 
 export default function App() {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
@@ -155,9 +156,7 @@ export default function App() {
   const handleShareCurrentRoute = async () => {
     const result = await shareRouteInfo(currentMeta);
     if (result.copied) {
-      showShareFeedback(
-        `카톡 공유 문구 복사됨: "${currentMeta.headerSummary}"`
-      );
+      showShareFeedback('공유 문구 및 링크가 복사되었습니다.');
     }
   };
 
@@ -179,7 +178,7 @@ export default function App() {
 
     const result = await shareRouteInfo(mtgMeta);
     if (result.copied) {
-      showShareFeedback(`일정 안내 복사됨: "${mtgMeta.headerSummary}"`);
+      showShareFeedback('일정 공유 문구 및 링크가 복사되었습니다.');
     }
   };
 
@@ -383,7 +382,6 @@ export default function App() {
     if (activeTab === 'admin' && isAdminUser(currentUser, communityConfig)) {
       return (
         <AdminPage
-          currentUser={currentUser}
           members={members}
           meetings={meetings}
           communityConfig={communityConfig}
@@ -391,6 +389,19 @@ export default function App() {
           onDeleteMeeting={handleDeleteMeeting}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminAdjustEventScore={handleAdminAdjustEventScore}
+          onAdminUpdateConfig={handleAdminUpdateConfig}
+        />
+      );
+    }
+
+    if (activeTab === 'master' && isSuperAdmin(currentUser, communityConfig)) {
+      return (
+        <SuperAdminPage
+          currentUser={currentUser}
+          members={members}
+          meetings={meetings}
+          communityConfig={communityConfig}
+          onAdminUpdateMember={handleAdminUpdateMember}
           onAdminUpdateConfig={handleAdminUpdateConfig}
           onImpersonateUser={(uid) => {
             setImpersonatedUid(uid);

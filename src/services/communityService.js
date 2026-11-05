@@ -709,7 +709,9 @@ export const adminAdjustEventScore = async (
 /**
  * Admin: updates community notice and rules config.
  */
-export const updateCommunityConfig = async (nextConfig) => {
+export const updateCommunityConfig = async (patch) => {
+  const { communityConfig } = getLocalState();
+  const nextConfig = { ...communityConfig, ...patch };
   writeLocalJson(STORAGE_KEYS.config, nextConfig);
   notifyLocalListeners();
 

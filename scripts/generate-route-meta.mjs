@@ -46,6 +46,11 @@ const ROUTE_METAS = [
     route: 'admin',
     title: '힐링78 - 운영 관리',
     description: '회원 등급·커스텀 뱃지·이벤트 점수 및 커뮤니티 공지사항을 관리합니다.'
+  },
+  {
+    route: 'master',
+    title: '힐링78 - 마스터',
+    description: '최고관리자 전용 DB 백업, 회원 시점 열람 및 슈퍼 권한을 제어합니다.'
   }
 ];
 

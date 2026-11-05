@@ -3,6 +3,7 @@ import { getPlatformInfo, MOBILE_BREAKPOINT } from '../../core/platform';
 import {
   formatMemberNickname,
   isAdminUser,
+  isSuperAdmin,
   ROLE_META
 } from '../../core/communityRules';
 import { HERO_IMAGE_PATH } from '../../core/routeMeta';
@@ -45,9 +46,14 @@ export default function AppLayout({
   }, []);
 
   const showAdminMenu = currentUser && isAdminUser(currentUser, communityConfig);
-  const navItems = showAdminMenu
-    ? [...BASE_NAV_ITEMS, { id: 'admin', label: '운영', icon: '⚙️' }]
-    : BASE_NAV_ITEMS;
+  const showMasterMenu = currentUser && isSuperAdmin(currentUser, communityConfig);
+  const navItems = [...BASE_NAV_ITEMS];
+  if (showAdminMenu) {
+    navItems.push({ id: 'admin', label: '운영', icon: '⚙️' });
+  }
+  if (showMasterMenu) {
+    navItems.push({ id: 'master', label: '마스터', icon: '👑' });
+  }
 
   const envLabel = platformInfo.isNative
     ? `App (${platformInfo.platform.toUpperCase()})`
@@ -224,14 +230,16 @@ export default function AppLayout({
                 로그인
               </button>
             )}
-            <button
-              type="button"
-              className="header-share-btn"
-              onClick={onShareCurrentRoute}
-              aria-label="현재 주소 및 요약 공유"
-            >
-              공유
-            </button>
+            {activeTab !== 'admin' && activeTab !== 'master' && (
+              <button
+                type="button"
+                className="header-share-btn"
+                onClick={onShareCurrentRoute}
+                aria-label="현재 주소 및 요약 공유"
+              >
+                공유
+              </button>
+            )}
           </div>
         </header>
 
