@@ -4,6 +4,7 @@ import {
   formatMemberNickname,
   ROLE_META
 } from '../core/communityRules';
+import { formatCompactDate } from '../core/routeMeta';
 import { isPastMeeting } from './MeetingsPage';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
@@ -71,12 +72,31 @@ export default function HomePage({
   members,
   meetings,
   communityConfig,
+  onAdminUpdateConfig,
   onToggleApplyMeeting,
   onNavigateTab,
   onOpenMeetingDetail,
   onShareMeeting
 }) {
   const [copied, setCopied] = useState(false);
+
+  // Notice accordion & leader editing states
+  const isLeader = currentUser?.role === 'Leader';
+  const noticeList =
+    communityConfig?.notices && communityConfig.notices.length > 0
+      ? communityConfig.notices
+      : [
+          {
+            id: 'n-default',
+            title: communityConfig?.noticeTitle || 'Healing78 커뮤니티 공지 및 운영 규칙',
+            body: communityConfig?.noticeBody || '',
+            date: '2026-11-01'
+          }
+        ];
+
+  const [expandedNoticeId, setExpandedNoticeId] = useState(noticeList[0]?.id || null);
+  const [editingNoticeId, setEditingNoticeId] = useState(null); // id of notice being edited, or 'new'
+  const [noticeForm, setNoticeForm] = useState({ title: '', body: '' });
 
   const sortedMembers = [...members].sort((a, b) => b.totalScore - a.totalScore);
   const myRank = currentUser
@@ -118,15 +138,268 @@ export default function HomePage({
     }
   };
 
+  const handleStartCreateNotice = () => {
+    setNoticeForm({ title: '', body: '' });
+    setEditingNoticeId('new');
+  };
+
+  const handleStartEditNotice = (n) => {
+    setNoticeForm({ title: n.title, body: n.body });
+    setEditingNoticeId(n.id);
+  };
+
+  const handleSaveNotice = (e) => {
+    e.preventDefault();
+    if (!noticeForm.title.trim()) return;
+
+    let nextNotices = [...noticeList];
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (editingNoticeId === 'new') {
+      const newId = `notice-${Date.now()}`;
+      nextNotices = [
+        {
+          id: newId,
+          title: noticeForm.title.trim(),
+          body: noticeForm.body.trim(),
+          date: today
+        },
+        ...nextNotices
+      ];
+      setExpandedNoticeId(newId);
+    } else {
+      nextNotices = nextNotices.map((n) =>
+        n.id === editingNoticeId
+          ? { ...n, title: noticeForm.title.trim(), body: noticeForm.body.trim(), date: today }
+          : n
+      );
+    }
+
+    if (onAdminUpdateConfig) {
+      onAdminUpdateConfig({
+        ...communityConfig,
+        notices: nextNotices,
+        noticeTitle: nextNotices[0]?.title || '',
+        noticeBody: nextNotices[0]?.body || ''
+      });
+    }
+
+    setEditingNoticeId(null);
+    setNoticeForm({ title: '', body: '' });
+  };
+
+  const handleDeleteNotice = (idToDelete) => {
+    if (!window.confirm('이 공지사항을 삭제하시겠습니까?')) return;
+    const nextNotices = noticeList.filter((n) => n.id !== idToDelete);
+    if (onAdminUpdateConfig) {
+      onAdminUpdateConfig({
+        ...communityConfig,
+        notices: nextNotices,
+        noticeTitle: nextNotices[0]?.title || '',
+        noticeBody: nextNotices[0]?.body || ''
+      });
+    }
+  };
+
   return (
     <div className="list-container">
-      {/* 1. Notice & Rules Section */}
-      <section className="list-section notice-section">
-        <div className="notice-header">
-          <span className="platform-badge">공지 · 규칙</span>
-          <h3>{communityConfig.noticeTitle}</h3>
+      {/* 1. Top Active Meetings Quick List (공지 위 최상단 MMDD 일정제목) */}
+      {sortedUpcoming.length > 0 && (
+        <section
+          className="list-section upcoming-quick-list-section"
+          style={{
+            padding: '14px 16px',
+            background: 'var(--color-card-bg, #ffffff)',
+            borderRadius: 'var(--radius-base, 8px)',
+            border: '1px solid var(--color-divider, #f1f5f9)'
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {sortedUpcoming.map((m) => {
+              const mmdd = formatCompactDate(m.dateOnly || m.date);
+              return (
+                <div
+                  key={m.id}
+                  role="button"
+                  tabIndex={0}
+                  className="upcoming-quick-item"
+                  onClick={() => onOpenMeetingDetail && onOpenMeetingDetail(m.id)}
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' && onOpenMeetingDetail && onOpenMeetingDetail(m.id)
+                  }
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    lineHeight: 1.4,
+                    color: 'var(--color-text, #1e293b)'
+                  }}
+                >
+                  {mmdd} {m.title}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* 2. Notice Accordion List (뱃지 제거, 방장 직접 편집 권한) */}
+      <section className="list-section notice-accordion-section">
+        <div className="section-title-row" style={{ marginBottom: '10px' }}>
+          <h3 style={{ margin: 0 }}>공지사항</h3>
+          {isLeader && editingNoticeId !== 'new' && (
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={handleStartCreateNotice}
+            >
+              + 공지 작성
+            </button>
+          )}
         </div>
-        <p className="notice-body">{communityConfig.noticeBody}</p>
+
+        {/* Leader Notice Create / Edit Form */}
+        {isLeader && editingNoticeId && (
+          <form
+            onSubmit={handleSaveNotice}
+            className="stack-gap"
+            style={{
+              marginBottom: '16px',
+              padding: '14px',
+              background: 'var(--bg-subtle, #f8fafc)',
+              borderRadius: '8px',
+              border: '1px solid var(--border-color, #e2e8f0)'
+            }}
+          >
+            <div style={{ fontWeight: 600, fontSize: '14px' }}>
+              {editingNoticeId === 'new' ? '새 공지사항 등록' : '공지사항 수정'}
+            </div>
+            <div className="form-field">
+              <input
+                type="text"
+                placeholder="공지 제목"
+                required
+                value={noticeForm.title}
+                onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
+              />
+            </div>
+            <div className="form-field">
+              <textarea
+                rows={4}
+                placeholder="공지 내용..."
+                required
+                value={noticeForm.body}
+                onChange={(e) => setNoticeForm({ ...noticeForm, body: e.target.value })}
+              />
+            </div>
+            <div className="btn-row">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setEditingNoticeId(null)}
+              >
+                취소
+              </button>
+              <button type="submit" className="btn btn-primary btn-sm">
+                저장
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Notice List Accordion */}
+        <div className="divider-list">
+          {noticeList.map((n) => {
+            const isExpanded = expandedNoticeId === n.id;
+            return (
+              <div
+                key={n.id}
+                className="list-item-row"
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  padding: '12px 0',
+                  borderBottom: '1px solid var(--color-divider, #f1f5f9)'
+                }}
+              >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setExpandedNoticeId(isExpanded ? null : n.id)}
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' && setExpandedNoticeId(isExpanded ? null : n.id)
+                  }
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                >
+                  <strong style={{ fontSize: '15px' }}>{n.title}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {n.date && (
+                      <span className="muted-text" style={{ fontSize: '12px' }}>
+                        {n.date}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '12px', color: 'var(--color-text-muted, #64748b)' }}>
+                      {isExpanded ? '▲' : '▼'}
+                    </span>
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div
+                    style={{
+                      marginTop: '10px',
+                      padding: '10px 12px',
+                      background: 'var(--bg-subtle, rgba(0,0,0,0.02))',
+                      borderRadius: '6px',
+                      lineHeight: 1.6,
+                      fontSize: '14px',
+                      whiteSpace: 'pre-line',
+                      color: 'var(--color-text, #334155)'
+                    }}
+                  >
+                    <div>{n.body}</div>
+
+                    {isLeader && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'flex-end',
+                          gap: '6px',
+                          marginTop: '8px',
+                          borderTop: '1px dashed var(--color-divider, #e2e8f0)',
+                          paddingTop: '6px'
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          style={{ fontSize: '11px', padding: '2px 8px' }}
+                          onClick={() => handleStartEditNotice(n)}
+                        >
+                          수정
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          style={{ fontSize: '11px', padding: '2px 8px', color: '#ef4444' }}
+                          onClick={() => handleDeleteNotice(n.id)}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       {/* 2. My Profile, Score & Rank Summary (or Guest Quick Actions) */}

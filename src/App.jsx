@@ -285,6 +285,7 @@ export default function App() {
         <NicknamePage
           currentUser={currentUser}
           communityConfig={communityConfig}
+          onAdminUpdateConfig={handleAdminUpdateConfig}
           onNavigateTab={navigateToTab}
           onSharePage={handleShareCurrentRoute}
         />
@@ -395,6 +396,7 @@ export default function App() {
         members={members}
         meetings={meetings}
         communityConfig={communityConfig}
+        onAdminUpdateConfig={handleAdminUpdateConfig}
         onToggleApplyMeeting={handleToggleApplyMeeting}
         onNavigateTab={navigateToTab}
         onOpenMeetingDetail={handleOpenMeetingDetail}

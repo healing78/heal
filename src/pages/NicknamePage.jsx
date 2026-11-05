@@ -3,6 +3,8 @@ import { suggestNewMemberNickname } from '../nicknameUtils';
 
 export default function NicknamePage({
   currentUser,
+  communityConfig = {},
+  onAdminUpdateConfig,
   onSharePage
 }) {
   const [form, setForm] = useState({
@@ -12,6 +14,24 @@ export default function NicknamePage({
     gender: currentUser?.gender || '남'
   });
   const [copied, setCopied] = useState(false);
+  const [isEditingNotice, setIsEditingNotice] = useState(false);
+  const [noticeText, setNoticeText] = useState(
+    communityConfig?.newcomerNoticeBody ||
+      'Healing78 오픈채팅방 입장 후 24시간 이내에 아래 자동 생성기로 규격 닉네임을 만들어 카톡방 프로필을 변경해 주세요.'
+  );
+
+  const isLeader = currentUser?.role === 'Leader';
+
+  const handleSaveNotice = (e) => {
+    e.preventDefault();
+    if (onAdminUpdateConfig) {
+      onAdminUpdateConfig({
+        ...communityConfig,
+        newcomerNoticeBody: noticeText
+      });
+    }
+    setIsEditingNotice(false);
+  };
 
   const generatedNickname = suggestNewMemberNickname({
     name: form.name || '이름',
@@ -32,6 +52,55 @@ export default function NicknamePage({
 
   return (
     <div className="list-container">
+      {/* Newcomer Notice Section */}
+      <section className="list-section">
+        <div className="section-title-row" style={{ marginBottom: '8px' }}>
+          <h3>신입 안내 공지</h3>
+          {isLeader && !isEditingNotice && (
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => {
+                setNoticeText(communityConfig?.newcomerNoticeBody || noticeText);
+                setIsEditingNotice(true);
+              }}
+            >
+              수정
+            </button>
+          )}
+        </div>
+
+        {isLeader && isEditingNotice ? (
+          <form onSubmit={handleSaveNotice} className="stack-gap">
+            <textarea
+              rows={3}
+              value={noticeText}
+              onChange={(e) => setNoticeText(e.target.value)}
+              required
+            />
+            <div className="btn-row">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setIsEditingNotice(false)}
+              >
+                취소
+              </button>
+              <button type="submit" className="btn btn-primary btn-sm">
+                저장
+              </button>
+            </div>
+          </form>
+        ) : (
+          <p
+            className="muted-text"
+            style={{ margin: 0, lineHeight: 1.6, color: 'var(--color-text, #334155)' }}
+          >
+            {communityConfig?.newcomerNoticeBody || noticeText}
+          </p>
+        )}
+      </section>
+
       {/* Nickname Generator Preview & Copy */}
       <section className="list-section">
         <div className="section-title-row">
