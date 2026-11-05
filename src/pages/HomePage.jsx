@@ -399,27 +399,25 @@ export default function HomePage({
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
                     padding: '12px 6px',
                     gap: '10px'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                    <span style={{ fontSize: '15px', flexShrink: 0 }}>📅</span>
-                    <strong
-                      style={{
-                        fontSize: '14px',
-                        color: 'var(--color-text-primary, #0f172a)',
-                        wordBreak: 'keep-all',
-                        lineHeight: 1.4
-                      }}
-                    >
-                      {formattedLine}
-                    </strong>
+                  <div className="schedule-bullet-indicator" aria-hidden="true">
+                    <span className="schedule-bullet-square" />
+                    <span className="schedule-bullet-emoji">📅</span>
                   </div>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-muted, #64748b)', flexShrink: 0 }}>
-                    상세보기 →
-                  </span>
+                  <strong
+                    style={{
+                      fontSize: '14px',
+                      color: 'var(--color-text-primary, #0f172a)',
+                      wordBreak: 'keep-all',
+                      lineHeight: 1.4,
+                      flex: 1
+                    }}
+                  >
+                    {formattedLine}
+                  </strong>
                 </div>
               );
             })}

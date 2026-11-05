@@ -1530,6 +1530,43 @@ h3 {
   background: var(--color-primary);
 }
 
+/* Schedule Bullet Indicator on Home & Schedule Lists */
+.schedule-bullet-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.schedule-bullet-square {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: #475569; /* Mono default: subtle slate-charcoal */
+  flex-shrink: 0;
+}
+
+[data-theme='excel'] .schedule-bullet-square {
+  background: #107c41; /* Excel green */
+  border-radius: 1px;
+}
+
+.schedule-bullet-emoji {
+  display: none;
+}
+
+[data-theme='rose'] .schedule-bullet-square {
+  display: none;
+}
+
+[data-theme='rose'] .schedule-bullet-emoji {
+  display: inline;
+  font-size: 15px;
+}
+
 .schedule-month-list {
   display: flex;
   flex-direction: column;
