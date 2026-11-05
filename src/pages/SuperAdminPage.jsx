@@ -31,6 +31,8 @@ export default function SuperAdminPage({
   communityConfig = {},
   onAdminUpdateMember,
   onAdminUpdateConfig,
+  onToggleMasterTab,
+  onNavigateTab,
   onImpersonateUser
 }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,6 +41,9 @@ export default function SuperAdminPage({
   const [actionFeedback, setActionFeedback] = useState('');
   const [editingBadgeUid, setEditingBadgeUid] = useState(null);
   const [badgeInput, setBadgeInput] = useState('');
+  const [driveBridgeUrl, setDriveBridgeUrl] = useState(
+    communityConfig.googleDriveBridgeUrl || ''
+  );
 
   const superAdminUids = Array.isArray(communityConfig?.superAdminUids)
     ? communityConfig.superAdminUids
@@ -52,6 +57,13 @@ export default function SuperAdminPage({
     } catch {
       setCopiedUid(false);
     }
+  };
+
+  const handleSaveDriveBridge = (e) => {
+    e.preventDefault();
+    onAdminUpdateConfig({ googleDriveBridgeUrl: driveBridgeUrl.trim() });
+    setActionFeedback('✅ 구글 드라이브 앨범 브릿지 URL이 저장되었습니다.');
+    setTimeout(() => setActionFeedback(''), 3000);
   };
 
   const handleDownloadBackup = () => {
@@ -195,7 +207,7 @@ export default function SuperAdminPage({
             )}
           </div>
 
-          <div style={{ borderTop: '1px solid var(--color-border, #e2e8f0)', paddingTop: '10px' }}>
+          <div style={{ borderTop: '1px solid var(--color-border, #e2e8f0)', paddingTop: '10px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
               type="button"
               className="btn btn-primary"
@@ -204,11 +216,45 @@ export default function SuperAdminPage({
             >
               💾 전체 DB 데이터 백업 (JSON 다운로드)
             </button>
+            {onToggleMasterTab && (
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ color: '#ef4444', borderColor: '#fca5a5' }}
+                onClick={() => {
+                  onToggleMasterTab(false);
+                  if (onNavigateTab) onNavigateTab('profile');
+                }}
+                title="마스터 탭을 네비게이션 메뉴에서 숨기고 프로필 화면으로 이동합니다."
+              >
+                🔒 마스터 탭 숨기기 (비활성화)
+              </button>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Section 2: Super Admin Whitelist Management */}
+      {/* Section 2: Google Drive Album Bridge URL */}
+      <section className="list-section">
+        <h3 style={{ marginBottom: '8px' }}>구글 드라이브 앨범 브릿지 연동 설정</h3>
+        <p className="sub-meta" style={{ marginBottom: '10px' }}>
+          개인 구글 드라이브를 모임 사진/동영상 업로드 저장소로 연동하는 Google Apps Script Web App URL입니다. (최고관리자만 수정 가능)
+        </p>
+        <form onSubmit={handleSaveDriveBridge} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <input
+            type="url"
+            placeholder="https://script.google.com/macros/s/.../exec"
+            value={driveBridgeUrl}
+            onChange={(e) => setDriveBridgeUrl(e.target.value)}
+            style={{ flex: 1, minWidth: '240px' }}
+          />
+          <button type="submit" className="btn btn-primary btn-sm">
+            저장
+          </button>
+        </form>
+      </section>
+
+      {/* Section 3: Super Admin Whitelist Management */}
       <section className="list-section">
         <h3 style={{ marginBottom: '12px' }}>최고 관리자(슈퍼 계정) 화이트리스트 관리</h3>
         <p className="sub-meta" style={{ marginBottom: '10px' }}>

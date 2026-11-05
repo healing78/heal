@@ -31,6 +31,7 @@ export default function AppLayout({
   shareToast,
   theme,
   onChangeTheme,
+  isMasterTabEnabled = false,
   children
 }) {
   const [platformInfo, setPlatformInfo] = useState(() => getPlatformInfo());
@@ -46,7 +47,10 @@ export default function AppLayout({
   }, []);
 
   const showAdminMenu = currentUser && isAdminUser(currentUser, communityConfig);
-  const showMasterMenu = currentUser && isSuperAdmin(currentUser, communityConfig);
+  const showMasterMenu =
+    currentUser &&
+    isSuperAdmin(currentUser, communityConfig) &&
+    Boolean(isMasterTabEnabled);
   const navItems = [...BASE_NAV_ITEMS];
   if (showAdminMenu) {
     navItems.push({ id: 'admin', label: '운영', icon: '⚙️' });

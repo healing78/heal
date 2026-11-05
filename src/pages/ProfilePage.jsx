@@ -22,7 +22,10 @@ export default function ProfilePage({
   onAdminUpdateConfig,
   onSwitchUser,
   onResetDemoData,
-  onLogout
+  onLogout,
+  isMasterTabEnabled,
+  onToggleMasterTab,
+  onNavigateTab
 }) {
   const [subTab, setSubTab] = useState('profile'); // 'profile' | 'report'
   const [form, setForm] = useState({
@@ -164,7 +167,10 @@ export default function ProfilePage({
         });
       }
     }
-    setSecretFeedback('👑 스텔스 최고관리자(슈퍼 어드민) 권한이 등록되었습니다!');
+    if (onToggleMasterTab) {
+      onToggleMasterTab(true);
+    }
+    setSecretFeedback('👑 스텔스 최고관리자 등록 및 마스터 탭이 활성화되었습니다!');
     setSecretPassword('');
     setTimeout(() => {
       setSecretFeedback('');
@@ -366,13 +372,47 @@ export default function ProfilePage({
               </div>
             </div>
 
-            {/* Stealth Super Admin Promotion */}
+            {/* Stealth Super Admin Promotion & Master Tab Activation */}
             {isSuper ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
-                <span style={{ fontSize: '16px' }}>👑</span>
-                <strong style={{ fontSize: '13px', color: '#047857' }}>
-                  스텔스 최고관리자 (Super Admin) 활성화됨 (외형: 일반회원)
-                </strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '6px 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '16px' }}>👑</span>
+                  <strong style={{ fontSize: '13px', color: '#047857' }}>
+                    스텔스 최고관리자 (Super Admin) 권한 확인됨
+                  </strong>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
+                  {isMasterTabEnabled ? (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        style={{ background: '#7c3aed' }}
+                        onClick={() => onNavigateTab && onNavigateTab('master')}
+                      >
+                        👑 마스터 페이지 바로가기 ➡️
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        style={{ color: '#ef4444', borderColor: '#fca5a5' }}
+                        onClick={() => onToggleMasterTab && onToggleMasterTab(false)}
+                      >
+                        🔒 마스터 탭 숨기기 (비활성화)
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      style={{ background: '#7c3aed' }}
+                      onClick={() => onToggleMasterTab && onToggleMasterTab(true)}
+                    >
+                      👑 마스터 탭 활성화 (메뉴에 표시)
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <form

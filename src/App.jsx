@@ -64,6 +64,29 @@ export default function App() {
   );
   const [shareToast, setShareToast] = useState('');
   const [theme, setTheme] = useState(() => getSavedTheme());
+  const [isMasterTabEnabled, setIsMasterTabEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('heal78_master_tab_enabled') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleMasterTab = (enabled) => {
+    setIsMasterTabEnabled(enabled);
+    try {
+      if (enabled) {
+        localStorage.setItem('heal78_master_tab_enabled', 'true');
+      } else {
+        localStorage.removeItem('heal78_master_tab_enabled');
+      }
+    } catch {
+      // ignore
+    }
+    if (!enabled && activeTab === 'master') {
+      navigateToTab('profile');
+    }
+  };
 
   useEffect(() => {
     saveAndApplyTheme(theme);
@@ -375,6 +398,9 @@ export default function App() {
           onSwitchUser={handleSwitchUser}
           onResetDemoData={handleResetDemoData}
           onLogout={() => handleSwitchUser('__LOGOUT__')}
+          isMasterTabEnabled={isMasterTabEnabled}
+          onToggleMasterTab={handleToggleMasterTab}
+          onNavigateTab={navigateToTab}
         />
       );
     }
@@ -403,6 +429,8 @@ export default function App() {
           communityConfig={communityConfig}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminUpdateConfig={handleAdminUpdateConfig}
+          onToggleMasterTab={handleToggleMasterTab}
+          onNavigateTab={navigateToTab}
           onImpersonateUser={(uid) => {
             setImpersonatedUid(uid);
             navigateToTab('home');
@@ -484,6 +512,7 @@ export default function App() {
         shareToast={shareToast}
         theme={theme}
         onChangeTheme={handleChangeTheme}
+        isMasterTabEnabled={isMasterTabEnabled}
       >
         {renderPageBody()}
       </AppLayout>
