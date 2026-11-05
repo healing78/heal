@@ -1854,7 +1854,11 @@ export default function MeetingDetailPage({
                     }
                   }}
                 >
-                  대화
+                  {loungeTab === 'chat'
+                    ? showChatUsersAccordion
+                      ? '친구닫기'
+                      : '친구보기'
+                    : '대화'}
                 </button>
                 <button
                   type="button"
@@ -1863,7 +1867,10 @@ export default function MeetingDetailPage({
                   className={`lounge-tab-btn ${
                     loungeTab === 'rounds' ? 'active' : ''
                   }`}
-                  onClick={() => setLoungeTab('rounds')}
+                  onClick={() => {
+                    setLoungeTab('rounds');
+                    setShowChatUsersAccordion(false);
+                  }}
                 >
                   장소
                 </button>
@@ -1874,7 +1881,10 @@ export default function MeetingDetailPage({
                   className={`lounge-tab-btn ${
                     loungeTab === 'settlement' ? 'active' : ''
                   }`}
-                  onClick={() => setLoungeTab('settlement')}
+                  onClick={() => {
+                    setLoungeTab('settlement');
+                    setShowChatUsersAccordion(false);
+                  }}
                 >
                   정산
                 </button>
@@ -1885,7 +1895,10 @@ export default function MeetingDetailPage({
                   className={`lounge-tab-btn ${
                     loungeTab === 'returns' ? 'active' : ''
                   }`}
-                  onClick={() => setLoungeTab('returns')}
+                  onClick={() => {
+                    setLoungeTab('returns');
+                    setShowChatUsersAccordion(false);
+                  }}
                 >
                   귀가
                 </button>
@@ -1896,7 +1909,10 @@ export default function MeetingDetailPage({
                   className={`lounge-tab-btn ${
                     loungeTab === 'album' ? 'active' : ''
                   }`}
-                  onClick={() => setLoungeTab('album')}
+                  onClick={() => {
+                    setLoungeTab('album');
+                    setShowChatUsersAccordion(false);
+                  }}
                 >
                   앨범 ({album.length})
                 </button>
