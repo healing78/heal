@@ -162,6 +162,41 @@ export function isPastMeeting(mtg, todayStr = getTodayDateString()) {
   return false;
 }
 
+const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
+
+/**
+ * Format meeting to "MM월 DD일 aaa 00시 00분 일정제목"
+ * e.g. "11월 05일 목 19시 00분 수원벙"
+ */
+export function formatScheduleDetailText(m) {
+  if (!m) return '';
+  const dateStr =
+    m.dateOnly || (m.date ? String(m.date).slice(0, 10) : '2026-11-05');
+  const parts = dateStr.split('-');
+  const year = Number(parts[0]) || 2026;
+  const month = Number(parts[1]) || 11;
+  const day = Number(parts[2]) || 1;
+  const dateObj = new Date(year, month - 1, day);
+  const weekday = WEEKDAY_SHORT_KO[dateObj.getDay()] || '';
+
+  const mm = String(month).padStart(2, '0');
+  const dd = String(day).padStart(2, '0');
+
+  let timeStr = '00시 00분';
+  const rawTime =
+    m.startTime ||
+    (m.date && String(m.date).length >= 16 ? String(m.date).slice(11, 16) : '');
+  if (rawTime) {
+    const timeParts = rawTime.split(':');
+    const hh = String(Number(timeParts[0]) || 0).padStart(2, '0');
+    const min = String(Number(timeParts[1]) || 0).padStart(2, '0');
+    timeStr = `${hh}시 ${min}분`;
+  }
+
+  const title = (m.title || '').trim();
+  return `${mm}월 ${dd}일 ${weekday} ${timeStr} ${title}`;
+}
+
 /**
  * Build page header title, document.title, and share content for current state
  */
@@ -178,10 +213,7 @@ export function buildRouteMeta({
     .filter((m) => !isPastMeeting(m))
     .sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
-  const scheduleLines = upcomingMeetings.map((m) => {
-    const mmdd = formatCompactDate(m.dateOnly || m.date);
-    return `${mmdd} ${m.title}`;
-  });
+  const scheduleLines = upcomingMeetings.map((m) => formatScheduleDetailText(m));
   const scheduleShareLines = scheduleLines.length > 0 ? scheduleLines.join('\n') : '';
   const homeAndMeetingsShareText = scheduleShareLines ? `힐링78\n${scheduleShareLines}` : '힐링78';
 

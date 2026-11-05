@@ -4,68 +4,8 @@ import {
   formatMemberNickname,
   ROLE_META
 } from '../core/communityRules';
-import { formatCompactDate } from '../core/routeMeta';
+import { formatScheduleDetailText } from '../core/routeMeta';
 import { isPastMeeting } from './MeetingsPage';
-
-const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
-
-function formatKoreanAmPm(timeStr) {
-  if (!timeStr) return '';
-  const parts = String(timeStr).split(':');
-  const h = Number(parts[0]) || 0;
-  const m = Number(parts[1]) || 0;
-  const mm = String(m).padStart(2, '0');
-  if (h === 0) return `오전 12:${mm}`;
-  if (h < 12) return `오전 ${h}:${mm}`;
-  if (h === 12) return `오후 12:${mm}`;
-  return `오후 ${h - 12}:${mm}`;
-}
-
-function addHoursToTime(timeStr, hoursToAdd = 4) {
-  const match = String(timeStr || '19:00').match(/^(\d{1,2}):(\d{2})$/);
-  if (!match) return '23:00';
-  const nextHour = Math.min(23, Number(match[1]) + hoursToAdd);
-  return `${String(nextHour).padStart(2, '0')}:${match[2]}`;
-}
-
-function buildScheduleMeta(mtg) {
-  const rawDate =
-    mtg.dateOnly || String(mtg.date || '').slice(0, 10) || '2026-11-04';
-  const parts = rawDate.split('-');
-  const year = Number(parts[0]) || 2026;
-  const month = Number(parts[1]) || 11;
-  const day = Number(parts[2]) || 4;
-
-  const dateObj = new Date(year, month - 1, day);
-  const weekday = WEEKDAY_SHORT_KO[dateObj.getDay()] || '';
-
-  let timeRangeText = '하루 종일';
-  if (!mtg.allDay) {
-    const startTime =
-      mtg.startTime || String(mtg.date || '').slice(11, 16) || '19:00';
-    const endTime = mtg.endTime || addHoursToTime(startTime, 4);
-    timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
-  }
-
-  const firstRoundPlace = mtg.rounds?.[0]?.placeName || mtg.placeDetail || '';
-  const baseLocation = (mtg.location || '').trim();
-  let locationText = baseLocation;
-  if (firstRoundPlace) {
-    locationText = firstRoundPlace.startsWith(baseLocation)
-      ? firstRoundPlace
-      : `${baseLocation} ${firstRoundPlace}`.trim();
-  }
-
-  return {
-    monthKey: `${year}-${String(month).padStart(2, '0')}`,
-    monthLabel: `${year}년 ${month}월`,
-    dateKey: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
-    weekday,
-    day,
-    timeRangeText,
-    locationText
-  };
-}
 
 export default function HomePage({
   currentUser,
@@ -110,20 +50,6 @@ export default function HomePage({
     )
   );
 
-  const monthGroups = [];
-  for (const mtg of sortedUpcoming) {
-    const meta = buildScheduleMeta(mtg);
-    let group = monthGroups.find((g) => g.monthKey === meta.monthKey);
-    if (!group) {
-      group = {
-        monthKey: meta.monthKey,
-        monthLabel: meta.monthLabel,
-        items: []
-      };
-      monthGroups.push(group);
-    }
-    group.items.push({ mtg, meta });
-  }
   const myNickname = currentUser ? formatMemberNickname(currentUser) : '';
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
 
@@ -203,47 +129,7 @@ export default function HomePage({
 
   return (
     <div className="list-container">
-      {/* 1. Top Active Meetings Quick List (공지 위 최상단 MMDD 일정제목) */}
-      {sortedUpcoming.length > 0 && (
-        <section
-          className="list-section upcoming-quick-list-section"
-          style={{
-            padding: '14px 16px',
-            background: 'var(--color-card-bg, #ffffff)',
-            borderRadius: 'var(--radius-base, 8px)',
-            border: '1px solid var(--color-divider, #f1f5f9)'
-          }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {sortedUpcoming.map((m) => {
-              const mmdd = formatCompactDate(m.dateOnly || m.date);
-              return (
-                <div
-                  key={m.id}
-                  role="button"
-                  tabIndex={0}
-                  className="upcoming-quick-item"
-                  onClick={() => onOpenMeetingDetail && onOpenMeetingDetail(m.id)}
-                  onKeyDown={(e) =>
-                    e.key === 'Enter' && onOpenMeetingDetail && onOpenMeetingDetail(m.id)
-                  }
-                  style={{
-                    cursor: 'pointer',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    lineHeight: 1.4,
-                    color: 'var(--color-text, #1e293b)'
-                  }}
-                >
-                  {mmdd} {m.title}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* 2. Notice Accordion List (뱃지 제거, 방장 직접 편집 권한) */}
+      {/* 1. Notice Accordion List (뱃지 제거, 방장 직접 편집 권한) */}
       <section className="list-section notice-accordion-section">
         <div className="section-title-row" style={{ marginBottom: '10px' }}>
           <h3 style={{ margin: 0 }}>공지사항</h3>
@@ -473,10 +359,10 @@ export default function HomePage({
         </section>
       )}
 
-      {/* 3. Upcoming Schedule Agenda List (Matches MeetingsPage Style) */}
+      {/* 2. Upcoming Schedule List ("MM월 DD일 aaa 00시 00분 일정제목") */}
       <section className="list-section schedule-list-section">
         <div className="section-title-row">
-          <h2>진행 예정 일정 ({upcomingMeetings.length})</h2>
+          <h2>진행 예정 일정 ({sortedUpcoming.length})</h2>
           <button
             type="button"
             className="btn-link"
@@ -486,77 +372,57 @@ export default function HomePage({
           </button>
         </div>
 
-        {monthGroups.length === 0 ? (
+        {sortedUpcoming.length === 0 ? (
           <p className="muted-text">현재 예정된 일정이 없습니다.</p>
         ) : (
-          <div className="schedule-month-list">
-            {monthGroups.map((group) => (
-              <div key={group.monthKey} className="schedule-month-group">
-                <div className="schedule-month-header">{group.monthLabel}</div>
-
-                <div className="schedule-items-wrap">
-                  {group.items.map(({ mtg, meta }, idx) => {
-                    const prevMeta = group.items[idx - 1]?.meta;
-                    const nextMeta = group.items[idx + 1]?.meta;
-                    const isSameDateAsPrev =
-                      prevMeta && prevMeta.dateKey === meta.dateKey;
-                    const isSameDateAsNext =
-                      nextMeta && nextMeta.dateKey === meta.dateKey;
-
-                    return (
-                      <article
-                        key={mtg.id}
-                        role="button"
-                        tabIndex={0}
-                        className={`schedule-row ${
-                          isSameDateAsNext ? 'same-date-next' : ''
-                        }`}
-                        onClick={() =>
-                          onOpenMeetingDetail
-                            ? onOpenMeetingDetail(mtg.id)
-                            : onNavigateTab('meetings', { id: mtg.id })
-                        }
-                        onKeyDown={(e) =>
-                          e.key === 'Enter' &&
-                          (onOpenMeetingDetail
-                            ? onOpenMeetingDetail(mtg.id)
-                            : onNavigateTab('meetings', { id: mtg.id }))
-                        }
-                      >
-                        <div className="schedule-date-col">
-                          {!isSameDateAsPrev && (
-                            <>
-                              <span className="schedule-weekday">
-                                {meta.weekday}
-                              </span>
-                              <span className="schedule-day-num">
-                                {meta.day}
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="schedule-bar-col" aria-hidden="true">
-                          <span className="schedule-bar" />
-                        </div>
-
-                        <div className="schedule-info-col">
-                          <h3 className="schedule-title">{mtg.title}</h3>
-                          <div className="schedule-time">
-                            {meta.timeRangeText}
-                          </div>
-                          {meta.locationText && (
-                            <div className="schedule-location">
-                              {meta.locationText}
-                            </div>
-                          )}
-                        </div>
-                      </article>
-                    );
-                  })}
+          <div className="divider-list">
+            {sortedUpcoming.map((m) => {
+              const formattedLine = formatScheduleDetailText(m);
+              return (
+                <div
+                  key={m.id}
+                  role="button"
+                  tabIndex={0}
+                  className="list-item-row"
+                  onClick={() =>
+                    onOpenMeetingDetail
+                      ? onOpenMeetingDetail(m.id)
+                      : onNavigateTab('meetings', { id: m.id })
+                  }
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' &&
+                    (onOpenMeetingDetail
+                      ? onOpenMeetingDetail(m.id)
+                      : onNavigateTab('meetings', { id: m.id }))
+                  }
+                  style={{
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 6px',
+                    gap: '10px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                    <span style={{ fontSize: '15px', flexShrink: 0 }}>📅</span>
+                    <strong
+                      style={{
+                        fontSize: '14px',
+                        color: 'var(--color-text-primary, #0f172a)',
+                        wordBreak: 'keep-all',
+                        lineHeight: 1.4
+                      }}
+                    >
+                      {formattedLine}
+                    </strong>
+                  </div>
+                  <span style={{ fontSize: '12px', color: 'var(--color-text-muted, #64748b)', flexShrink: 0 }}>
+                    상세보기 →
+                  </span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
