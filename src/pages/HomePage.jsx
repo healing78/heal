@@ -4,6 +4,7 @@ import {
   formatMemberNickname,
   ROLE_META
 } from '../core/communityRules';
+import { isPastMeeting } from './MeetingsPage';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -82,7 +83,7 @@ export default function HomePage({
     ? sortedMembers.findIndex((m) => m.uid === currentUser.uid) + 1 || '-'
     : '-';
   const top5Members = sortedMembers.slice(0, 5);
-  const upcomingMeetings = meetings.filter((m) => m.status === 'open');
+  const upcomingMeetings = meetings.filter((m) => !isPastMeeting(m));
   const sortedUpcoming = [...upcomingMeetings].sort((a, b) =>
     String(a.dateOnly || a.date || '').localeCompare(
       String(b.dateOnly || b.date || '')

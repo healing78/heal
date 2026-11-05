@@ -98,6 +98,15 @@ function getTodayDateString() {
   return `${y}-${m}-${d}`;
 }
 
+export function isPastMeeting(mtg, todayStr = getTodayDateString()) {
+  const targetDate =
+    mtg.endDateOnly || mtg.dateOnly || String(mtg.date || '').slice(0, 10);
+  if (!targetDate) return false;
+  if (targetDate < todayStr) return true;
+  if (mtg.status === 'settled') return true;
+  return false;
+}
+
 export default function MeetingsPage({
   currentUser,
   members,
@@ -116,7 +125,7 @@ export default function MeetingsPage({
   onSettleMeeting,
   onNavigateTab
 }) {
-  const [subTab, setSubTab] = useState('open'); // 'open' | 'settled' | 'mine'
+  const [subTab, setSubTab] = useState('open'); // 'open' | 'past' | 'mine'
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createWarning, setCreateWarning] = useState('');
 
@@ -233,9 +242,12 @@ export default function MeetingsPage({
     setShowCreateForm(false);
   };
 
+  const todayStr = getTodayDateString();
+
   const filteredMeetings = meetings.filter((m) => {
-    if (subTab === 'open') return m.status === 'open';
-    if (subTab === 'settled') return m.status === 'settled';
+    const isPast = isPastMeeting(m, todayStr);
+    if (subTab === 'open') return !isPast;
+    if (subTab === 'past' || subTab === 'settled') return isPast;
     if (subTab === 'mine') {
       if (!currentUser) return false;
       return (
@@ -248,12 +260,14 @@ export default function MeetingsPage({
     return true;
   });
 
-  // Sort chronologically and group by Year-Month (e.g., "2026년 10월", "2026년 11월")
-  const sortedMeetings = [...filteredMeetings].sort((a, b) =>
-    String(a.date || a.dateOnly || '').localeCompare(
-      String(b.date || b.dateOnly || '')
-    )
-  );
+  // Sort chronologically and group by Year-Month
+  // For past meetings, sort in descending order (most recent first)
+  const isPastTab = subTab === 'past' || subTab === 'settled';
+  const sortedMeetings = [...filteredMeetings].sort((a, b) => {
+    const da = String(a.date || a.dateOnly || '');
+    const db = String(b.date || b.dateOnly || '');
+    return isPastTab ? db.localeCompare(da) : da.localeCompare(db);
+  });
 
   const monthGroups = [];
   for (const mtg of sortedMeetings) {
@@ -308,14 +322,14 @@ export default function MeetingsPage({
             className={`subtab-btn ${subTab === 'open' ? 'active' : ''}`}
             onClick={() => setSubTab('open')}
           >
-            진행 예정 ({meetings.filter((m) => m.status === 'open').length})
+            진행 예정 ({meetings.filter((m) => !isPastMeeting(m, todayStr)).length})
           </button>
           <button
             type="button"
-            className={`subtab-btn ${subTab === 'settled' ? 'active' : ''}`}
-            onClick={() => setSubTab('settled')}
+            className={`subtab-btn ${subTab === 'past' || subTab === 'settled' ? 'active' : ''}`}
+            onClick={() => setSubTab('past')}
           >
-            정산 완료 ({meetings.filter((m) => m.status === 'settled').length})
+            지나간 일정 ({meetings.filter((m) => isPastMeeting(m, todayStr)).length})
           </button>
           {currentUser && (
             <button
@@ -623,7 +637,7 @@ export default function MeetingsPage({
                       prevMeta && prevMeta.dateKey === meta.dateKey;
                     const isSameDateAsNext =
                       nextMeta && nextMeta.dateKey === meta.dateKey;
-                    const isSettled = mtg.status === 'settled';
+                    const isPast = isPastMeeting(mtg, todayStr);
 
                     return (
                       <article
@@ -658,7 +672,7 @@ export default function MeetingsPage({
                         <div className="schedule-info-col">
                           <h3
                             className={`schedule-title ${
-                              isSettled ? 'is-settled' : ''
+                              isPast ? 'is-settled' : ''
                             }`}
                           >
                             {mtg.title}
