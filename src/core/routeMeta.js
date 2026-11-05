@@ -174,7 +174,7 @@ export function buildRouteMeta({
         const headerSummary = toShortSummary(rawSummary, 20);
         return {
           headerSummary,
-          pageTitle: `${headerSummary} | Healing78`,
+          pageTitle: '힐링78 - 일정',
           description: `${selectedMeeting.title} 벙대기실 (차수 장소·N빵 정산·귀가·앨범) - 고유 링크: /meetings/${selectedMeeting.id}/lounge`,
           sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}/lounge`
         };
@@ -184,7 +184,7 @@ export function buildRouteMeta({
       const headerSummary = toShortSummary(rawSummary, 20);
       return {
         headerSummary,
-        pageTitle: `${headerSummary} | Healing78`,
+        pageTitle: '힐링78 - 일정',
         description: `${selectedMeeting.title} 일정 상세 (일시: ${selectedMeeting.date}${loc}) - 고유 링크: /meetings/${selectedMeeting.id}`,
         sharePath: `/meetings/${encodeURIComponent(selectedMeeting.id)}`
       };
@@ -200,7 +200,7 @@ export function buildRouteMeta({
     const headerSummary = toShortSummary(scheduleListText, 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 일정`,
+      pageTitle: '힐링78 - 일정',
       description: `진행 예정 일정: ${scheduleListText}`,
       sharePath: '/meetings'
     };
@@ -211,7 +211,7 @@ export function buildRouteMeta({
     const headerSummary = toShortSummary('모임별·개인별 정산 리포트', 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 리포트`,
+      pageTitle: '힐링78 - 리포트',
       description: '모임별 차수/찬조/골든벨 정산 내역 및 개인별 참석·회비·점수 리포트',
       sharePath: '/reports'
     };
@@ -230,7 +230,7 @@ export function buildRouteMeta({
     const headerSummary = toShortSummary(rankText, 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 랭킹`,
+      pageTitle: '힐링78 - 랭킹·친구',
       description: `Healing78 실시간 활동 점수 순위 (${rankText})`,
       sharePath: '/ranking'
     };
@@ -244,7 +244,7 @@ export function buildRouteMeta({
     const headerSummary = toShortSummary(rawNewcomer, 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 신입안내`,
+      pageTitle: '힐링78 - 신입닉네임',
       description:
         communityConfig?.newcomerNoticeBody ||
         '이름·지역·결혼여부·성별 선택 시 오픈채팅방 규격 닉네임을 자동 생성하고 복사합니다.',
@@ -259,7 +259,7 @@ export function buildRouteMeta({
       : '회원 전용 프로필 관리';
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 내정보`,
+      pageTitle: '힐링78 - 내 정보',
       description: '내 프로필·계좌 수정 및 카카오톡 오픈채팅방 규격 닉네임 원클릭 복사',
       sharePath: '/profile'
     };
@@ -270,7 +270,7 @@ export function buildRouteMeta({
     const headerSummary = toShortSummary(`운영관리 · 회원 ${members.length}명`, 20);
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 운영진`,
+      pageTitle: '힐링78 - 운영 관리',
       description: '회원 등급·커스텀 뱃지·이벤트 점수 및 공지사항 운영 관리',
       sharePath: '/admin'
     };
@@ -284,7 +284,7 @@ export function buildRouteMeta({
     );
     return {
       headerSummary,
-      pageTitle: `${headerSummary} | Healing78 로그인`,
+      pageTitle: '힐링78 - 로그인',
       description: '카카오 계정 로그인 및 신입 회원 규격 닉네임 온보딩',
       sharePath: '/login'
     };
@@ -299,7 +299,7 @@ export function buildRouteMeta({
 
   return {
     headerSummary,
-    pageTitle: `${headerSummary} | Healing78`,
+    pageTitle: '힐링78 - 홈',
     description:
       communityConfig?.noticeBody ||
       'Healing78 (since 2024) 공지사항, 실시간 모임 참석 신청 및 활동 랭킹',
