@@ -283,6 +283,7 @@ export const registerOnboardingMember = async (form, customUid) => {
   const newMember = {
     uid: newUid,
     realName: form.realName.trim(),
+    legalName: (form.legalName || '').trim(),
     city: form.city.trim(),
     homeCity: (form.homeCity || form.city).trim(),
     maritalStatus: form.maritalStatus,

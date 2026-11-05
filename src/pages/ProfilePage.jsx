@@ -57,6 +57,7 @@ export default function ProfilePage({
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     realName: currentUser.realName || '',
+    legalName: currentUser.legalName || '',
     city: currentUser.city || '',
     maritalStatus: currentUser.maritalStatus || 'single',
     gender: currentUser.gender || '남',
@@ -74,6 +75,7 @@ export default function ProfilePage({
   useEffect(() => {
     setForm({
       realName: currentUser.realName || '',
+      legalName: currentUser.legalName || '',
       city: currentUser.city || '',
       maritalStatus: currentUser.maritalStatus || 'single',
       gender: currentUser.gender || '남',
@@ -137,6 +139,8 @@ export default function ProfilePage({
     e.preventDefault();
     onUpdateProfile({
       ...form,
+      realName: form.realName.trim(),
+      legalName: (form.legalName || '').trim(),
       homeCity: form.city
     });
     setIsEditing(false);
@@ -278,6 +282,10 @@ export default function ProfilePage({
                 }}
               >
                 <div>
+                  <strong>실명:</strong>{' '}
+                  {currentUser.legalName || '미등록'}
+                </div>
+                <div>
                   <strong>정산 계좌:</strong>{' '}
                   {currentUser.bankAccount || '미등록'}
                 </div>
@@ -315,7 +323,7 @@ export default function ProfilePage({
             <form onSubmit={handleSave} className="stack-gap" style={{ marginTop: '16px' }}>
               <div className="form-grid">
                 <div className="form-field">
-                  <label htmlFor="prof-name">실명</label>
+                  <label htmlFor="prof-name">닉네임</label>
                   <input
                     id="prof-name"
                     type="text"
@@ -323,6 +331,18 @@ export default function ProfilePage({
                     value={form.realName}
                     onChange={(e) =>
                       setForm({ ...form, realName: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="prof-legal-name">실명 (선택)</label>
+                  <input
+                    id="prof-legal-name"
+                    type="text"
+                    placeholder="실명 (선택 사항)"
+                    value={form.legalName}
+                    onChange={(e) =>
+                      setForm({ ...form, legalName: e.target.value })
                     }
                   />
                 </div>
@@ -397,6 +417,7 @@ export default function ProfilePage({
                   onClick={() => {
                     setForm({
                       realName: currentUser.realName || '',
+                      legalName: currentUser.legalName || '',
                       city: currentUser.city || '',
                       maritalStatus: currentUser.maritalStatus || 'single',
                       gender: currentUser.gender || '남',

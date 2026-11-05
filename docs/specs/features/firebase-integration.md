@@ -25,7 +25,7 @@
 ### 3. Firestore Security Rules (`firestore.rules`)
 클라이언트 UI 우회 시도를 방지하기 위해 DB 레벨에서 다음 권한 규칙을 강제합니다.
 - **신규 회원 온보딩 (`members` 생성):** 본인 UID 문서만 생성 가능하며, 초기 `role`은 반드시 `'Member'`, 초기 점수(`totalScore`)와 참석 횟수(`attendanceCount`)는 `0`이어야 합니다.
-- **프로필 수정 (`members` 수정):** 일반 회원은 본인의 프로필 기본 항목(`realName`, `city`, `maritalStatus`, `gender`, `bankAccount`)만 수정할 수 있으며, `role`(등급)이나 `customBadge`는 운영진(`Leader`, `Deputy`)만 변경할 수 있습니다. (기존 `homeCity`는 `city`와 통합 처리됨)
+- **프로필 수정 (`members` 수정):** 일반 회원은 본인의 프로필 기본 항목(`realName`, `legalName`, `city`, `maritalStatus`, `gender`, `bankAccount`)만 수정할 수 있으며, `role`(등급)이나 `customBadge`는 운영진(`Leader`, `Deputy`)만 변경할 수 있습니다. (기존 `homeCity`는 `city`와 통합 처리됨)
 - **모임 개설 및 정산 (`meetings` 생성/수정):** `attendanceCount >= 1`인 정식 회원 또는 운영진(`Leader`, `Deputy`)만 생성 가능하며, 공식 모임(`type == 'Official'`)은 운영진만 생성할 수 있습니다. 활성 회원은 참석 신청, 차수별 참석 체크, 결제 비용/영수증 입력, 입금 완료 보고, 귀가완료 체크를 수행할 수 있으며, 벙주/총무/운영진은 모임 상세 정보 및 정산 내역을 수정·컨펌할 수 있습니다.
 - **공지 및 설정 변경 (`settings/community`):** 운영진(`Leader`, `Deputy`)만 쓰기 권한을 가집니다.
 

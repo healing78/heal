@@ -22,6 +22,7 @@ export default function LoginOnboardingPage({
   // New member onboarding form
   const [onboardingForm, setOnboardingForm] = useState({
     realName: '',
+    legalName: '',
     city: '서울',
     homeCity: '서울',
     maritalStatus: 'single',
@@ -103,17 +104,32 @@ export default function LoginOnboardingPage({
           <form onSubmit={handleOnboardingSubmit} className="stack-gap">
             <div className="form-grid">
               <div className="form-field">
-                <label htmlFor="onboard-name">실명</label>
+                <label htmlFor="onboard-name">닉네임</label>
                 <input
                   id="onboard-name"
                   type="text"
-                  placeholder="김힐링"
+                  placeholder="활동 닉네임"
                   required
                   value={onboardingForm.realName}
                   onChange={(e) =>
                     setOnboardingForm({
                       ...onboardingForm,
                       realName: e.target.value
+                    })
+                  }
+                />
+              </div>
+              <div className="form-field">
+                <label htmlFor="onboard-legal-name">실명 (선택)</label>
+                <input
+                  id="onboard-legal-name"
+                  type="text"
+                  placeholder="실명 (선택 사항)"
+                  value={onboardingForm.legalName}
+                  onChange={(e) =>
+                    setOnboardingForm({
+                      ...onboardingForm,
+                      legalName: e.target.value
                     })
                   }
                 />
@@ -130,21 +146,6 @@ export default function LoginOnboardingPage({
                     setOnboardingForm({
                       ...onboardingForm,
                       city: e.target.value,
-                      homeCity: e.target.value
-                    })
-                  }
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="onboard-home">연고지</label>
-                <input
-                  id="onboard-home"
-                  type="text"
-                  required
-                  value={onboardingForm.homeCity}
-                  onChange={(e) =>
-                    setOnboardingForm({
-                      ...onboardingForm,
                       homeCity: e.target.value
                     })
                   }
