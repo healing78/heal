@@ -263,6 +263,7 @@ export default function MeetingDetailPage({
   const chatTextInputRef = useRef(null);
   const chatPhotoInputRef = useRef(null);
   const chatMessagesEndRef = useRef(null);
+  const [isLoungeHeaderCollapsed, setIsLoungeHeaderCollapsed] = useState(false);
 
   const isChatActive =
     viewMode === 'lounge' && isBungMeeting && loungeTab === 'chat';
@@ -1728,119 +1729,183 @@ export default function MeetingDetailPage({
           </section>
         ) : (
         <section
-          className={`list-section ${
+          className={`list-section bung-lounge-section ${
             isChatActive ? 'is-lounge-chat-mode' : ''
           }`}
           id="bung-lounge"
         >
-          {/* Meeting Summary Banner (Moved to Top, detail-top-bar removed) */}
-          <div className="lounge-meeting-summary" style={{ marginTop: '2px' }}>
-            <div className="lounge-summary-title">{meeting.title}</div>
-            <div className="lounge-summary-meta">
-              <span>{meeting.date}</span>
-              {meeting.location && <span> · {meeting.location}</span>}
-              <span>
-                {' '}· 주최:{' '}
-                {hostMember ? hostMember.realName : meeting.hostUid} · 총무:{' '}
-                {treasurerMember ? treasurerMember.realName : treasurerUid}
-              </span>
-            </div>
-
-            {/* Subway Route Map Progress Bar */}
-            <div className="lounge-metro-progress">
-              <div className="lounge-metro-track">
-                <div className="lounge-metro-line">
-                  <div
-                    className="lounge-metro-line-fill"
-                    style={{ width: `${metroFillPercent}%` }}
-                  />
-                </div>
-                {metroStages.map((stage, sIdx) => {
-                  const isPassed = sIdx < metroActiveIdx;
-                  const isActive = sIdx === metroActiveIdx;
-                  return (
-                    <div
-                      key={stage.key}
-                      className={`lounge-metro-node ${
-                        isActive ? 'is-active' : isPassed ? 'is-passed' : ''
-                      }`}
-                    >
-                      <span className="lounge-metro-circle" />
-                      <span className="lounge-metro-label">{stage.label}</span>
-                    </div>
-                  );
-                })}
+          {/* Accordion Header: Minimized Bar vs Full Title & Tabs */}
+          {isLoungeHeaderCollapsed ? (
+            <div
+              className="lounge-minimized-bar"
+              onClick={() => setIsLoungeHeaderCollapsed(false)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) =>
+                e.key === 'Enter' && setIsLoungeHeaderCollapsed(false)
+              }
+            >
+              <div className="lounge-minimized-left">
+                <span className="lounge-minimized-badge">
+                  {metroStages[metroActiveIdx]?.label || '진행'}
+                </span>
+                <span className="lounge-minimized-title">{meeting.title}</span>
+                <span className="lounge-minimized-tab-indicator">
+                  ·{' '}
+                  {loungeTab === 'chat'
+                    ? '대화'
+                    : loungeTab === 'rounds'
+                      ? '장소'
+                      : loungeTab === 'settlement'
+                        ? '정산'
+                        : loungeTab === 'returns'
+                          ? '귀가'
+                          : '앨범'}
+                </span>
               </div>
+              <button
+                type="button"
+                className="lounge-collapse-btn minimized"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsLoungeHeaderCollapsed(false);
+                }}
+                title="벙제목 및 서브탭 펼치기"
+              >
+                <span>펼치기</span>
+                <span className="collapse-arrow">▼</span>
+              </button>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Meeting Summary Banner with Accordion Collapse button */}
+              <div className="lounge-meeting-summary">
+                <div className="lounge-summary-header-row">
+                  <div>
+                    <div className="lounge-summary-title">{meeting.title}</div>
+                    <div className="lounge-summary-meta">
+                      <span>{meeting.date}</span>
+                      {meeting.location && <span> · {meeting.location}</span>}
+                      <span>
+                        {' '}· 주최:{' '}
+                        {hostMember ? hostMember.realName : meeting.hostUid} ·
+                        총무:{' '}
+                        {treasurerMember
+                          ? treasurerMember.realName
+                          : treasurerUid}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="lounge-collapse-btn"
+                    onClick={() => setIsLoungeHeaderCollapsed(true)}
+                    title="벙제목 및 서브탭 최소화"
+                  >
+                    <span>접기</span>
+                    <span className="collapse-arrow">▲</span>
+                  </button>
+                </div>
+
+                {/* Subway Route Map Progress Bar */}
+                <div className="lounge-metro-progress">
+                  <div className="lounge-metro-track">
+                    <div className="lounge-metro-line">
+                      <div
+                        className="lounge-metro-line-fill"
+                        style={{ width: `${metroFillPercent}%` }}
+                      />
+                    </div>
+                    {metroStages.map((stage, sIdx) => {
+                      const isPassed = sIdx < metroActiveIdx;
+                      const isActive = sIdx === metroActiveIdx;
+                      return (
+                        <div
+                          key={stage.key}
+                          className={`lounge-metro-node ${
+                            isActive ? 'is-active' : isPassed ? 'is-passed' : ''
+                          }`}
+                        >
+                          <span className="lounge-metro-circle" />
+                          <span className="lounge-metro-label">
+                            {stage.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 5-Tab Segmented Navigation inside 벙대기실 */}
+              <div className="lounge-tab-bar" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={loungeTab === 'chat'}
+                  className={`lounge-tab-btn ${
+                    loungeTab === 'chat' ? 'active' : ''
+                  }`}
+                  onClick={() => {
+                    if (loungeTab === 'chat') {
+                      setShowChatUsersAccordion((prev) => !prev);
+                    } else {
+                      setLoungeTab('chat');
+                    }
+                  }}
+                >
+                  대화
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={loungeTab === 'rounds'}
+                  className={`lounge-tab-btn ${
+                    loungeTab === 'rounds' ? 'active' : ''
+                  }`}
+                  onClick={() => setLoungeTab('rounds')}
+                >
+                  장소
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={loungeTab === 'settlement'}
+                  className={`lounge-tab-btn ${
+                    loungeTab === 'settlement' ? 'active' : ''
+                  }`}
+                  onClick={() => setLoungeTab('settlement')}
+                >
+                  정산
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={loungeTab === 'returns'}
+                  className={`lounge-tab-btn ${
+                    loungeTab === 'returns' ? 'active' : ''
+                  }`}
+                  onClick={() => setLoungeTab('returns')}
+                >
+                  귀가
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={loungeTab === 'album'}
+                  className={`lounge-tab-btn ${
+                    loungeTab === 'album' ? 'active' : ''
+                  }`}
+                  onClick={() => setLoungeTab('album')}
+                >
+                  앨범 ({album.length})
+                </button>
+              </div>
+            </>
+          )}
 
           <div className="lounge-body">
-          {/* 5-Tab Segmented Navigation inside 벙대기실 */}
-          <div className="lounge-tab-bar" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={loungeTab === 'chat'}
-              className={`lounge-tab-btn ${
-                loungeTab === 'chat' ? 'active' : ''
-              }`}
-              onClick={() => {
-                if (loungeTab === 'chat') {
-                  setShowChatUsersAccordion((prev) => !prev);
-                } else {
-                  setLoungeTab('chat');
-                }
-              }}
-            >
-              대화
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={loungeTab === 'rounds'}
-              className={`lounge-tab-btn ${
-                loungeTab === 'rounds' ? 'active' : ''
-              }`}
-              onClick={() => setLoungeTab('rounds')}
-            >
-              장소
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={loungeTab === 'settlement'}
-              className={`lounge-tab-btn ${
-                loungeTab === 'settlement' ? 'active' : ''
-              }`}
-              onClick={() => setLoungeTab('settlement')}
-            >
-              정산
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={loungeTab === 'returns'}
-              className={`lounge-tab-btn ${
-                loungeTab === 'returns' ? 'active' : ''
-              }`}
-              onClick={() => setLoungeTab('returns')}
-            >
-              귀가
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={loungeTab === 'album'}
-              className={`lounge-tab-btn ${
-                loungeTab === 'album' ? 'active' : ''
-              }`}
-              onClick={() => setLoungeTab('album')}
-            >
-              앨범 ({album.length})
-            </button>
-          </div>
-
-          {!canAccessLounge && loungeTab !== 'album' ? (
+            {!canAccessLounge && loungeTab !== 'album' ? (
             <div className="lounge-locked-box">
               <strong>🔒 참석자 및 운영진 전용 공간입니다</strong>
               <p className="muted-text">
@@ -2065,7 +2130,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 1: 장소 (Read-only cards by default, toggle edit per round) */}
             {loungeTab === 'rounds' && (
-              <div className="stack-gap">
+              <div className="lounge-tab-content-wrap stack-gap">
                 <div className="btn-row">
                   <button
                     type="button"
@@ -2386,7 +2451,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 2: 정산·회비 (Clean My Amount Hero + Member Status List + Collapsible Manager Drawer) */}
             {loungeTab === 'settlement' && (
-              <div className="stack-gap">
+              <div className="lounge-tab-content-wrap stack-gap">
                 {/* My Settlement Summary Hero Box */}
                 <div className="lounge-settle-hero">
                   <div className="meeting-top">
@@ -2735,7 +2800,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 3: 귀가현황 (One-Click Safe Return Check & Member Status List) */}
             {loungeTab === 'returns' && (
-              <div className="stack-gap">
+              <div className="lounge-tab-content-wrap stack-gap">
                 <div className="lounge-settle-hero">
                   <div className="meeting-top">
                     <div>
@@ -2802,7 +2867,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 4: 📸 앨범 (미디어 갤러리 & 랜덤 박스 잠금 해제) */}
             {loungeTab === 'album' && (
-              <div className="stack-gap">
+              <div className="lounge-tab-content-wrap stack-gap">
                 {canViewAlbum ? (
                   <>
                     <div className="album-header-bar">

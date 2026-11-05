@@ -35,7 +35,7 @@
 
   --sidebar-width: 268px;
   --mobile-header-height: 54px;
-  --mobile-tabbar-height: 56px;
+  --mobile-tabbar-height: 48px;
 }
 
 /* ==========================================================================
@@ -458,10 +458,13 @@ body {
   left: 0;
   right: 0;
   z-index: 30;
+  height: calc(var(--mobile-tabbar-height) + var(--safe-bottom));
+  box-sizing: border-box;
 }
 
 .tab-btn {
-  padding: 10px 2px;
+  height: var(--mobile-tabbar-height);
+  padding: 0 2px;
   border: none;
   background: transparent;
   color: var(--color-text-muted);
@@ -473,6 +476,7 @@ body {
   justify-content: center;
   gap: 2px;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .tab-icon {
@@ -2227,7 +2231,7 @@ h3 {
   white-space: nowrap;
 }
 
-/* Full-Screen Lounge Chat Mode (App-Like Messenger Experience) */
+/* Full-Screen Lounge Chat Mode & Unified 벙대기실 Top Layout */
 body.lounge-chat-active {
   overflow: hidden;
 }
@@ -2251,20 +2255,26 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   overflow: hidden;
 }
 
-.list-section.is-lounge-chat-mode {
-  flex: 1;
-  min-height: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* Unified 벙대기실 Section styling across ALL tabs (Based on 대화 탭) */
+.list-section.bung-lounge-section {
   padding: 0;
+  margin: 0;
   border: none;
   border-radius: 0;
   background: transparent;
+  display: flex;
+  flex-direction: column;
 }
 
-.list-section.is-lounge-chat-mode .lounge-meeting-summary {
+.list-section.bung-lounge-section.is-lounge-chat-mode {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Unified Meeting Title Banner (Identical position across all tabs) */
+.bung-lounge-section .lounge-meeting-summary {
   margin: 4px 8px 4px 8px;
   padding: 8px 12px;
   background: var(--color-surface);
@@ -2273,31 +2283,38 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   flex-shrink: 0;
 }
 
-.list-section.is-lounge-chat-mode .lounge-summary-title {
+.bung-lounge-section .lounge-summary-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bung-lounge-section .lounge-summary-title {
   font-size: 15px;
   line-height: 1.25;
 }
 
-.list-section.is-lounge-chat-mode .lounge-summary-meta {
+.bung-lounge-section .lounge-summary-meta {
   font-size: 11px;
   margin-top: 2px;
 }
 
-.list-section.is-lounge-chat-mode .lounge-metro-progress {
+.bung-lounge-section .lounge-metro-progress {
   margin-top: 6px;
   padding: 4px 6px;
 }
 
-.list-section.is-lounge-chat-mode .lounge-metro-circle {
+.bung-lounge-section .lounge-metro-circle {
   width: 14px;
   height: 14px;
 }
 
-.list-section.is-lounge-chat-mode .lounge-metro-label {
+.bung-lounge-section .lounge-metro-label {
   font-size: 11px;
 }
 
-.list-section.is-lounge-chat-mode .lounge-body {
+.bung-lounge-section .lounge-body {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -2306,12 +2323,101 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   overflow: hidden;
 }
 
-.list-section.is-lounge-chat-mode .lounge-tab-bar {
-  margin: 0 8px 4px 8px;
+/* Unified 5-Tab Bar (Identical position across all tabs) */
+.bung-lounge-section .lounge-tab-bar {
+  margin: 0 8px 6px 8px;
   flex-shrink: 0;
 }
 
-.list-section.is-lounge-chat-mode .lounge-chat-container {
+/* Minimized Accordion Bar for 벙제목 + 서브탭 */
+.lounge-minimized-bar {
+  margin: 4px 8px 6px 8px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-base);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  flex-shrink: 0;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.lounge-minimized-bar:hover {
+  background: var(--color-subtle-bg);
+}
+
+.lounge-minimized-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lounge-minimized-badge {
+  background: #10b981;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.lounge-minimized-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lounge-minimized-tab-indicator {
+  font-size: 12.5px;
+  color: var(--color-primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lounge-collapse-btn {
+  background: var(--color-subtle-bg);
+  border: 1px solid var(--color-divider);
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+}
+
+.lounge-collapse-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.lounge-collapse-btn.minimized {
+  background: var(--color-primary-light, #f1f5f9);
+  color: var(--color-primary);
+  border-color: transparent;
+}
+
+.collapse-arrow {
+  font-size: 9px;
+}
+
+/* Chat container & input bar flush pinning */
+.bung-lounge-section.is-lounge-chat-mode .lounge-chat-container {
   flex: 1;
   min-height: 0;
   height: auto;
@@ -2324,7 +2430,7 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   overflow: hidden;
 }
 
-.list-section.is-lounge-chat-mode .lounge-chat-messages {
+.bung-lounge-section.is-lounge-chat-mode .lounge-chat-messages {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -2332,14 +2438,23 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   padding: 12px 14px;
 }
 
-.list-section.is-lounge-chat-mode .lounge-chat-input-bar {
+.bung-lounge-section.is-lounge-chat-mode .lounge-chat-input-bar {
   flex-shrink: 0;
   position: relative;
-  bottom: auto;
+  bottom: 0;
+  margin: 0;
   background: #ffffff;
   padding: 8px 10px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: none;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.03);
+}
+
+/* Content container for non-chat tabs (장소, 정산, 귀가, 앨범) */
+.bung-lounge-section .lounge-tab-content-wrap {
+  padding: 0 8px 24px 8px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 @media (min-width: 768px) {
@@ -2348,7 +2463,7 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
     max-height: none;
     overflow: visible;
   }
-  .list-section.is-lounge-chat-mode {
+  .list-section.bung-lounge-section.is-lounge-chat-mode {
     height: calc(100vh - 60px);
     max-height: 850px;
     border: 1px solid var(--color-divider);
@@ -2356,13 +2471,13 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
     background: var(--color-surface);
     padding: 16px;
   }
-  .list-section.is-lounge-chat-mode .lounge-meeting-summary {
+  .bung-lounge-section .lounge-meeting-summary {
     margin: 0 0 10px 0;
   }
-  .list-section.is-lounge-chat-mode .lounge-tab-bar {
+  .bung-lounge-section .lounge-tab-bar {
     margin: 0 0 10px 0;
   }
-  .list-section.is-lounge-chat-mode .lounge-chat-container {
+  .bung-lounge-section.is-lounge-chat-mode .lounge-chat-container {
     border-radius: var(--radius-base);
     border: 1px solid rgba(175, 193, 207, 0.7);
   }
