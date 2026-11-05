@@ -18,6 +18,7 @@ import { getSavedTheme, saveAndApplyTheme } from './core/theme';
 import {
   adminAdjustEventScore,
   adminUpdateMember,
+  batchSyncCommunityData,
   createMeeting,
   getSavedCurrentUserUid,
   registerOnboardingMember,
@@ -433,6 +434,8 @@ export default function App() {
           onAdminUpdateConfig={handleAdminUpdateConfig}
           onToggleMasterTab={handleToggleMasterTab}
           onNavigateTab={navigateToTab}
+          onBatchSyncData={batchSyncCommunityData}
+          onResetInitialData={handleResetDemoData}
           onImpersonateUser={(uid) => {
             setImpersonatedUid(uid);
             navigateToTab('home');

@@ -128,25 +128,36 @@ const ensureFirestoreSeeded = async () => {
     );
 
     if (existingMeetings.empty || !hasV2Meeting) {
-      const batch = writeBatch(db);
+      const ops = [];
       for (const m of INITIAL_MEMBERS) {
-        batch.set(doc(db, 'members', m.uid), m, { merge: true });
+        ops.push({ col: 'members', id: m.uid, data: m });
       }
       for (const oldDoc of existingMeetings.docs) {
         if (String(oldDoc.id).startsWith('mtg-')) {
-          batch.delete(doc(db, 'meetings', oldDoc.id));
+          ops.push({ col: 'meetings', id: oldDoc.id, isDelete: true });
         }
       }
       for (const mtg of INITIAL_MEETINGS) {
-        batch.set(doc(db, 'meetings', mtg.id), mtg);
+        ops.push({ col: 'meetings', id: mtg.id, data: mtg });
       }
       for (const log of INITIAL_SCORE_LOGS) {
-        batch.set(doc(db, 'scoreLogs', log.id), log, { merge: true });
+        ops.push({ col: 'scoreLogs', id: log.id, data: log });
       }
-      batch.set(doc(db, 'settings', 'community'), INITIAL_COMMUNITY_CONFIG, {
-        merge: true
-      });
-      await batch.commit();
+      ops.push({ col: 'settings', id: 'community', data: INITIAL_COMMUNITY_CONFIG });
+
+      const CHUNK_SIZE = 350;
+      for (let i = 0; i < ops.length; i += CHUNK_SIZE) {
+        const chunk = ops.slice(i, i + CHUNK_SIZE);
+        const batch = writeBatch(db);
+        for (const op of chunk) {
+          if (op.isDelete) {
+            batch.delete(doc(db, op.col, op.id));
+          } else {
+            batch.set(doc(db, op.col, op.id), op.data, { merge: true });
+          }
+        }
+        await batch.commit();
+      }
     }
 
     // Auto-sync any custom meetings created locally that are not yet in Firestore (e.g. from prior permission-denied periods)
@@ -810,13 +821,52 @@ export const unlockMeetingAlbumForUser = async (userUid, meetingId) => {
 };
 
 /**
- * Resets local storage back to initial clean demo data.
+ * Batch synchronizes members, meetings, and configuration to both LocalStorage and Firestore.
+ * Handles Firestore batch limits by chunking operations into sets of 350.
  */
-export const resetToInitialDemoData = () => {
-  writeLocalJson(STORAGE_KEYS.members, INITIAL_MEMBERS);
-  writeLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS);
-  writeLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS);
-  writeLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG);
+export const batchSyncCommunityData = async (
+  targetMembers = INITIAL_MEMBERS,
+  targetMeetings = INITIAL_MEETINGS,
+  targetConfig = INITIAL_COMMUNITY_CONFIG
+) => {
+  // 1. Write to LocalStorage immediately
+  writeLocalJson(STORAGE_KEYS.members, targetMembers);
+  writeLocalJson(STORAGE_KEYS.meetings, targetMeetings);
+  writeLocalJson(STORAGE_KEYS.config, targetConfig);
   saveCurrentUserUid('kakao:1001');
   notifyLocalListeners();
+
+  // 2. Write to Firestore in safe chunks if configured
+  if (isFirebaseConfigured && db) {
+    try {
+      const ops = [];
+      for (const m of targetMembers) {
+        ops.push({ col: 'members', id: m.uid, data: m });
+      }
+      for (const mtg of targetMeetings) {
+        ops.push({ col: 'meetings', id: String(mtg.id), data: mtg });
+      }
+      ops.push({ col: 'settings', id: 'community', data: targetConfig });
+
+      const CHUNK_SIZE = 350;
+      for (let i = 0; i < ops.length; i += CHUNK_SIZE) {
+        const chunk = ops.slice(i, i + CHUNK_SIZE);
+        const batch = writeBatch(db);
+        for (const op of chunk) {
+          batch.set(doc(db, op.col, op.id), op.data, { merge: true });
+        }
+        await batch.commit();
+      }
+    } catch (err) {
+      console.warn('Firestore batchSyncCommunityData fallback/error:', err);
+      throw err;
+    }
+  }
+};
+
+/**
+ * Resets local storage and Firestore back to initial clean official bung records data.
+ */
+export const resetToInitialDemoData = async () => {
+  await batchSyncCommunityData(INITIAL_MEMBERS, INITIAL_MEETINGS, INITIAL_COMMUNITY_CONFIG);
 };

@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import {
+  BUNG_TIER_BADGES,
   formatMemberNickname,
+  getTierBadgeByScore,
   ROLE_KEYS,
   ROLE_META
 } from '../core/communityRules';
+import {
+  INITIAL_COMMUNITY_CONFIG,
+  INITIAL_MEETINGS,
+  INITIAL_MEMBERS
+} from '../core/initialData';
 import { useArmedAction } from '../utils/useArmedAction';
 
 const AVATAR_BG_PALETTE = [
@@ -34,7 +41,9 @@ export default function SuperAdminPage({
   onAdminUpdateConfig,
   onToggleMasterTab,
   onNavigateTab,
-  onImpersonateUser
+  onImpersonateUser,
+  onBatchSyncData,
+  onResetInitialData
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [newSuperUid, setNewSuperUid] = useState('');
@@ -46,6 +55,9 @@ export default function SuperAdminPage({
   const [driveBridgeUrl, setDriveBridgeUrl] = useState(
     communityConfig.googleDriveBridgeUrl || ''
   );
+  const [bungRawText, setBungRawText] = useState('');
+  const [showBungPasteBox, setShowBungPasteBox] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const superAdminUids = Array.isArray(communityConfig?.superAdminUids)
     ? communityConfig.superAdminUids
@@ -90,6 +102,140 @@ export default function SuperAdminPage({
 
     setActionFeedback('✅ 전체 데이터 백업(JSON)이 다운로드되었습니다.');
     setTimeout(() => setActionFeedback(''), 3000);
+  };
+
+  const handleSyncStandardSeed = async () => {
+    if (!onBatchSyncData) return;
+    setIsSyncing(true);
+    try {
+      await onBatchSyncData(INITIAL_MEMBERS, INITIAL_MEETINGS, INITIAL_COMMUNITY_CONFIG);
+      setActionFeedback(
+        `✅ 공식 벙기록 표준 데이터(회원 ${INITIAL_MEMBERS.length}명, 모임 ${INITIAL_MEETINGS.length}건)가 Firestore 및 로컬에 완벽히 동기화되었습니다.`
+      );
+    } catch (err) {
+      setActionFeedback(`❌ 동기화 중 오류가 발생했습니다: ${err.message || err}`);
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setActionFeedback(''), 5000);
+    }
+  };
+
+  const handleParseAndSyncCustomText = async (e) => {
+    e.preventDefault();
+    if (!bungRawText.trim() || !onBatchSyncData) return;
+    setIsSyncing(true);
+    try {
+      // 1. Host counts
+      const hostCounts = {};
+      const hostMatch = bungRawText.match(/🔥 누가 얼마나 벙을 쳤을까요\?([\s\S]*?)(?:2️⃣|$)/);
+      if (hostMatch) {
+        const lines = hostMatch[1].trim().split('\n');
+        for (const line of lines) {
+          const m = line.match(/^\s*(\d+)\s*:\s*(.+)$/);
+          if (m) {
+            const count = parseInt(m[1], 10);
+            const names = m[2].trim().split(/\s+/);
+            for (const name of names) {
+              if (name) hostCounts[name] = count;
+            }
+          }
+        }
+      }
+
+      // 2. Member scores & attendance
+      const memberMatch = bungRawText.match(/1️⃣\s*개인별 벙기록([\s\S]*?)(?:🔥|2️⃣|$)/);
+      const parsedMembersMap = new Map();
+      if (memberMatch) {
+        const lines = memberMatch[1].split('\n');
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('벙점수') || trimmed.startsWith('괄호의')) continue;
+          const colonIdx = trimmed.indexOf(':');
+          if (colonIdx === -1) continue;
+          const left = trimmed.slice(0, colonIdx).trim();
+          const right = trimmed.slice(colonIdx + 1).trim();
+          const scoreMatch = left.match(/^(\d+)/);
+          if (!scoreMatch) continue;
+          const score = parseInt(scoreMatch[1], 10);
+          const tokenRegex = /([가-힣a-zA-Z0-9]+)(?:\((\d+)\))?/g;
+          let tm;
+          while ((tm = tokenRegex.exec(right)) !== null) {
+            const name = tm[1];
+            const attendance = tm[2] !== undefined ? parseInt(tm[2], 10) : score;
+            if (!parsedMembersMap.has(name)) {
+              parsedMembersMap.set(name, {
+                name,
+                totalScore: score,
+                attendanceCount: attendance,
+                expeditionScore: Math.max(0, score - attendance),
+                hostCount: hostCounts[name] || 0
+              });
+            }
+          }
+        }
+      }
+
+      if (parsedMembersMap.size === 0) {
+        setActionFeedback('⚠️ 텍스트에서 회원 데이터를 찾을 수 없습니다. 1️⃣ 개인별 벙기록 양식을 확인해 주세요.');
+        setTimeout(() => setActionFeedback(''), 4000);
+        setIsSyncing(false);
+        return;
+      }
+
+      // Merge with current members
+      const memberMapByRealName = new Map();
+      for (const m of members) {
+        memberMapByRealName.set(m.realName, { ...m });
+      }
+
+      let nextUidSeq = 1001 + members.length;
+      for (const [name, stats] of parsedMembersMap.entries()) {
+        if (memberMapByRealName.has(name)) {
+          const existing = memberMapByRealName.get(name);
+          existing.totalScore = stats.totalScore;
+          existing.attendanceCount = stats.attendanceCount;
+          existing.baseScore = stats.attendanceCount;
+          existing.expeditionScore = stats.expeditionScore;
+          if (stats.hostCount) existing.hostCount = stats.hostCount;
+        } else {
+          const newUid = `kakao:${nextUidSeq++}`;
+          memberMapByRealName.set(name, {
+            uid: newUid,
+            realName: name,
+            city: '서울',
+            homeCity: '서울',
+            maritalStatus: 'single',
+            gender: '남',
+            role: stats.totalScore >= 100 ? 'VIP' : 'Member',
+            entryBadge: '0101',
+            customBadge: '',
+            bankAccount: '',
+            attendanceCount: stats.attendanceCount,
+            baseScore: stats.attendanceCount,
+            expeditionScore: stats.expeditionScore,
+            eventScore: 0,
+            totalScore: stats.totalScore,
+            monthlyScore: 0,
+            hostCount: stats.hostCount || 0,
+            joinedAt: '2024-01-01',
+            unlockedAlbums: []
+          });
+        }
+      }
+
+      const mergedMembers = Array.from(memberMapByRealName.values());
+      await onBatchSyncData(mergedMembers, meetings, communityConfig);
+      setActionFeedback(
+        `✅ 입력한 텍스트에서 회원 ${parsedMembersMap.size}명의 기록을 추출하여 전체 ${mergedMembers.length}명의 회원 DB에 성공적으로 동기화했습니다.`
+      );
+      setBungRawText('');
+      setShowBungPasteBox(false);
+    } catch (err) {
+      setActionFeedback(`❌ 텍스트 파싱/동기화 실패: ${err.message || err}`);
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setActionFeedback(''), 5000);
+    }
   };
 
   const handleAssignLeader = (targetUid) => {
@@ -222,6 +368,123 @@ export default function SuperAdminPage({
             )}
           </div>
         </div>
+      </section>
+
+      {/* Section 1-2: Bung Records Data Sync & Badge Milestone Engine */}
+      <section className="list-section">
+        <div className="section-title-row">
+          <h3>벙기록 문서 데이터 동기화 & 뱃지 엔진</h3>
+          <span className="platform-badge" style={{ background: '#0284c7', color: '#fff' }}>
+            852회 아카이브
+          </span>
+        </div>
+        <p className="sub-meta" style={{ marginTop: '4px', marginBottom: '12px' }}>
+          기존 운영 벙기록 문서의 회원 랭킹, 참석/원정 점수, 주최 횟수 및 마일스톤 뱃지를 일괄 동기화합니다.
+        </p>
+
+        {/* Milestone Badge Preview Table */}
+        <div
+          style={{
+            padding: '12px',
+            background: 'var(--color-bg-secondary, #f8fafc)',
+            border: '1px solid var(--color-border, #e2e8f0)',
+            borderRadius: '8px',
+            marginBottom: '14px'
+          }}
+        >
+          <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#334155' }}>
+            🏷️ 공식 마일스톤 뱃지 체계 규격 (500점 단위 별 추가 순환)
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {BUNG_TIER_BADGES.map((b) => (
+              <span
+                key={b.minScore}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  background: '#fff',
+                  border: '1px solid #cbd5e1',
+                  color: '#1e293b'
+                }}
+              >
+                <span>{b.badge}</span>
+                <span style={{ fontWeight: 600 }}>{b.minScore}점</span>
+                <span style={{ color: '#64748b', fontSize: '11px' }}>({b.label})</span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Batch Actions */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={isSyncing}
+            onClick={() =>
+              runArmed('sync-standard-seed', () => handleSyncStandardSeed())
+            }
+          >
+            {isArmed('sync-standard-seed')
+              ? '⚡ 확인: 표준 벙기록 즉시 덮어쓰기'
+              : `⚡ 공식 벙기록 표준 시드 즉시 동기화 (${INITIAL_MEMBERS.length}명 / ${INITIAL_MEETINGS.length}건)`}
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => setShowBungPasteBox((prev) => !prev)}
+          >
+            {showBungPasteBox ? '▲ 텍스트 입력창 닫기' : '📋 벙기록 텍스트 직접 입력 / 파싱 동기화'}
+          </button>
+        </div>
+
+        {/* Paste Accordion */}
+        {showBungPasteBox && (
+          <form
+            onSubmit={handleParseAndSyncCustomText}
+            style={{
+              padding: '12px',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              borderRadius: '8px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}
+          >
+            <div style={{ fontSize: '12px', color: '#475569' }}>
+              카카오톡/노션 등에 보관된 벙기록 텍스트(예: <code>1️⃣ 개인별 벙기록</code>, <code>360 🥇🐴: 쭈(311)</code> 등)를 붙여넣으시면 실시간으로 점수와 뱃지를 파싱하여 회원 DB에 즉시 업데이트합니다.
+            </div>
+            <textarea
+              rows={8}
+              value={bungRawText}
+              onChange={(e) => setBungRawText(e.target.value)}
+              placeholder="여기에 벙기록 텍스트를 붙여넣으세요..."
+              style={{
+                width: '100%',
+                padding: '8px',
+                fontFamily: 'monospace',
+                fontSize: '12px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button
+                type="submit"
+                className="btn btn-primary btn-sm"
+                disabled={isSyncing || !bungRawText.trim()}
+              >
+                {isSyncing ? '동기화 진행 중...' : '텍스트 파싱 & DB 일괄 업데이트'}
+              </button>
+            </div>
+          </form>
+        )}
       </section>
 
       {/* Section 2: Google Drive Album Bridge URL */}

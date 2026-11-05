@@ -8,6 +8,7 @@
     "start": "vite",
     "build": "vite build && node scripts/generate-route-meta.mjs",
     "preview": "vite preview",
+    "seed:bung": "node scripts/seed-bung-records.mjs",
     "firebase:login": "npx firebase-tools login",
     "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting",
     "deploy:rules": "npx firebase-tools deploy --only firestore:rules",

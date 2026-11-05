@@ -398,11 +398,69 @@ export const calculateMeetingSettlement = (meeting) => {
 };
 
 /**
- * Computes automatic badge based on attendance milestones and role unless a custom override is set.
+ * Official Bung Milestone Tier Badges:
+ * 15점: 🦓 멈춰있는 얼룩말
+ * 30점: 🐎 달리는 말
+ * 50점: 🐴 대왕말
+ * 78점: 🦄 유니콘
+ * 100점: 🥉 동메달
+ * 200점: 🥈 은메달
+ * 300점: 🥇 금메달
+ * 400점: 🏆 트로피
+ * 500점: ⭐️ 별 (500단위로 별 추가 누적, 600점 ⭐️🥉 등 반복 순환)
+ */
+export const BUNG_TIER_BADGES = [
+  { minScore: 15, badge: '🦓', label: '얼룩말' },
+  { minScore: 30, badge: '🐎', label: '달리는 말' },
+  { minScore: 50, badge: '🐴', label: '대왕말' },
+  { minScore: 78, badge: '🦄', label: '유니콘' },
+  { minScore: 100, badge: '🥉', label: '동메달' },
+  { minScore: 200, badge: '🥈', label: '은메달' },
+  { minScore: 300, badge: '🥇', label: '금메달' },
+  { minScore: 400, badge: '🏆', label: '트로피' },
+  { minScore: 500, badge: '⭐️', label: '스타' }
+];
+
+/**
+ * Calculates official milestone tier badge based on member total score.
+ * Example: 115점 🥉🦓, 278점 🥈🦄, 360점 🥇🐴, 450점 🏆🐴, 600점 ⭐️🥉
+ */
+export const getTierBadgeByScore = (score = 0) => {
+  const pts = Math.max(0, Math.floor(Number(score) || 0));
+  if (pts < 15) return '';
+
+  const starCount = Math.floor(pts / 500);
+  const rem500 = pts % 500;
+
+  let medal = '';
+  if (rem500 >= 400) medal = '🏆';
+  else if (rem500 >= 300) medal = '🥇';
+  else if (rem500 >= 200) medal = '🥈';
+  else if (rem500 >= 100) medal = '🥉';
+
+  const rem100 = rem500 % 100;
+  let animal = '';
+  if (rem100 >= 78) animal = '🦄';
+  else if (rem100 >= 50) animal = '🐴';
+  else if (rem100 >= 30) animal = '🐎';
+  else if (rem100 >= 15) animal = '🦓';
+
+  const stars = starCount > 0 ? '⭐️'.repeat(starCount) : '';
+  return `${stars}${medal}${animal}`;
+};
+
+/**
+ * Computes automatic badge based on score milestones unless a custom override is set.
+ * If score is below 15 points, falls back to entry date badge (MMDD) or '0101'.
  */
 export const resolveMemberBadge = (member) => {
+  if (!member) return '0101';
   if (member.customBadge) {
     return member.customBadge;
+  }
+  const tierBadge = getTierBadgeByScore(member.totalScore);
+  if (tierBadge) {
+    return tierBadge;
   }
   return member.entryBadge || member.badge || '0101';
 };
