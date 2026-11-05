@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from './components/layout/AppLayout';
-import { isAdminRole } from './core/communityRules';
+import { isAdminRole, isAdminUser } from './core/communityRules';
 import {
   INITIAL_COMMUNITY_CONFIG,
   INITIAL_MEETINGS,
@@ -380,7 +380,7 @@ export default function App() {
       );
     }
 
-    if (activeTab === 'admin' && isAdminRole(currentUser.role)) {
+    if (activeTab === 'admin' && isAdminUser(currentUser, communityConfig)) {
       return (
         <AdminPage
           currentUser={currentUser}
@@ -465,6 +465,7 @@ export default function App() {
         onChangeTab={navigateToTab}
         currentUser={currentUser}
         members={members}
+        communityConfig={communityConfig}
         onSwitchUser={handleSwitchUser}
         onResetDemoData={handleResetDemoData}
         headerSummary={currentMeta.headerSummary}

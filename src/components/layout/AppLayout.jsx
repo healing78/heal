@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getPlatformInfo, MOBILE_BREAKPOINT } from '../../core/platform';
 import {
   formatMemberNickname,
-  isAdminRole,
+  isAdminUser,
   ROLE_META
 } from '../../core/communityRules';
 import { HERO_IMAGE_PATH } from '../../core/routeMeta';
@@ -22,6 +22,7 @@ export default function AppLayout({
   onChangeTab,
   currentUser,
   members,
+  communityConfig = {},
   onSwitchUser,
   onResetDemoData,
   headerSummary,
@@ -43,7 +44,7 @@ export default function AppLayout({
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const showAdminMenu = currentUser && isAdminRole(currentUser.role);
+  const showAdminMenu = currentUser && isAdminUser(currentUser, communityConfig);
   const navItems = showAdminMenu
     ? [...BASE_NAV_ITEMS, { id: 'admin', label: '운영', icon: '⚙️' }]
     : BASE_NAV_ITEMS;

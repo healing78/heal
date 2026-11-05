@@ -223,9 +223,12 @@ export default function AdminPage({
                     <strong>{formatMemberNickname(m)}</strong>
                     <span
                       className="role-pill"
-                      style={{ backgroundColor: ROLE_META[m.role]?.badgeColor }}
+                      style={{
+                        backgroundColor:
+                          ROLE_META[m.role]?.badgeColor || 'var(--role-member, #64748b)'
+                      }}
                     >
-                      {ROLE_META[m.role]?.label}
+                      {ROLE_META[m.role]?.label || '일반회원'}
                     </span>
                   </div>
                   <div className="sub-meta">
