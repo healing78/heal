@@ -12,7 +12,7 @@ const AVATAR_BG_PALETTE = [
   '#8b5cf6',
   '#ec4899',
   '#06b6d4',
-  '#e11d48'
+  '#0284c7'
 ];
 
 function getAvatarBg(uid) {
