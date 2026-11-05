@@ -4,6 +4,8 @@ import {
   calculateMeetingSettlement,
   canCreateMeeting,
   formatMemberNickname,
+  isSuperAdmin,
+  MASTER_ADMIN_SECRET,
   resolveMemberBadge,
   ROLE_META
 } from '../core/communityRules';
@@ -13,8 +15,11 @@ export default function ProfilePage({
   currentUser,
   members = [],
   meetings = [],
+  communityConfig = {},
   onOpenMeetingDetail,
   onUpdateProfile,
+  onAdminUpdateMember,
+  onAdminUpdateConfig,
   onSwitchUser,
   onResetDemoData,
   onLogout
@@ -30,6 +35,10 @@ export default function ProfilePage({
   });
   const [savedBanner, setSavedBanner] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedUid, setCopiedUid] = useState(false);
+  const [secretOpen, setSecretOpen] = useState(false);
+  const [secretPassword, setSecretPassword] = useState('');
+  const [secretFeedback, setSecretFeedback] = useState('');
 
   useEffect(() => {
     setForm({
@@ -105,6 +114,46 @@ export default function ProfilePage({
     } catch {
       setCopied(false);
     }
+  };
+
+  const isSuper = isSuperAdmin(currentUser, communityConfig);
+
+  const handleCopyUid = async () => {
+    try {
+      await navigator.clipboard.writeText(currentUser.uid);
+      setCopiedUid(true);
+      setTimeout(() => setCopiedUid(false), 2000);
+    } catch {
+      setCopiedUid(false);
+    }
+  };
+
+  const handlePromoteSuperAdmin = (e) => {
+    e.preventDefault();
+    if (secretPassword !== MASTER_ADMIN_SECRET) {
+      setSecretFeedback('❌ 마스터 암호가 일치하지 않습니다.');
+      setTimeout(() => setSecretFeedback(''), 3000);
+      return;
+    }
+
+    if (onAdminUpdateMember) {
+      onAdminUpdateMember(currentUser.uid, { role: 'SuperAdmin' });
+    }
+    if (onAdminUpdateConfig) {
+      const existingSuperUids = communityConfig.superAdminUids || [];
+      if (!existingSuperUids.includes(currentUser.uid)) {
+        onAdminUpdateConfig({
+          ...communityConfig,
+          superAdminUids: [...existingSuperUids, currentUser.uid]
+        });
+      }
+    }
+    setSecretFeedback('👑 최고관리자(슈퍼 어드민)로 승격되었습니다!');
+    setSecretPassword('');
+    setTimeout(() => {
+      setSecretFeedback('');
+      setSecretOpen(false);
+    }, 2500);
   };
 
   return (
@@ -230,6 +279,25 @@ export default function ProfilePage({
                 value={`${currentBadge} (가입일 ${currentUser.entryBadge})`}
               />
             </div>
+
+            <div className="form-field">
+              <label>내 고유 식별자 (UID)</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  disabled
+                  value={currentUser.uid}
+                  style={{ flex: 1, fontFamily: 'monospace', fontSize: '13px' }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={handleCopyUid}
+                >
+                  {copiedUid ? '복사됨' : 'UID 복사'}
+                </button>
+              </div>
+            </div>
           </div>
 
           {savedBanner && (
@@ -249,6 +317,83 @@ export default function ProfilePage({
             </button>
           </div>
         </form>
+
+        {/* Super Admin Promotion / Status Box */}
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '12px 14px',
+            borderRadius: '8px',
+            border: isSuper
+              ? '1px solid #10b981'
+              : '1px dashed var(--color-divider, #cbd5e1)',
+            background: isSuper
+              ? 'rgba(16, 185, 129, 0.05)'
+              : 'var(--bg-subtle, rgba(0,0,0,0.02))'
+          }}
+        >
+          {isSuper ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '16px' }}>👑</span>
+              <strong style={{ fontSize: '14px', color: '#047857' }}>
+                시스템 최고관리자 (Super Admin) 권한 활성화됨
+              </strong>
+            </div>
+          ) : (
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <span className="sub-meta" style={{ fontSize: '13px' }}>
+                  시스템 최고관리자(Super Admin) 승격
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{ fontSize: '12px', padding: '3px 8px' }}
+                  onClick={() => setSecretOpen((prev) => !prev)}
+                >
+                  {secretOpen ? '닫기' : '마스터 암호 입력'}
+                </button>
+              </div>
+
+              {secretOpen && (
+                <form
+                  onSubmit={handlePromoteSuperAdmin}
+                  style={{
+                    marginTop: '10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}
+                >
+                  <input
+                    type="password"
+                    placeholder="마스터 암호를 입력하세요..."
+                    value={secretPassword}
+                    onChange={(e) => setSecretPassword(e.target.value)}
+                    required
+                    style={{ fontSize: '13px' }}
+                  />
+                  {secretFeedback && (
+                    <div style={{ fontSize: '12px', fontWeight: 600 }}>
+                      {secretFeedback}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button type="submit" className="btn btn-primary btn-sm">
+                      승격하기
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Activity & Eligibility Status */}

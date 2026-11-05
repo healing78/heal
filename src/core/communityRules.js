@@ -1,6 +1,7 @@
 import { generateNickname } from '../nicknameUtils';
 
 export const ROLE_META = {
+  SuperAdmin: { label: '최고관리자', badgeColor: '#0f172a', isAdmin: true, isSuper: true },
   Leader: { label: '방장', badgeColor: 'var(--role-leader, #1e293b)', isAdmin: true },
   Deputy: { label: '부방장', badgeColor: 'var(--role-deputy, #334155)', isAdmin: true },
   VIP: { label: 'VIP', badgeColor: 'var(--role-vip, #475569)', isAdmin: false },
@@ -98,8 +99,27 @@ export const resolveRegionGroup = (locationStr) => {
   return { id: 1, name: clean };
 };
 
+export const MASTER_ADMIN_SECRET =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_MASTER_ADMIN_KEY) ||
+  'heal78master!';
+
 /**
- * Checks whether a role has administrator privileges (Leader or Deputy).
+ * Checks whether a member has SuperAdmin (system owner) privileges.
+ */
+export const isSuperAdmin = (member, communityConfig = {}) => {
+  if (!member) return false;
+  if (member.role === 'SuperAdmin') return true;
+  if (
+    Array.isArray(communityConfig?.superAdminUids) &&
+    communityConfig.superAdminUids.includes(member.uid)
+  ) {
+    return true;
+  }
+  return false;
+};
+
+/**
+ * Checks whether a role has administrator privileges (SuperAdmin, Leader or Deputy).
  */
 export const isAdminRole = (role) => {
   return Boolean(ROLE_META[role]?.isAdmin);

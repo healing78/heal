@@ -95,7 +95,9 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const currentUser = members.find((m) => m.uid === currentUserUid) || null;
+  const [impersonatedUid, setImpersonatedUid] = useState(null);
+  const effectiveUid = impersonatedUid || currentUserUid;
+  const currentUser = members.find((m) => m.uid === effectiveUid) || null;
 
   const navigateToTab = (nextTab, params = {}) => {
     const meetingParam =
@@ -366,8 +368,11 @@ export default function App() {
           currentUser={currentUser}
           members={members}
           meetings={meetings}
+          communityConfig={communityConfig}
           onOpenMeetingDetail={handleOpenMeetingDetail}
           onUpdateProfile={handleUpdateProfile}
+          onAdminUpdateMember={handleAdminUpdateMember}
+          onAdminUpdateConfig={handleAdminUpdateConfig}
           onSwitchUser={handleSwitchUser}
           onResetDemoData={handleResetDemoData}
           onLogout={() => handleSwitchUser('__LOGOUT__')}
@@ -378,6 +383,7 @@ export default function App() {
     if (activeTab === 'admin' && isAdminRole(currentUser.role)) {
       return (
         <AdminPage
+          currentUser={currentUser}
           members={members}
           meetings={meetings}
           communityConfig={communityConfig}
@@ -386,6 +392,10 @@ export default function App() {
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminAdjustEventScore={handleAdminAdjustEventScore}
           onAdminUpdateConfig={handleAdminUpdateConfig}
+          onImpersonateUser={(uid) => {
+            setImpersonatedUid(uid);
+            navigateToTab('home');
+          }}
         />
       );
     }
@@ -406,20 +416,65 @@ export default function App() {
   };
 
   return (
-    <AppLayout
-      activeTab={activeTab}
-      onChangeTab={navigateToTab}
-      currentUser={currentUser}
-      members={members}
-      onSwitchUser={handleSwitchUser}
-      onResetDemoData={handleResetDemoData}
-      headerSummary={currentMeta.headerSummary}
-      onShareCurrentRoute={handleShareCurrentRoute}
-      shareToast={shareToast}
-      theme={theme}
-      onChangeTheme={handleChangeTheme}
-    >
-      {renderPageBody()}
-    </AppLayout>
+    <>
+      {impersonatedUid && (
+        <aside
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 99999,
+            background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+            color: '#ffffff',
+            padding: '8px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            fontSize: '13px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.15)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>👁️</span>
+            <span>
+              현재 <strong>{currentUser ? formatMemberNickname(currentUser) : effectiveUid}</strong> 님의 시점으로 열람 중입니다.
+            </span>
+          </div>
+          <button
+            type="button"
+            className="btn btn-sm"
+            style={{
+              background: '#ffffff',
+              color: '#4f46e5',
+              fontWeight: 600,
+              padding: '3px 10px',
+              fontSize: '12px',
+              border: 'none',
+              borderRadius: '4px'
+            }}
+            onClick={() => setImpersonatedUid(null)}
+          >
+            어드민으로 복귀 ↩
+          </button>
+        </aside>
+      )}
+      <AppLayout
+        activeTab={activeTab}
+        onChangeTab={navigateToTab}
+        currentUser={currentUser}
+        members={members}
+        onSwitchUser={handleSwitchUser}
+        onResetDemoData={handleResetDemoData}
+        headerSummary={currentMeta.headerSummary}
+        onShareCurrentRoute={handleShareCurrentRoute}
+        shareToast={shareToast}
+        theme={theme}
+        onChangeTheme={handleChangeTheme}
+      >
+        {renderPageBody()}
+      </AppLayout>
+    </>
   );
 }
