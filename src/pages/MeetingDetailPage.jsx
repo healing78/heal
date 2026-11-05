@@ -264,6 +264,20 @@ export default function MeetingDetailPage({
   const chatPhotoInputRef = useRef(null);
   const chatMessagesEndRef = useRef(null);
 
+  const isChatActive =
+    viewMode === 'lounge' && isBungMeeting && loungeTab === 'chat';
+
+  useEffect(() => {
+    if (isChatActive) {
+      document.body.classList.add('lounge-chat-active');
+    } else {
+      document.body.classList.remove('lounge-chat-active');
+    }
+    return () => {
+      document.body.classList.remove('lounge-chat-active');
+    };
+  }, [isChatActive]);
+
   // Album & Random Box states
   const album = Array.isArray(meeting.album) ? meeting.album : [];
   const canViewAlbum = canViewMeetingAlbum(currentUser, meeting);
@@ -1063,7 +1077,11 @@ export default function MeetingDetailPage({
       : applicants;
 
   return (
-    <div className="list-container">
+    <div
+      className={`list-container ${
+        isChatActive ? 'is-lounge-chat-mode' : ''
+      }`}
+    >
       {/* 1. Schedule Detail View */}
       {viewMode === 'detail' && (
         <section className="list-section">
@@ -1709,7 +1727,12 @@ export default function MeetingDetailPage({
             </div>
           </section>
         ) : (
-        <section className="list-section" id="bung-lounge">
+        <section
+          className={`list-section ${
+            isChatActive ? 'is-lounge-chat-mode' : ''
+          }`}
+          id="bung-lounge"
+        >
           {/* Meeting Summary Banner (Moved to Top, detail-top-bar removed) */}
           <div className="lounge-meeting-summary" style={{ marginTop: '2px' }}>
             <div className="lounge-summary-title">{meeting.title}</div>
@@ -2011,6 +2034,13 @@ export default function MeetingDetailPage({
                     placeholder="메시지 입력..."
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
+                    onFocus={() => {
+                      setTimeout(() => {
+                        chatMessagesEndRef.current?.scrollIntoView({
+                          behavior: 'smooth'
+                        });
+                      }, 160);
+                    }}
                     autoComplete="off"
                   />
 

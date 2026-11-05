@@ -2227,6 +2227,147 @@ h3 {
   white-space: nowrap;
 }
 
+/* Full-Screen Lounge Chat Mode (App-Like Messenger Experience) */
+body.lounge-chat-active {
+  overflow: hidden;
+}
+
+body.lounge-chat-active .content-body {
+  padding-bottom: 0 !important;
+  overflow: hidden;
+  height: calc(100dvh - var(--mobile-header-height) - var(--mobile-tabbar-height) - var(--safe-bottom));
+  height: calc(100vh - var(--mobile-header-height) - var(--mobile-tabbar-height) - var(--safe-bottom));
+  max-height: calc(100dvh - var(--mobile-header-height) - var(--mobile-tabbar-height) - var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+}
+
+body.lounge-chat-active .list-container.is-lounge-chat-mode {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.list-section.is-lounge-chat-mode {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.list-section.is-lounge-chat-mode .lounge-meeting-summary {
+  margin: 4px 8px 4px 8px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-base);
+  flex-shrink: 0;
+}
+
+.list-section.is-lounge-chat-mode .lounge-summary-title {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.list-section.is-lounge-chat-mode .lounge-summary-meta {
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.list-section.is-lounge-chat-mode .lounge-metro-progress {
+  margin-top: 6px;
+  padding: 4px 6px;
+}
+
+.list-section.is-lounge-chat-mode .lounge-metro-circle {
+  width: 14px;
+  height: 14px;
+}
+
+.list-section.is-lounge-chat-mode .lounge-metro-label {
+  font-size: 11px;
+}
+
+.list-section.is-lounge-chat-mode .lounge-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+.list-section.is-lounge-chat-mode .lounge-tab-bar {
+  margin: 0 8px 4px 8px;
+  flex-shrink: 0;
+}
+
+.list-section.is-lounge-chat-mode .lounge-chat-container {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  border-radius: 12px 12px 0 0;
+  border-bottom: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.list-section.is-lounge-chat-mode .lounge-chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 14px;
+}
+
+.list-section.is-lounge-chat-mode .lounge-chat-input-bar {
+  flex-shrink: 0;
+  position: relative;
+  bottom: auto;
+  background: #ffffff;
+  padding: 8px 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.03);
+}
+
+@media (min-width: 768px) {
+  body.lounge-chat-active .content-body {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .list-section.is-lounge-chat-mode {
+    height: calc(100vh - 60px);
+    max-height: 850px;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    padding: 16px;
+  }
+  .list-section.is-lounge-chat-mode .lounge-meeting-summary {
+    margin: 0 0 10px 0;
+  }
+  .list-section.is-lounge-chat-mode .lounge-tab-bar {
+    margin: 0 0 10px 0;
+  }
+  .list-section.is-lounge-chat-mode .lounge-chat-container {
+    border-radius: var(--radius-base);
+    border: 1px solid rgba(175, 193, 207, 0.7);
+  }
+}
+
 /* "벙대기실" Access & 3-Tab Lounge Styles */
 .lounge-locked-box {
   background: var(--color-subtle-bg);
