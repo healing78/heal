@@ -251,11 +251,17 @@ export default function MeetingDetailPage({
   };
 
   const { isArmed, runArmed } = useArmedAction();
-  const [loungeTab, setLoungeTab] = useState('rounds'); // 'rounds' | 'settlement' | 'returns' | 'album'
+  const [loungeTab, setLoungeTab] = useState('chat'); // 'chat' | 'rounds' | 'settlement' | 'returns' | 'album'
   const [showAttendeeDrawer, setShowAttendeeDrawer] = useState(false);
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
   const [showManagerTools, setShowManagerTools] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
+
+  // Chat & Subway Route Progress states
+  const [showChatUsersAccordion, setShowChatUsersAccordion] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const chatPhotoInputRef = useRef(null);
+  const chatMessagesEndRef = useRef(null);
 
   // Album & Random Box states
   const album = Array.isArray(meeting.album) ? meeting.album : [];
@@ -424,6 +430,53 @@ export default function MeetingDetailPage({
 
   const primaryPlaceText =
     rounds[0]?.placeName || meeting.placeDetail || meeting.location || '';
+
+  // Attendee & Absentee Lists for Chat Accordion
+  const attendeeUids = Array.from(
+    new Set(
+      [
+        meeting.hostUid,
+        treasurerUid,
+        ...(meeting.confirmedParticipants || []),
+        ...(meeting.applicants || [])
+      ].filter(Boolean)
+    )
+  );
+  const absenteeMembers = members.filter(
+    (m) => !attendeeUids.includes(m.uid)
+  );
+
+  // Subway Route Map Stages
+  const metroStages = [{ key: 'start', label: '시작' }];
+  if (rounds.length > 0) {
+    rounds.forEach((r, idx) => {
+      metroStages.push({
+        key: `round-${idx}`,
+        label: `${idx + 1}차`
+      });
+    });
+  } else {
+    metroStages.push({ key: 'round-0', label: '1차' });
+  }
+  metroStages.push({ key: 'end', label: '종료' });
+
+  let metroActiveIdx = 0;
+  if (meeting.status === 'settled') {
+    metroActiveIdx = metroStages.length - 1;
+  } else {
+    const today = getTodayDateString();
+    const meetingD =
+      meeting.dateOnly || (meeting.date ? String(meeting.date).slice(0, 10) : '');
+    if (meetingD && meetingD > today) {
+      metroActiveIdx = 0;
+    } else {
+      metroActiveIdx = Math.min(1, metroStages.length - 2);
+    }
+  }
+  const metroFillPercent =
+    metroStages.length > 1
+      ? (metroActiveIdx / (metroStages.length - 1)) * 100
+      : 0;
 
   // Save edited basic schedule info (Host / Treasurer / Admin)
   const handleSaveBasicInfo = async (e) => {
@@ -873,6 +926,71 @@ export default function MeetingDetailPage({
             }
           : null
       );
+    }
+  };
+
+  // Chat Handlers (KakaoTalk Style with Album Sync)
+  const chatMessages = Array.isArray(meeting.chatMessages)
+    ? meeting.chatMessages
+    : [];
+
+  const handleSendChatMessage = async (textToSend, photoItem = null) => {
+    if ((!textToSend?.trim() && !photoItem) || !currentUser || !onUpdateMeeting)
+      return;
+    const cleanText = (textToSend || '').trim();
+    const newMsg = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      senderUid: currentUser.uid,
+      senderName:
+        currentUser.realName ||
+        currentUser.nickname ||
+        '참석자',
+      text: cleanText,
+      imageUrl: photoItem?.url || '',
+      thumbUrl: photoItem?.thumbUrl || photoItem?.url || '',
+      createdAt: new Date().toISOString()
+    };
+    const nextChats = [...chatMessages, newMsg];
+    setChatInput('');
+    await onUpdateMeeting(meeting.id, { chatMessages: nextChats });
+  };
+
+  const handleChatPhotoUpload = async (file) => {
+    if (!file || !currentUser || !onUpdateMeeting) return;
+    try {
+      const compressed = await compressImage(file);
+      const mediaItem = {
+        id: `photo-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        uploaderUid: currentUser.uid,
+        uploaderName: currentUser.realName || '회원',
+        mediaType: 'image',
+        url: compressed.dataUrl,
+        thumbUrl: compressed.thumbUrl,
+        durationSec: 0,
+        caption: '대화방 공유 사진',
+        likes: [],
+        createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+      };
+      const newMsg = {
+        id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        senderUid: currentUser.uid,
+        senderName:
+          currentUser.realName ||
+          currentUser.nickname ||
+          '참석자',
+        text: '',
+        imageUrl: compressed.dataUrl,
+        thumbUrl: compressed.thumbUrl,
+        createdAt: new Date().toISOString()
+      };
+      const nextAlbum = [mediaItem, ...album];
+      const nextChats = [...chatMessages, newMsg];
+      await onUpdateMeeting(meeting.id, {
+        album: nextAlbum,
+        chatMessages: nextChats
+      });
+    } catch (err) {
+      console.error('Failed to upload chat photo:', err);
     }
   };
 
@@ -1579,63 +1697,67 @@ export default function MeetingDetailPage({
           </section>
         ) : (
         <section className="list-section" id="bung-lounge">
-          <div className="detail-top-bar">
-            <button
-              type="button"
-              className="detail-back-btn"
-              onClick={() => handleNavigateView('detail')}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="22"
-                height="22"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-              </svg>
-              <span>일정 상세</span>
-            </button>
-
-            <div className="badge-group">
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={handleCopyDirectLink}
-                title={`벙대기실 링크 복사: meetings/${meeting.id}/lounge`}
-              >
-                {copiedLink ? '링크 복사됨 ✓' : `🔗 meetings/${meeting.id}/lounge`}
-              </button>
-              {canAccessLounge && (
-                <span className="sub-meta">
-                  주최:{' '}
-                  {hostMember ? hostMember.realName : meeting.hostUid} · 총무:{' '}
-                  {treasurerMember ? treasurerMember.realName : treasurerUid}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Meeting Summary Banner */}
-          <div className="lounge-meeting-summary">
+          {/* Meeting Summary Banner (Moved to Top, detail-top-bar removed) */}
+          <div className="lounge-meeting-summary" style={{ marginTop: '2px' }}>
             <div className="lounge-summary-title">{meeting.title}</div>
             <div className="lounge-summary-meta">
               <span>{meeting.date}</span>
               {meeting.location && <span> · {meeting.location}</span>}
               <span>
                 {' '}· 주최:{' '}
-                {hostMember ? hostMember.realName : meeting.hostUid}
+                {hostMember ? hostMember.realName : meeting.hostUid} · 총무:{' '}
+                {treasurerMember ? treasurerMember.realName : treasurerUid}
               </span>
+            </div>
+
+            {/* Subway Route Map Progress Bar */}
+            <div className="lounge-metro-progress">
+              <div className="lounge-metro-track">
+                <div className="lounge-metro-line">
+                  <div
+                    className="lounge-metro-line-fill"
+                    style={{ width: `${metroFillPercent}%` }}
+                  />
+                </div>
+                {metroStages.map((stage, sIdx) => {
+                  const isPassed = sIdx < metroActiveIdx;
+                  const isActive = sIdx === metroActiveIdx;
+                  return (
+                    <div
+                      key={stage.key}
+                      className={`lounge-metro-node ${
+                        isActive ? 'is-active' : isPassed ? 'is-passed' : ''
+                      }`}
+                    >
+                      <span className="lounge-metro-circle" />
+                      <span className="lounge-metro-label">{stage.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           <div className="lounge-body">
-          {/* 4-Tab Segmented Navigation inside 벙대기실 */}
+          {/* 5-Tab Segmented Navigation inside 벙대기실 */}
           <div className="lounge-tab-bar" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={loungeTab === 'chat'}
+              className={`lounge-tab-btn ${
+                loungeTab === 'chat' ? 'active' : ''
+              }`}
+              onClick={() => {
+                if (loungeTab === 'chat') {
+                  setShowChatUsersAccordion((prev) => !prev);
+                } else {
+                  setLoungeTab('chat');
+                }
+              }}
+            >
+              대화
+            </button>
             <button
               type="button"
               role="tab"
@@ -1645,7 +1767,7 @@ export default function MeetingDetailPage({
               }`}
               onClick={() => setLoungeTab('rounds')}
             >
-              장소·코스 ({rounds.length}차)
+              장소
             </button>
             <button
               type="button"
@@ -1656,7 +1778,7 @@ export default function MeetingDetailPage({
               }`}
               onClick={() => setLoungeTab('settlement')}
             >
-              정산·회비
+              정산
             </button>
             <button
               type="button"
@@ -1667,8 +1789,7 @@ export default function MeetingDetailPage({
               }`}
               onClick={() => setLoungeTab('returns')}
             >
-              귀가현황 ({Object.keys(safeReturns).length}/
-              {displayAttendeeUids.length})
+              귀가
             </button>
             <button
               type="button"
@@ -1679,7 +1800,7 @@ export default function MeetingDetailPage({
               }`}
               onClick={() => setLoungeTab('album')}
             >
-              📸 앨범 ({album.length})
+              앨범 ({album.length})
             </button>
           </div>
 
@@ -1689,13 +1810,205 @@ export default function MeetingDetailPage({
               <p className="muted-text">
                 상단 카드에서 [참석] 버튼을 누르면 1·2차 장소 코스, 회비 정산, 귀가
                 현황을 확인할 수 있습니다.
-                (사진은 [📸 앨범] 탭에서 랜덤 박스를 통해 열람하실 수 있습니다.)
+                (사진은 [앨범] 탭에서 랜덤 박스를 통해 열람하실 수 있습니다.)
               </p>
             </div>
           ) : (
             <>
 
-            {/* TAB 1: 장소·코스 (Read-only cards by default, toggle edit per round) */}
+            {/* TAB 0: 대화 (카카오톡 스타일 에메랄드 대화방) */}
+            {loungeTab === 'chat' && (
+              <div className="lounge-chat-container">
+                {/* Accordion: Attendees & Absentees (Toggled by tapping '대화' tab again) */}
+                {showChatUsersAccordion && (
+                  <div className="lounge-chat-accordion">
+                    <div className="lounge-chat-accordion-title">
+                      <span>대기실 입장한 참석자 ({attendeeUids.length}명)</span>
+                      <button
+                        type="button"
+                        className="btn-link"
+                        style={{ fontSize: '11px' }}
+                        onClick={() => setShowChatUsersAccordion(false)}
+                      >
+                        닫기 ✕
+                      </button>
+                    </div>
+                    <div className="lounge-chat-accordion-list">
+                      {attendeeUids.map((uid) => {
+                        const m = members.find((mem) => mem.uid === uid);
+                        if (!m) return null;
+                        const isHost = uid === meeting.hostUid;
+                        return (
+                          <span
+                            key={uid}
+                            className="member-chip-btn active"
+                            style={{ fontSize: '11px', padding: '2px 7px' }}
+                          >
+                            {isHost ? '👑 ' : ''}
+                            {m.realName}
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    <div
+                      className="lounge-chat-accordion-title"
+                      style={{ marginTop: '6px' }}
+                    >
+                      <span>대기실 안 들어온 미참석자 ({absenteeMembers.length}명)</span>
+                    </div>
+                    <div className="lounge-chat-accordion-list">
+                      {absenteeMembers.map((m) => (
+                        <span
+                          key={m.uid}
+                          className="member-chip-btn inactive"
+                          style={{
+                            fontSize: '11px',
+                            padding: '2px 7px',
+                            opacity: 0.6
+                          }}
+                        >
+                          {m.realName}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Messages Feed */}
+                <div className="lounge-chat-messages">
+                  {chatMessages.length === 0 ? (
+                    <div
+                      style={{
+                        margin: 'auto',
+                        textAlign: 'center',
+                        color: '#64748b',
+                        fontSize: '13px'
+                      }}
+                    >
+                      👋 벙대기실 대화방에 오신 것을 환영합니다!<br />
+                      메시지를 남기거나 📷 사진을 공유해 보세요.
+                    </div>
+                  ) : (
+                    chatMessages.map((msg) => {
+                      const isMe = msg.senderUid === currentUser?.uid;
+                      const senderMember = members.find(
+                        (m) => m.uid === msg.senderUid
+                      );
+                      const timeStr = msg.createdAt
+                        ? new Date(msg.createdAt).toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : '';
+
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`lounge-chat-bubble-row ${
+                            isMe ? 'is-me' : 'is-other'
+                          }`}
+                        >
+                          {!isMe && (
+                            <div
+                              className="lounge-chat-avatar"
+                              style={{
+                                backgroundColor: getAvatarBg(msg.senderUid)
+                              }}
+                            >
+                              {(msg.senderName || '참').slice(0, 1)}
+                            </div>
+                          )}
+
+                          <div className="lounge-chat-content-wrap">
+                            {!isMe && (
+                              <span className="lounge-chat-sender-name">
+                                {senderMember
+                                  ? formatMemberNickname(senderMember)
+                                  : msg.senderName}
+                              </span>
+                            )}
+
+                            <div className="lounge-chat-bubble-time-group">
+                              <div
+                                className={`lounge-chat-bubble ${
+                                  isMe ? 'is-me' : 'is-other'
+                                }`}
+                              >
+                                {msg.imageUrl && (
+                                  <img
+                                    src={msg.thumbUrl || msg.imageUrl}
+                                    alt="공유 사진"
+                                    onClick={() =>
+                                      setActiveLightboxItem({
+                                        id: msg.id,
+                                        url: msg.imageUrl,
+                                        uploaderUid: msg.senderUid,
+                                        uploaderName: msg.senderName,
+                                        likes: []
+                                      })
+                                    }
+                                  />
+                                )}
+                                {msg.text && <div>{msg.text}</div>}
+                              </div>
+                              <span className="lounge-chat-time">{timeStr}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                  <div ref={chatMessagesEndRef} />
+                </div>
+
+                {/* Chat Input Bar */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendChatMessage(chatInput);
+                  }}
+                  className="lounge-chat-input-bar"
+                >
+                  <button
+                    type="button"
+                    className="lounge-chat-photo-btn"
+                    title="사진 첨부 (앨범 자동 등록)"
+                    onClick={() => chatPhotoInputRef.current?.click()}
+                  >
+                    📷
+                  </button>
+                  <input
+                    type="file"
+                    ref={chatPhotoInputRef}
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleChatPhotoUpload(file);
+                      e.target.value = '';
+                    }}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="메시지 입력..."
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                  />
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-sm"
+                    disabled={!chatInput.trim()}
+                  >
+                    전송
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 1: 장소 (Read-only cards by default, toggle edit per round) */}
             {loungeTab === 'rounds' && (
               <div className="stack-gap">
                 <div className="btn-row">
@@ -1714,9 +2027,6 @@ export default function MeetingDetailPage({
                     const rParticipants = Array.isArray(r.participants)
                       ? r.participants
                       : [];
-                    const amIInRound = rParticipants.includes(
-                      currentUser?.uid
-                    );
                     const isEditingThisRound = editingRoundIdx === idx;
                     const payerMember = members.find(
                       (m) => m.uid === (r.payerUid || treasurerUid)
@@ -1737,9 +2047,11 @@ export default function MeetingDetailPage({
                         <div className="meeting-top">
                           <div className="badge-group">
                             <span className="platform-badge">{idx + 1}차</span>
-                            <strong className="lounge-round-title">
-                              {r.placeName || '장소 미정'}
-                            </strong>
+                            {r.placeName && (
+                              <strong className="lounge-round-title">
+                                {r.placeName}
+                              </strong>
+                            )}
                             {r.isGoldenBell && (
                               <span className="expedition-pill">
                                 골든벨 (
@@ -1751,22 +2063,6 @@ export default function MeetingDetailPage({
                           </div>
 
                           <div className="btn-row">
-                            <button
-                              type="button"
-                              className={`btn btn-sm ${
-                                amIInRound ? 'btn-primary' : 'btn-outline'
-                              }`}
-                              onClick={() =>
-                                handleToggleRoundParticipant(
-                                  idx,
-                                  currentUser?.uid
-                                )
-                              }
-                            >
-                              {amIInRound
-                                ? `${idx + 1}차 참석 ✓`
-                                : `${idx + 1}차 불참`}
-                            </button>
                             <button
                               type="button"
                               className="btn btn-outline btn-sm"
@@ -1898,30 +2194,29 @@ export default function MeetingDetailPage({
                         {isEditingThisRound && (
                           <div className="round-finance-box">
                             <div className="form-grid">
-                              <div className="form-field">
-                                <label>{idx + 1}차 상호명</label>
-                                <input
-                                  type="text"
-                                  placeholder={`${idx + 1}차 장소 입력`}
+                              <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                                <label>장소</label>
+                                <textarea
+                                  rows={2}
+                                  placeholder={`${idx + 1}차 상호명 또는 지도 URL 입력`}
                                   value={r.placeName || ''}
-                                  onChange={(e) =>
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const isUrl = /^https?:\/\//i.test(val.trim());
                                     handleUpdateRoundField(idx, {
-                                      placeName: e.target.value
-                                    })
-                                  }
-                                />
-                              </div>
-                              <div className="form-field">
-                                <label>지도 링크</label>
-                                <input
-                                  type="url"
-                                  placeholder="네이버/카카오 지도 URL"
-                                  value={r.mapUrl || ''}
-                                  onChange={(e) =>
-                                    handleUpdateRoundField(idx, {
-                                      mapUrl: e.target.value
-                                    })
-                                  }
+                                      placeName: val,
+                                      ...(isUrl ? { mapUrl: val.trim() } : {})
+                                    });
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '8px 10px',
+                                    fontSize: '13.5px',
+                                    borderRadius: 'var(--radius-base)',
+                                    border: '1px solid var(--color-divider)',
+                                    background: 'var(--color-surface)',
+                                    boxSizing: 'border-box'
+                                  }}
                                 />
                               </div>
                               <div className="form-field">
@@ -2032,6 +2327,7 @@ export default function MeetingDetailPage({
                 </div>
               </div>
             )}
+
 
             {/* TAB 2: 정산·회비 (Clean My Amount Hero + Member Status List + Collapsible Manager Drawer) */}
             {loungeTab === 'settlement' && (
@@ -2327,32 +2623,11 @@ export default function MeetingDetailPage({
                         </form>
                       </div>
 
-                      {/* Rounding & Manual Override for Host/Treasurer */}
+                      {/* Manual Override for Host/Treasurer */}
                       {canManage && (
                         <div className="participants-box stack-gap">
                           <div className="meeting-top">
-                            <strong>끝전 단위 & 수동 금액 조정</strong>
-                            <div className="badge-group">
-                              {[
-                                { id: 'floor100', label: '100원 버림' },
-                                { id: 'ceil100', label: '100원 올림' },
-                                { id: 'exact', label: '1원 단위' }
-                              ].map((rule) => (
-                                <button
-                                  key={rule.id}
-                                  type="button"
-                                  className={`btn btn-sm ${
-                                    (meeting.roundingRule || 'floor100') ===
-                                    rule.id
-                                      ? 'btn-primary'
-                                      : 'btn-outline'
-                                  }`}
-                                  onClick={() => handleChangeRounding(rule.id)}
-                                >
-                                  {rule.label}
-                                </button>
-                              ))}
-                            </div>
+                            <strong>수동 금액 조정</strong>
                           </div>
 
                           {settlement.participantRows.map((row) => {

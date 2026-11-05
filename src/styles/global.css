@@ -1960,6 +1960,252 @@ h3 {
   color: var(--color-text-muted);
 }
 
+/* Subway Route Map Progress Bar */
+.lounge-metro-progress {
+  margin-top: 10px;
+  padding: 10px 12px 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-base);
+}
+
+.lounge-metro-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+}
+
+.lounge-metro-line {
+  position: absolute;
+  top: 7px;
+  left: 14px;
+  right: 14px;
+  height: 3px;
+  background: #cbd5e1;
+  z-index: 1;
+}
+
+.lounge-metro-line-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+
+.lounge-metro-node {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+
+.lounge-metro-circle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.lounge-metro-node.is-active .lounge-metro-circle {
+  border-color: #10b981;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+}
+
+.lounge-metro-node.is-passed .lounge-metro-circle {
+  border-color: #10b981;
+  background: #10b981;
+}
+
+.lounge-metro-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.lounge-metro-node.is-active .lounge-metro-label {
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* KakaoTalk Emerald Chat Room Styles */
+.lounge-chat-container {
+  background: #e6f4ea;
+  border-radius: var(--radius-base);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  display: flex;
+  flex-direction: column;
+  height: 520px;
+  max-height: 65vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.lounge-chat-accordion {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 10px 14px;
+  max-height: 190px;
+  overflow-y: auto;
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.lounge-chat-accordion-title {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lounge-chat-accordion-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.lounge-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lounge-chat-bubble-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.lounge-chat-bubble-row.is-me {
+  flex-direction: row-reverse;
+}
+
+.lounge-chat-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.lounge-chat-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 75%;
+}
+
+.lounge-chat-bubble-row.is-me .lounge-chat-content-wrap {
+  align-items: flex-end;
+}
+
+.lounge-chat-sender-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  padding-left: 2px;
+}
+
+.lounge-chat-bubble-time-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.lounge-chat-bubble-row.is-me .lounge-chat-bubble-time-group {
+  flex-direction: row-reverse;
+}
+
+.lounge-chat-bubble {
+  padding: 8px 12px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.lounge-chat-bubble.is-other {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 4px 14px 14px 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.lounge-chat-bubble.is-me {
+  background: #fef08a;
+  color: #0f172a;
+  border-radius: 14px 4px 14px 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.lounge-chat-bubble img {
+  max-width: 220px;
+  max-height: 180px;
+  border-radius: 8px;
+  display: block;
+  cursor: pointer;
+}
+
+.lounge-chat-time {
+  font-size: 10px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.lounge-chat-input-bar {
+  background: #ffffff;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.lounge-chat-input-bar input {
+  flex: 1;
+  border: none;
+  background: #f1f5f9;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  outline: none;
+}
+
+.lounge-chat-photo-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+}
+
 /* "벙대기실" Access & 3-Tab Lounge Styles */
 .lounge-locked-box {
   background: var(--color-subtle-bg);
@@ -1980,7 +2226,7 @@ h3 {
 
 .lounge-tab-bar {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
   background: var(--color-subtle-bg);
   padding: 4px;
@@ -1989,14 +2235,16 @@ h3 {
 }
 
 .lounge-tab-btn {
-  padding: 8px 6px;
+  padding: 8px 4px;
   border: none;
   border-radius: calc(var(--radius-base) - 1px);
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .lounge-tab-btn.active {
