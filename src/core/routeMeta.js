@@ -162,6 +162,23 @@ export function isPastMeeting(mtg, todayStr = getTodayDateString()) {
   return false;
 }
 
+/**
+ * Check if the meeting's 벙대기실 (lounge) is open.
+ * Conditions:
+ * 1. Must be a bung meeting (requestAttendance !== false)
+ * 2. Either explicitly approved early (loungeStatus === 'approved')
+ * 3. OR the meeting date has arrived (meetingDate <= todayStr)
+ */
+export function isMeetingLoungeOpen(meeting, todayStr = getTodayDateString()) {
+  if (!meeting) return false;
+  if (meeting.requestAttendance === false) return false;
+  if (meeting.loungeStatus === 'approved') return true;
+  const meetingDate =
+    meeting.dateOnly || (meeting.date ? String(meeting.date).slice(0, 10) : '');
+  if (meetingDate && meetingDate <= todayStr) return true;
+  return false;
+}
+
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
 /**

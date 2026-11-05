@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import {
   canCreateMeeting,
   formatMemberNickname,
+  isAdminRole,
+  isAdminUser,
   ROLE_META
 } from '../core/communityRules';
-import { formatScheduleDetailText } from '../core/routeMeta';
+import {
+  formatScheduleDetailText,
+  getTodayDateString,
+  isMeetingLoungeOpen
+} from '../core/routeMeta';
 import { isPastMeeting } from './MeetingsPage';
 
 export default function HomePage({
@@ -49,6 +55,38 @@ export default function HomePage({
       String(b.dateOnly || b.date || '')
     )
   );
+
+  const todayStr = getTodayDateString();
+  const adminUser =
+    isAdminRole(currentUser?.role) || isAdminUser(currentUser, communityConfig);
+
+  const openLoungeMeetings = (meetings || [])
+    .filter((m) => {
+      if (m.requestAttendance === false) return false;
+      const meetingDate =
+        m.dateOnly || (m.date ? String(m.date).slice(0, 10) : '');
+
+      const isApprovedActive =
+        m.loungeStatus === 'approved' && (!meetingDate || meetingDate >= todayStr);
+      const isToday = meetingDate === todayStr;
+      const isOpen = isApprovedActive || isToday;
+      if (!isOpen) return false;
+
+      if (adminUser) return true;
+      const applicants = m.applicants || [];
+      const confirmed = m.confirmedParticipants || [];
+      const isAttendee =
+        applicants.includes(currentUser?.uid) ||
+        confirmed.includes(currentUser?.uid) ||
+        m.hostUid === currentUser?.uid ||
+        m.treasurerUid === currentUser?.uid;
+      return isAttendee;
+    })
+    .sort((a, b) =>
+      String(a.dateOnly || a.date || '').localeCompare(
+        String(b.dateOnly || b.date || '')
+      )
+    );
 
   const myNickname = currentUser ? formatMemberNickname(currentUser) : '';
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
@@ -355,6 +393,67 @@ export default function HomePage({
             >
               신입 닉네임 생성기
             </button>
+          </div>
+        </section>
+      )}
+
+      {/* 1.5. Open Waiting Rooms (열린 벙대기실) - Only rendered when active open rooms exist */}
+      {openLoungeMeetings.length > 0 && (
+        <section className="list-section open-lounge-section">
+          <div className="section-title-row">
+            <h2>열린 벙대기실 ({openLoungeMeetings.length})</h2>
+            <span className="sub-meta">당일 및 사전 오픈</span>
+          </div>
+
+          <div className="divider-list lounge-divider-list">
+            {openLoungeMeetings.map((m) => {
+              const formattedLine = formatScheduleDetailText(m);
+              const applicants = m.applicants || [];
+              const confirmed = m.confirmedParticipants || [];
+              const isAttendee =
+                applicants.includes(currentUser?.uid) ||
+                confirmed.includes(currentUser?.uid) ||
+                m.hostUid === currentUser?.uid ||
+                m.treasurerUid === currentUser?.uid;
+
+              return (
+                <div
+                  key={m.id}
+                  role="button"
+                  tabIndex={0}
+                  className="list-item-row open-lounge-item-row"
+                  onClick={() =>
+                    onOpenMeetingDetail
+                      ? onOpenMeetingDetail(m.id, 'lounge')
+                      : onNavigateTab('meetings', { id: m.id, subView: 'lounge' })
+                  }
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' &&
+                    (onOpenMeetingDetail
+                      ? onOpenMeetingDetail(m.id, 'lounge')
+                      : onNavigateTab('meetings', { id: m.id, subView: 'lounge' }))
+                  }
+                >
+                  <div className="schedule-bullet-indicator" aria-hidden="true">
+                    <span className="schedule-bullet-square" />
+                    <span className="schedule-bullet-emoji">📅</span>
+                  </div>
+                  <strong className="open-lounge-item-title">
+                    {formattedLine}
+                  </strong>
+                  <div className="open-lounge-badge-group">
+                    {isAttendee ? (
+                      <span className="lounge-attend-badge">참석 중</span>
+                    ) : adminUser ? (
+                      <span className="location-pill">운영진 참관</span>
+                    ) : null}
+                    <span className="lounge-action-label" aria-hidden="true">
+                      입장 &gt;
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
       )}

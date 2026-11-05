@@ -4,6 +4,7 @@ import {
   ROLE_KEYS,
   ROLE_META
 } from '../core/communityRules';
+import { formatScheduleDetailText } from '../core/routeMeta';
 
 const AVATAR_BG_PALETTE = [
   '#f59e0b',
@@ -25,18 +26,72 @@ function getAvatarBg(uid) {
 }
 
 export default function AdminPage({
+  currentUser,
   members = [],
   meetings = [],
   communityConfig = {},
   onOpenMeetingDetail,
+  onUpdateMeeting,
   onDeleteMeeting,
   onAdminUpdateMember,
   onAdminAdjustEventScore,
   onAdminUpdateConfig
 }) {
-  const [subTab, setSubTab] = useState('members'); // 'members' | 'meetings' | 'scores' | 'config'
+  const [subTab, setSubTab] = useState('members'); // 'members' | 'meetings' | 'requests' | 'scores' | 'config'
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
+
+  // Lounge early access requests
+  const pendingLoungeRequests = meetings.filter(
+    (m) => m.requestAttendance !== false && m.loungeStatus === 'requested'
+  );
+  const approvedLoungeMeetings = meetings.filter(
+    (m) => m.requestAttendance !== false && m.loungeStatus === 'approved'
+  );
+
+  const handleApproveLoungeRequest = async (meetingId) => {
+    if (!onUpdateMeeting) return;
+    try {
+      await onUpdateMeeting(meetingId, {
+        loungeStatus: 'approved',
+        loungeApprovedByUid: currentUser?.uid || '',
+        loungeApprovedAt: new Date().toISOString()
+      });
+      alert('벙대기실 조기 오픈 요청을 승인했습니다.');
+    } catch (err) {
+      console.error('Failed to approve request:', err);
+      alert('승인 처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleRejectLoungeRequest = async (meetingId) => {
+    if (!onUpdateMeeting) return;
+    if (!window.confirm('정말 이 벙대기실 사용 요청을 반려하시겠습니까?')) return;
+    try {
+      await onUpdateMeeting(meetingId, {
+        loungeStatus: null,
+        loungeRequest: null
+      });
+      alert('요청을 반려했습니다.');
+    } catch (err) {
+      console.error('Failed to reject request:', err);
+      alert('반려 처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleCancelLoungeApproval = async (meetingId) => {
+    if (!onUpdateMeeting) return;
+    if (!window.confirm('조기 오픈 승인을 취소하시겠습니까? (당일 오픈 상태로 복귀)')) return;
+    try {
+      await onUpdateMeeting(meetingId, {
+        loungeStatus: null
+      });
+      alert('조기 오픈 승인을 취소했습니다.');
+    } catch (err) {
+      console.error('Failed to cancel approval:', err);
+      alert('취소 처리 중 오류가 발생했습니다.');
+    }
+  };
 
   // Manual event score form state
   const [scoreForm, setScoreForm] = useState({
@@ -104,7 +159,7 @@ export default function AdminPage({
             className={`subtab-btn ${subTab === 'members' ? 'active' : ''}`}
             onClick={() => setSubTab('members')}
           >
-            회원·역할 관리 ({members.length})
+            회원·역할 ({members.length})
           </button>
           <button
             type="button"
@@ -112,6 +167,18 @@ export default function AdminPage({
             onClick={() => setSubTab('meetings')}
           >
             모임 관리 ({meetings.length})
+          </button>
+          <button
+            type="button"
+            className={`subtab-btn ${subTab === 'requests' ? 'active' : ''}`}
+            onClick={() => setSubTab('requests')}
+          >
+            요청
+            {pendingLoungeRequests.length > 0 && (
+              <span className="lounge-waiting-badge" style={{ marginLeft: '6px' }}>
+                {pendingLoungeRequests.length}
+              </span>
+            )}
           </button>
           <button
             type="button"
@@ -386,7 +453,133 @@ export default function AdminPage({
         </section>
       )}
 
-      {/* Sub-tab 2: Manual Event Score Grant / Deduct */}
+      {/* Sub-tab: Requests Management (벙대기실 조기 오픈 요청 관리) */}
+      {subTab === 'requests' && (
+        <section className="list-section">
+          <div className="section-title-row">
+            <h3 style={{ margin: 0 }}>
+              벙대기실 조기 오픈 대기 요청 ({pendingLoungeRequests.length})
+            </h3>
+          </div>
+
+          {pendingLoungeRequests.length === 0 ? (
+            <p className="muted-text" style={{ padding: '16px 0' }}>
+              현재 대기 중인 벙대기실 조기 오픈 요청이 없습니다.
+            </p>
+          ) : (
+            <div className="divider-list" style={{ marginTop: '12px' }}>
+              {pendingLoungeRequests.map((m) => {
+                const scheduleText = formatScheduleDetailText(m);
+                const req = m.loungeRequest || {};
+                const requestedTime = req.requestedAt
+                  ? new Date(req.requestedAt).toLocaleString('ko-KR', {
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                  : '일시 미상';
+
+                return (
+                  <div key={m.id} className="admin-request-card">
+                    <div className="admin-request-header">
+                      <div>
+                        <span className="platform-badge" style={{ marginRight: '6px' }}>#{m.id}</span>
+                        <strong style={{ fontSize: '15px' }}>{m.title}</strong>
+                      </div>
+                      <span className="lounge-waiting-badge">승인 대기 중</span>
+                    </div>
+
+                    <div className="admin-request-body">
+                      <div><strong>일정:</strong> {scheduleText}</div>
+                      <div style={{ marginTop: '4px' }}>
+                        <strong>요청자:</strong> {req.requestedByName || '참석자'}{' '}
+                        <span className="sub-meta">({requestedTime})</span>
+                      </div>
+                    </div>
+
+                    <div className="admin-request-actions" style={{ marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handleApproveLoungeRequest(m.id)}
+                      >
+                        승인 (조기 오픈)
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => handleRejectLoungeRequest(m.id)}
+                      >
+                        반려
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => onOpenMeetingDetail && onOpenMeetingDetail(m.id)}
+                      >
+                        모임 상세
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Approved Open Meetings */}
+          {approvedLoungeMeetings.length > 0 && (
+            <div style={{ marginTop: '30px' }}>
+              <div className="section-title-row">
+                <h3 style={{ margin: 0, fontSize: '15px' }}>
+                  사전 승인 완료된 벙대기실 ({approvedLoungeMeetings.length})
+                </h3>
+              </div>
+              <div className="divider-list" style={{ marginTop: '10px' }}>
+                {approvedLoungeMeetings.map((m) => (
+                  <div
+                    key={m.id}
+                    className="admin-request-card"
+                    style={{ background: 'var(--color-subtle-bg, #f8fafc)' }}
+                  >
+                    <div className="admin-request-header">
+                      <div>
+                        <span className="platform-badge" style={{ marginRight: '6px' }}>#{m.id}</span>
+                        <strong>{m.title}</strong>
+                      </div>
+                      <span className="lounge-attend-badge">조기 오픈 중</span>
+                    </div>
+                    <div className="admin-request-body">
+                      <div><strong>일정:</strong> {formatScheduleDetailText(m)}</div>
+                      {m.loungeApprovedAt && (
+                        <div className="sub-meta" style={{ marginTop: '4px' }}>
+                          승인 일시: {new Date(m.loungeApprovedAt).toLocaleString('ko-KR')}
+                        </div>
+                      )}
+                    </div>
+                    <div className="admin-request-actions" style={{ marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => onOpenMeetingDetail && onOpenMeetingDetail(m.id, 'lounge')}
+                      >
+                        벙대기실 열람
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => handleCancelLoungeApproval(m.id)}
+                      >
+                        승인 취소
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
       {subTab === 'scores' && (
         <section className="list-section">
           <h3 style={{ marginBottom: '12px' }}>수동 점수 가감</h3>

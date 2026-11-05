@@ -10,6 +10,7 @@ import {
   ROLE_META
 } from '../core/communityRules';
 import { isFirebaseConfigured } from '../services/firebase';
+import { isMeetingLoungeOpen } from '../core/routeMeta';
 
 export default function ProfilePage({
   currentUser,
@@ -571,6 +572,18 @@ export default function ProfilePage({
                       <strong className="score-highlight">
                         부담금 {row.finalShare.toLocaleString()}원
                       </strong>
+                      {mtg.requestAttendance !== false && isMeetingLoungeOpen(mtg) && (
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() =>
+                            onOpenMeetingDetail &&
+                            onOpenMeetingDetail(mtg.id, 'lounge')
+                          }
+                        >
+                          벙대기실
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="btn btn-outline btn-sm"

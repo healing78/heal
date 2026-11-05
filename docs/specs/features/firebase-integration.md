@@ -54,7 +54,7 @@
 
 ### Firestore Collections Structure
 - `members/{uid}`: 회원 프로필, 등급(`role`), 참석 횟수(`attendanceCount`), 점수(`baseScore`, `expeditionScore`, `eventScore`, `totalScore`, `monthlyScore`) 문서.
-- `meetings/{meetingId}`: 모임 정보, 벙주(`hostUid`), 상태(`open` | `settled`), 신청자(`applicants`), 실참석자(`confirmedParticipants`) 문서.
+- `meetings/{meetingId}`: 모임 정보, 벙주(`hostUid`), 상태(`open` | `settled`), 신청자(`applicants`), 실참석자(`confirmedParticipants`), 벙대기실 조기 오픈 상태(`loungeStatus`: `'requested'` | `'approved'` | `null`, `loungeRequest`: `{ requestedByUid, requestedByName, requestedAt }`, `loungeApprovedByUid`, `loungeApprovedAt`) 문서.
 - `scoreLogs/{logId}`: 회원별 점수 가감 상세 이력 문서.
 - `settings/community`: 공지사항 제목(`noticeTitle`), 본문(`noticeBody`) 및 커뮤니티 기본 설정 단일 문서.
 

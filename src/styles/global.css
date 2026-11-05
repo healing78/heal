@@ -1891,6 +1891,24 @@ h3 {
   color: #10b981;
 }
 
+.lounge-waiting-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.lounge-dday-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
+}
+
 .lounge-entry-desc {
   font-size: 0.8rem;
   color: var(--color-text-muted);
@@ -2583,6 +2601,119 @@ h3 {
   background: rgba(0, 0, 0, 0.4);
   padding: 8px 12px;
   border-radius: var(--radius-base);
+}
+
+/* Open Waiting Rooms (열린 벙대기실) Section on Home Page */
+.open-lounge-section {
+  border-radius: 12px;
+  padding: 16px 14px;
+  margin-bottom: 16px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Theme-adaptive pastel background & subtle borders */
+/* Default / Mono theme */
+.open-lounge-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme='mono'] .open-lounge-section {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+}
+
+[data-theme='excel'] .open-lounge-section {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+[data-theme='rose'] .open-lounge-section {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+}
+
+.open-lounge-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 14px;
+  min-height: 56px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  margin-bottom: 8px;
+}
+
+.open-lounge-item-row:last-child {
+  margin-bottom: 0;
+}
+
+.open-lounge-item-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+}
+
+.open-lounge-item-row:active {
+  transform: translateY(0);
+}
+
+.open-lounge-item-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-text-primary, #0f172a);
+  word-break: keep-all;
+  line-height: 1.45;
+  flex: 1;
+}
+
+.open-lounge-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.lounge-action-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+/* Admin Request Card styles */
+.admin-request-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.admin-request-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-request-body {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.admin-request-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Desktop Breakpoint (>= 768px) */

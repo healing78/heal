@@ -28,6 +28,7 @@ import {
   deleteMeetingMediaItem,
   unlockMeetingAlbumForUser
 } from '../services/communityService';
+import { getTodayDateString, isMeetingLoungeOpen } from '../core/routeMeta';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_FULL_KO = [
@@ -337,6 +338,46 @@ export default function MeetingDetailPage({
   // Only attendees, host/treasurer, or admin can view the 벙대기실 (rounds, settlement, safe return)
   const canAccessLounge =
     isApplied || isConfirmedParticipant || canManage || adminUser;
+
+  const todayStr = getTodayDateString();
+  const loungeOpen = isMeetingLoungeOpen(meeting, todayStr);
+
+  const handleRequestLounge = async () => {
+    if (!onUpdateMeeting || !currentUser) return;
+    try {
+      await onUpdateMeeting(meeting.id, {
+        loungeStatus: 'requested',
+        loungeRequest: {
+          requestedByUid: currentUser.uid,
+          requestedByName:
+            currentUser.name ||
+            currentUser.realName ||
+            currentUser.nickname ||
+            '참석자',
+          requestedAt: new Date().toISOString()
+        }
+      });
+      alert('벙대기실 조기 오픈 요청이 운영진에게 전달되었습니다.');
+    } catch (err) {
+      console.error('Failed to request lounge:', err);
+      alert('요청 처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleApproveLounge = async () => {
+    if (!onUpdateMeeting || !adminUser) return;
+    try {
+      await onUpdateMeeting(meeting.id, {
+        loungeStatus: 'approved',
+        loungeApprovedByUid: currentUser?.uid || '',
+        loungeApprovedAt: new Date().toISOString()
+      });
+      alert('벙대기실이 조기 오픈되었습니다.');
+    } catch (err) {
+      console.error('Failed to approve lounge:', err);
+      alert('승인 처리 중 오류가 발생했습니다.');
+    }
+  };
 
   const hostMember = members.find((m) => m.uid === meeting.hostUid);
   const treasurerUid = meeting.treasurerUid || meeting.hostUid;
@@ -1369,41 +1410,139 @@ export default function MeetingDetailPage({
           </form>
         )}
 
-        {/* Prominent 벙대기실 Entry Banner/Card (Only rendered when requestAttendance !== false) */}
-        {isBungMeeting && (
-          <div
-            role="button"
-            tabIndex={0}
-            className="lounge-entry-card"
-            onClick={() => handleNavigateView('lounge')}
-            onKeyDown={(e) =>
-              e.key === 'Enter' && handleNavigateView('lounge')
-            }
-          >
-            <div className="lounge-entry-body">
-              <div className="lounge-entry-title">
-                <span className="platform-badge">#{meeting.id}</span>
-                <strong>벙대기실 입장하기</strong>
-                {isApplied ? (
-                  <span className="lounge-attend-badge">참석 중</span>
-                ) : adminUser ? (
-                  <span className="location-pill">운영진 열람</span>
-                ) : null}
+        {/* Prominent 벙대기실 Entry Banner/Card (Only rendered to attendees & admins when requestAttendance !== false) */}
+        {isBungMeeting && canAccessLounge && (
+          loungeOpen ? (
+            <div
+              role="button"
+              tabIndex={0}
+              className="lounge-entry-card"
+              onClick={() => handleNavigateView('lounge')}
+              onKeyDown={(e) =>
+                e.key === 'Enter' && handleNavigateView('lounge')
+              }
+            >
+              <div className="lounge-entry-body">
+                <div className="lounge-entry-title">
+                  <span className="platform-badge">#{meeting.id}</span>
+                  <strong>벙대기실 입장하기</strong>
+                  {isApplied || isConfirmedParticipant ? (
+                    <span className="lounge-attend-badge">참석 중</span>
+                  ) : adminUser ? (
+                    <span className="location-pill">운영진 참관</span>
+                  ) : null}
+                </div>
+                <p className="lounge-entry-desc">
+                  1·2차 장소 코스 · N빵 정산 · 안심 귀가 · 사진 앨범
+                </p>
               </div>
-              <p className="lounge-entry-desc">
-                1·2차 장소 코스 · N빵 정산 · 안심 귀가 · 사진 앨범
-              </p>
+              <span className="lounge-entry-arrow" aria-hidden="true">
+                &gt;
+              </span>
             </div>
-            <span className="lounge-entry-arrow" aria-hidden="true">
-              &gt;
-            </span>
-          </div>
+          ) : meeting.loungeStatus === 'requested' ? (
+            <div className="lounge-entry-card lounge-requested-card" style={{ cursor: 'default' }}>
+              <div className="lounge-entry-body">
+                <div className="lounge-entry-title">
+                  <span className="platform-badge">#{meeting.id}</span>
+                  <strong>벙대기실 사용 요청 완료</strong>
+                  <span className="lounge-waiting-badge">승인 대기 중</span>
+                </div>
+                <p className="lounge-entry-desc">
+                  {meeting.loungeRequest?.requestedByName
+                    ? `${meeting.loungeRequest.requestedByName}님이 `
+                    : ''}
+                  조기 사용 요청을 보냈습니다. 운영진 승인 시 조기 입장 가능합니다.
+                </p>
+              </div>
+              {adminUser && (
+                <div className="badge-group" style={{ flexShrink: 0 }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApproveLounge();
+                    }}
+                  >
+                    운영진 승인
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="lounge-entry-card lounge-locked-card" style={{ cursor: 'default' }}>
+              <div className="lounge-entry-body">
+                <div className="lounge-entry-title">
+                  <span className="platform-badge">#{meeting.id}</span>
+                  <strong>벙대기실 사용 요청</strong>
+                  <span className="lounge-dday-badge">당일 자동 오픈</span>
+                </div>
+                <p className="lounge-entry-desc">
+                  모임 당일(00:00) 전에 벙대기실을 조기 이용하려면 요청해 주세요.
+                </p>
+              </div>
+              <div className="badge-group" style={{ flexShrink: 0 }}>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRequestLounge();
+                  }}
+                >
+                  사용 요청
+                </button>
+                {adminUser && (
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApproveLounge();
+                    }}
+                  >
+                    즉시 오픈
+                  </button>
+                )}
+              </div>
+            </div>
+          )
         )}
       </section>
       )}
 
       {/* 2. Dedicated "벙대기실" View */}
       {viewMode === 'lounge' && isBungMeeting && (
+        !canAccessLounge || (!loungeOpen && !adminUser) ? (
+          <section className="list-section">
+            <div className="detail-top-bar">
+              <button
+                type="button"
+                className="detail-back-btn"
+                onClick={() => handleNavigateView('detail')}
+              >
+                <span>← 일정 상세로 돌아가기</span>
+              </button>
+            </div>
+            <div className="card-box" style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <h3 style={{ margin: 0, fontSize: '17px' }}>벙대기실 입장 불가</h3>
+              <p className="muted-text" style={{ marginTop: '10px', fontSize: '14px' }}>
+                {!canAccessLounge
+                  ? '모임 참석 신청자 또는 운영진만 벙대기실에 입장할 수 있습니다.'
+                  : '벙대기실은 모임 당일(00:00)에 자동 오픈되거나 운영진 사전 승인 후 입장할 수 있습니다.'}
+              </p>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                style={{ marginTop: '16px' }}
+                onClick={() => handleNavigateView('detail')}
+              >
+                일정 상세 보기
+              </button>
+            </div>
+          </section>
+        ) : (
         <section className="list-section" id="bung-lounge">
           <div className="detail-top-bar">
             <button
@@ -1872,6 +2011,11 @@ export default function MeetingDetailPage({
                             ? '내가 보낼 회비'
                             : '총무에게 환급받을 정산금'
                           : '1/N 정산 대상 총액'}
+                        {!mySettlementRow && adminUser && (
+                          <span className="location-pill" style={{ marginLeft: '6px' }}>
+                            운영진 참관
+                          </span>
+                        )}
                       </div>
                       <div className="preview-value">
                         {mySettlementRow
@@ -2230,20 +2374,31 @@ export default function MeetingDetailPage({
                 <div className="lounge-settle-hero">
                   <div className="meeting-top">
                     <div>
-                      <div className="preview-caption">내 안심 귀가 상태</div>
+                      <div className="preview-caption">
+                        내 안심 귀가 상태
+                        {adminUser && !isApplied && !isConfirmedParticipant && (
+                          <span className="location-pill" style={{ marginLeft: '6px' }}>
+                            운영진 참관
+                          </span>
+                        )}
+                      </div>
                       <div className="preview-value">
-                        {mySafeReturn || '귀가 전'}
+                        {adminUser && !isApplied && !isConfirmedParticipant
+                          ? '참관 중 (귀가 확인 제외)'
+                          : mySafeReturn || '귀가 전'}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      className={`btn ${
-                        mySafeReturn ? 'btn-outline' : 'btn-primary'
-                      }`}
-                      onClick={handleToggleSafeReturn}
-                    >
-                      {mySafeReturn ? '귀가완료 해제' : '귀가완료 체크'}
-                    </button>
+                    {(isApplied || isConfirmedParticipant) && (
+                      <button
+                        type="button"
+                        className={`btn ${
+                          mySafeReturn ? 'btn-outline' : 'btn-primary'
+                        }`}
+                        onClick={handleToggleSafeReturn}
+                      >
+                        {mySafeReturn ? '귀가완료 해제' : '귀가완료 체크'}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -2639,7 +2794,8 @@ export default function MeetingDetailPage({
           )}
         </div>
       </section>
-      )}
+      )
+    )}
 
       {/* 3. Likes (❤️) & One-Line Comments Feed (Only in detail view) */}
       {viewMode === 'detail' && (

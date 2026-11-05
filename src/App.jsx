@@ -408,10 +408,12 @@ export default function App() {
     if (activeTab === 'admin' && isAdminUser(currentUser, communityConfig)) {
       return (
         <AdminPage
+          currentUser={currentUser}
           members={members}
           meetings={meetings}
           communityConfig={communityConfig}
           onOpenMeetingDetail={handleOpenMeetingDetail}
+          onUpdateMeeting={handleUpdateMeeting}
           onDeleteMeeting={handleDeleteMeeting}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminAdjustEventScore={handleAdminAdjustEventScore}
