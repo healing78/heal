@@ -260,6 +260,7 @@ export default function MeetingDetailPage({
   // Chat & Subway Route Progress states
   const [showChatUsersAccordion, setShowChatUsersAccordion] = useState(false);
   const [chatInput, setChatInput] = useState('');
+  const chatTextInputRef = useRef(null);
   const chatPhotoInputRef = useRef(null);
   const chatMessagesEndRef = useRef(null);
 
@@ -934,6 +935,12 @@ export default function MeetingDetailPage({
     ? meeting.chatMessages
     : [];
 
+  useEffect(() => {
+    if (loungeTab === 'chat' && chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages.length, loungeTab]);
+
   const handleSendChatMessage = async (textToSend, photoItem = null) => {
     if ((!textToSend?.trim() && !photoItem) || !currentUser || !onUpdateMeeting)
       return;
@@ -952,6 +959,12 @@ export default function MeetingDetailPage({
     };
     const nextChats = [...chatMessages, newMsg];
     setChatInput('');
+    if (chatTextInputRef.current) {
+      chatTextInputRef.current.focus();
+      requestAnimationFrame(() => {
+        chatTextInputRef.current?.focus();
+      });
+    }
     await onUpdateMeeting(meeting.id, { chatMessages: nextChats });
   };
 
@@ -1966,7 +1979,9 @@ export default function MeetingDetailPage({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
+                    if (!chatInput.trim()) return;
                     handleSendChatMessage(chatInput);
+                    chatTextInputRef.current?.focus();
                   }}
                   className="lounge-chat-input-bar"
                 >
@@ -1991,16 +2006,26 @@ export default function MeetingDetailPage({
                   />
 
                   <input
+                    ref={chatTextInputRef}
                     type="text"
                     placeholder="메시지 입력..."
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
+                    autoComplete="off"
                   />
 
                   <button
                     type="submit"
                     className="btn btn-primary btn-sm"
                     disabled={!chatInput.trim()}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onTouchEnd={(e) => {
+                      if (chatInput.trim()) {
+                        e.preventDefault();
+                        handleSendChatMessage(chatInput);
+                        chatTextInputRef.current?.focus();
+                      }
+                    }}
                   >
                     전송
                   </button>
