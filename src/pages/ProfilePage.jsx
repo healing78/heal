@@ -10,7 +10,32 @@ import {
   ROLE_META
 } from '../core/communityRules';
 import { isFirebaseConfigured } from '../services/firebase';
-import { isMeetingLoungeOpen } from '../core/routeMeta';
+
+const WEEKDAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+
+function formatMeetingReportLine(mtg, finalShare) {
+  const dateStr =
+    mtg.dateOnly || (mtg.date ? String(mtg.date).slice(0, 10) : '');
+  let datePrefix = '';
+  if (dateStr) {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const yy = parts[0].slice(-2);
+      const mm = parts[1].padStart(2, '0');
+      const dd = parts[2].padStart(2, '0');
+      const dObj = new Date(
+        Number(parts[0]),
+        Number(parts[1]) - 1,
+        Number(parts[2])
+      );
+      const dayKo = WEEKDAY_NAMES[dObj.getDay()] || '';
+      datePrefix = `${yy}년 ${mm}월 ${dd}일 ${dayKo} `;
+    }
+  }
+  const title = (mtg.title || '').trim();
+  const feeStr = `${Number(finalShare || 0).toLocaleString()}원`;
+  return `${datePrefix}${title} ${feeStr}`.trim();
+}
 
 export default function ProfilePage({
   currentUser,
@@ -29,12 +54,12 @@ export default function ProfilePage({
   onNavigateTab
 }) {
   const [subTab, setSubTab] = useState('profile'); // 'profile' | 'report'
+  const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
-    realName: currentUser.realName,
-    city: currentUser.city,
-    homeCity: currentUser.homeCity,
-    maritalStatus: currentUser.maritalStatus,
-    gender: currentUser.gender,
+    realName: currentUser.realName || '',
+    city: currentUser.city || '',
+    maritalStatus: currentUser.maritalStatus || 'single',
+    gender: currentUser.gender || '남',
     bankAccount: currentUser.bankAccount || ''
   });
   const [savedBanner, setSavedBanner] = useState(false);
@@ -48,11 +73,10 @@ export default function ProfilePage({
 
   useEffect(() => {
     setForm({
-      realName: currentUser.realName,
-      city: currentUser.city,
-      homeCity: currentUser.homeCity,
-      maritalStatus: currentUser.maritalStatus,
-      gender: currentUser.gender,
+      realName: currentUser.realName || '',
+      city: currentUser.city || '',
+      maritalStatus: currentUser.maritalStatus || 'single',
+      gender: currentUser.gender || '남',
       bankAccount: currentUser.bankAccount || ''
     });
   }, [currentUser]);
@@ -105,9 +129,17 @@ export default function ProfilePage({
     }
   }
 
+  const myHostedCount = (meetings || []).filter(
+    (m) => m.hostUid === currentUser?.uid
+  ).length;
+
   const handleSave = (e) => {
     e.preventDefault();
-    onUpdateProfile(form);
+    onUpdateProfile({
+      ...form,
+      homeCity: form.city
+    });
+    setIsEditing(false);
     setSavedBanner(true);
     setTimeout(() => setSavedBanner(false), 2000);
   };
@@ -217,257 +249,325 @@ export default function ProfilePage({
       </section>
 
       {subTab === 'profile' ? (
-        <>
-          {/* Nickname Auto-Generator & One-Click Copy */}
-          <section className="list-section">
-            <div className="nickname-preview-box">
-          <div>
-            <div className="preview-caption">내 닉네임</div>
-            <div className="preview-value">{generatedNickname}</div>
-          </div>
-          <button type="button" className="btn btn-primary btn-sm" onClick={handleCopy}>
-            {copied ? '복사 완료' : '닉네임 복사'}
-          </button>
-        </div>
-
-        <form onSubmit={handleSave} className="stack-gap">
-          <div className="form-grid">
-            <div className="form-field">
-              <label htmlFor="prof-name">실명</label>
-              <input
-                id="prof-name"
-                type="text"
-                required
-                value={form.realName}
-                onChange={(e) => setForm({ ...form, realName: e.target.value })}
-              />
+        <section className="list-section">
+          {/* Nickname Box */}
+          <div className="nickname-preview-box">
+            <div>
+              <div className="preview-caption">내 닉네임</div>
+              <div className="preview-value">{generatedNickname}</div>
             </div>
-            <div className="form-field">
-              <label htmlFor="prof-city">거주 지역</label>
-              <input
-                id="prof-city"
-                type="text"
-                required
-                value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="prof-home">연고지</label>
-              <input
-                id="prof-home"
-                type="text"
-                required
-                value={form.homeCity}
-                onChange={(e) => setForm({ ...form, homeCity: e.target.value })}
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="prof-bank">정산 계좌번호</label>
-              <input
-                id="prof-bank"
-                type="text"
-                placeholder="은행명 계좌번호 (예금주)"
-                value={form.bankAccount}
-                onChange={(e) =>
-                  setForm({ ...form, bankAccount: e.target.value })
-                }
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="prof-marital">결혼 여부</label>
-              <select
-                id="prof-marital"
-                value={form.maritalStatus}
-                onChange={(e) =>
-                  setForm({ ...form, maritalStatus: e.target.value })
-                }
-              >
-                <option value="single">미혼 (미)</option>
-                <option value="married">기혼 (기)</option>
-                <option value="divorced">돌싱 (돌)</option>
-              </select>
-            </div>
-            <div className="form-field">
-              <label htmlFor="prof-gender">성별</label>
-              <select
-                id="prof-gender"
-                value={form.gender}
-                onChange={(e) => setForm({ ...form, gender: e.target.value })}
-              >
-                <option value="남">남성 (남)</option>
-                <option value="여">여성 (여)</option>
-              </select>
-            </div>
-            <div className="form-field">
-              <label>뱃지</label>
-              <input
-                type="text"
-                disabled
-                value={`${currentBadge} (가입일 ${currentUser.entryBadge})`}
-              />
-            </div>
-
-          </div>
-
-          {savedBanner && (
-            <div className="success-banner">✅ 저장되었습니다.</div>
-          )}
-
-          <div className="btn-row">
-            <button type="submit" className="btn btn-primary">
-              저장
-            </button>
             <button
               type="button"
-              className="btn btn-outline"
-              onClick={onLogout}
+              className="btn btn-primary btn-sm"
+              onClick={handleCopy}
             >
-              로그아웃
+              {copied ? '복사 완료' : '닉네임 복사'}
             </button>
           </div>
-        </form>
 
-        {/* Easter Egg Hidden Secret Panel (내 정보 5회 탭 시 토글) */}
-        {showSecretPanel && (
-          <div
-            style={{
-              marginTop: '16px',
-              padding: '14px',
-              borderRadius: '8px',
-              border: '1px dashed #64748b',
-              background: 'var(--bg-subtle, rgba(0,0,0,0.03))'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span className="sub-meta" style={{ fontWeight: 600 }}>
-                🔒 시스템 시크릿 패널
-              </span>
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                style={{ fontSize: '11px', padding: '2px 6px' }}
-                onClick={() => setShowSecretPanel(false)}
+          {!isEditing ? (
+            /* Read-only Default View */
+            <div style={{ marginTop: '16px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  fontSize: '14px',
+                  color: 'var(--color-text-primary, #0f172a)'
+                }}
               >
-                닫기
-              </button>
-            </div>
+                <div>
+                  <strong>정산 계좌:</strong>{' '}
+                  {currentUser.bankAccount || '미등록'}
+                </div>
+                <div>
+                  <strong>뱃지:</strong> {currentBadge} (가입일{' '}
+                  {currentUser.entryBadge})
+                </div>
+              </div>
 
-            {/* Account UID Display */}
-            <div className="form-field" style={{ marginBottom: '12px' }}>
-              <label style={{ fontSize: '12px' }}>내 고유 식별자 (UID)</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  disabled
-                  value={currentUser.uid}
-                  style={{ flex: 1, fontFamily: 'monospace', fontSize: '12px' }}
-                />
+              {savedBanner && (
+                <div className="success-banner" style={{ marginTop: '14px' }}>
+                  저장되었습니다.
+                </div>
+              )}
+
+              <div className="btn-row" style={{ marginTop: '18px' }}>
                 <button
                   type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={handleCopyUid}
+                  className="btn btn-primary"
+                  onClick={() => setIsEditing(true)}
                 >
-                  {copiedUid ? '복사됨' : 'UID 복사'}
+                  내 정보 수정
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={onLogout}
+                >
+                  로그아웃
                 </button>
               </div>
             </div>
-
-            {/* Stealth Super Admin Promotion & Master Tab Activation */}
-            {isSuper ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '6px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '16px' }}>👑</span>
-                  <strong style={{ fontSize: '13px', color: '#047857' }}>
-                    스텔스 최고관리자 (Super Admin) 권한 확인됨
-                  </strong>
+          ) : (
+            /* Edit Form View */
+            <form onSubmit={handleSave} className="stack-gap" style={{ marginTop: '16px' }}>
+              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="prof-name">실명</label>
+                  <input
+                    id="prof-name"
+                    type="text"
+                    required
+                    value={form.realName}
+                    onChange={(e) =>
+                      setForm({ ...form, realName: e.target.value })
+                    }
+                  />
                 </div>
+                <div className="form-field">
+                  <label htmlFor="prof-city">거주 지역</label>
+                  <input
+                    id="prof-city"
+                    type="text"
+                    required
+                    value={form.city}
+                    onChange={(e) =>
+                      setForm({ ...form, city: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="prof-bank">정산 계좌번호</label>
+                  <input
+                    id="prof-bank"
+                    type="text"
+                    placeholder="은행명 계좌번호 (예금주)"
+                    value={form.bankAccount}
+                    onChange={(e) =>
+                      setForm({ ...form, bankAccount: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="prof-marital">결혼 여부</label>
+                  <select
+                    id="prof-marital"
+                    value={form.maritalStatus}
+                    onChange={(e) =>
+                      setForm({ ...form, maritalStatus: e.target.value })
+                    }
+                  >
+                    <option value="single">미혼 (미)</option>
+                    <option value="married">기혼 (기)</option>
+                    <option value="divorced">돌싱 (돌)</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label htmlFor="prof-gender">성별</label>
+                  <select
+                    id="prof-gender"
+                    value={form.gender}
+                    onChange={(e) =>
+                      setForm({ ...form, gender: e.target.value })
+                    }
+                  >
+                    <option value="남">남성 (남)</option>
+                    <option value="여">여성 (여)</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label>뱃지</label>
+                  <input
+                    type="text"
+                    disabled
+                    value={`${currentBadge} (가입일 ${currentUser.entryBadge})`}
+                  />
+                </div>
+              </div>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
-                  {isMasterTabEnabled ? (
-                    <>
+              <div className="btn-row">
+                <button type="submit" className="btn btn-primary">
+                  저장
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    setForm({
+                      realName: currentUser.realName || '',
+                      city: currentUser.city || '',
+                      maritalStatus: currentUser.maritalStatus || 'single',
+                      gender: currentUser.gender || '남',
+                      bankAccount: currentUser.bankAccount || ''
+                    });
+                    setIsEditing(false);
+                  }}
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Easter Egg Hidden Secret Panel (내 정보 5회 탭 시 토글) */}
+          {showSecretPanel && (
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '14px',
+                borderRadius: '8px',
+                border: '1px dashed #64748b',
+                background: 'var(--bg-subtle, rgba(0,0,0,0.03))'
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '10px'
+                }}
+              >
+                <span className="sub-meta" style={{ fontWeight: 600 }}>
+                  🔒 시스템 시크릿 패널
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{ fontSize: '11px', padding: '2px 6px' }}
+                  onClick={() => setShowSecretPanel(false)}
+                >
+                  닫기
+                </button>
+              </div>
+
+              {/* Account UID Display */}
+              <div className="form-field" style={{ marginBottom: '12px' }}>
+                <label style={{ fontSize: '12px' }}>내 고유 식별자 (UID)</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    disabled
+                    value={currentUser.uid}
+                    style={{
+                      flex: 1,
+                      fontFamily: 'monospace',
+                      fontSize: '12px'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={handleCopyUid}
+                  >
+                    {copiedUid ? '복사됨' : 'UID 복사'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Stealth Super Admin Promotion & Master Tab Activation */}
+              {isSuper ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    padding: '6px 0'
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <span style={{ fontSize: '16px' }}>👑</span>
+                    <strong style={{ fontSize: '13px', color: '#047857' }}>
+                      스텔스 최고관리자 (Super Admin) 권한 확인됨
+                    </strong>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      marginTop: '4px'
+                    }}
+                  >
+                    {isMasterTabEnabled ? (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          style={{ background: '#7c3aed' }}
+                          onClick={() =>
+                            onNavigateTab && onNavigateTab('master')
+                          }
+                        >
+                          👑 마스터 페이지 바로가기 ➡️
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          style={{ color: '#ef4444', borderColor: '#fca5a5' }}
+                          onClick={() =>
+                            onToggleMasterTab && onToggleMasterTab(false)
+                          }
+                        >
+                          🔒 마스터 탭 숨기기 (비활성화)
+                        </button>
+                      </>
+                    ) : (
                       <button
                         type="button"
                         className="btn btn-primary btn-sm"
                         style={{ background: '#7c3aed' }}
-                        onClick={() => onNavigateTab && onNavigateTab('master')}
+                        onClick={() =>
+                          onToggleMasterTab && onToggleMasterTab(true)
+                        }
                       >
-                        👑 마스터 페이지 바로가기 ➡️
+                        👑 마스터 탭 활성화 (메뉴에 표시)
                       </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        style={{ color: '#ef4444', borderColor: '#fca5a5' }}
-                        onClick={() => onToggleMasterTab && onToggleMasterTab(false)}
-                      >
-                        🔒 마스터 탭 숨기기 (비활성화)
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      style={{ background: '#7c3aed' }}
-                      onClick={() => onToggleMasterTab && onToggleMasterTab(true)}
-                    >
-                      👑 마스터 탭 활성화 (메뉴에 표시)
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <form
-                onSubmit={handlePromoteSuperAdmin}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px'
-                }}
-              >
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <input
-                    type="password"
-                    placeholder="마스터 암호를 입력하세요..."
-                    value={secretPassword}
-                    onChange={(e) => setSecretPassword(e.target.value)}
-                    required
-                    style={{ flex: 1, fontSize: '12px' }}
-                  />
-                  <button type="submit" className="btn btn-primary btn-sm">
-                    승격
-                  </button>
-                </div>
-                {secretFeedback && (
-                  <div style={{ fontSize: '12px', fontWeight: 600 }}>
-                    {secretFeedback}
+                    )}
                   </div>
-                )}
-              </form>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* Activity & Eligibility Status */}
-      <section className="list-section">
-        <div className="stats-grid">
-          <div className="stat-box">
-            <span className="stat-label">참석 횟수</span>
-            <strong className="stat-value">{currentUser.attendanceCount}회</strong>
-          </div>
-          <div className="stat-box">
-            <span className="stat-label">모임 개설</span>
-            <strong className="stat-value">
-              {hostEligible ? '가능' : '대기'}
-            </strong>
-          </div>
-          <div className="stat-box">
-            <span className="stat-label">누적 점수</span>
-            <strong className="stat-value">{currentUser.totalScore}점</strong>
-          </div>
-        </div>
-      </section>
-        </>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handlePromoteSuperAdmin}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <input
+                      type="password"
+                      placeholder="마스터 암호를 입력하세요..."
+                      value={secretPassword}
+                      onChange={(e) => setSecretPassword(e.target.value)}
+                      required
+                      style={{ flex: 1, fontSize: '12px' }}
+                    />
+                    <button type="submit" className="btn btn-primary btn-sm">
+                      승격
+                    </button>
+                  </div>
+                  {secretFeedback && (
+                    <div style={{ fontSize: '12px', fontWeight: 600 }}>
+                      {secretFeedback}
+                    </div>
+                  )}
+                </form>
+              )}
+            </div>
+          )}
+        </section>
       ) : (
         /* Sub-tab: Personal Activity & Settlement Report */
         <section className="list-section stack-gap">
@@ -485,122 +585,84 @@ export default function ProfilePage({
                   {ROLE_META[currentUser.role]?.label}
                 </span>
               </div>
-              <div className="sub-meta" style={{ marginTop: '4px' }}>
-                등록 계좌: {currentUser.bankAccount || '미등록'} · 연고지: {currentUser.homeCity}
-              </div>
             </div>
           </div>
 
           <div className="stats-grid">
             <div className="stat-box">
-              <span className="stat-label">누적 점수 / 참석</span>
+              <span className="stat-label">벙점수/참석</span>
               <strong className="stat-value">
-                {currentUser.totalScore}점 ({currentUser.attendanceCount}회)
+                {currentUser.totalScore}점 / {currentUser.attendanceCount}회
               </strong>
-              <span className="stat-sub">
-                기본 {currentUser.baseScore} · 원정 {currentUser.expeditionScore} · 이벤트 {currentUser.eventScore}
-              </span>
             </div>
             <div className="stat-box">
-              <span className="stat-label">총 부담 회비</span>
+              <span className="stat-label">벙주횟수</span>
+              <strong className="stat-value">{myHostedCount}회</strong>
+            </div>
+            <div className="stat-box">
+              <span className="stat-label">총 회비</span>
               <strong className="stat-value">
                 {totalMyBurden.toLocaleString()}원
               </strong>
-              <span className="stat-sub">
-                참여 모임 {personalMeetingRows.length}건 합계
-              </span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-label">총 결제 · 찬조액</span>
-              <strong className="stat-value">
-                {(totalMyOutOfPocket + totalMySponsored).toLocaleString()}원
-              </strong>
-              <span className="stat-sub">
-                대납 {totalMyOutOfPocket.toLocaleString()} / 찬조·골든벨 {totalMySponsored.toLocaleString()}
-              </span>
             </div>
           </div>
 
-          <h3 style={{ marginTop: '8px' }}>참여 모임별 정산·귀가 상세 내역</h3>
+          <h3 style={{ marginTop: '16px' }}>참여한 모임</h3>
           {personalMeetingRows.length === 0 ? (
             <p className="muted-text">참여한 모임 내역이 없습니다.</p>
           ) : (
             <div className="divider-list">
-              {personalMeetingRows.map(({ meeting: mtg, row, sponsoredAmount, scoreInfo }) => (
-                <div key={mtg.id} className="list-item-row">
-                  <div className="meeting-top">
-                    <div className="badge-group">
-                      <span className="platform-badge">#{mtg.id}</span>
-                      <strong>{mtg.title}</strong>
-                      <span className="location-pill">{mtg.location}</span>
-                      <span className="platform-badge">
-                        +{scoreInfo.total}점 ({scoreInfo.label})
-                      </span>
+              {personalMeetingRows.map(({ meeting: mtg, row }) => {
+                const lineText = formatMeetingReportLine(mtg, row.finalShare);
+                return (
+                  <div
+                    key={mtg.id}
+                    role="button"
+                    tabIndex={0}
+                    className="list-item-row"
+                    onClick={() =>
+                      onOpenMeetingDetail &&
+                      onOpenMeetingDetail(mtg.id, 'lounge')
+                    }
+                    onKeyDown={(e) =>
+                      e.key === 'Enter' &&
+                      onOpenMeetingDetail &&
+                      onOpenMeetingDetail(mtg.id, 'lounge')
+                    }
+                    style={{
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '12px 6px',
+                      gap: '10px'
+                    }}
+                  >
+                    <div
+                      className="schedule-bullet-indicator"
+                      aria-hidden="true"
+                    >
+                      <span className="schedule-bullet-square" />
+                      <span className="schedule-bullet-emoji">📅</span>
                     </div>
-                    <span className="muted-text">{mtg.date}</span>
+                    <strong
+                      style={{
+                        fontSize: '14px',
+                        color: 'var(--color-text-primary, #0f172a)',
+                        wordBreak: 'keep-all',
+                        lineHeight: 1.4,
+                        flex: 1
+                      }}
+                    >
+                      {lineText}
+                    </strong>
                   </div>
-
-                  <div className="meeting-footer" style={{ marginTop: '6px' }}>
-                    <div className="badge-group">
-                      <span className="sub-meta">
-                        참석: {row.attendedRounds.join(', ') || '미선택'}
-                      </span>
-                      <span
-                        className={`status-pill ${
-                          row.confirmed ? 'open' : 'settled'
-                        }`}
-                      >
-                        {row.confirmed
-                          ? '컨펌완료'
-                          : row.paid
-                            ? '입금완료'
-                            : '미입금'}
-                      </span>
-                      {row.safeReturnAt && (
-                        <span className="status-pill open">
-                          {row.safeReturnAt}
-                        </span>
-                      )}
-                      {sponsoredAmount > 0 && (
-                        <span className="expedition-pill">
-                          찬조·골든벨 {sponsoredAmount.toLocaleString()}원
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="badge-group">
-                      <strong className="score-highlight">
-                        부담금 {row.finalShare.toLocaleString()}원
-                      </strong>
-                      {mtg.requestAttendance !== false && isMeetingLoungeOpen(mtg) && (
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm"
-                          onClick={() =>
-                            onOpenMeetingDetail &&
-                            onOpenMeetingDetail(mtg.id, 'lounge')
-                          }
-                        >
-                          벙대기실
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() =>
-                          onOpenMeetingDetail && onOpenMeetingDetail(mtg.id)
-                        }
-                      >
-                        모임 보기
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
       )}
+
 
       {/* Bottom Test Account Switcher */}
       {onSwitchUser && (

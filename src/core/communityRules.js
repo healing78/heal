@@ -168,7 +168,7 @@ export const canSettleMeeting = (member, meeting) => {
  */
 export const calculateMeetingScoreForMember = (member, meetingLocation) => {
   const base = 1;
-  const homeLoc = (member?.homeCity || member?.city || '').trim();
+  const homeLoc = (member?.city || member?.homeCity || '').trim();
   const mtgLoc = (meetingLocation || '').trim();
 
   if (!homeLoc || !mtgLoc) {
