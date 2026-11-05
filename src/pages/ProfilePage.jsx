@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import RegionInput from '../components/RegionInput';
 import {
   calculateMeetingScoreForMember,
   calculateMeetingSettlement,
@@ -348,14 +349,11 @@ export default function ProfilePage({
                 </div>
                 <div className="form-field">
                   <label htmlFor="prof-city">거주 지역</label>
-                  <input
+                  <RegionInput
                     id="prof-city"
-                    type="text"
                     required
                     value={form.city}
-                    onChange={(e) =>
-                      setForm({ ...form, city: e.target.value })
-                    }
+                    onChange={(val) => setForm({ ...form, city: val })}
                   />
                 </div>
                 <div className="form-field">

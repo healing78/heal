@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import RegionInput from '../components/RegionInput';
 import { suggestNewMemberNickname } from '../nicknameUtils';
 import { formatMemberNickname, ROLE_META } from '../core/communityRules';
 import { HERO_IMAGE_PATH } from '../core/routeMeta';
@@ -136,17 +137,15 @@ export default function LoginOnboardingPage({
               </div>
               <div className="form-field">
                 <label htmlFor="onboard-city">거주 지역</label>
-                <input
+                <RegionInput
                   id="onboard-city"
-                  type="text"
-                  placeholder="서울, 경기, 부산"
                   required
                   value={onboardingForm.city}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     setOnboardingForm({
                       ...onboardingForm,
-                      city: e.target.value,
-                      homeCity: e.target.value
+                      city: val,
+                      homeCity: val
                     })
                   }
                 />
