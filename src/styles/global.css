@@ -1867,6 +1867,24 @@ h3 {
   transform: scale(0.99);
 }
 
+.lounge-entry-card[aria-disabled='true'] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.lounge-entry-card.is-static {
+  cursor: default;
+}
+
+.lounge-entry-card.is-static:hover {
+  background: var(--color-surface);
+  border-color: var(--color-divider);
+}
+
+.lounge-entry-card.is-static:active {
+  transform: none;
+}
+
 .lounge-entry-body {
   flex: 1;
   min-width: 0;
@@ -1879,7 +1897,7 @@ h3 {
   font-size: 0.98rem;
   font-weight: 700;
   color: var(--color-text);
-  margin-bottom: 3px;
+  margin-bottom: 0;
 }
 
 .lounge-attend-badge {

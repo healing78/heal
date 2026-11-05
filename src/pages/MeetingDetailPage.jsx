@@ -13,6 +13,7 @@ import {
   MAX_VIDEO_BYTES,
   MAX_VIDEO_DURATION_SEC
 } from '../utils/mediaCompressor';
+import { useArmedAction } from '../utils/useArmedAction';
 import {
   getGoogleDriveBridgeUrl,
   uploadMediaToGoogleDrive
@@ -243,15 +244,13 @@ export default function MeetingDetailPage({
 
   const handleDeleteThisMeeting = async () => {
     if (!onDeleteMeeting) return;
-    const confirmMsg = `정말로 '${meeting.title}' 일정을 삭제하시겠습니까?\n삭제된 일정은 복구할 수 없습니다.`;
-    if (window.confirm(confirmMsg)) {
-      await onDeleteMeeting(meeting.id);
-      if (onBackToList) {
-        onBackToList();
-      }
+    await onDeleteMeeting(meeting.id);
+    if (onBackToList) {
+      onBackToList();
     }
   };
 
+  const { isArmed, runArmed } = useArmedAction();
   const [loungeTab, setLoungeTab] = useState('rounds'); // 'rounds' | 'settlement' | 'returns' | 'album'
   const [showAttendeeDrawer, setShowAttendeeDrawer] = useState(false);
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
@@ -266,6 +265,7 @@ export default function MeetingDetailPage({
   const [activeLightboxItem, setActiveLightboxItem] = useState(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
+  const [uploadError, setUploadError] = useState('');
   const [quizInput, setQuizInput] = useState('');
   const [quizMessage, setQuizMessage] = useState({ text: '', type: '' });
   const fileInputRef = useRef(null);
@@ -308,6 +308,7 @@ export default function MeetingDetailPage({
   const [commentInput, setCommentInput] = useState('');
 
   const [copiedLink, setCopiedLink] = useState(false);
+  const [loungeRequestPending, setLoungeRequestPending] = useState(false);
 
   const handleCopyDirectLink = async () => {
     const origin =
@@ -342,8 +343,16 @@ export default function MeetingDetailPage({
   const todayStr = getTodayDateString();
   const loungeOpen = isMeetingLoungeOpen(meeting, todayStr);
 
+  const isLoungeRequested = meeting.loungeStatus === 'requested';
+  const isMyLoungeRequest =
+    isLoungeRequested &&
+    meeting.loungeRequest?.requestedByUid === currentUser?.uid;
+  // Only the requester or an admin may cancel a pending lounge request
+  const canCancelLoungeRequest = isMyLoungeRequest || adminUser;
+
   const handleRequestLounge = async () => {
-    if (!onUpdateMeeting || !currentUser) return;
+    if (!onUpdateMeeting || !currentUser || loungeRequestPending) return;
+    setLoungeRequestPending(true);
     try {
       await onUpdateMeeting(meeting.id, {
         loungeStatus: 'requested',
@@ -357,10 +366,26 @@ export default function MeetingDetailPage({
           requestedAt: new Date().toISOString()
         }
       });
-      alert('벙대기실 조기 오픈 요청이 운영진에게 전달되었습니다.');
     } catch (err) {
       console.error('Failed to request lounge:', err);
-      alert('요청 처리 중 오류가 발생했습니다.');
+    } finally {
+      setLoungeRequestPending(false);
+    }
+  };
+
+  const handleCancelLoungeRequest = async () => {
+    if (!onUpdateMeeting || !canCancelLoungeRequest || loungeRequestPending)
+      return;
+    setLoungeRequestPending(true);
+    try {
+      await onUpdateMeeting(meeting.id, {
+        loungeStatus: null,
+        loungeRequest: null
+      });
+    } catch (err) {
+      console.error('Failed to cancel lounge request:', err);
+    } finally {
+      setLoungeRequestPending(false);
     }
   };
 
@@ -372,10 +397,8 @@ export default function MeetingDetailPage({
         loungeApprovedByUid: currentUser?.uid || '',
         loungeApprovedAt: new Date().toISOString()
       });
-      alert('벙대기실이 조기 오픈되었습니다.');
     } catch (err) {
       console.error('Failed to approve lounge:', err);
-      alert('승인 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -706,10 +729,12 @@ export default function MeetingDetailPage({
     if (!files.length || !currentUser) return;
 
     setUploadingMedia(true);
+    setUploadError('');
     setUploadStatus(`총 ${files.length}개 파일 준비 중...`);
 
     const bridgeUrl = getGoogleDriveBridgeUrl(communityConfig);
     const newItems = [];
+    const uploadErrors = [];
 
     for (let i = 0; i < files.length; i += 1) {
       const file = files[i];
@@ -797,7 +822,7 @@ export default function MeetingDetailPage({
         }
       } catch (err) {
         console.error('File upload error:', err);
-        alert(err.message || '업로드 중 오류가 발생했습니다.');
+        uploadErrors.push(err.message || '업로드 실패');
       }
     }
 
@@ -808,11 +833,18 @@ export default function MeetingDetailPage({
 
     setUploadingMedia(false);
     setUploadStatus('');
+    if (uploadErrors.length > 0) {
+      setUploadError(
+        uploadErrors.length > 1
+          ? `${uploadErrors[0]} 외 ${uploadErrors.length - 1}건`
+          : uploadErrors[0]
+      );
+      setTimeout(() => setUploadError(''), 4000);
+    }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDeleteMedia = async (mediaId) => {
-    if (!window.confirm('이 사진/동영상을 삭제하시겠습니까?')) return;
     const nextAlbum = album.filter((item) => item.id !== mediaId);
     await onUpdateMeeting(meeting.id, { album: nextAlbum });
     setActiveLightboxItem(null);
@@ -940,9 +972,11 @@ export default function MeetingDetailPage({
                   type="button"
                   className="btn btn-outline btn-sm"
                   style={{ color: '#ef4444', borderColor: '#ef4444' }}
-                  onClick={handleDeleteThisMeeting}
+                  onClick={() =>
+                    runArmed('delete-meeting-top', handleDeleteThisMeeting)
+                  }
                 >
-                  삭제
+                  {isArmed('delete-meeting-top') ? '삭제 확인' : '삭제'}
                 </button>
               </>
             )}
@@ -1389,9 +1423,11 @@ export default function MeetingDetailPage({
                 type="button"
                 className="btn btn-outline btn-sm"
                 style={{ color: '#ef4444', borderColor: '#ef4444' }}
-                onClick={handleDeleteThisMeeting}
+                onClick={() =>
+                  runArmed('delete-meeting-form', handleDeleteThisMeeting)
+                }
               >
-                일정 삭제
+                {isArmed('delete-meeting-form') ? '삭제 확인' : '일정 삭제'}
               </button>
 
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -1410,7 +1446,7 @@ export default function MeetingDetailPage({
           </form>
         )}
 
-        {/* Prominent 벙대기실 Entry Banner/Card (Only rendered to attendees & admins when requestAttendance !== false) */}
+        {/* Prominent 벙대기실 Entry Card (Only rendered to attendees & admins when requestAttendance !== false) */}
         {isBungMeeting && canAccessLounge && (
           loungeOpen ? (
             <div
@@ -1424,7 +1460,6 @@ export default function MeetingDetailPage({
             >
               <div className="lounge-entry-body">
                 <div className="lounge-entry-title">
-                  <span className="platform-badge">#{meeting.id}</span>
                   <strong>벙대기실 입장하기</strong>
                   {isApplied || isConfirmedParticipant ? (
                     <span className="lounge-attend-badge">참석 중</span>
@@ -1432,28 +1467,33 @@ export default function MeetingDetailPage({
                     <span className="location-pill">운영진 참관</span>
                   ) : null}
                 </div>
-                <p className="lounge-entry-desc">
-                  1·2차 장소 코스 · N빵 정산 · 안심 귀가 · 사진 앨범
-                </p>
               </div>
               <span className="lounge-entry-arrow" aria-hidden="true">
                 &gt;
               </span>
             </div>
-          ) : meeting.loungeStatus === 'requested' ? (
-            <div className="lounge-entry-card lounge-requested-card" style={{ cursor: 'default' }}>
+          ) : isLoungeRequested ? (
+            <div
+              role={canCancelLoungeRequest ? 'button' : undefined}
+              tabIndex={canCancelLoungeRequest ? 0 : undefined}
+              aria-disabled={loungeRequestPending || undefined}
+              className={`lounge-entry-card${
+                canCancelLoungeRequest ? '' : ' is-static'
+              }`}
+              onClick={
+                canCancelLoungeRequest ? handleCancelLoungeRequest : undefined
+              }
+              onKeyDown={(e) =>
+                canCancelLoungeRequest &&
+                e.key === 'Enter' &&
+                handleCancelLoungeRequest()
+              }
+            >
               <div className="lounge-entry-body">
                 <div className="lounge-entry-title">
-                  <span className="platform-badge">#{meeting.id}</span>
                   <strong>벙대기실 사용 요청 완료</strong>
                   <span className="lounge-waiting-badge">승인 대기 중</span>
                 </div>
-                <p className="lounge-entry-desc">
-                  {meeting.loungeRequest?.requestedByName
-                    ? `${meeting.loungeRequest.requestedByName}님이 `
-                    : ''}
-                  조기 사용 요청을 보냈습니다. 운영진 승인 시 조기 입장 가능합니다.
-                </p>
               </div>
               {adminUser && (
                 <div className="badge-group" style={{ flexShrink: 0 }}>
@@ -1464,6 +1504,7 @@ export default function MeetingDetailPage({
                       e.stopPropagation();
                       handleApproveLounge();
                     }}
+                    onKeyDown={(e) => e.stopPropagation()}
                   >
                     운영진 승인
                   </button>
@@ -1471,29 +1512,22 @@ export default function MeetingDetailPage({
               )}
             </div>
           ) : (
-            <div className="lounge-entry-card lounge-locked-card" style={{ cursor: 'default' }}>
+            <div
+              role="button"
+              tabIndex={0}
+              aria-disabled={loungeRequestPending || undefined}
+              className="lounge-entry-card"
+              onClick={handleRequestLounge}
+              onKeyDown={(e) => e.key === 'Enter' && handleRequestLounge()}
+            >
               <div className="lounge-entry-body">
                 <div className="lounge-entry-title">
-                  <span className="platform-badge">#{meeting.id}</span>
                   <strong>벙대기실 사용 요청</strong>
                   <span className="lounge-dday-badge">당일 자동 오픈</span>
                 </div>
-                <p className="lounge-entry-desc">
-                  모임 당일(00:00) 전에 벙대기실을 조기 이용하려면 요청해 주세요.
-                </p>
               </div>
-              <div className="badge-group" style={{ flexShrink: 0 }}>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRequestLounge();
-                  }}
-                >
-                  사용 요청
-                </button>
-                {adminUser && (
+              {adminUser && (
+                <div className="badge-group" style={{ flexShrink: 0 }}>
                   <button
                     type="button"
                     className="btn btn-primary btn-sm"
@@ -1501,11 +1535,12 @@ export default function MeetingDetailPage({
                       e.stopPropagation();
                       handleApproveLounge();
                     }}
+                    onKeyDown={(e) => e.stopPropagation()}
                   >
                     즉시 오픈
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )
         )}
@@ -2485,6 +2520,22 @@ export default function MeetingDetailPage({
                       </div>
                     )}
 
+                    {!uploadingMedia && uploadError && (
+                      <div
+                        className="lounge-settle-hero"
+                        style={{ padding: '10px 14px' }}
+                        role="status"
+                      >
+                        <div className="preview-caption">업로드 실패</div>
+                        <div
+                          className="preview-value"
+                          style={{ fontSize: '0.9rem' }}
+                        >
+                          {uploadError}
+                        </div>
+                      </div>
+                    )}
+
                     {album.length === 0 ? (
                       <div className="album-empty-box">
                         <svg
@@ -3001,9 +3052,15 @@ export default function MeetingDetailPage({
                   type="button"
                   className="btn btn-outline btn-sm"
                   style={{ color: '#f87171', borderColor: '#f87171' }}
-                  onClick={() => handleDeleteMedia(activeLightboxItem.id)}
+                  onClick={() =>
+                    runArmed(`delete-media:${activeLightboxItem.id}`, () =>
+                      handleDeleteMedia(activeLightboxItem.id)
+                    )
+                  }
                 >
-                  삭제
+                  {isArmed(`delete-media:${activeLightboxItem.id}`)
+                    ? '삭제 확인'
+                    : '삭제'}
                 </button>
               )}
             </div>

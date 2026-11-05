@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useArmedAction } from '../utils/useArmedAction';
 import {
   formatMemberNickname,
   ROLE_KEYS,
@@ -57,39 +58,34 @@ export default function AdminPage({
         loungeApprovedByUid: currentUser?.uid || '',
         loungeApprovedAt: new Date().toISOString()
       });
-      alert('벙대기실 조기 오픈 요청을 승인했습니다.');
     } catch (err) {
       console.error('Failed to approve request:', err);
-      alert('승인 처리 중 오류가 발생했습니다.');
     }
   };
 
+  // Inline two-tap confirm for destructive actions (no native dialogs)
+  const { isArmed, runArmed } = useArmedAction();
+
   const handleRejectLoungeRequest = async (meetingId) => {
     if (!onUpdateMeeting) return;
-    if (!window.confirm('정말 이 벙대기실 사용 요청을 반려하시겠습니까?')) return;
     try {
       await onUpdateMeeting(meetingId, {
         loungeStatus: null,
         loungeRequest: null
       });
-      alert('요청을 반려했습니다.');
     } catch (err) {
       console.error('Failed to reject request:', err);
-      alert('반려 처리 중 오류가 발생했습니다.');
     }
   };
 
   const handleCancelLoungeApproval = async (meetingId) => {
     if (!onUpdateMeeting) return;
-    if (!window.confirm('조기 오픈 승인을 취소하시겠습니까? (당일 오픈 상태로 복귀)')) return;
     try {
       await onUpdateMeeting(meetingId, {
         loungeStatus: null
       });
-      alert('조기 오픈 승인을 취소했습니다.');
     } catch (err) {
       console.error('Failed to cancel approval:', err);
-      alert('취소 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -508,10 +504,16 @@ export default function AdminPage({
                       </button>
                       <button
                         type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => handleRejectLoungeRequest(m.id)}
+                        className={`btn btn-sm ${
+                          isArmed(`reject:${m.id}`) ? 'btn-primary' : 'btn-outline'
+                        }`}
+                        onClick={() =>
+                          runArmed(`reject:${m.id}`, () =>
+                            handleRejectLoungeRequest(m.id)
+                          )
+                        }
                       >
-                        반려
+                        {isArmed(`reject:${m.id}`) ? '반려 확인' : '반려'}
                       </button>
                       <button
                         type="button"
@@ -567,10 +569,16 @@ export default function AdminPage({
                       </button>
                       <button
                         type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => handleCancelLoungeApproval(m.id)}
+                        className={`btn btn-sm ${
+                          isArmed(`unapprove:${m.id}`) ? 'btn-primary' : 'btn-outline'
+                        }`}
+                        onClick={() =>
+                          runArmed(`unapprove:${m.id}`, () =>
+                            handleCancelLoungeApproval(m.id)
+                          )
+                        }
                       >
-                        승인 취소
+                        {isArmed(`unapprove:${m.id}`) ? '취소 확인' : '승인 취소'}
                       </button>
                     </div>
                   </div>

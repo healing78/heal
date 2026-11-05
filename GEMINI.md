@@ -33,6 +33,11 @@
 - **Zero-Explanation / Data-Only UI Rule (불필요한 설명 문구 절대 금지):**
   - 페이지를 생성하거나 수정할 때 화면 안에 기능 소개, 사용 방법 안내, 규칙 부연 설명, 가이드 박스(`.muted-text` 설명 줄글, `.rules-list`, 괄호 안의 장황한 부연 라벨 등)를 넣지 않습니다.
   - 모든 화면은 오직 **간결한 섹션 제목, 핵심 데이터, 짧은 입력 라벨(2~6자), 액션 버튼**만 남기고 직관적으로 구성합니다 (유일한 예외: 홈 화면 상단의 운영진 공지 본문).
+- **No Native Dialog Rule (브라우저 기본 알림창 사용 금지):**
+  - `window.alert`, `window.confirm`, `window.prompt` 등 브라우저 기본 알림창을 새로 사용하지 않습니다 (디자인이 테마와 맞지 않음).
+  - 액션 결과는 카드/버튼의 상태 변화(예: `사용 요청` → `사용 요청 완료`)나 인라인 상태 표시로 전달하고, 실패 시에는 `console.error` 기록 후 상태를 유지합니다.
+  - 반려·삭제 등 되돌리기 어려운 액션은 확인창 대신 **2단계 탭**(첫 탭 시 버튼 라벨이 `반려 확인` 등으로 바뀌고 3초 내 재탭 시 실행)으로 보호합니다. 공통 훅 `src/utils/useArmedAction.js`(`isArmed`, `runArmed`)를 사용합니다.
+  - 기존 코드를 수정할 때 해당 영역의 `alert`/`confirm`도 함께 제거합니다.
 
 ## Documentation Standards
 - **Directory Structure:** 모든 시스템 및 기능 명세서는 `docs/specs/` 디렉토리 아래에 관리합니다.

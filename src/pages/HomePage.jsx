@@ -12,6 +12,7 @@ import {
   isMeetingLoungeOpen
 } from '../core/routeMeta';
 import { isPastMeeting } from './MeetingsPage';
+import { useArmedAction } from '../utils/useArmedAction';
 
 export default function HomePage({
   currentUser,
@@ -25,6 +26,7 @@ export default function HomePage({
   onShareMeeting
 }) {
   const [copied, setCopied] = useState(false);
+  const { isArmed, runArmed } = useArmedAction();
 
   // Notice accordion & leader editing states
   const isLeader = currentUser?.role === 'Leader';
@@ -153,7 +155,6 @@ export default function HomePage({
   };
 
   const handleDeleteNotice = (idToDelete) => {
-    if (!window.confirm('이 공지사항을 삭제하시겠습니까?')) return;
     const nextNotices = noticeList.filter((n) => n.id !== idToDelete);
     if (onAdminUpdateConfig) {
       onAdminUpdateConfig({
@@ -312,9 +313,13 @@ export default function HomePage({
                           type="button"
                           className="btn btn-outline btn-sm"
                           style={{ fontSize: '11px', padding: '2px 8px', color: '#ef4444' }}
-                          onClick={() => handleDeleteNotice(n.id)}
+                          onClick={() =>
+                            runArmed(`delete-notice:${n.id}`, () =>
+                              handleDeleteNotice(n.id)
+                            )
+                          }
                         >
-                          삭제
+                          {isArmed(`delete-notice:${n.id}`) ? '삭제 확인' : '삭제'}
                         </button>
                       </div>
                     )}

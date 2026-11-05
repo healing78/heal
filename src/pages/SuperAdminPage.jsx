@@ -4,6 +4,7 @@ import {
   ROLE_KEYS,
   ROLE_META
 } from '../core/communityRules';
+import { useArmedAction } from '../utils/useArmedAction';
 
 const AVATAR_BG_PALETTE = [
   '#f59e0b',
@@ -39,6 +40,7 @@ export default function SuperAdminPage({
   const [newSuperUid, setNewSuperUid] = useState('');
   const [copiedUid, setCopiedUid] = useState(false);
   const [actionFeedback, setActionFeedback] = useState('');
+  const { isArmed, runArmed } = useArmedAction();
   const [editingBadgeUid, setEditingBadgeUid] = useState(null);
   const [badgeInput, setBadgeInput] = useState('');
   const [driveBridgeUrl, setDriveBridgeUrl] = useState(
@@ -93,9 +95,6 @@ export default function SuperAdminPage({
   const handleAssignLeader = (targetUid) => {
     const targetMember = members.find((m) => m.uid === targetUid);
     const targetNick = targetMember ? formatMemberNickname(targetMember) : targetUid;
-    if (!window.confirm(`${targetNick} 님을 방장(Leader)으로 지정하시겠습니까?`)) {
-      return;
-    }
     onAdminUpdateMember(targetUid, { role: 'Leader' });
     setActionFeedback(`✅ ${targetNick} 님이 방장(Leader)으로 지정되었습니다.`);
     setTimeout(() => setActionFeedback(''), 3000);
@@ -118,15 +117,6 @@ export default function SuperAdminPage({
   };
 
   const handleRemoveSuperUid = (targetUid) => {
-    if (targetUid === currentUser?.uid) {
-      if (!window.confirm('현재 본인 계정의 슈퍼 어드민 권한을 해제하시겠습니까? 해제 시 즉시 마스터 권한이 상실됩니다.')) {
-        return;
-      }
-    } else {
-      if (!window.confirm(`슈퍼 어드민 화이트리스트에서 UID (${targetUid})를 제외하시겠습니까?`)) {
-        return;
-      }
-    }
     const nextList = superAdminUids.filter((u) => u !== targetUid);
     onAdminUpdateConfig({ superAdminUids: nextList });
     setActionFeedback(`✅ UID (${targetUid})가 슈퍼 어드민 목록에서 제거되었습니다.`);
@@ -319,9 +309,15 @@ export default function SuperAdminPage({
                     type="button"
                     className="btn btn-outline btn-sm"
                     style={{ fontSize: '11px', padding: '3px 8px', color: '#ef4444' }}
-                    onClick={() => handleRemoveSuperUid(uid)}
+                    onClick={() =>
+                      runArmed(`remove-super:${uid}`, () => handleRemoveSuperUid(uid))
+                    }
                   >
-                    제거
+                    {isArmed(`remove-super:${uid}`)
+                      ? uid === currentUser?.uid
+                        ? '본인 해제 확인'
+                        : '제거 확인'
+                      : '제거'}
                   </button>
                 </div>
               </div>
@@ -418,10 +414,14 @@ export default function SuperAdminPage({
                         type="button"
                         className="btn btn-outline btn-sm"
                         style={{ fontSize: '11px', padding: '4px 8px', color: '#f59e0b' }}
-                        onClick={() => handleAssignLeader(m.uid)}
+                        onClick={() =>
+                          runArmed(`assign-leader:${m.uid}`, () =>
+                            handleAssignLeader(m.uid)
+                          )
+                        }
                         title="해당 회원을 방장(Leader)으로 지정합니다."
                       >
-                        👑 방장 지정
+                        {isArmed(`assign-leader:${m.uid}`) ? '지정 확인' : '👑 방장 지정'}
                       </button>
                     )}
 
