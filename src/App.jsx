@@ -30,6 +30,7 @@ import {
   deleteMeeting,
   getSavedCurrentUserUid,
   reassignMemberUid,
+  recordKakaoLogin,
   registerOnboardingMember,
   rejectAccountLinkRequest,
   resetToInitialDemoData,
@@ -61,6 +62,7 @@ export default function App() {
   const [communityConfig, setCommunityConfig] = useState(
     INITIAL_COMMUNITY_CONFIG
   );
+  const [loginLogs, setLoginLogs] = useState([]);
 
   const [currentUserUid, setCurrentUserUid] = useState(() =>
     getSavedCurrentUserUid()
@@ -123,6 +125,9 @@ export default function App() {
       setMeetings(snapshot.meetings);
       setScoreLogs(snapshot.scoreLogs);
       setCommunityConfig(snapshot.communityConfig);
+      if (snapshot.loginLogs) {
+        setLoginLogs(snapshot.loginLogs);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -280,6 +285,7 @@ export default function App() {
     setCurrentUserUid(uid);
     saveCurrentUserUid(uid);
     const nextUser = members.find((m) => m.uid === uid);
+    recordKakaoLogin(uid, nextUser?.realName || '');
     if (activeTab === 'admin' && (!nextUser || !isAdminRole(nextUser.role))) {
       navigateToTab('home');
     } else if (activeTab === 'login') {
@@ -289,6 +295,9 @@ export default function App() {
 
   const handleCompleteOnboarding = async (form, customUid) => {
     const newMember = await registerOnboardingMember(form, customUid);
+    if (newMember?.uid) {
+      recordKakaoLogin(newMember.uid, newMember.realName || '');
+    }
     setCurrentUserUid(newMember.uid);
     saveCurrentUserUid(newMember.uid);
     if (activeTab === 'login') {
@@ -460,9 +469,11 @@ export default function App() {
       if (isAdminRole(currentUser?.role)) {
         return (
           <AdminPage
+            currentUser={currentUser}
             members={members}
             meetings={meetings}
             communityConfig={communityConfig}
+            loginLogs={loginLogs}
             onOpenMeetingDetail={handleOpenMeetingDetail}
             onDeleteMeeting={handleDeleteMeeting}
             onAdminUpdateMember={handleAdminUpdateMember}

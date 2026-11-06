@@ -7,6 +7,7 @@ import {
   isKakaoConfigured,
   loginWithKakao
 } from '../services/kakaoAuthService';
+import { recordKakaoLogin } from '../services/communityService';
 
 export default function LoginOnboardingPage({
   members = [],
@@ -129,6 +130,7 @@ export default function LoginOnboardingPage({
         uid: `kakao:new-${Date.now()}`,
         nickname: ''
       };
+      await recordKakaoLogin(mockKakaoUser.uid, mockKakaoUser.nickname);
       setPendingKakaoUser(mockKakaoUser);
       setStep('onboarding');
       return;
@@ -137,6 +139,9 @@ export default function LoginOnboardingPage({
     setKakaoLoading(true);
     try {
       const kakaoUser = await loginWithKakao();
+      // Record Kakao login event immediately upon successful authentication
+      await recordKakaoLogin(kakaoUser.uid, kakaoUser.nickname);
+
       const existingMember = members.find((m) => m.uid === kakaoUser.uid);
 
       if (existingMember) {

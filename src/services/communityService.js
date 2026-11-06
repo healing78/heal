@@ -26,7 +26,8 @@ const STORAGE_KEYS = {
   meetings: 'heal_community_v2_meetings',
   scoreLogs: 'heal_community_v2_score_logs',
   config: 'heal_community_v2_config',
-  currentUserUid: 'heal_community_v2_current_uid'
+  currentUserUid: 'heal_community_v2_current_uid',
+  loginLogs: 'heal_community_v2_login_logs'
 };
 
 const localListeners = new Set();
@@ -84,7 +85,8 @@ const getLocalState = () => ({
   scoreLogs: readLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS),
   communityConfig: sanitizeConfig(
     readLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG)
-  )
+  ),
+  loginLogs: readLocalJson(STORAGE_KEYS.loginLogs, [])
 });
 
 const notifyLocalListeners = () => {
@@ -196,6 +198,7 @@ export const subscribeCommunityData = (onUpdate) => {
       writeLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS);
       writeLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS);
       writeLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG);
+      writeLocalJson(STORAGE_KEYS.loginLogs, []);
     }
     return () => {
       localListeners.delete(onUpdate);
@@ -256,6 +259,21 @@ export const subscribeCommunityData = (onUpdate) => {
     handleSnapshotError
   );
 
+  const unsubLoginLogs = onSnapshot(
+    collection(db, 'loginLogs'),
+    (snap) => {
+      if (!snap.empty) {
+        currentData = {
+          ...currentData,
+          loginLogs: snap.docs.map((d) => d.data())
+        };
+        writeLocalJson(STORAGE_KEYS.loginLogs, currentData.loginLogs);
+        onUpdate(currentData);
+      }
+    },
+    handleSnapshotError
+  );
+
   const unsubConfig = onSnapshot(
     doc(db, 'settings', 'community'),
     (snap) => {
@@ -276,8 +294,59 @@ export const subscribeCommunityData = (onUpdate) => {
     unsubMembers();
     unsubMeetings();
     unsubLogs();
+    unsubLoginLogs();
     unsubConfig();
   };
+};
+
+/**
+ * Records or updates a Kakao login event (tracks date, uid, name, login count).
+ * @param {string} uid - Kakao UID (e.g. 'kakao:12345678')
+ * @param {string} [kakaoNickname] - Kakao profile nickname
+ */
+export const recordKakaoLogin = async (uid, kakaoNickname = '') => {
+  if (!uid) return null;
+  const nowIso = new Date().toISOString();
+  const { loginLogs = [] } = getLocalState();
+
+  const logsCopy = [...loginLogs];
+  const existingIndex = logsCopy.findIndex((log) => log.uid === uid);
+  let updatedLog;
+
+  if (existingIndex >= 0) {
+    const existing = logsCopy[existingIndex];
+    updatedLog = {
+      ...existing,
+      uid,
+      kakaoNickname: kakaoNickname || existing.kakaoNickname || '',
+      lastLoginAt: nowIso,
+      loginCount: (existing.loginCount || 1) + 1
+    };
+    logsCopy[existingIndex] = updatedLog;
+  } else {
+    updatedLog = {
+      uid,
+      kakaoNickname: kakaoNickname || '',
+      firstLoginAt: nowIso,
+      lastLoginAt: nowIso,
+      loginCount: 1
+    };
+    logsCopy.unshift(updatedLog);
+  }
+
+  writeLocalJson(STORAGE_KEYS.loginLogs, logsCopy);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const docId = uid.replace(/[/\\#?]/g, '_');
+      await setDoc(doc(db, 'loginLogs', docId), updatedLog, { merge: true });
+    } catch (err) {
+      console.warn('Failed to record login log in Firestore:', err);
+    }
+  }
+
+  return updatedLog;
 };
 
 /**

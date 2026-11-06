@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useArmedAction } from '../utils/useArmedAction';
 import {
   formatMemberNickname,
@@ -26,11 +26,28 @@ function getAvatarBg(uid) {
   return AVATAR_BG_PALETTE[sum % AVATAR_BG_PALETTE.length];
 }
 
+function formatLogDate(isoStr) {
+  if (!isoStr) return '-';
+  try {
+    const d = new Date(isoStr);
+    if (Number.isNaN(d.getTime())) return isoStr;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+  } catch {
+    return isoStr;
+  }
+}
+
 export default function AdminPage({
   currentUser,
   members = [],
   meetings = [],
   communityConfig = {},
+  loginLogs = [],
   onOpenMeetingDetail,
   onUpdateMeeting,
   onDeleteMeeting,
@@ -40,13 +57,87 @@ export default function AdminPage({
   onApproveAccountLink,
   onRejectAccountLink
 }) {
-  const [subTab, setSubTab] = useState('members'); // 'members' | 'meetings' | 'requests' | 'scores' | 'config'
+  const [subTab, setSubTab] = useState('members'); // 'members' | 'newcomers' | 'meetings' | 'requests' | 'scores' | 'config'
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
+  const [newcomerFilter, setNewcomerFilter] = useState('ALL'); // 'ALL' | 'UNREGISTERED' | 'REGISTERED'
+  const [newcomerSearch, setNewcomerSearch] = useState('');
+  const [copiedUid, setCopiedUid] = useState('');
+
+  const handleCopyUid = (uid) => {
+    try {
+      navigator.clipboard.writeText(uid);
+      setCopiedUid(uid);
+      setTimeout(() => setCopiedUid(''), 2000);
+    } catch {
+      // ignore
+    }
+  };
+
+  const membersMap = useMemo(
+    () => new Map(members.map((m) => [m.uid, m])),
+    [members]
+  );
+
+  // Combined login logs list
+  const processedLoginLogs = useMemo(() => {
+    // Sort by lastLoginAt descending
+    const list = [...loginLogs].sort((a, b) => {
+      const timeA = a.lastLoginAt || a.firstLoginAt || '';
+      const timeB = b.lastLoginAt || b.firstLoginAt || '';
+      return timeB.localeCompare(timeA);
+    });
+
+    return list.map((log) => {
+      const member = membersMap.get(log.uid);
+      const isRegistered = Boolean(member);
+      return {
+        ...log,
+        isRegistered,
+        member,
+        displayName: isRegistered
+          ? member.realName || formatMemberNickname(member)
+          : null
+      };
+    });
+  }, [loginLogs, membersMap]);
+
+  const filteredLoginLogs = useMemo(() => {
+    let list = processedLoginLogs;
+    if (newcomerFilter === 'UNREGISTERED') {
+      list = list.filter((item) => !item.isRegistered);
+    } else if (newcomerFilter === 'REGISTERED') {
+      list = list.filter((item) => item.isRegistered);
+    }
+
+    const q = newcomerSearch.trim().toLowerCase();
+    if (q) {
+      list = list.filter((item) => {
+        const uidMatch = (item.uid || '').toLowerCase().includes(q);
+        const nameMatch = item.displayName
+          ? item.displayName.toLowerCase().includes(q)
+          : false;
+        return uidMatch || nameMatch;
+      });
+    }
+
+    return list;
+  }, [processedLoginLogs, newcomerFilter, newcomerSearch]);
+
+  const unregisteredCount = processedLoginLogs.filter(
+    (l) => !l.isRegistered
+  ).length;
+  const registeredCount = processedLoginLogs.filter(
+    (l) => l.isRegistered
+  ).length;
 
   // Account link / recovery requests
   const pendingLinkRequests = members.filter(
-    (m) => Boolean(m.linkRequestStatus === 'pending' || (m.linkRequestRealName && m.linkRequestStatus !== 'rejected'))
+    (m) =>
+      Boolean(
+        m.linkRequestStatus === 'pending' ||
+          (m.linkRequestRealName && m.linkRequestStatus !== 'rejected')
+      )
   );
 
   // Lounge early access requests
@@ -168,6 +259,29 @@ export default function AdminPage({
           </button>
           <button
             type="button"
+            className={`subtab-btn ${subTab === 'newcomers' ? 'active' : ''}`}
+            onClick={() => setSubTab('newcomers')}
+          >
+            신입 ({loginLogs.length})
+            {unregisteredCount > 0 && (
+              <span
+                style={{
+                  marginLeft: '5px',
+                  background: '#f59e0b',
+                  color: '#fff',
+                  borderRadius: '10px',
+                  padding: '1px 6px',
+                  fontSize: '11px',
+                  fontWeight: 700
+                }}
+                title={`가입 대기(미등록) ${unregisteredCount}명`}
+              >
+                {unregisteredCount}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
             className={`subtab-btn ${subTab === 'meetings' ? 'active' : ''}`}
             onClick={() => setSubTab('meetings')}
           >
@@ -272,6 +386,370 @@ export default function AdminPage({
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Sub-tab: Newcomers & Kakao Login Access Logs */}
+      {subTab === 'newcomers' && (
+        <section className="list-section">
+          {/* Header Summary Card */}
+          <div
+            style={{
+              background: 'var(--color-bg-secondary, #f8fafc)',
+              border: '1px solid var(--color-border, #e2e8f0)',
+              borderRadius: '8px',
+              padding: '12px 14px',
+              marginBottom: '14px'
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '8px'
+              }}
+            >
+              <strong
+                style={{
+                  fontSize: '14px',
+                  color: 'var(--color-text-primary, #0f172a)'
+                }}
+              >
+                🔑 카카오 로그인 접속 기록
+              </strong>
+              <span className="count-badge">총 {processedLoginLogs.length}건</span>
+            </div>
+            <p
+              style={{
+                fontSize: '12px',
+                color: 'var(--color-text-secondary, #64748b)',
+                margin: 0,
+                lineHeight: 1.5
+              }}
+            >
+              카카오 인증으로 로그인한 모든 사용자의 최근 접속일시, UID, 회원명 및 접속 횟수를 실시간으로 확인합니다.
+              <br />
+              <strong style={{ color: '#d97706' }}>※ 가입 미완료 회원:</strong> 로그인만 진행하고 신입 프로필 등록을 마치지 않은 사용자는 <u>이름이 제외</u>되어 표시됩니다.
+            </p>
+
+            <div
+              style={{
+                display: 'flex',
+                gap: '8px',
+                marginTop: '10px',
+                flexWrap: 'wrap'
+              }}
+            >
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--color-border, #e2e8f0)',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <span style={{ color: '#10b981', fontWeight: 700 }}>● 가입 완료:</span>
+                <strong>{registeredCount}명</strong>
+              </div>
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--color-border, #e2e8f0)',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <span style={{ color: '#f59e0b', fontWeight: 700 }}>● 가입 대기 (미등록):</span>
+                <strong>{unregisteredCount}명</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Filter Bar & Search */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center',
+              marginBottom: '12px',
+              flexWrap: 'wrap'
+            }}
+          >
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button
+                type="button"
+                className={`btn btn-sm ${newcomerFilter === 'ALL' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '16px' }}
+                onClick={() => setNewcomerFilter('ALL')}
+              >
+                전체 ({processedLoginLogs.length})
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${newcomerFilter === 'UNREGISTERED' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '16px' }}
+                onClick={() => setNewcomerFilter('UNREGISTERED')}
+              >
+                미가입 ({unregisteredCount})
+              </button>
+              <button
+                type="button"
+                className={`btn btn-sm ${newcomerFilter === 'REGISTERED' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '16px' }}
+                onClick={() => setNewcomerFilter('REGISTERED')}
+              >
+                가입완료 ({registeredCount})
+              </button>
+            </div>
+
+            <div style={{ flex: 1, minWidth: '160px', position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="UID 또는 회원 이름 검색..."
+                value={newcomerSearch}
+                onChange={(e) => setNewcomerSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '7px 10px',
+                  fontSize: '13px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--color-border, #cbd5e1)',
+                  boxSizing: 'border-box'
+                }}
+              />
+              {newcomerSearch && (
+                <button
+                  type="button"
+                  onClick={() => setNewcomerSearch('')}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '12px',
+                    color: '#94a3b8',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Login Logs List */}
+          {filteredLoginLogs.length === 0 ? (
+            <div
+              style={{
+                padding: '40px 10px',
+                textAlign: 'center',
+                color: '#94a3b8',
+                background: 'var(--color-bg-primary, #ffffff)',
+                borderRadius: '8px',
+                border: '1px dashed var(--color-border, #cbd5e1)'
+              }}
+            >
+              {processedLoginLogs.length === 0
+                ? '아직 기록된 카카오 로그인 이력이 없습니다. 사용자가 로그인하면 실시간으로 자동 집계됩니다.'
+                : '검색 및 필터 조건과 일치하는 기록이 없습니다.'}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {filteredLoginLogs.map((log) => {
+                const member = log.member;
+                const isRegistered = log.isRegistered;
+                const roleMeta = member ? ROLE_META[member.role] || ROLE_META.Member : null;
+                const isCopied = copiedUid === log.uid;
+
+                return (
+                  <div
+                    key={log.uid}
+                    style={{
+                      background: 'var(--color-bg-primary, #ffffff)',
+                      border: '1px solid var(--color-border, #e2e8f0)',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}
+                  >
+                    {/* Top Row: Registration Status, Role badge, Login Count */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {isRegistered ? (
+                          <span
+                            style={{
+                              background: '#ecfdf5',
+                              color: '#059669',
+                              border: '1px solid #a7f3d0',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              padding: '2px 8px',
+                              borderRadius: '4px'
+                            }}
+                          >
+                            ✓ 가입 완료
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              background: '#fffbeb',
+                              color: '#d97706',
+                              border: '1px solid #fde68a',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              padding: '2px 8px',
+                              borderRadius: '4px'
+                            }}
+                          >
+                            ⏳ 가입 대기 (미등록)
+                          </span>
+                        )}
+
+                        {roleMeta && (
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              background: roleMeta.badgeColor,
+                              color: '#ffffff',
+                              padding: '2px 6px',
+                              borderRadius: '4px'
+                            }}
+                          >
+                            {roleMeta.label}
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#3b82f6' }}>
+                        접속 <strong>{log.loginCount || 1}</strong>회
+                      </div>
+                    </div>
+
+                    {/* Middle Row: Name (or Hidden if unregistered) & Dates */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: '14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span style={{ color: '#64748b', fontSize: '13px' }}>이름:</span>
+                        {isRegistered ? (
+                          <strong style={{ color: 'var(--color-text-primary, #0f172a)' }}>
+                            {log.displayName}
+                            {member?.city ? ` (${member.city})` : ''}
+                          </strong>
+                        ) : (
+                          <span
+                            style={{
+                              color: '#94a3b8',
+                              fontStyle: 'italic',
+                              fontSize: '13px'
+                            }}
+                          >
+                            (미가입 회원 - 이름 제외)
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ fontSize: '12px', color: '#64748b' }}>
+                        <span>최근 접속: </span>
+                        <strong style={{ color: '#334155' }}>
+                          {formatLogDate(log.lastLoginAt || log.firstLoginAt)}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Bottom Row: UID & Copy Button */}
+                    <div
+                      style={{
+                        background: 'var(--color-bg-secondary, #f8fafc)',
+                        border: '1px solid var(--color-border, #e2e8f0)',
+                        borderRadius: '6px',
+                        padding: '6px 10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                        fontSize: '12px'
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        <span style={{ color: '#64748b', flexShrink: 0 }}>UID:</span>
+                        <code
+                          style={{
+                            fontFamily: 'monospace',
+                            color: '#0f172a',
+                            fontWeight: 600,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {log.uid}
+                        </code>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleCopyUid(log.uid)}
+                        className="btn btn-outline btn-sm"
+                        style={{
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          flexShrink: 0,
+                          background: isCopied ? '#10b981' : '#ffffff',
+                          color: isCopied ? '#ffffff' : 'inherit',
+                          borderColor: isCopied ? '#10b981' : 'var(--color-border, #cbd5e1)'
+                        }}
+                      >
+                        {isCopied ? '복사됨 ✓' : 'UID 복사'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       )}
 

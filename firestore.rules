@@ -34,5 +34,10 @@ service cloud.firestore {
       allow update: if true;
       allow create, delete: if false;
     }
+
+    // 5. Login / Access Logs Collection: Public read & create/update for tracking Kakao logins & newcomer visits
+    match /loginLogs/{logId} {
+      allow read, write: if true;
+    }
   }
 }
