@@ -598,7 +598,7 @@ export const INITIAL_MEMBERS = [
     "maritalStatus": "single",
     "gender": "남",
     "role": "Member",
-    "entryBadge": "0422",
+    "entryBadge": "0814",
     "customBadge": "",
     "bankAccount": "",
     "attendanceCount": 80,
@@ -608,7 +608,7 @@ export const INITIAL_MEMBERS = [
     "totalScore": 83,
     "monthlyScore": 0,
     "hostCount": 6,
-    "joinedAt": "2024-04-22",
+    "joinedAt": "2024-08-14",
     "unlockedAlbums": []
   },
   {

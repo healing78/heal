@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from './components/layout/AppLayout';
-import { isAdminRole, isAdminUser, isSuperAdmin } from './core/communityRules';
+import {
+  formatMemberNickname,
+  isAdminRole,
+  isAdminUser,
+  isSuperAdmin
+} from './core/communityRules';
 import {
   INITIAL_COMMUNITY_CONFIG,
   INITIAL_MEETINGS,
@@ -20,7 +25,10 @@ import {
   adminUpdateMember,
   batchSyncCommunityData,
   createMeeting,
+  deleteMember,
+  deleteMeeting,
   getSavedCurrentUserUid,
+  reassignMemberUid,
   registerOnboardingMember,
   resetToInitialDemoData,
   saveCurrentUserUid,
@@ -29,14 +37,15 @@ import {
   toggleMeetingApplicant,
   updateCommunityConfig,
   updateMeetingDetails,
-  updateMemberProfile,
-  deleteMeeting
+  updateMemberProfile
 } from './services/communityService';
 import { logoutFromKakao } from './services/kakaoAuthService';
 import LoginOnboardingPage from './pages/LoginOnboardingPage';
 import HomePage from './pages/HomePage';
 import MeetingsPage from './pages/MeetingsPage';
 import ReportsPage from './pages/ReportsPage';
+import FriendsPage from './pages/FriendsPage';
+import MemberProfilePage from './pages/MemberProfilePage';
 import RankingPage from './pages/RankingPage';
 import NicknamePage from './pages/NicknamePage';
 import ProfilePage from './pages/ProfilePage';
@@ -63,6 +72,10 @@ export default function App() {
   const [selectedMeetingSubView, setSelectedMeetingSubView] = useState(
     initialRoute.subView
   );
+  const [selectedMemberUid, setSelectedMemberUid] = useState(
+    initialRoute.memberUid || null
+  );
+  const [memberUidList, setMemberUidList] = useState([]);
   const [shareToast, setShareToast] = useState('');
   const [theme, setTheme] = useState(() => getSavedTheme());
   const [isMasterTabEnabled, setIsMasterTabEnabled] = useState(() => {
@@ -115,6 +128,9 @@ export default function App() {
       setActiveTab(route.tab);
       setSelectedMeetingId(route.meetingId);
       setSelectedMeetingSubView(route.subView);
+      if (route.memberUid) {
+        setSelectedMemberUid(route.memberUid);
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -129,16 +145,42 @@ export default function App() {
       nextTab === 'meetings' ? params.id ?? null : null;
     const subViewParam =
       nextTab === 'meetings' ? params.subView ?? null : null;
+    const memberUidParam =
+      nextTab === 'members'
+        ? params.uid ?? selectedMemberUid ?? null
+        : null;
+
     setActiveTab(nextTab);
     setSelectedMeetingId(meetingParam);
     setSelectedMeetingSubView(subViewParam);
+    if (nextTab === 'members') {
+      setSelectedMemberUid(memberUidParam);
+    }
+
     pushRouteUrl(nextTab, {
       ...(meetingParam ? { id: meetingParam } : {}),
-      ...(subViewParam ? { subView: subViewParam } : {})
+      ...(subViewParam ? { subView: subViewParam } : {}),
+      ...(memberUidParam ? { uid: memberUidParam } : {})
     });
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const handleSelectMember = (uid, uidList = null) => {
+    setSelectedMemberUid(uid);
+    if (uidList && Array.isArray(uidList)) {
+      setMemberUidList(uidList);
+    }
+    navigateToTab('members', { uid });
+  };
+
+  const handleDeleteMember = async (targetUid) => {
+    await deleteMember(targetUid);
+  };
+
+  const handleReassignMemberUid = async (oldUid, newUid) => {
+    await reassignMemberUid(oldUid, newUid);
   };
 
   const handleSelectMeetingId = (meetingId, subView = null) => {
@@ -162,6 +204,7 @@ export default function App() {
     tab: activeTab,
     meetingId: selectedMeetingId,
     subView: selectedMeetingSubView,
+    memberUid: selectedMemberUid,
     meetings,
     members,
     communityConfig,
@@ -346,6 +389,36 @@ export default function App() {
       );
     }
 
+    if (activeTab === 'friends') {
+      return (
+        <FriendsPage
+          currentUser={currentUser}
+          members={members}
+          communityConfig={communityConfig}
+          onSelectMember={handleSelectMember}
+          onNavigateTab={navigateToTab}
+        />
+      );
+    }
+
+    if (activeTab === 'members') {
+      return (
+        <MemberProfilePage
+          memberUid={selectedMemberUid}
+          memberUidList={memberUidList}
+          currentUser={currentUser}
+          members={members}
+          meetings={meetings}
+          communityConfig={communityConfig}
+          onSelectMember={handleSelectMember}
+          onAdminUpdateMember={handleAdminUpdateMember}
+          onReassignMemberUid={handleReassignMemberUid}
+          onBack={() => navigateToTab('friends')}
+          onNavigateTab={navigateToTab}
+        />
+      );
+    }
+
     if (activeTab === 'reports') {
       if (isAdminRole(currentUser?.role)) {
         return (
@@ -432,6 +505,8 @@ export default function App() {
           communityConfig={communityConfig}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminUpdateConfig={handleAdminUpdateConfig}
+          onDeleteMember={handleDeleteMember}
+          onReassignMemberUid={handleReassignMemberUid}
           onToggleMasterTab={handleToggleMasterTab}
           onNavigateTab={navigateToTab}
           onBatchSyncData={batchSyncCommunityData}

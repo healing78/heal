@@ -287,6 +287,7 @@ export const subscribeCommunityData = (onUpdate) => {
  */
 export const registerOnboardingMember = async (form, customUid) => {
   const now = new Date();
+  const year = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
   const newUid = customUid || `kakao:${Date.now()}`;
@@ -299,8 +300,9 @@ export const registerOnboardingMember = async (form, customUid) => {
     homeCity: (form.homeCity || form.city).trim(),
     maritalStatus: form.maritalStatus,
     gender: form.gender,
-    role: 'Member',
+    role: 'Rookie',
     entryBadge: `${mm}${dd}`,
+    joinedAt: `${year}-${mm}-${dd}`,
     customBadge: '',
     bankAccount: (form.bankAccount || '').trim(),
     attendanceCount: 0,
@@ -308,7 +310,9 @@ export const registerOnboardingMember = async (form, customUid) => {
     expeditionScore: 0,
     eventScore: 0,
     totalScore: 0,
-    monthlyScore: 0
+    monthlyScore: 0,
+    linkRequestRealName: (form.linkRequestRealName || '').trim(),
+    unlockedAlbums: []
   };
 
   const { members } = getLocalState();
@@ -598,8 +602,10 @@ export const settleMeetingWithScores = async (
       date: todayStr
     });
 
+    const nextRole = member.role === 'Rookie' ? 'Member' : member.role;
     return {
       ...member,
+      role: nextRole,
       attendanceCount: member.attendanceCount + 1,
       baseScore: member.baseScore + calc.base,
       expeditionScore: member.expeditionScore + calc.expedition,
@@ -714,6 +720,82 @@ export const adminAdjustEventScore = async (
       await batch.commit();
     } catch (err) {
       console.warn('Firestore write fallback (adminAdjustEventScore):', err.code);
+    }
+  }
+};
+
+/**
+ * Permanently deletes a member (e.g. duplicate account removal).
+ */
+export const deleteMember = async (targetUid) => {
+  const { members } = getLocalState();
+  const nextMembers = members.filter((m) => m.uid !== targetUid);
+  writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, 'members', targetUid));
+    } catch (err) {
+      console.warn('Firestore deleteMember error:', err);
+    }
+  }
+};
+
+/**
+ * Reassigns an existing member's data to a new Kakao UID (account transfer).
+ */
+export const reassignMemberUid = async (oldUid, newUid) => {
+  const { members, meetings } = getLocalState();
+  const target = members.find((m) => m.uid === oldUid);
+  if (!target) return;
+
+  const updatedTarget = { ...target, uid: newUid, linkRequestRealName: '' };
+  const nextMembers = members
+    .filter((m) => m.uid !== oldUid && m.uid !== newUid)
+    .concat(updatedTarget);
+
+  const nextMeetings = meetings.map((mtg) => {
+    let changed = false;
+    let nextMtg = { ...mtg };
+    if (nextMtg.hostUid === oldUid) {
+      nextMtg.hostUid = newUid;
+      changed = true;
+    }
+    if (nextMtg.treasurerUid === oldUid) {
+      nextMtg.treasurerUid = newUid;
+      changed = true;
+    }
+    if (Array.isArray(nextMtg.applicants) && nextMtg.applicants.includes(oldUid)) {
+      nextMtg.applicants = nextMtg.applicants.map((u) => (u === oldUid ? newUid : u));
+      changed = true;
+    }
+    if (Array.isArray(nextMtg.confirmedParticipants) && nextMtg.confirmedParticipants.includes(oldUid)) {
+      nextMtg.confirmedParticipants = nextMtg.confirmedParticipants.map((u) =>
+        u === oldUid ? newUid : u
+      );
+      changed = true;
+    }
+    return changed ? nextMtg : mtg;
+  });
+
+  writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const batch = writeBatch(db);
+      batch.delete(doc(db, 'members', oldUid));
+      batch.set(doc(db, 'members', newUid), updatedTarget);
+      for (const mtg of nextMeetings) {
+        if (mtg.hostUid === newUid || (mtg.applicants || []).includes(newUid)) {
+          batch.set(doc(db, 'meetings', String(mtg.id)), mtg, { merge: true });
+        }
+      }
+      await batch.commit();
+    } catch (err) {
+      console.warn('Firestore reassignMemberUid error:', err);
     }
   }
 };

@@ -7,8 +7,10 @@ export const HERO_IMAGE_URL = `${SITE_ORIGIN}${HERO_IMAGE_PATH}`;
 export const VALID_TABS = [
   'home',
   'meetings',
-  'reports',
+  'friends',
   'ranking',
+  'members',
+  'reports',
   'nickname',
   'profile',
   'admin',
@@ -19,8 +21,10 @@ export const VALID_TABS = [
 export const PAGE_LABELS = {
   home: '홈 · 전체 공지',
   meetings: '일정',
+  friends: '친구 · 회원 목록',
+  ranking: '랭킹 · 벙점수 순위',
+  members: '프로필 · 회원 정보',
   reports: '모임·개인 리포트',
-  ranking: '랭킹 · 친구 정보',
   nickname: '신입 규격 닉네임 생성',
   profile: '내 정보 · 프로필 관리',
   admin: '운영진 관리 센터',
@@ -95,6 +99,16 @@ export function parseCurrentRoute() {
     };
   }
 
+  if (firstSeg === 'members') {
+    return {
+      tab: 'members',
+      memberUid: secondSeg || null,
+      meetingId: queryMeetingId,
+      subView,
+      memberQuery
+    };
+  }
+
   // Also support direct '/26110701' (8-digit YYMMDDXX) URLs if shared directly
   if (/^\d{8}$/.test(firstSeg)) {
     return {
@@ -129,6 +143,8 @@ export function pushRouteUrl(tab, params = {}) {
     } else {
       path = `/meetings/${rawId}`;
     }
+  } else if (cleanTab === 'members' && params.uid) {
+    path = `/members/${encodeURIComponent(String(params.uid).trim())}`;
   } else {
     Object.entries(params).forEach(([key, val]) => {
       if (val !== undefined && val !== null && String(val).trim() !== '') {
@@ -220,6 +236,7 @@ export function formatScheduleDetailText(m) {
 export function buildRouteMeta({
   tab,
   meetingId,
+  memberUid,
   subView,
   meetings = [],
   members = [],
@@ -278,13 +295,37 @@ export function buildRouteMeta({
     };
   }
 
-  // 3. Ranking (/ranking)
+  // 3. Friends (/friends)
+  if (tab === 'friends') {
+    return {
+      headerSummary: '힐링78 - 친구',
+      pageTitle: '힐링78 - 친구',
+      shareText: '힐링78 친구 목록',
+      description: '회원 목록 및 등급별 조회',
+      sharePath: '/friends'
+    };
+  }
+
+  // Member Detail (/members/:uid)
+  if (tab === 'members') {
+    const targetMember = members.find((m) => m.uid === memberUid);
+    const targetNick = targetMember ? formatMemberNickname(targetMember) : '회원 프로필';
+    return {
+      headerSummary: `힐링78 - ${targetNick}`,
+      pageTitle: `힐링78 - ${targetNick}`,
+      shareText: `힐링78 회원 ${targetNick}`,
+      description: `${targetNick} 회원의 활동 벙점수 및 프로필`,
+      sharePath: memberUid ? `/members/${encodeURIComponent(memberUid)}` : '/friends'
+    };
+  }
+
+  // 4. Ranking (/ranking)
   if (tab === 'ranking') {
     return {
-      headerSummary: '힐링78 - 랭킹·친구',
-      pageTitle: '힐링78 - 랭킹·친구',
-      shareText: '힐링78 랭킹 친구',
-      description: 'Healing78 활동 랭킹 및 지역별 친구 정보',
+      headerSummary: '힐링78 - 랭킹',
+      pageTitle: '힐링78 - 랭킹',
+      shareText: '힐링78 활동 랭킹',
+      description: 'Healing78 활동 랭킹 및 벙참석 순위',
       sharePath: '/ranking'
     };
   }

@@ -18,14 +18,19 @@ const ROUTE_METAS = [
     description: '진행 예정 일정 및 참석 신청 (참석 기본 +1점, 타지역 원정 +1점, 해외 +2점)'
   },
   {
+    route: 'friends',
+    title: '힐링78 - 친구',
+    description: '전체 회원 목록 및 등급별 친구 정보, 개인 프로필을 확인하세요.'
+  },
+  {
     route: 'reports',
     title: '힐링78 - 리포트',
     description: '차수별 정산 내역, 1/N 부담금, 찬조금 및 개인별 참석·지출 리포트를 확인하세요.'
   },
   {
     route: 'ranking',
-    title: '힐링78 - 랭킹·친구',
-    description: 'Healing78 전체 회원의 실시간 활동 점수 순위와 지역별 친구 정보를 확인하세요.'
+    title: '힐링78 - 랭킹',
+    description: 'Healing78 전체 회원의 실시간 활동 점수 순위와 벙참석 랭킹을 확인하세요.'
   },
   {
     route: 'nickname',

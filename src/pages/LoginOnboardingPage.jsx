@@ -27,7 +27,8 @@ export default function LoginOnboardingPage({
     city: '서울',
     homeCity: '서울',
     maritalStatus: 'single',
-    gender: '남'
+    gender: '남',
+    linkRequestRealName: ''
   });
 
   const onboardingPreview = suggestNewMemberNickname({
@@ -182,6 +183,22 @@ export default function LoginOnboardingPage({
                   <option value="남">남성 (남)</option>
                   <option value="여">여성 (여)</option>
                 </select>
+              </div>
+
+              <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                <label htmlFor="onboard-link-req">기존 계정 연결 신청 (선택)</label>
+                <input
+                  id="onboard-link-req"
+                  type="text"
+                  placeholder="기존 활동 닉네임/실명 입력 시 기존 점수 및 이력 인계 연결"
+                  value={onboardingForm.linkRequestRealName || ''}
+                  onChange={(e) =>
+                    setOnboardingForm({
+                      ...onboardingForm,
+                      linkRequestRealName: e.target.value
+                    })
+                  }
+                />
               </div>
             </div>
 

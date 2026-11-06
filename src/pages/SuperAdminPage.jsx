@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   BUNG_TIER_BADGES,
   formatMemberNickname,
@@ -43,7 +43,9 @@ export default function SuperAdminPage({
   onNavigateTab,
   onImpersonateUser,
   onBatchSyncData,
-  onResetInitialData
+  onResetInitialData,
+  onDeleteMember,
+  onReassignMemberUid
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [newSuperUid, setNewSuperUid] = useState('');
@@ -58,6 +60,46 @@ export default function SuperAdminPage({
   const [bungRawText, setBungRawText] = useState('');
   const [showBungPasteBox, setShowBungPasteBox] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [duplicateQuery, setDuplicateQuery] = useState('');
+  const [reassignSourceUid, setReassignSourceUid] = useState('');
+  const [reassignNewUid, setReassignNewUid] = useState('');
+
+  const duplicateCandidates = useMemo(() => {
+    const q = duplicateQuery.trim().toLowerCase();
+    if (!q) return [];
+    return members.filter((m) => {
+      const real = (m.realName || '').toLowerCase();
+      return real.includes(q) || q.includes(real);
+    });
+  }, [members, duplicateQuery]);
+
+  const handleDeleteDuplicate = async (targetUid) => {
+    if (!onDeleteMember) return;
+    try {
+      const target = members.find((m) => m.uid === targetUid);
+      await onDeleteMember(targetUid);
+      setActionFeedback(`✅ 중복 계정 [${target?.realName || targetUid}]이(가) 영구 삭제되었습니다.`);
+      setTimeout(() => setActionFeedback(''), 3000);
+    } catch (err) {
+      setActionFeedback(`❌ 계정 삭제 실패: ${err.message || err}`);
+    }
+  };
+
+  const handleAdminExecuteReassign = async (e) => {
+    e.preventDefault();
+    if (!reassignSourceUid || !reassignNewUid.trim() || !onReassignMemberUid) return;
+    try {
+      await onReassignMemberUid(reassignSourceUid, reassignNewUid.trim());
+      setActionFeedback(
+        `✅ 회원 데이터가 ${reassignNewUid.trim()} 계정으로 성공적으로 인계되었습니다.`
+      );
+      setReassignSourceUid('');
+      setReassignNewUid('');
+      setTimeout(() => setActionFeedback(''), 3000);
+    } catch (err) {
+      setActionFeedback(`❌ 인계 실패: ${err.message || err}`);
+    }
+  };
 
   const superAdminUids = Array.isArray(communityConfig?.superAdminUids)
     ? communityConfig.superAdminUids
@@ -485,6 +527,102 @@ export default function SuperAdminPage({
             </div>
           </form>
         )}
+      </section>
+
+      {/* Section 1-3: Duplicate Member Search & Removal Console */}
+      <section className="list-section">
+        <h3 style={{ marginBottom: '8px' }}>유사 이름 검색 및 중복 회원 삭제</h3>
+        <p className="sub-meta" style={{ marginBottom: '10px' }}>
+          입장 기록과 벙기록에서 유사하거나 중복 생성된 회원(예: 쭈 ↔ 쭈우, 초롱 ↔ 안양초롱)을 검색하여 단순 중복 계정을 영구 삭제합니다.
+        </p>
+
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+          <input
+            type="text"
+            placeholder="검색할 이름 입력 (예: 쭈, 초롱, 뚠뚠)..."
+            value={duplicateQuery}
+            onChange={(e) => setDuplicateQuery(e.target.value)}
+            style={{ flex: 1, padding: '7px 10px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          />
+        </div>
+
+        {duplicateCandidates.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+            {duplicateCandidates.map((cand) => (
+              <div
+                key={cand.uid}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '6px'
+                }}
+              >
+                <div>
+                  <span style={{ fontWeight: 700, fontSize: '14px', marginRight: '6px' }}>
+                    {formatMemberNickname(cand)}
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    (점수 {cand.totalScore || 0}점 / 참석 {cand.attendanceCount || 0}회 / UID: {cand.uid})
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{ color: '#ef4444', borderColor: '#fca5a5', fontSize: '11px', padding: '3px 8px' }}
+                  onClick={() =>
+                    runArmed(`delete-dup:${cand.uid}`, () => handleDeleteDuplicate(cand.uid))
+                  }
+                >
+                  {isArmed(`delete-dup:${cand.uid}`) ? '삭제 확인' : '🗑️ 중복 계정 삭제'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Section 1-4: Kakao UID Account Reassignment Console */}
+      <section className="list-section">
+        <h3 style={{ marginBottom: '8px' }}>카카오 UID 계정 인계(연계) 도구</h3>
+        <p className="sub-meta" style={{ marginBottom: '10px' }}>
+          기기 변경이나 카톡 재가입으로 새 카카오 UID가 발급된 회원의 모든 벙점수, 활동 기록, 역할을 새 계정으로 즉시 이전합니다.
+        </p>
+
+        <form onSubmit={handleAdminExecuteReassign} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <select
+            value={reassignSourceUid}
+            onChange={(e) => setReassignSourceUid(e.target.value)}
+            style={{ flex: 1, minWidth: '180px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          >
+            <option value="">인계할 기존 회원 선택...</option>
+            {members.map((m) => (
+              <option key={m.uid} value={m.uid}>
+                {formatMemberNickname(m)} ({m.totalScore || 0}점 / {m.uid})
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="새 카카오 UID (예: kakao:12345678)"
+            value={reassignNewUid}
+            onChange={(e) => setReassignNewUid(e.target.value)}
+            style={{ flex: 1, minWidth: '180px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+          />
+
+          <button
+            type="submit"
+            className="btn btn-primary btn-sm"
+            disabled={!reassignSourceUid || !reassignNewUid.trim()}
+          >
+            계정 인계 실행
+          </button>
+        </form>
       </section>
 
       {/* Section 2: Google Drive Album Bridge URL */}
