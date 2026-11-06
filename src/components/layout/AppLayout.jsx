@@ -147,33 +147,37 @@ export default function AppLayout({
             {isRoseTheme ? '🔗 현재 페이지 카톡 공유' : '현재 페이지 링크 공유'}
           </button>
 
-          <label htmlFor="pc-user-switch" className="switcher-label">
-            현재 로그인 계정 (권한 체험)
-          </label>
-          <select
-            id="pc-user-switch"
-            className="switcher-select"
-            value={currentUser?.uid || '__LOGOUT__'}
-            onChange={(e) => onSwitchUser(e.target.value)}
-          >
-            <option value="__LOGOUT__">비로그인 (게스트 열람 상태)</option>
-            {members.map((m) => (
-              <option key={m.uid} value={m.uid}>
-                [{ROLE_META[m.role]?.label}] {formatMemberNickname(m)} (참석{' '}
-                {m.attendanceCount}회)
-              </option>
-            ))}
-          </select>
+          {isMasterTabEnabled && onSwitchUser && (
+            <>
+              <label htmlFor="pc-user-switch" className="switcher-label">
+                현재 로그인 계정 (마스터 권한 체험)
+              </label>
+              <select
+                id="pc-user-switch"
+                className="switcher-select"
+                value={currentUser?.uid || '__LOGOUT__'}
+                onChange={(e) => onSwitchUser(e.target.value)}
+              >
+                <option value="__LOGOUT__">비로그인 (게스트 열람 상태)</option>
+                {members.map((m) => (
+                  <option key={m.uid} value={m.uid}>
+                    [{ROLE_META[m.role]?.label}] {formatMemberNickname(m)} (참석{' '}
+                    {m.attendanceCount}회)
+                  </option>
+                ))}
+              </select>
 
-          {!isFirebaseConfigured && (
-            <button
-              type="button"
-              className="btn btn-outline"
-              style={{ marginTop: '6px', fontSize: '0.78rem', padding: '6px 10px' }}
-              onClick={onResetDemoData}
-            >
-              데모 데이터 초기화
-            </button>
+              {!isFirebaseConfigured && (
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  style={{ marginTop: '6px', fontSize: '0.78rem', padding: '6px 10px' }}
+                  onClick={onResetDemoData}
+                >
+                  데모 데이터 초기화
+                </button>
+              )}
+            </>
           )}
         </div>
       </aside>

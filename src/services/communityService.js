@@ -100,10 +100,10 @@ const notifyLocalListeners = () => {
 export const getSavedCurrentUserUid = () => {
   try {
     const val = localStorage.getItem(STORAGE_KEYS.currentUserUid);
-    if (val === '__NONE__') return null;
-    return val || 'kakao:1001';
+    if (!val || val === '__NONE__') return null;
+    return val;
   } catch {
-    return 'kakao:1001';
+    return null;
   }
 };
 

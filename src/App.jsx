@@ -479,8 +479,6 @@ export default function App() {
           meetings={meetings}
           onOpenMeetingDetail={handleOpenMeetingDetail}
           onUpdateProfile={handleUpdateProfile}
-          onSwitchUser={handleSwitchUser}
-          onResetDemoData={handleResetDemoData}
           onLogout={() => handleSwitchUser('__LOGOUT__')}
         />
       );
@@ -507,8 +505,6 @@ export default function App() {
           onUpdateProfile={handleUpdateProfile}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminUpdateConfig={handleAdminUpdateConfig}
-          onSwitchUser={handleSwitchUser}
-          onResetDemoData={handleResetDemoData}
           onLogout={() => handleSwitchUser('__LOGOUT__')}
           isMasterTabEnabled={isMasterTabEnabled}
           onToggleMasterTab={handleToggleMasterTab}
@@ -549,6 +545,7 @@ export default function App() {
           onReassignMemberUid={handleReassignMemberUid}
           onToggleMasterTab={handleToggleMasterTab}
           onNavigateTab={navigateToTab}
+          onSwitchUser={handleSwitchUser}
           onBatchSyncData={batchSyncCommunityData}
           onResetInitialData={handleResetDemoData}
           onImpersonateUser={(uid) => {

@@ -41,6 +41,7 @@ export default function SuperAdminPage({
   onAdminUpdateConfig,
   onToggleMasterTab,
   onNavigateTab,
+  onSwitchUser,
   onImpersonateUser,
   onBatchSyncData,
   onResetInitialData,
@@ -402,6 +403,36 @@ export default function SuperAdminPage({
           </div>
         )}
       </section>
+
+      {/* Section 0: Account Switcher for Master */}
+      {onSwitchUser && (
+        <section className="list-section">
+          <div className="section-title-row">
+            <h3>🔄 계정 전환 (권한/회원 체험)</h3>
+            <span className="platform-badge" style={{ background: '#2563eb', color: '#fff' }}>
+              Master Switcher
+            </span>
+          </div>
+          <p className="sub-meta" style={{ marginTop: '4px', marginBottom: '10px' }}>
+            원하는 회원의 계정으로 전환하여 권한별(신입, 일반, VIP, 운영진 등) 화면을 실시간으로 테스트합니다.
+          </p>
+          <div className="stack-gap">
+            <select
+              aria-label="마스터 계정 전환"
+              className="switcher-select"
+              value={currentUser?.uid || ''}
+              onChange={(e) => onSwitchUser(e.target.value)}
+            >
+              {members.map((m) => (
+                <option key={m.uid} value={m.uid}>
+                  [{ROLE_META[m.role]?.label}] {formatMemberNickname(m)} (참석 {m.attendanceCount}회, {m.totalScore}점)
+                </option>
+              ))}
+              <option value="__LOGOUT__">→ 로그아웃 (비로그인 상태로 전환)</option>
+            </select>
+          </div>
+        </section>
+      )}
 
       {/* Section 1: Master Account & DB Backup */}
       <section className="list-section">

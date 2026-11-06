@@ -47,8 +47,6 @@ export default function ProfilePage({
   onUpdateProfile,
   onAdminUpdateMember,
   onAdminUpdateConfig,
-  onSwitchUser,
-  onResetDemoData,
   onLogout,
   isMasterTabEnabled,
   onToggleMasterTab,
@@ -679,43 +677,6 @@ export default function ProfilePage({
               })}
             </div>
           )}
-        </section>
-      )}
-
-
-      {/* Bottom Test Account Switcher */}
-      {onSwitchUser && (
-        <section className="list-section">
-          <div className="section-title-row">
-            <h3>계정 전환</h3>
-            <span className="platform-badge">{dbLabel}</span>
-          </div>
-          <div className="stack-gap">
-            <select
-              aria-label="계정 전환"
-              className="switcher-select"
-              value={currentUser.uid}
-              onChange={(e) => onSwitchUser(e.target.value)}
-            >
-              {members.map((m) => (
-                <option key={m.uid} value={m.uid}>
-                  [{ROLE_META[m.role]?.label}] {formatMemberNickname(m)} (참석{' '}
-                  {m.attendanceCount}회)
-                </option>
-              ))}
-              <option value="__LOGOUT__">→ 로그아웃</option>
-            </select>
-
-            {!isFirebaseConfigured && onResetDemoData && (
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={onResetDemoData}
-              >
-                데이터 초기화
-              </button>
-            )}
-          </div>
         </section>
       )}
     </div>
