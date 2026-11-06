@@ -45,6 +45,7 @@ export default function FriendsPage({
       { key: 'Member', label: '일반' },
       { key: 'VIP', label: 'VIP' },
       { key: 'Staff', label: '운영진' },
+      { key: 'OnLeave', label: '외출자' },
       { key: 'Withdrawn', label: '탈퇴자' }
     ];
 
@@ -74,6 +75,8 @@ export default function FriendsPage({
       list = list.filter((m) => m.role === 'VIP');
     } else if (activeFilter === 'Staff') {
       list = list.filter((m) => m.role === 'Leader' || m.role === 'Deputy');
+    } else if (activeFilter === 'OnLeave') {
+      list = list.filter((m) => m.role === 'OnLeave');
     } else if (activeFilter === 'Withdrawn') {
       list = list.filter((m) => m.role === 'Withdrawn');
     } else if (activeFilter === 'Wanderer') {

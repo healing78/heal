@@ -6,6 +6,7 @@ export const ROLE_META = {
   VIP: { label: 'VIP', badgeColor: 'var(--role-vip, #475569)', isAdmin: false },
   Member: { label: '일반회원', badgeColor: 'var(--role-member, #64748b)', isAdmin: false },
   Rookie: { label: '신입', badgeColor: 'var(--role-rookie, #0d9488)', isAdmin: false },
+  OnLeave: { label: '외출자', badgeColor: 'var(--role-onleave, #ea580c)', isAdmin: false },
   Wanderer: { label: '방랑자', badgeColor: 'var(--role-wanderer, #78716c)', isAdmin: false },
   Withdrawn: { label: '탈퇴자', badgeColor: '#94a3b8', isAdmin: false },
   Expelled: { label: '강퇴자', badgeColor: '#7f1d1d', isAdmin: false }
@@ -143,6 +144,7 @@ export const canCreateMeeting = (member) => {
   if (!member) return false;
   if (
     member.role === 'Rookie' ||
+    member.role === 'OnLeave' ||
     member.role === 'Wanderer' ||
     member.role === 'Withdrawn' ||
     member.role === 'Expelled'

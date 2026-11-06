@@ -23,6 +23,7 @@
   --role-vip: #475569;
   --role-member: #64748b;
   --role-rookie: #0d9488;
+  --role-onleave: #ea580c;
   --role-wanderer: #78716c;
 
   --radius-base: 6px;
@@ -62,6 +63,8 @@
   --role-deputy: #166534;
   --role-vip: #374151;
   --role-member: #6b7280;
+  --role-rookie: #0d9488;
+  --role-onleave: #d97706;
   --role-wanderer: #78716c;
 
   --radius-base: 2px;
@@ -91,6 +94,8 @@
   --role-deputy: #7c3aed;
   --role-vip: #db2777;
   --role-member: #475569;
+  --role-rookie: #0d9488;
+  --role-onleave: #ea580c;
   --role-wanderer: #d97706;
 
   --radius-base: 10px;
