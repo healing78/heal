@@ -393,37 +393,6 @@ export default function LoginOnboardingPage({
           )}
         </div>
       </section>
-
-      {/* Quick Demo Member Login List (Always Expanded) */}
-      <section className="list-section">
-        <div className="divider-label" style={{ textAlign: 'left', marginBottom: '10px' }}>
-          계정 선택 로그인
-        </div>
-        <div className="divider-list">
-          {members.map((m) => (
-            <button
-              key={m.uid}
-              type="button"
-              className="demo-account-btn"
-              onClick={() => onSelectExistingMember(m.uid)}
-            >
-              <div>
-                <strong>{formatMemberNickname(m)}</strong>
-                <span className="sub-meta">
-                  {' '}
-                  · 참석 {m.attendanceCount}회 · {m.totalScore}점
-                </span>
-              </div>
-              <span
-                className="role-pill"
-                style={{ backgroundColor: ROLE_META[m.role]?.badgeColor }}
-              >
-                {ROLE_META[m.role]?.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
