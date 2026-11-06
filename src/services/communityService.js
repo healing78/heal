@@ -323,14 +323,18 @@ export const subscribeCommunityData = (onUpdate) => {
   const unsubLoginLogs = onSnapshot(
     collection(db, 'loginLogs'),
     (snap) => {
-      if (!snap.empty) {
-        currentData = {
-          ...currentData,
-          loginLogs: snap.docs.map((d) => d.data())
-        };
-        writeLocalJson(STORAGE_KEYS.loginLogs, currentData.loginLogs);
-        onUpdate(currentData);
-      }
+      currentData = {
+        ...currentData,
+        loginLogs: snap.docs.map((d) => {
+          const item = d.data();
+          return {
+            ...item,
+            uid: item.uid || d.id
+          };
+        })
+      };
+      writeLocalJson(STORAGE_KEYS.loginLogs, currentData.loginLogs);
+      onUpdate(currentData);
     },
     handleSnapshotError
   );

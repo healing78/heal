@@ -534,6 +534,7 @@ export default function App() {
           members={members}
           meetings={meetings}
           communityConfig={communityConfig}
+          loginLogs={loginLogs}
           onOpenMeetingDetail={handleOpenMeetingDetail}
           onUpdateMeeting={handleUpdateMeeting}
           onDeleteMeeting={handleDeleteMeeting}
