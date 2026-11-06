@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import RegionInput from '../components/RegionInput';
 import { suggestNewMemberNickname } from '../nicknameUtils';
 import { formatMemberNickname, ROLE_META } from '../core/communityRules';
