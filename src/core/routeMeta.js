@@ -66,7 +66,7 @@ export function formatCompactDate(dateStr) {
  */
 export function parseCurrentRoute() {
   if (typeof window === 'undefined') {
-    return { tab: 'home', meetingId: null, subView: null, memberQuery: '' };
+    return { tab: 'home', meetingId: null, subView: null, memberQuery: '', friendsFilter: 'ALL' };
   }
 
   const segments = window.location.pathname
@@ -83,11 +83,12 @@ export function parseCurrentRoute() {
   const querySubView =
     params.get('view') || (params.get('lounge') === 'true' ? 'lounge' : null);
   const memberQuery = params.get('q') || '';
+  const friendsFilter = params.get('filter') || params.get('sub') || 'ALL';
   const subView =
     thirdSeg === 'lounge' || querySubView === 'lounge' ? 'lounge' : null;
 
   if (!firstSeg || firstSeg === 'home') {
-    return { tab: 'home', meetingId: queryMeetingId, subView, memberQuery };
+    return { tab: 'home', meetingId: queryMeetingId, subView, memberQuery, friendsFilter };
   }
 
   if (firstSeg === 'meetings') {
@@ -95,7 +96,8 @@ export function parseCurrentRoute() {
       tab: 'meetings',
       meetingId: secondSeg || queryMeetingId,
       subView,
-      memberQuery
+      memberQuery,
+      friendsFilter
     };
   }
 
@@ -105,7 +107,8 @@ export function parseCurrentRoute() {
       memberUid: secondSeg || null,
       meetingId: queryMeetingId,
       subView,
-      memberQuery
+      memberQuery,
+      friendsFilter
     };
   }
 
@@ -115,15 +118,16 @@ export function parseCurrentRoute() {
       tab: 'meetings',
       meetingId: firstSeg,
       subView: secondSeg === 'lounge' ? 'lounge' : subView,
-      memberQuery
+      memberQuery,
+      friendsFilter
     };
   }
 
   if (VALID_TABS.includes(firstSeg)) {
-    return { tab: firstSeg, meetingId: queryMeetingId, subView, memberQuery };
+    return { tab: firstSeg, meetingId: queryMeetingId, subView, memberQuery, friendsFilter };
   }
 
-  return { tab: 'home', meetingId: null, subView: null, memberQuery };
+  return { tab: 'home', meetingId: null, subView: null, memberQuery, friendsFilter };
 }
 
 /**
@@ -145,6 +149,14 @@ export function pushRouteUrl(tab, params = {}) {
     }
   } else if (cleanTab === 'members' && params.uid) {
     path = `/members/${encodeURIComponent(String(params.uid).trim())}`;
+    if (params.filter && params.filter !== 'ALL') {
+      searchParams.set('filter', params.filter);
+    }
+  } else if (cleanTab === 'friends') {
+    path = '/friends';
+    if (params.filter && params.filter !== 'ALL') {
+      searchParams.set('filter', params.filter);
+    }
   } else {
     Object.entries(params).forEach(([key, val]) => {
       if (val !== undefined && val !== null && String(val).trim() !== '') {

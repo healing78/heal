@@ -29,11 +29,29 @@ export default function FriendsPage({
   currentUser,
   members = [],
   communityConfig = {},
+  activeFilter: controlledFilter,
+  onChangeFilter,
+  searchQuery: controlledSearchQuery,
+  onChangeSearchQuery,
   onSelectMember,
   onNavigateTab
 }) {
-  const [activeFilter, setActiveFilter] = useState('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [internalFilter, setInternalFilter] = useState('ALL');
+  const [internalSearch, setInternalSearch] = useState('');
+
+  const activeFilter =
+    controlledFilter !== undefined ? controlledFilter : internalFilter;
+  const setActiveFilter = (val) => {
+    if (onChangeFilter) onChangeFilter(val);
+    else setInternalFilter(val);
+  };
+
+  const searchQuery =
+    controlledSearchQuery !== undefined ? controlledSearchQuery : internalSearch;
+  const setSearchQuery = (val) => {
+    if (onChangeSearchQuery) onChangeSearchQuery(val);
+    else setInternalSearch(val);
+  };
 
   const isAdmin = isAdminUser(currentUser, communityConfig);
 
@@ -234,7 +252,7 @@ export default function FriendsPage({
               return (
                 <div
                   key={member.uid}
-                  onClick={() => onSelectMember && onSelectMember(member.uid, filteredMembers.map(m => m.uid))}
+                  onClick={() => onSelectMember && onSelectMember(member.uid, filteredMembers.map(m => m.uid), activeFilter)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',

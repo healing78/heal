@@ -77,6 +77,10 @@ export default function App() {
   const [selectedMemberUid, setSelectedMemberUid] = useState(
     initialRoute.memberUid || null
   );
+  const [friendsFilter, setFriendsFilter] = useState(
+    () => initialRoute.friendsFilter || 'ALL'
+  );
+  const [friendsSearchQuery, setFriendsSearchQuery] = useState('');
   const [memberUidList, setMemberUidList] = useState([]);
   const [shareToast, setShareToast] = useState('');
   const [theme, setTheme] = useState(() => getSavedTheme());
@@ -130,6 +134,9 @@ export default function App() {
       setActiveTab(route.tab);
       setSelectedMeetingId(route.meetingId);
       setSelectedMeetingSubView(route.subView);
+      if (route.friendsFilter) {
+        setFriendsFilter(route.friendsFilter);
+      }
       if (route.memberUid) {
         setSelectedMemberUid(route.memberUid);
       }
@@ -151,6 +158,8 @@ export default function App() {
       nextTab === 'members'
         ? params.uid ?? selectedMemberUid ?? null
         : null;
+    const filterParam =
+      params.filter ?? friendsFilter;
 
     setActiveTab(nextTab);
     setSelectedMeetingId(meetingParam);
@@ -158,23 +167,33 @@ export default function App() {
     if (nextTab === 'members') {
       setSelectedMemberUid(memberUidParam);
     }
+    if (nextTab === 'friends' && params.filter) {
+      setFriendsFilter(params.filter);
+    }
 
     pushRouteUrl(nextTab, {
       ...(meetingParam ? { id: meetingParam } : {}),
       ...(subViewParam ? { subView: subViewParam } : {}),
-      ...(memberUidParam ? { uid: memberUidParam } : {})
+      ...(memberUidParam ? { uid: memberUidParam } : {}),
+      ...((nextTab === 'friends' || nextTab === 'members') && filterParam && filterParam !== 'ALL'
+        ? { filter: filterParam }
+        : {})
     });
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const handleSelectMember = (uid, uidList = null) => {
+  const handleSelectMember = (uid, uidList = null, currentFilter = null) => {
     setSelectedMemberUid(uid);
     if (uidList && Array.isArray(uidList)) {
       setMemberUidList(uidList);
     }
-    navigateToTab('members', { uid });
+    const filterToUse = currentFilter || friendsFilter;
+    if (filterToUse) {
+      setFriendsFilter(filterToUse);
+    }
+    navigateToTab('members', { uid, filter: filterToUse });
   };
 
   const handleDeleteMember = async (targetUid) => {
@@ -405,6 +424,13 @@ export default function App() {
           currentUser={currentUser}
           members={members}
           communityConfig={communityConfig}
+          activeFilter={friendsFilter}
+          onChangeFilter={(filter) => {
+            setFriendsFilter(filter);
+            pushRouteUrl('friends', filter !== 'ALL' ? { filter } : {});
+          }}
+          searchQuery={friendsSearchQuery}
+          onChangeSearchQuery={setFriendsSearchQuery}
           onSelectMember={handleSelectMember}
           onNavigateTab={navigateToTab}
         />
@@ -423,7 +449,7 @@ export default function App() {
           onSelectMember={handleSelectMember}
           onAdminUpdateMember={handleAdminUpdateMember}
           onReassignMemberUid={handleReassignMemberUid}
-          onBack={() => navigateToTab('friends')}
+          onBack={() => navigateToTab('friends', { filter: friendsFilter })}
           onNavigateTab={navigateToTab}
         />
       );
