@@ -10,6 +10,17 @@ export const MARITAL_STATUS_MAP = {
 };
 
 /**
+ * 힐링78 회원 이름 규칙:
+ * - 한글 1자 이상 3자 이하 (가-힣 음절만 허용, 영문/숫자/특수문자/공백 불가)
+ * - 모임 내에서 완전히 '유일(Unique)'해야 함
+ */
+export const KOREAN_NAME_REGEX = /^[가-힣]{1,3}$/;
+
+export const isValidKoreanName = (name) => {
+  return KOREAN_NAME_REGEX.test(String(name || '').trim());
+};
+
+/**
  * Generates a nickname based on user info.
  * @param {Object} user 
  * @param {string} user.name

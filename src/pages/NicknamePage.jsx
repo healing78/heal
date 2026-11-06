@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import RegionInput from '../components/RegionInput';
-import { suggestNewMemberNickname } from '../nicknameUtils';
+import { isValidKoreanName, suggestNewMemberNickname } from '../nicknameUtils';
 
 export default function NicknamePage({
   currentUser,
@@ -24,7 +24,10 @@ export default function NicknamePage({
 
   const isLeader = currentUser?.role === 'Leader';
 
-  const cleanName = (form.name || '').trim().toLowerCase();
+  const rawName = (form.name || '').trim();
+  const cleanName = rawName.toLowerCase();
+  const isNameFormatValid = isValidKoreanName(rawName);
+
   const duplicateMember = cleanName
     ? members.find(
         (m) =>
@@ -35,7 +38,7 @@ export default function NicknamePage({
   const hasDuplicateName = Boolean(duplicateMember);
 
   const isFormComplete = Boolean(
-    form.name.trim() &&
+    isNameFormatValid &&
       form.city.trim() &&
       form.maritalStatus &&
       form.gender
@@ -158,9 +161,14 @@ export default function NicknamePage({
         </div>
 
         {/* Validation / Helper Guidance */}
-        {!isFormComplete && (
+        {rawName && !isNameFormatValid && (
+          <div style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+            ⚠️ 이름 규칙: 한글 1자에서 3자까지 입력해야 합니다. (영문, 숫자, 특수문자, 4자 이상 불가)
+          </div>
+        )}
+        {!rawName && (
           <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-            ℹ️ 이름과 거주 지역을 모두 입력해야 닉네임을 복사할 수 있습니다.
+            ℹ️ 이름(한글 1~3자)과 거주 지역을 모두 입력해야 닉네임을 복사할 수 있습니다.
           </div>
         )}
         {hasDuplicateName && (
@@ -176,9 +184,9 @@ export default function NicknamePage({
               lineHeight: 1.5
             }}
           >
-            ⚠️ <strong>[{duplicateMember.realName}]</strong> 님은 이미 힐링78에 활동 중인 친구입니다.
+            ⚠️ <strong>[{duplicateMember.realName}]</strong> 님은 이미 힐링78에 등록된 이름입니다.
             <div style={{ fontSize: '12px', color: '#b91c1c', marginTop: '2px' }}>
-              동일명을 가진 친구가 있으므로, 카톡방 구분을 위해 닉네임 뒤에 숫자나 다른 활동명을 추가해 주세요. (중복 방지를 위해 복사가 제한됩니다)
+              이름 규칙에 따라 모임 내에서 유일한 이름이어야 하므로, 다른 이름(한글 1~3자)을 입력해 주세요. (중복 방지를 위해 복사가 제한됩니다)
             </div>
           </div>
         )}

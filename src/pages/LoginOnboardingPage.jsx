@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import RegionInput from '../components/RegionInput';
-import { suggestNewMemberNickname } from '../nicknameUtils';
+import { isValidKoreanName, suggestNewMemberNickname } from '../nicknameUtils';
 import { formatMemberNickname, ROLE_META } from '../core/communityRules';
 import { HERO_IMAGE_PATH } from '../core/routeMeta';
 import {
@@ -33,14 +33,16 @@ export default function LoginOnboardingPage({
     linkSourceUid: ''
   });
 
-  // Past active member candidates for account migration
+  // Past active member candidates for account migration (kakao:10* temporary UIDs with records)
   const historicalCandidates = useMemo(() => {
     return members
       .filter((m) => (m.totalScore > 0 || m.attendanceCount > 0) && m.uid.startsWith('kakao:10'))
       .sort((a, b) => b.totalScore - a.totalScore);
   }, [members]);
 
-  const cleanName = (onboardingForm.realName || '').trim().toLowerCase();
+  const rawName = (onboardingForm.realName || '').trim();
+  const cleanName = rawName.toLowerCase();
+  const isNameFormatValid = isValidKoreanName(rawName);
 
   // Matched historical member by typed name or explicitly chosen
   const matchedHistorical = useMemo(() => {
@@ -55,19 +57,20 @@ export default function LoginOnboardingPage({
     );
   }, [historicalCandidates, members, onboardingForm.linkSourceUid, cleanName]);
 
-  // Check if someone else already has this exact name in active members
-  const duplicateActiveMember = useMemo(() => {
+  // Check if someone else already has this exact name in community
+  // (If linkSourceUid is chosen, that target is myself, so it's not a collision)
+  const duplicateMember = useMemo(() => {
     if (!cleanName) return null;
     return (
       members.find(
         (m) =>
           (m.realName || '').trim().toLowerCase() === cleanName &&
-          m.uid !== onboardingForm.linkSourceUid &&
-          m.role !== 'Wanderer' &&
-          m.role !== 'Expelled'
+          m.uid !== onboardingForm.linkSourceUid
       ) || null
     );
   }, [members, cleanName, onboardingForm.linkSourceUid]);
+
+  const hasDuplicateName = Boolean(duplicateMember);
 
   // Apply historical link
   const handleApplyLinkAccount = (target) => {
@@ -94,7 +97,8 @@ export default function LoginOnboardingPage({
   };
 
   const isFormValid = Boolean(
-    onboardingForm.realName.trim() &&
+    isNameFormatValid &&
+      !hasDuplicateName &&
       onboardingForm.city.trim() &&
       onboardingForm.maritalStatus &&
       onboardingForm.gender
@@ -185,7 +189,7 @@ export default function LoginOnboardingPage({
             <div className="form-grid">
               <div className="form-field" style={{ gridColumn: '1 / -1' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <label htmlFor="onboard-name">닉네임 (활동명) *</label>
+                  <label htmlFor="onboard-name">이름 (활동명) *</label>
                   {onNavigateTab && (
                     <button
                       type="button"
@@ -207,7 +211,7 @@ export default function LoginOnboardingPage({
                 <input
                   id="onboard-name"
                   type="text"
-                  placeholder="예: 힐링이"
+                  placeholder="예: 가을 (한글 1~3자)"
                   required
                   value={onboardingForm.realName}
                   onChange={(e) =>
@@ -217,6 +221,13 @@ export default function LoginOnboardingPage({
                     })
                   }
                 />
+
+                {/* Name format validation */}
+                {rawName && !isNameFormatValid && (
+                  <div style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                    ⚠️ 이름 규칙: 한글 1자에서 3자까지의 유일한 이름이어야 합니다. (영문, 숫자, 특수문자 불가)
+                  </div>
+                )}
 
                 {/* 1. Prompt to link account if matched with historical member */}
                 {matchedHistorical && !onboardingForm.linkSourceUid && (
@@ -233,7 +244,7 @@ export default function LoginOnboardingPage({
                       💡 혹시 이전에 활동하셨던 <strong>[{formatMemberNickname(matchedHistorical)}]</strong> 님이신가요?
                     </div>
                     <div style={{ fontSize: '12px', color: '#15803d', marginTop: '4px', lineHeight: 1.5 }}>
-                      과거 벙 활동 기록(누적 <strong>{matchedHistorical.totalScore}점</strong>, 참석 {matchedHistorical.attendanceCount}회, 최초가입 {matchedHistorical.joinedAt || '2024년'})이 확인되었습니다. 이 기록을 현재 카카오 계정으로 연결 신청하시겠습니까?
+                      과거 벙 활동 기록(누적 <strong>{matchedHistorical.totalScore}점</strong>, 참석 {matchedHistorical.attendanceCount}회, 최초가입 {matchedHistorical.joinedAt || '2024년'})이 확인되었습니다. 본인의 기록이 맞다면 현재 카카오 계정으로 연결 신청을 진행해 주세요.
                     </div>
                     <button
                       type="button"
@@ -263,7 +274,7 @@ export default function LoginOnboardingPage({
                     }}
                   >
                     <div style={{ fontSize: '13px', color: '#166534' }}>
-                      ✅ <strong>[{onboardingForm.linkRequestRealName}]</strong> 기존 활동 이력 연결 신청됨 (누적 {matchedHistorical?.totalScore || 0}점)
+                      ✅ <strong>[{onboardingForm.linkRequestRealName}]</strong> 기존 활동 이력 연결 신청됨 (누적 {matchedHistorical?.totalScore || 0}점 / 운영진 승인 후 통합)
                     </div>
                     <button
                       type="button"
@@ -276,8 +287,8 @@ export default function LoginOnboardingPage({
                   </div>
                 )}
 
-                {/* 3. Duplicate name warning */}
-                {duplicateActiveMember && (
+                {/* 3. Duplicate name warning (when not linked to that member) */}
+                {hasDuplicateName && (
                   <div
                     style={{
                       background: '#fef2f2',
@@ -287,19 +298,19 @@ export default function LoginOnboardingPage({
                       marginTop: '8px',
                       color: '#991b1b',
                       fontSize: '13px',
-                      lineHeight: 1.4
+                      lineHeight: 1.5
                     }}
                   >
-                    ⚠️ <strong>[{duplicateActiveMember.realName}]</strong> 님은 이미 힐링78에 활동 중인 친구입니다.
+                    ⚠️ <strong>[{duplicateMember.realName}]</strong> 님은 이미 힐링78에 등록된 이름입니다.
                     <div style={{ fontSize: '12px', color: '#b91c1c', marginTop: '2px' }}>
-                      동일명을 가진 친구가 있으므로, 카톡방 구분을 위해 닉네임에 고유한 수식어나 번호를 붙이는 것을 권장합니다.
+                      이름 규칙에 따라 모임 내에서 유일한 이름이어야 하므로, 다른 이름(한글 1~3자)을 입력해 주세요. (중복된 이름으로는 가입할 수 없습니다)
                     </div>
                   </div>
                 )}
 
                 {/* Optional manual picker toggle if used a different past nickname */}
                 {!onboardingForm.linkSourceUid && (
-                  <div style={{ marginTop: '6px' }}>
+                  <div style={{ marginTop: '8px' }}>
                     <button
                       type="button"
                       onClick={() => setShowManualHistoricalPicker((prev) => !prev)}
@@ -315,7 +326,7 @@ export default function LoginOnboardingPage({
                     >
                       {showManualHistoricalPicker
                         ? '▲ 이전 계정 직접 찾기 닫기'
-                        : '과거에 다른 닉네임으로 활동하셨나요? (기존 계정 직접 찾기 🔍)'}
+                        : '과거에 다른 닉네임으로 활동하셨나요? (기존 활동 계정 직접 찾기 🔍)'}
                     </button>
 
                     {showManualHistoricalPicker && (
@@ -452,7 +463,7 @@ export default function LoginOnboardingPage({
 
             {!isFormValid && (
               <div style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center' }}>
-                * 닉네임과 거주 지역을 모두 입력해야 저장 후 입장할 수 있습니다.
+                * 한글 1~3자의 유일한 이름과 필수 정보(거주지역, 결혼여부, 성별)를 모두 올바르게 입력해야 입장할 수 있습니다.
               </div>
             )}
           </form>

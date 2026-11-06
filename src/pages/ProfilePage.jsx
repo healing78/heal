@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import RegionInput from '../components/RegionInput';
+import { isValidKoreanName } from '../nicknameUtils';
 import {
   calculateMeetingScoreForMember,
   calculateMeetingSettlement,
@@ -134,11 +135,31 @@ export default function ProfilePage({
     (m) => m.hostUid === currentUser?.uid
   ).length;
 
+  const [nameError, setNameError] = useState('');
+  const trimmedName = (form.realName || '').trim();
+  const isNameFormatValid = isValidKoreanName(trimmedName);
+  const duplicateMember = trimmedName
+    ? members.find(
+        (m) =>
+          m.uid !== currentUser?.uid &&
+          (m.realName || '').trim().toLowerCase() === trimmedName.toLowerCase()
+      )
+    : null;
+
   const handleSave = (e) => {
     e.preventDefault();
+    if (!isNameFormatValid) {
+      setNameError('이름 규칙: 한글 1자에서 3자까지의 유일한 이름이어야 합니다.');
+      return;
+    }
+    if (duplicateMember) {
+      setNameError(`'${trimmedName}'은(는) 이미 다른 친구가 사용 중인 이름입니다. 모임 내 유일한 이름을 입력해 주세요.`);
+      return;
+    }
+    setNameError('');
     onUpdateProfile({
       ...form,
-      realName: form.realName.trim(),
+      realName: trimmedName,
       legalName: (form.legalName || '').trim(),
       homeCity: form.city
     });
@@ -322,16 +343,33 @@ export default function ProfilePage({
             <form onSubmit={handleSave} className="stack-gap" style={{ marginTop: '16px' }}>
               <div className="form-grid">
                 <div className="form-field">
-                  <label htmlFor="prof-name">닉네임</label>
+                  <label htmlFor="prof-name">이름 (활동명) *</label>
                   <input
                     id="prof-name"
                     type="text"
                     required
+                    placeholder="한글 1~3자"
                     value={form.realName}
-                    onChange={(e) =>
-                      setForm({ ...form, realName: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setForm({ ...form, realName: e.target.value });
+                      setNameError('');
+                    }}
                   />
+                  {nameError && (
+                    <div style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                      ⚠️ {nameError}
+                    </div>
+                  )}
+                  {trimmedName && !isNameFormatValid && !nameError && (
+                    <div style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                      ⚠️ 이름 규칙: 한글 1자에서 3자까지 입력해야 합니다. (영문, 숫자 불가)
+                    </div>
+                  )}
+                  {duplicateMember && !nameError && (
+                    <div style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                      ⚠️ 이미 모임에 존재하는 이름입니다. 유일한 이름을 사용해 주세요.
+                    </div>
+                  )}
                 </div>
                 <div className="form-field">
                   <label htmlFor="prof-legal-name">실명 (선택)</label>
@@ -404,7 +442,15 @@ export default function ProfilePage({
               </div>
 
               <div className="btn-row">
-                <button type="submit" className="btn btn-primary">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={!isNameFormatValid || Boolean(duplicateMember)}
+                  style={{
+                    opacity: !isNameFormatValid || Boolean(duplicateMember) ? 0.45 : 1,
+                    cursor: !isNameFormatValid || Boolean(duplicateMember) ? 'not-allowed' : 'pointer'
+                  }}
+                >
                   저장
                 </button>
                 <button
