@@ -1,27 +1,4 @@
-/**
- * Healing78 Community Initial Data
- * Seeded from Official Bung Records (852+ Meetings Archive)
- */
-
-export const INITIAL_COMMUNITY_CONFIG = {
-  homeSummary: '공지 · 규격 닉네임 및 모임 규칙',
-  noticeTitle: 'Healing78 커뮤니티 닉네임 및 마일스톤 뱃지 규칙',
-  noticeBody:
-    '1) 모든 회원은 [이름 지역 결혼여부(미/기/돌) 성별(남/여) 뱃지] 규격 닉네임을 유지합니다.\n' +
-    '2) 마일스톤 뱃지 체계: 15점 얼룩말(🦓), 30점 달리는 말(🐎), 50점 대왕말(🐴), 78점 유니콘(🦄), ' +
-    '100점 동(🥉), 200점 은(🥈), 300점 금(🥇), 400점 트로피(🏆), 500점 별(⭐️, 500단위 누적 반복 순환)\n' +
-    '3) 벙점수 부여: 기본 +1점, 타 도 원정 참석 시 +1점(총 2점), 해외 원정 시 +2점(총 3점) 부여\n' +
-    '4) 모임 개설은 최소 1회 이상 모임에 참석한 회원부터 가능합니다.',
-  newcomerSummary: '신입공지 · 입장 즉시 닉네임 변경',
-  newcomerNoticeBody:
-    'Healing78 오픈채팅방 입장 후 아래 자동 생성기로 규격 닉네임([이름 지역 미/기/돌 남/여 가입일])을 생성하여 프로필을 변경해 주세요.',
-  baseAttendancePoint: 1,
-  expeditionBonusPoint: 1,
-  overseasBonusPoint: 2,
-  minAttendanceForHost: 1,
-  googleDriveBridgeUrl: ''
-};
-
+// Auto-generated & enriched community data
 export const INITIAL_MEMBERS = [
   {
     "uid": "kakao:1001",
@@ -3031,17 +3008,17 @@ export const INITIAL_MEMBERS = [
     "realName": "가을",
     "city": "시흥",
     "homeCity": "시흥",
-    "maritalStatus": "divorced",
+    "maritalStatus": "married",
     "gender": "남",
     "role": "Member",
     "entryBadge": "1108",
     "customBadge": "",
     "bankAccount": "",
-    "attendanceCount": 1,
-    "baseScore": 1,
+    "attendanceCount": 0,
+    "baseScore": 0,
     "expeditionScore": 0,
     "eventScore": 0,
-    "totalScore": 1,
+    "totalScore": 0,
     "monthlyScore": 0,
     "hostCount": 0,
     "joinedAt": "2025-11-08",
@@ -5692,6 +5669,27 @@ export const INITIAL_MEMBERS = [
     "hostCount": 0,
     "joinedAt": "2024-01-29",
     "unlockedAlbums": []
+  },
+  {
+    "uid": "kakao:2128",
+    "realName": "가을",
+    "city": "아산",
+    "homeCity": "아산",
+    "maritalStatus": "divorced",
+    "gender": "여",
+    "role": "Member",
+    "entryBadge": "0820",
+    "customBadge": "",
+    "bankAccount": "",
+    "attendanceCount": 2,
+    "baseScore": 2,
+    "expeditionScore": 2,
+    "eventScore": 0,
+    "totalScore": 4,
+    "monthlyScore": 0,
+    "hostCount": 0,
+    "joinedAt": "2025-08-20",
+    "unlockedAlbums": []
   }
 ];
 
@@ -6753,7 +6751,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1007",
       "kakao:1052",
       "kakao:1033",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1032",
       "kakao:1003"
@@ -6762,7 +6760,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1007",
       "kakao:1052",
       "kakao:1033",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1032",
       "kakao:1003"
@@ -6779,7 +6777,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1007",
           "kakao:1052",
           "kakao:1033",
-          "kakao:2001",
+          "kakao:2128",
           "kakao:1064",
           "kakao:1032",
           "kakao:1003"
@@ -6806,10 +6804,6 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:2001": {
-        "paid": true,
-        "confirmed": true
-      },
       "kakao:1064": {
         "paid": true,
         "confirmed": true
@@ -6819,6 +6813,10 @@ export const INITIAL_MEETINGS = [
         "confirmed": true
       },
       "kakao:1003": {
+        "paid": true,
+        "confirmed": true
+      },
+      "kakao:2128": {
         "paid": true,
         "confirmed": true
       }
@@ -8118,7 +8116,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1068",
       "kakao:1132",
       "kakao:1108",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1010",
       "kakao:1018",
@@ -8135,7 +8133,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1068",
       "kakao:1132",
       "kakao:1108",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1010",
       "kakao:1018",
@@ -8160,7 +8158,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1068",
           "kakao:1132",
           "kakao:1108",
-          "kakao:2001",
+          "kakao:2128",
           "kakao:1064",
           "kakao:1010",
           "kakao:1018",
@@ -8207,10 +8205,6 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:2001": {
-        "paid": true,
-        "confirmed": true
-      },
       "kakao:1064": {
         "paid": true,
         "confirmed": true
@@ -8236,6 +8230,10 @@ export const INITIAL_MEETINGS = [
         "confirmed": true
       },
       "kakao:1027": {
+        "paid": true,
+        "confirmed": true
+      },
+      "kakao:2128": {
         "paid": true,
         "confirmed": true
       }
@@ -11082,36 +11080,49 @@ export const INITIAL_MEETINGS = [
 
 export const INITIAL_SCORE_LOGS = [
   {
-    id: 'log-1',
-    uid: 'kakao:1001',
-    type: 'meeting',
-    title: '11월 여수옛날집벙 참석',
-    baseDelta: 1,
-    expeditionDelta: 0,
-    eventDelta: 0,
-    totalDelta: 1,
-    date: '2026-11-01'
+    "id": "log-1",
+    "uid": "kakao:1001",
+    "type": "meeting",
+    "title": "11월 여수옛날집벙 참석",
+    "baseDelta": 1,
+    "expeditionDelta": 0,
+    "eventDelta": 0,
+    "totalDelta": 1,
+    "date": "2026-11-01"
   },
   {
-    id: 'log-2',
-    uid: 'kakao:1002',
-    type: 'meeting',
-    title: '10월 논현벙 참석 (타도 원정 +1점)',
-    baseDelta: 1,
-    expeditionDelta: 1,
-    eventDelta: 0,
-    totalDelta: 2,
-    date: '2026-10-27'
+    "id": "log-2",
+    "uid": "kakao:1002",
+    "type": "meeting",
+    "title": "10월 논현벙 참석 (타도 원정 +1점)",
+    "baseDelta": 1,
+    "expeditionDelta": 1,
+    "eventDelta": 0,
+    "totalDelta": 2,
+    "date": "2026-10-27"
   },
   {
-    id: 'log-3',
-    uid: 'kakao:1003',
-    type: 'meeting',
-    title: '10월 원주벙 참석 (타도 원정 +1점)',
-    baseDelta: 1,
-    expeditionDelta: 1,
-    eventDelta: 0,
-    totalDelta: 2,
-    date: '2026-10-15'
+    "id": "log-3",
+    "uid": "kakao:1003",
+    "type": "meeting",
+    "title": "10월 원주벙 참석 (타도 원정 +1점)",
+    "baseDelta": 1,
+    "expeditionDelta": 1,
+    "eventDelta": 0,
+    "totalDelta": 2,
+    "date": "2026-10-15"
   }
 ];
+
+export const INITIAL_COMMUNITY_CONFIG = {
+  "homeSummary": "공지 · 규격 닉네임 및 모임 규칙",
+  "noticeTitle": "Healing78 커뮤니티 닉네임 및 마일스톤 뱃지 규칙",
+  "noticeBody": "1) 모든 회원은 [이름 지역 결혼여부(미/기/돌) 성별(남/여) 뱃지] 규격 닉네임을 유지합니다.\n2) 마일스톤 뱃지 체계: 15점 얼룩말(🦓), 30점 달리는 말(🐎), 50점 대왕말(🐴), 78점 유니콘(🦄), 100점 동(🥉), 200점 은(🥈), 300점 금(🥇), 400점 트로피(🏆), 500점 별(⭐️, 500단위 누적 반복 순환)\n3) 벙점수 부여: 기본 +1점, 타 도 원정 참석 시 +1점(총 2점), 해외 원정 시 +2점(총 3점) 부여\n4) 모임 개설은 최소 1회 이상 모임에 참석한 회원부터 가능합니다.",
+  "newcomerSummary": "신입공지 · 입장 즉시 닉네임 변경",
+  "newcomerNoticeBody": "Healing78 오픈채팅방 입장 후 아래 자동 생성기로 규격 닉네임([이름 지역 미/기/돌 남/여 가입일])을 생성하여 프로필을 변경해 주세요.",
+  "baseAttendancePoint": 1,
+  "expeditionBonusPoint": 1,
+  "overseasBonusPoint": 2,
+  "minAttendanceForHost": 1,
+  "googleDriveBridgeUrl": ""
+};

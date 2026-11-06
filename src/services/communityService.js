@@ -1065,7 +1065,9 @@ export const batchSyncCommunityData = async (
   writeLocalJson(STORAGE_KEYS.members, targetMembers);
   writeLocalJson(STORAGE_KEYS.meetings, targetMeetings);
   writeLocalJson(STORAGE_KEYS.config, targetConfig);
-  saveCurrentUserUid('kakao:1001');
+  if (!getSavedCurrentUserUid()) {
+    saveCurrentUserUid('kakao:1001');
+  }
   notifyLocalListeners();
 
   // 2. Write to Firestore in safe chunks if configured

@@ -215,10 +215,18 @@ const EXPLICIT_DISTINCT_MEMBERS = {
   '가을': {
     city: '시흥',
     homeCity: '시흥',
-    maritalStatus: 'divorced',
+    maritalStatus: 'married',
     gender: '남',
     joinedAt: '2025-11-08',
     entryBadge: '1108'
+  },
+  '아산가을': {
+    city: '아산',
+    homeCity: '아산',
+    maritalStatus: 'divorced',
+    gender: '여',
+    joinedAt: '2025-08-20',
+    entryBadge: '0820'
   },
   '안양초롱': {
     city: '안양',
