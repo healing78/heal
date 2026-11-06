@@ -138,6 +138,29 @@ export const isAdminRole = (role) => {
 };
 
 /**
+ * Resolves the effective role for a member based on bung attendance:
+ * - 벙참석 기록이 0회인 회원은 'Rookie'(신입)로 분류
+ * - 벙참석 기록이 1회 이상이면 'Member'(일반회원)로 승급
+ * (단, Leader, Deputy, VIP, OnLeave, Withdrawn, Wanderer, Expelled 등 명시적 특수 역할은 유지)
+ */
+export const resolveMemberRole = (member) => {
+  if (!member) return 'Rookie';
+  const role = member.role;
+  if (
+    role === 'Leader' ||
+    role === 'Deputy' ||
+    role === 'VIP' ||
+    role === 'OnLeave' ||
+    role === 'Withdrawn' ||
+    role === 'Wanderer' ||
+    role === 'Expelled'
+  ) {
+    return role;
+  }
+  return (member.attendanceCount || 0) >= 1 ? 'Member' : 'Rookie';
+};
+
+/**
  * Checks whether a member is eligible to create a meeting (벙).
  */
 export const canCreateMeeting = (member) => {
@@ -461,10 +484,11 @@ export const getTierBadgeByScore = (score = 0) => {
 
 /**
  * Computes automatic badge based on score milestones unless a custom override is set.
- * If score is below 15 points, falls back to entry date badge (MMDD) or '0101'.
+ * 신입(Rookie) 또는 벙참석 0회인 경우에만 가입일 날짜 뱃지(entryBadge, MMDD)를 붙이고,
+ * 1회 이상 벙에 참석한 일반 멤버는 가입일 날짜를 떼고 표시합니다.
  */
 export const resolveMemberBadge = (member) => {
-  if (!member) return '0101';
+  if (!member) return '';
   if (member.customBadge) {
     return member.customBadge;
   }
@@ -472,7 +496,13 @@ export const resolveMemberBadge = (member) => {
   if (tierBadge) {
     return tierBadge;
   }
-  return member.entryBadge || member.badge || '0101';
+  // 신입(Rookie) 또는 벙참석 기록이 0회인 경우에만 가입일 날짜 뱃지 부착
+  const isRookie = member.role === 'Rookie' || (member.attendanceCount || 0) === 0;
+  if (isRookie) {
+    return member.entryBadge || member.badge || '';
+  }
+  // 1회 이상 벙에 참석한 일반 멤버는 가입일 날짜를 뗌
+  return '';
 };
 
 /**

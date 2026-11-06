@@ -30,8 +30,12 @@ export const isValidKoreanName = (name) => {
  * @param {string|number} user.badge - Emoji or entry date string (e.g., '0829')
  */
 export const generateNickname = ({ name, city, maritalStatus, gender, badge }) => {
-  const ms = MARITAL_STATUS_MAP[maritalStatus] || maritalStatus;
-  return `${name} ${city} ${ms} ${gender} ${badge}`;
+  const ms = MARITAL_STATUS_MAP[maritalStatus] || maritalStatus || '';
+  const parts = [name, city, ms, gender];
+  if (badge && String(badge).trim()) {
+    parts.push(String(badge).trim());
+  }
+  return parts.filter(Boolean).join(' ');
 };
 
 /**

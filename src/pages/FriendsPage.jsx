@@ -3,6 +3,7 @@ import {
   formatMemberNickname,
   isAdminUser,
   resolveMemberBadge,
+  resolveMemberRole,
   ROLE_META
 } from '../core/communityRules';
 
@@ -82,33 +83,37 @@ export default function FriendsPage({
 
     // Privacy filter: Regular members cannot see Wanderer, Expelled, or Withdrawn members
     if (!isAdmin) {
-      list = list.filter(
-        (m) => m.role !== 'Expelled' && m.role !== 'Wanderer' && m.role !== 'Withdrawn'
-      );
+      list = list.filter((m) => {
+        const role = resolveMemberRole(m);
+        return role !== 'Expelled' && role !== 'Wanderer' && role !== 'Withdrawn';
+      });
     }
 
     // Role subtab filter
     if (activeFilter === 'ALL') {
       // "전체" 리스트에는 정상 활동 회원(신입, 일반, VIP, 운영진)만 노출
       list = list.filter((m) =>
-        ['Rookie', 'Member', 'VIP', 'Leader', 'Deputy'].includes(m.role)
+        ['Rookie', 'Member', 'VIP', 'Leader', 'Deputy'].includes(resolveMemberRole(m))
       );
     } else if (activeFilter === 'Rookie') {
-      list = list.filter((m) => m.role === 'Rookie');
+      list = list.filter((m) => resolveMemberRole(m) === 'Rookie');
     } else if (activeFilter === 'Member') {
-      list = list.filter((m) => m.role === 'Member');
+      list = list.filter((m) => resolveMemberRole(m) === 'Member');
     } else if (activeFilter === 'VIP') {
-      list = list.filter((m) => m.role === 'VIP');
+      list = list.filter((m) => resolveMemberRole(m) === 'VIP');
     } else if (activeFilter === 'Staff') {
-      list = list.filter((m) => m.role === 'Leader' || m.role === 'Deputy');
+      list = list.filter((m) => {
+        const r = resolveMemberRole(m);
+        return r === 'Leader' || r === 'Deputy';
+      });
     } else if (activeFilter === 'OnLeave') {
-      list = list.filter((m) => m.role === 'OnLeave');
+      list = list.filter((m) => resolveMemberRole(m) === 'OnLeave');
     } else if (activeFilter === 'Withdrawn') {
-      list = list.filter((m) => m.role === 'Withdrawn');
+      list = list.filter((m) => resolveMemberRole(m) === 'Withdrawn');
     } else if (activeFilter === 'Wanderer') {
-      list = list.filter((m) => m.role === 'Wanderer');
+      list = list.filter((m) => resolveMemberRole(m) === 'Wanderer');
     } else if (activeFilter === 'Expelled') {
-      list = list.filter((m) => m.role === 'Expelled');
+      list = list.filter((m) => resolveMemberRole(m) === 'Expelled');
     }
 
     // Search query filter
@@ -309,7 +314,8 @@ export default function FriendsPage({
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {filteredMembers.map((member) => {
-              const roleMeta = ROLE_META[member.role] || ROLE_META.Member;
+              const effectiveRole = resolveMemberRole(member);
+              const roleMeta = ROLE_META[effectiveRole] || ROLE_META.Member;
               const formattedNick = formatMemberNickname(member);
               const tierBadge = resolveMemberBadge(member);
               const avatarLetter = (member.realName || member.name || 'H').slice(0, 1);
