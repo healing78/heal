@@ -103,23 +103,139 @@ for (const line of logLines) {
   }
 }
 
-// Aliases mapping bung name -> log name
+// Single-identity Aliases (1 person with slight nickname variation)
 const ALIASES = {
   '쭈': '쭈우',
   '손오공': '손오공',
   '오공': '손오공',
   '시리': '시리',
-  '강동보리': '보리',
-  '경광초코': '초코',
-  '오산하늘': '하늘',
   '윤모모': '모모',
-  '춘천뚠뚠': '뚠뚠',
-  '정선곰탱': '곰탱',
-  '수원미미': '미미',
-  '오산가을': '가을',
-  '안양초롱': '초롱',
   '연이': '연',
   '생귤': '귤'
+};
+
+// Explicit Distinct Profiles for Disambiguated Members (Different People!)
+const EXPLICIT_DISTINCT_MEMBERS = {
+  '경광초코': {
+    city: '광주',
+    homeCity: '광주',
+    maritalStatus: 'single',
+    gender: '남',
+    joinedAt: '2025-09-08',
+    entryBadge: '0908'
+  },
+  '오산하늘': {
+    city: '오산',
+    homeCity: '오산',
+    maritalStatus: 'married',
+    gender: '여',
+    joinedAt: '2024-11-14',
+    entryBadge: '1114'
+  },
+  '강동보리': {
+    city: '강동',
+    homeCity: '강동',
+    maritalStatus: 'married',
+    gender: '여',
+    joinedAt: '2024-11-04',
+    entryBadge: '1104'
+  },
+  '보리': {
+    city: '인천',
+    homeCity: '인천',
+    maritalStatus: 'married',
+    gender: '여',
+    joinedAt: '2024-09-14',
+    entryBadge: '0914'
+  },
+  '하늘': {
+    city: '천안',
+    homeCity: '천안',
+    maritalStatus: 'divorced',
+    gender: '여',
+    joinedAt: '2024-07-23',
+    entryBadge: '0723'
+  },
+  '춘천뚠뚠': {
+    city: '춘천',
+    homeCity: '춘천',
+    maritalStatus: 'single',
+    gender: '남',
+    joinedAt: '2024-01-26',
+    entryBadge: '0126'
+  },
+  '뚠뚠': {
+    city: '시흥',
+    homeCity: '시흥',
+    maritalStatus: 'divorced',
+    gender: '남',
+    joinedAt: '2025-04-24',
+    entryBadge: '0424'
+  },
+  '정선곰탱': {
+    city: '태백',
+    homeCity: '태백',
+    maritalStatus: 'married',
+    gender: '남',
+    joinedAt: '2024-03-27',
+    entryBadge: '0327'
+  },
+  '곰탱': {
+    city: '광주',
+    homeCity: '광주',
+    maritalStatus: 'married',
+    gender: '여',
+    joinedAt: '2026-06-10',
+    entryBadge: '0610'
+  },
+  '수원미미': {
+    city: '수원',
+    homeCity: '수원',
+    maritalStatus: 'married',
+    gender: '여',
+    joinedAt: '2024-03-09',
+    entryBadge: '0309'
+  },
+  '미미': {
+    city: '안양',
+    homeCity: '안양',
+    maritalStatus: 'divorced',
+    gender: '여',
+    joinedAt: '2025-09-11',
+    entryBadge: '0911'
+  },
+  '오산가을': {
+    city: '오산',
+    homeCity: '오산',
+    maritalStatus: 'single',
+    gender: '남',
+    joinedAt: '2024-02-23',
+    entryBadge: '0223'
+  },
+  '가을': {
+    city: '시흥',
+    homeCity: '시흥',
+    maritalStatus: 'divorced',
+    gender: '남',
+    joinedAt: '2025-11-08',
+    entryBadge: '1108'
+  },
+  '안양초롱': {
+    city: '안양',
+    homeCity: '안양',
+    maritalStatus: 'married',
+    gender: '여',
+    joinedAt: '2024-06-05',
+    entryBadge: '0605'
+  },
+  '초롱': {
+    city: '양천',
+    homeCity: '양천',
+    maritalStatus: 'married',
+    gender: '여',
+    joinedAt: '2024-01-27',
+    entryBadge: '0127'
+  }
 };
 
 // 1. Update src/core/initialData.js
@@ -137,20 +253,37 @@ const members = eval(match[1].replace(/;\s*$/, ''));
 let enrichedCount = 0;
 
 const enrichedMembers = members.map((m) => {
-  const queryName = ALIASES[m.realName] || m.realName;
-  const entry = firstValidEntryMap.get(queryName);
+  // 1) Explicit distinct member separation (e.g. 경광초코, 오산하늘, 강동보리, 보리, 하늘, etc.)
+  if (EXPLICIT_DISTINCT_MEMBERS[m.realName]) {
+    enrichedCount++;
+    const distinct = EXPLICIT_DISTINCT_MEMBERS[m.realName];
+    return {
+      ...m,
+      city: distinct.city,
+      homeCity: distinct.homeCity,
+      maritalStatus: distinct.maritalStatus,
+      gender: distinct.gender,
+      joinedAt: distinct.joinedAt,
+      entryBadge: distinct.entryBadge
+    };
+  }
 
+  // 2) 게더 special case
   if (m.realName === '게더') {
     return {
       ...m,
-      city: entry?.city || m.city,
-      homeCity: entry?.city || m.homeCity,
-      maritalStatus: entry?.marital || m.maritalStatus,
-      gender: entry?.gender || m.gender,
+      city: '마포',
+      homeCity: '마포',
+      maritalStatus: 'single',
+      gender: '남',
       joinedAt: '2024-08-14',
       entryBadge: '0814'
     };
   }
+
+  // 3) General entrance log matching
+  const queryName = ALIASES[m.realName] || m.realName;
+  const entry = firstValidEntryMap.get(queryName);
 
   if (entry) {
     enrichedCount++;
@@ -184,8 +317,8 @@ if (fs.existsSync(fullBungDataPath)) {
   console.log('✅ Updated scripts/data/full_bung_data.json');
 }
 
-console.log('\n--- Summary Statistics ---');
-console.log('Total members:', enrichedMembers.length);
-console.log('Gender: 남 =', enrichedMembers.filter(m => m.gender === '남').length, ', 여 =', enrichedMembers.filter(m => m.gender === '여').length);
-console.log('Marital: 미혼 =', enrichedMembers.filter(m => m.maritalStatus === 'single').length, ', 기혼 =', enrichedMembers.filter(m => m.maritalStatus === 'married').length, ', 돌싱 =', enrichedMembers.filter(m => m.maritalStatus === 'divorced').length);
-console.log('Distinct Cities count:', new Set(enrichedMembers.map(m => m.city)).size);
+console.log('\n--- Specific Disambiguated Check ---');
+for (const checkName of ['경광초코', '오산하늘', '하늘', '강동보리', '보리']) {
+  const mem = enrichedMembers.find(m => m.realName === checkName);
+  console.log(`${checkName}: city=${mem?.city}, marital=${mem?.maritalStatus}, gender=${mem?.gender}, joinedAt=${mem?.joinedAt}, badge=${mem?.entryBadge}`);
+}
