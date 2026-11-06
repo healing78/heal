@@ -638,16 +638,16 @@ export default function SuperAdminPage({
       <section className="list-section">
         <h3 style={{ marginBottom: '8px' }}>카카오 UID 계정 인계(연계) 도구</h3>
         <p className="sub-meta" style={{ marginBottom: '10px' }}>
-          기기 변경이나 카톡 재가입으로 새 카카오 UID가 발급된 회원의 모든 벙점수, 활동 기록, 역할을 새 계정으로 즉시 이전합니다.
+          카카오 로그인이나 기기 변경으로 계정이 2개가 된 경우, 기존 벙점수와 참석 이력을 실제 로그인 계정으로 통째로 합칩니다.
         </p>
 
-        <form onSubmit={handleAdminExecuteReassign} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <form onSubmit={handleAdminExecuteReassign} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <select
             value={reassignSourceUid}
             onChange={(e) => setReassignSourceUid(e.target.value)}
-            style={{ flex: 1, minWidth: '180px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+            style={{ flex: 1, minWidth: '220px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
           >
-            <option value="">인계할 기존 회원 선택...</option>
+            <option value="">1. 점수/이력을 가져올 원본 계정 선택...</option>
             {members.map((m) => (
               <option key={m.uid} value={m.uid}>
                 {formatMemberNickname(m)} ({m.totalScore || 0}점 / {m.uid})
@@ -657,18 +657,26 @@ export default function SuperAdminPage({
 
           <input
             type="text"
-            placeholder="새 카카오 UID (예: kakao:12345678)"
+            list="reassign-target-candidates"
+            placeholder="2. 이전받을 새 계정 선택 또는 UID 입력"
             value={reassignNewUid}
             onChange={(e) => setReassignNewUid(e.target.value)}
-            style={{ flex: 1, minWidth: '180px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+            style={{ flex: 1, minWidth: '220px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
           />
+          <datalist id="reassign-target-candidates">
+            {members.map((m) => (
+              <option key={m.uid} value={m.uid}>
+                {formatMemberNickname(m)} ({m.totalScore || 0}점 / {m.uid})
+              </option>
+            ))}
+          </datalist>
 
           <button
             type="submit"
             className="btn btn-primary btn-sm"
             disabled={!reassignSourceUid || !reassignNewUid.trim()}
           >
-            계정 인계 실행
+            계정 인계(합치기) 실행
           </button>
         </form>
       </section>
