@@ -75,6 +75,19 @@ const sanitizeMember = (m) => {
       totalScore: 2
     };
   }
+  // '다온' 회원의 경우 이전 대화 로그 매핑 오차로 인한 프로필(전주 / 돌 / 여) 자동 보정
+  if (
+    (m.uid === 'kakao:1013' || m.realName === '다온') &&
+    (m.city !== '전주' || m.maritalStatus !== 'divorced' || m.gender !== '여')
+  ) {
+    return {
+      ...m,
+      city: '전주',
+      homeCity: '전주',
+      maritalStatus: 'divorced',
+      gender: '여'
+    };
+  }
   return m;
 };
 
@@ -197,7 +210,7 @@ const ensureFirestoreSeeded = async () => {
       }
     }
 
-    // Auto-patch Janchi's attendance in Firestore if needed
+    // Auto-patch Janchi & Daon in Firestore if needed
     try {
       const janchiDoc = doc(db, 'members', 'kakao:1121');
       await setDoc(
@@ -207,6 +220,17 @@ const ensureFirestoreSeeded = async () => {
           baseScore: 1,
           expeditionScore: 1,
           totalScore: 2
+        },
+        { merge: true }
+      );
+      const daonDoc = doc(db, 'members', 'kakao:1013');
+      await setDoc(
+        daonDoc,
+        {
+          city: '전주',
+          homeCity: '전주',
+          maritalStatus: 'divorced',
+          gender: '여'
         },
         { merge: true }
       );

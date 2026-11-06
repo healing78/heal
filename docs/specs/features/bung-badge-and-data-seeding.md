@@ -64,6 +64,10 @@
   - **원인:** 과거 원천 텍스트 기록(`raw_bung_doc.txt`) 상단 요약표의 오타(`2 : ... 잔치(0) ...`)로 인해 총점 2점임에도 참석 횟수 0회(`attendanceCount: 0`), 원정 2점으로 기형 파싱되었음.
   - **확인:** 실제 2026년 8월 15일 벙 기록에 `잔치2`로 정상 참석하여 2점(기본 1점 + 원정 1점)을 획득한 이력이 존재함.
   - **보정:** `attendanceCount: 1`, `baseScore: 1`, `expeditionScore: 1`, `totalScore: 2`로 원천 및 런타임 데이터 영구 정상화 완료.
+- **'다온' (`kakao:1013`, 전주) 프로필 정보 정상화:**
+  - **원인:** 초기 카톡 대화 로그 자동 매핑 과정에서 다른 회원의 정보("수유", "married", "남")가 오인식되어 매핑되었음.
+  - **확인:** 실제 벙 참석 이력(광주/전주권 정기 모임 주최 및 참석, 타 권역 이동 시 원정 가산점 획득) 및 회원 정보 대조 확인 완료.
+  - **보정:** `city: '전주'`, `homeCity: '전주'`, `maritalStatus: 'divorced'`(돌), `gender: '여'`로 정상화하여 규격 닉네임 `다온 전주 돌 여`로 일원화 완료.
   - Firestore의 500건 writeBatch 제한을 방지하기 위해 350건 단위로 청크 분할 커밋
   - LocalStorage 및 Firestore 동시 업데이트
 - **SuperAdmin UI Console** (`SuperAdminPage.jsx`):
