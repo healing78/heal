@@ -56,7 +56,7 @@ export default function AdminPage({
   onApproveAccountLink,
   onRejectAccountLink
 }) {
-  const [subTab, setSubTab] = useState('newcomers'); // 'newcomers' | 'meetings' | 'requests' | 'scores' | 'config'
+  const [subTab, setSubTab] = useState('login'); // 'login' | 'meetings' | 'requests' | 'scores' | 'config'
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
   const [newcomerFilter, setNewcomerFilter] = useState('ALL'); // 'ALL' | 'UNREGISTERED' | 'REGISTERED'
   const [newcomerSearch, setNewcomerSearch] = useState('');
@@ -241,10 +241,10 @@ export default function AdminPage({
         <div className="subtab-bar">
           <button
             type="button"
-            className={`subtab-btn ${subTab === 'newcomers' ? 'active' : ''}`}
-            onClick={() => setSubTab('newcomers')}
+            className={`subtab-btn ${subTab === 'login' ? 'active' : ''}`}
+            onClick={() => setSubTab('login')}
           >
-            신입 ({loginLogs.length})
+            로그인 ({loginLogs.length})
             {unregisteredCount > 0 && (
               <span
                 style={{
@@ -298,8 +298,8 @@ export default function AdminPage({
         </div>
       </section>
 
-      {/* Sub-tab: Newcomers & Kakao Login Access Logs */}
-      {subTab === 'newcomers' && (
+      {/* Sub-tab: Login & Kakao Access Logs */}
+      {(subTab === 'login' || subTab === 'newcomers') && (
         <section className="list-section">
           {/* Header Summary Card */}
           <div

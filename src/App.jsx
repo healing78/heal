@@ -373,6 +373,8 @@ export default function App() {
       onSelectExistingMember={(uid) => {
         setCurrentUserUid(uid);
         saveCurrentUserUid(uid);
+        const targetMember = members.find((m) => m.uid === uid);
+        recordKakaoLogin(uid, targetMember?.realName || '');
         if (activeTab === 'login') {
           navigateToTab('home');
         }

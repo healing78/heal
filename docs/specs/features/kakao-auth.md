@@ -50,8 +50,8 @@ Firebase 무료 플랜(Spark)과 유료 플랜(Blaze + Cloud Functions) 모두�
 ### 3. Kakao Login Access Log Tracking & Admin Monitoring (접속 이력 추적 및 신입 모니터링)
 - **카카오 인증 시 접속 기록 자동 수집 (`recordKakaoLogin`):**
   - 사용자가 카카오 로그인을 성공할 때마다(신규 가입자 및 기존 회원 공통) Firestore `loginLogs` 컬렉션 및 로컬 저장소에 접속 일시(`lastLoginAt`), UID(`uid`), 접속 횟수(`loginCount`)가 실시간 누적 기록됩니다.
-- **운영진 전용 신입 접속 현황 탭 (`AdminPage > 신입`):**
-  - 운영자 탭 내 신설된 `[신입]` 서브탭에서 카카오 로그인을 진행한 모든 사용자의 상세 이력을 실시간 모니터링할 수 있습니다:
+- **운영진 전용 로그인 접속 현황 탭 (`AdminPage > 로그인`):**
+  - 운영자 탭 내 신설된 `[로그인]` 서브탭에서 카카오 로그인을 진행한 모든 사용자의 상세 이력을 실시간 모니터링할 수 있습니다:
     1. **날짜:** 최근 접속 일시 (YYYY-MM-DD HH:mm 포맷)
     2. **UID:** 카카오 식별자(`kakao:...`) 및 원클릭 UID 복사 도구
     3. **이름:**
