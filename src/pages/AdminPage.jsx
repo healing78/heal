@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { useArmedAction } from '../utils/useArmedAction';
 import {
   formatMemberNickname,
-  ROLE_KEYS,
   ROLE_META
 } from '../core/communityRules';
 import { formatScheduleDetailText } from '../core/routeMeta';
@@ -57,8 +56,7 @@ export default function AdminPage({
   onApproveAccountLink,
   onRejectAccountLink
 }) {
-  const [subTab, setSubTab] = useState('members'); // 'members' | 'newcomers' | 'meetings' | 'requests' | 'scores' | 'config'
-  const [searchQuery, setSearchQuery] = useState('');
+  const [subTab, setSubTab] = useState('newcomers'); // 'newcomers' | 'meetings' | 'requests' | 'scores' | 'config'
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
   const [newcomerFilter, setNewcomerFilter] = useState('ALL'); // 'ALL' | 'UNREGISTERED' | 'REGISTERED'
   const [newcomerSearch, setNewcomerSearch] = useState('');
@@ -207,15 +205,6 @@ export default function AdminPage({
   });
   const [configNotice, setConfigNotice] = useState('');
 
-  const filteredMembers = members.filter((m) => {
-    const nick = formatMemberNickname(m);
-    return (
-      !searchQuery.trim() ||
-      nick.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.realName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
-
   const handleAdjustScoreSubmit = (e) => {
     e.preventDefault();
     const numericDelta = Number(scoreForm.delta);
@@ -250,13 +239,6 @@ export default function AdminPage({
         </div>
 
         <div className="subtab-bar">
-          <button
-            type="button"
-            className={`subtab-btn ${subTab === 'members' ? 'active' : ''}`}
-            onClick={() => setSubTab('members')}
-          >
-            회원·역할 ({members.length})
-          </button>
           <button
             type="button"
             className={`subtab-btn ${subTab === 'newcomers' ? 'active' : ''}`}
@@ -315,79 +297,6 @@ export default function AdminPage({
           </button>
         </div>
       </section>
-
-      {/* Sub-tab 1: Member & Role Management */}
-      {subTab === 'members' && (
-        <section className="list-section">
-          <div className="filter-bar" style={{ marginTop: 0, marginBottom: '12px' }}>
-            <input
-              type="text"
-              placeholder="회원 이름 또는 닉네임 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="divider-list">
-            {filteredMembers.map((m) => (
-              <div key={m.uid} className="list-item-row admin-member-row">
-                <div className="admin-member-info">
-                  <div className="rank-name-line">
-                    <strong>{formatMemberNickname(m)}</strong>
-                    <span
-                      className="role-pill"
-                      style={{
-                        backgroundColor:
-                          ROLE_META[m.role]?.badgeColor || 'var(--role-member, #64748b)'
-                      }}
-                    >
-                      {ROLE_META[m.role]?.label || '일반회원'}
-                    </span>
-                  </div>
-                  <div className="sub-meta">
-                    연고지: {m.homeCity} · 참석 {m.attendanceCount}회 · 총점 {m.totalScore}점 (기본{' '}
-                    {m.baseScore} / 원정 {m.expeditionScore} / 이벤트 {m.eventScore})
-                  </div>
-                </div>
-
-                <div className="admin-member-controls">
-                  <div className="control-inline">
-                    <label htmlFor={`role-${m.uid}`}>등급</label>
-                    <select
-                      id={`role-${m.uid}`}
-                      value={m.role}
-                      onChange={(e) =>
-                        onAdminUpdateMember(m.uid, { role: e.target.value })
-                      }
-                    >
-                      {ROLE_KEYS.map((roleKey) => (
-                        <option key={roleKey} value={roleKey}>
-                          {ROLE_META[roleKey].label} ({roleKey})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="control-inline">
-                    <label htmlFor={`badge-${m.uid}`}>커스텀 뱃지</label>
-                    <input
-                      id={`badge-${m.uid}`}
-                      type="text"
-                      placeholder={`기본(${m.entryBadge})`}
-                      value={m.customBadge || ''}
-                      onChange={(e) =>
-                        onAdminUpdateMember(m.uid, {
-                          customBadge: e.target.value
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Sub-tab: Newcomers & Kakao Login Access Logs */}
       {subTab === 'newcomers' && (
