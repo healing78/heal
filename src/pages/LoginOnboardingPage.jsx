@@ -9,7 +9,7 @@ import {
 } from '../services/kakaoAuthService';
 
 export default function LoginOnboardingPage({
-  members,
+  members = [],
   onSelectExistingMember,
   onCompleteOnboarding,
   onNavigateTab
@@ -19,63 +19,90 @@ export default function LoginOnboardingPage({
   const [kakaoLoading, setKakaoLoading] = useState(false);
   const [kakaoError, setKakaoError] = useState('');
   const [pendingKakaoUser, setPendingKakaoUser] = useState(null);
+  const [showManualHistoricalPicker, setShowManualHistoricalPicker] = useState(false);
 
   // New member onboarding form
   const [onboardingForm, setOnboardingForm] = useState({
     realName: '',
     legalName: '',
-    city: '서울',
-    homeCity: '서울',
+    city: '수원',
+    homeCity: '수원',
     maritalStatus: 'single',
     gender: '남',
     linkRequestRealName: '',
     linkSourceUid: ''
   });
 
+  // Past active member candidates for account migration
   const historicalCandidates = useMemo(() => {
     return members
       .filter((m) => (m.totalScore > 0 || m.attendanceCount > 0) && m.uid.startsWith('kakao:10'))
       .sort((a, b) => b.totalScore - a.totalScore);
   }, [members]);
 
+  const cleanName = (onboardingForm.realName || '').trim().toLowerCase();
+
+  // Matched historical member by typed name or explicitly chosen
   const matchedHistorical = useMemo(() => {
     if (onboardingForm.linkSourceUid) {
       return members.find((m) => m.uid === onboardingForm.linkSourceUid) || null;
     }
-    const q = (onboardingForm.realName || '').trim().toLowerCase();
-    if (!q) return null;
+    if (!cleanName) return null;
     return (
       historicalCandidates.find(
-        (m) => m.realName.toLowerCase() === q
+        (m) => (m.realName || '').trim().toLowerCase() === cleanName
       ) || null
     );
-  }, [historicalCandidates, members, onboardingForm.linkSourceUid, onboardingForm.realName]);
+  }, [historicalCandidates, members, onboardingForm.linkSourceUid, cleanName]);
 
-  const handleSelectLinkSource = (sourceUid) => {
-    if (!sourceUid) {
-      setOnboardingForm((prev) => ({
-        ...prev,
-        linkSourceUid: ''
-      }));
-      return;
-    }
-    const target = members.find((m) => m.uid === sourceUid);
-    if (target) {
-      setOnboardingForm((prev) => ({
-        ...prev,
-        realName: target.realName,
-        city: target.city,
-        homeCity: target.homeCity || target.city,
-        maritalStatus: target.maritalStatus || 'single',
-        gender: target.gender || '남',
-        linkSourceUid: target.uid
-      }));
-    }
+  // Check if someone else already has this exact name in active members
+  const duplicateActiveMember = useMemo(() => {
+    if (!cleanName) return null;
+    return (
+      members.find(
+        (m) =>
+          (m.realName || '').trim().toLowerCase() === cleanName &&
+          m.uid !== onboardingForm.linkSourceUid &&
+          m.role !== 'Wanderer' &&
+          m.role !== 'Expelled'
+      ) || null
+    );
+  }, [members, cleanName, onboardingForm.linkSourceUid]);
+
+  // Apply historical link
+  const handleApplyLinkAccount = (target) => {
+    if (!target) return;
+    setOnboardingForm((prev) => ({
+      ...prev,
+      realName: target.realName,
+      city: target.city || prev.city || '수원',
+      homeCity: target.homeCity || target.city || prev.homeCity || '수원',
+      maritalStatus: target.maritalStatus || prev.maritalStatus || 'single',
+      gender: target.gender || prev.gender || '남',
+      linkSourceUid: target.uid,
+      linkRequestRealName: target.realName
+    }));
   };
 
+  // Cancel historical link
+  const handleCancelLinkAccount = () => {
+    setOnboardingForm((prev) => ({
+      ...prev,
+      linkSourceUid: '',
+      linkRequestRealName: ''
+    }));
+  };
+
+  const isFormValid = Boolean(
+    onboardingForm.realName.trim() &&
+      onboardingForm.city.trim() &&
+      onboardingForm.maritalStatus &&
+      onboardingForm.gender
+  );
+
   const onboardingPreview = suggestNewMemberNickname({
-    name: onboardingForm.realName || '이름',
-    city: onboardingForm.city || '지역',
+    name: onboardingForm.realName.trim() || '이름',
+    city: onboardingForm.city.trim() || '수원',
     maritalStatus: onboardingForm.maritalStatus,
     gender: onboardingForm.gender
   });
@@ -93,6 +120,12 @@ export default function LoginOnboardingPage({
   const handleKakaoLoginClick = async () => {
     setKakaoError('');
     if (!isKakaoConfigured) {
+      // Local/demo fallback: directly enter onboarding with temporary Kakao ID
+      const mockKakaoUser = {
+        uid: `kakao:new-${Date.now()}`,
+        nickname: ''
+      };
+      setPendingKakaoUser(mockKakaoUser);
       setStep('onboarding');
       return;
     }
@@ -128,7 +161,7 @@ export default function LoginOnboardingPage({
 
   const handleOnboardingSubmit = (e) => {
     e.preventDefault();
-    if (!onboardingForm.realName.trim()) return;
+    if (!isFormValid) return;
     onCompleteOnboarding(onboardingForm, pendingKakaoUser?.uid);
   };
 
@@ -138,79 +171,43 @@ export default function LoginOnboardingPage({
         <section className="list-section">
           <div className="section-header">
             <span className="platform-badge">
-              {pendingKakaoUser
+              {pendingKakaoUser?.uid
                 ? `카카오 인증 (${pendingKakaoUser.uid})`
                 : '신입 등록'}
             </span>
             <h2>프로필 등록</h2>
           </div>
-
-          {/* Historical Account Auto-Match / Link Banner */}
-          {matchedHistorical && (
-            <div
-              style={{
-                background: '#f0fdf4',
-                border: '1px solid #86efac',
-                borderRadius: '8px',
-                padding: '12px',
-                marginBottom: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '6px'
-              }}
-            >
-              <div style={{ fontWeight: 700, color: '#166534', fontSize: '14px' }}>
-                🎉 기존 벙기록 회원 [{formatMemberNickname(matchedHistorical)}] 님의 이력이 확인되었습니다!
-              </div>
-              <div style={{ fontSize: '12px', color: '#15803d' }}>
-                총 점수 <strong>{matchedHistorical.totalScore}점</strong> (참석 {matchedHistorical.attendanceCount}회, 최초 가입일 {matchedHistorical.joinedAt})의 이력을 연계 신청합니다. 가입 완료 후 운영진의 확인을 거쳐 안전하게 합쳐집니다.
-              </div>
-              {!onboardingForm.linkSourceUid && (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  style={{ alignSelf: 'flex-start', marginTop: '4px' }}
-                  onClick={() => handleSelectLinkSource(matchedHistorical.uid)}
-                >
-                  기존 이력 연동 신청 적용 ⚡
-                </button>
-              )}
-            </div>
-          )}
-
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>
-              기존 벙기록 계정 연동 (과거 활동 기록이 있는 경우 선택)
-            </label>
-            <select
-              value={onboardingForm.linkSourceUid || ''}
-              onChange={(e) => handleSelectLinkSource(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px',
-                fontSize: '13px',
-                borderRadius: '6px',
-                border: '1px solid #cbd5e1',
-                background: onboardingForm.linkSourceUid ? '#f0fdf4' : '#ffffff'
-              }}
-            >
-              <option value="">새로운 신입 회원으로 가입 (기존 벙기록 없음)</option>
-              {historicalCandidates.map((m) => (
-                <option key={m.uid} value={m.uid}>
-                  {formatMemberNickname(m)} ({m.totalScore}점 / 참석 {m.attendanceCount}회)
-                </option>
-              ))}
-            </select>
-          </div>
+          <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px', marginBottom: '14px' }}>
+            힐링78 활동을 위한 기본 프로필을 작성해 주세요. (가입 후 내 정보에서 언제든 수정 가능합니다)
+          </p>
 
           <form onSubmit={handleOnboardingSubmit} className="stack-gap">
             <div className="form-grid">
-              <div className="form-field">
-                <label htmlFor="onboard-name">닉네임</label>
+              <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <label htmlFor="onboard-name">닉네임 (활동명) *</label>
+                  {onNavigateTab && (
+                    <button
+                      type="button"
+                      onClick={() => onNavigateTab('nickname')}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--color-primary, #e11d48)',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      규격 닉네임 생성기 ↗
+                    </button>
+                  )}
+                </div>
                 <input
                   id="onboard-name"
                   type="text"
-                  placeholder="활동 닉네임"
+                  placeholder="예: 힐링이"
                   required
                   value={onboardingForm.realName}
                   onChange={(e) =>
@@ -220,27 +217,137 @@ export default function LoginOnboardingPage({
                     })
                   }
                 />
+
+                {/* 1. Prompt to link account if matched with historical member */}
+                {matchedHistorical && !onboardingForm.linkSourceUid && (
+                  <div
+                    style={{
+                      background: '#f0fdf4',
+                      border: '1px solid #86efac',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      marginTop: '8px'
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: '#166534', fontSize: '13px' }}>
+                      💡 혹시 이전에 활동하셨던 <strong>[{formatMemberNickname(matchedHistorical)}]</strong> 님이신가요?
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#15803d', marginTop: '4px', lineHeight: 1.5 }}>
+                      과거 벙 활동 기록(누적 <strong>{matchedHistorical.totalScore}점</strong>, 참석 {matchedHistorical.attendanceCount}회, 최초가입 {matchedHistorical.joinedAt || '2024년'})이 확인되었습니다. 이 기록을 현재 카카오 계정으로 연결 신청하시겠습니까?
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      style={{ marginTop: '8px', fontSize: '12px', padding: '6px 12px' }}
+                      onClick={() => handleApplyLinkAccount(matchedHistorical)}
+                    >
+                      ⚡ 네, 기존 활동 이력 연결 신청하기
+                    </button>
+                  </div>
+                )}
+
+                {/* 2. Show applied status */}
+                {onboardingForm.linkSourceUid && (
+                  <div
+                    style={{
+                      background: '#f0fdf4',
+                      border: '1px solid #86efac',
+                      borderRadius: '8px',
+                      padding: '10px 14px',
+                      marginTop: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '8px',
+                      flexWrap: 'wrap'
+                    }}
+                  >
+                    <div style={{ fontSize: '13px', color: '#166534' }}>
+                      ✅ <strong>[{onboardingForm.linkRequestRealName}]</strong> 기존 활동 이력 연결 신청됨 (누적 {matchedHistorical?.totalScore || 0}점)
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-xs"
+                      style={{ fontSize: '11px', padding: '3px 8px' }}
+                      onClick={handleCancelLinkAccount}
+                    >
+                      신청 취소 (순수 신규 가입)
+                    </button>
+                  </div>
+                )}
+
+                {/* 3. Duplicate name warning */}
+                {duplicateActiveMember && (
+                  <div
+                    style={{
+                      background: '#fef2f2',
+                      border: '1px solid #fecaca',
+                      borderRadius: '8px',
+                      padding: '10px 14px',
+                      marginTop: '8px',
+                      color: '#991b1b',
+                      fontSize: '13px',
+                      lineHeight: 1.4
+                    }}
+                  >
+                    ⚠️ <strong>[{duplicateActiveMember.realName}]</strong> 님은 이미 힐링78에 활동 중인 친구입니다.
+                    <div style={{ fontSize: '12px', color: '#b91c1c', marginTop: '2px' }}>
+                      동일명을 가진 친구가 있으므로, 카톡방 구분을 위해 닉네임에 고유한 수식어나 번호를 붙이는 것을 권장합니다.
+                    </div>
+                  </div>
+                )}
+
+                {/* Optional manual picker toggle if used a different past nickname */}
+                {!onboardingForm.linkSourceUid && (
+                  <div style={{ marginTop: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowManualHistoricalPicker((prev) => !prev)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#64748b',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      {showManualHistoricalPicker
+                        ? '▲ 이전 계정 직접 찾기 닫기'
+                        : '과거에 다른 닉네임으로 활동하셨나요? (기존 계정 직접 찾기 🔍)'}
+                    </button>
+
+                    {showManualHistoricalPicker && (
+                      <div style={{ marginTop: '6px' }}>
+                        <select
+                          className="switcher-select"
+                          style={{ width: '100%', fontSize: '12px', padding: '7px 10px' }}
+                          onChange={(e) => {
+                            const found = members.find((m) => m.uid === e.target.value);
+                            if (found) handleApplyLinkAccount(found);
+                          }}
+                          value=""
+                        >
+                          <option value="">-- 과거 활동했던 닉네임을 선택하세요 --</option>
+                          {historicalCandidates.map((m) => (
+                            <option key={m.uid} value={m.uid}>
+                              {formatMemberNickname(m)} (총 {m.totalScore}점 / 참석 {m.attendanceCount}회)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+
               <div className="form-field">
-                <label htmlFor="onboard-legal-name">실명 (선택)</label>
-                <input
-                  id="onboard-legal-name"
-                  type="text"
-                  placeholder="실명 (선택 사항)"
-                  value={onboardingForm.legalName}
-                  onChange={(e) =>
-                    setOnboardingForm({
-                      ...onboardingForm,
-                      legalName: e.target.value
-                    })
-                  }
-                />
-              </div>
-              <div className="form-field">
-                <label htmlFor="onboard-city">거주 지역</label>
+                <label htmlFor="onboard-city">거주 지역 *</label>
                 <RegionInput
                   id="onboard-city"
                   required
+                  placeholder="서울 구, 지방 시·군 (예: 수원, 강남)"
                   value={onboardingForm.city}
                   onChange={(val) =>
                     setOnboardingForm({
@@ -251,8 +358,9 @@ export default function LoginOnboardingPage({
                   }
                 />
               </div>
+
               <div className="form-field">
-                <label htmlFor="onboard-marital">결혼 여부</label>
+                <label htmlFor="onboard-marital">결혼 여부 *</label>
                 <select
                   id="onboard-marital"
                   value={onboardingForm.maritalStatus}
@@ -268,8 +376,9 @@ export default function LoginOnboardingPage({
                   <option value="divorced">돌싱 (돌)</option>
                 </select>
               </div>
+
               <div className="form-field">
-                <label htmlFor="onboard-gender">성별</label>
+                <label htmlFor="onboard-gender">성별 *</label>
                 <select
                   id="onboard-gender"
                   value={onboardingForm.gender}
@@ -285,26 +394,27 @@ export default function LoginOnboardingPage({
                 </select>
               </div>
 
-              <div className="form-field" style={{ gridColumn: '1 / -1' }}>
-                <label htmlFor="onboard-link-req">기존 계정 연결 신청 (선택)</label>
+              <div className="form-field">
+                <label htmlFor="onboard-legal-name">실명 (선택)</label>
                 <input
-                  id="onboard-link-req"
+                  id="onboard-legal-name"
                   type="text"
-                  placeholder="기존 활동 닉네임/실명 입력 시 기존 점수 및 이력 인계 연결"
-                  value={onboardingForm.linkRequestRealName || ''}
+                  placeholder="실명 (선택 사항)"
+                  value={onboardingForm.legalName}
                   onChange={(e) =>
                     setOnboardingForm({
                       ...onboardingForm,
-                      linkRequestRealName: e.target.value
+                      legalName: e.target.value
                     })
                   }
                 />
               </div>
             </div>
 
+            {/* Generated Nickname Preview */}
             <div className="nickname-preview-box">
               <div>
-                <div className="preview-caption">생성될 닉네임</div>
+                <div className="preview-caption">생성될 오픈채팅 닉네임</div>
                 <div className="preview-value">{onboardingPreview}</div>
               </div>
               <button
@@ -316,7 +426,7 @@ export default function LoginOnboardingPage({
               </button>
             </div>
 
-            <div className="btn-row">
+            <div className="btn-row" style={{ marginTop: '10px' }}>
               <button
                 type="button"
                 className="btn btn-outline"
@@ -325,12 +435,26 @@ export default function LoginOnboardingPage({
                   setStep('login');
                 }}
               >
-                이전
+                취소
               </button>
-              <button type="submit" className="btn btn-primary">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={!isFormValid}
+                style={{
+                  opacity: isFormValid ? 1 : 0.45,
+                  cursor: isFormValid ? 'pointer' : 'not-allowed'
+                }}
+              >
                 저장 후 입장
               </button>
             </div>
+
+            {!isFormValid && (
+              <div style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center' }}>
+                * 닉네임과 거주 지역을 모두 입력해야 저장 후 입장할 수 있습니다.
+              </div>
+            )}
           </form>
         </section>
       </div>
@@ -350,44 +474,36 @@ export default function LoginOnboardingPage({
         </div>
         <div className="login-hero-text">
           <h2>Healing78 로그인</h2>
+          <p style={{ fontSize: '13px', color: '#64748b', marginTop: '6px' }}>
+            카카오 계정으로 간편하게 시작하세요.<br />
+            기존 회원은 즉시 로그인되며, 신규 회원은 프로필 등록으로 바로 연결됩니다.
+          </p>
         </div>
 
-        <div className="stack-gap" style={{ marginTop: '14px' }}>
+        <div className="stack-gap" style={{ marginTop: '16px' }}>
           <button
             type="button"
             className="btn btn-kakao"
             disabled={kakaoLoading}
             onClick={handleKakaoLoginClick}
+            style={{ width: '100%', padding: '12px', fontSize: '15px' }}
           >
-            {kakaoLoading ? '연결 중...' : '카카오 로그인'}
+            {kakaoLoading ? '카카오 인증 연결 중...' : '🟡 카카오 로그인'}
           </button>
 
-          <div className="login-sub-actions">
+          {onNavigateTab && (
             <button
               type="button"
-              className="btn btn-primary"
-              style={{ flex: 1 }}
-              onClick={() => {
-                setPendingKakaoUser(null);
-                setStep('onboarding');
-              }}
+              className="btn btn-outline"
+              style={{ width: '100%', marginTop: '6px' }}
+              onClick={() => onNavigateTab('nickname')}
             >
-              신입 등록
+              🏷️ 신입 규격 닉네임 생성기
             </button>
-            {onNavigateTab && (
-              <button
-                type="button"
-                className="btn btn-outline"
-                style={{ flex: 1 }}
-                onClick={() => onNavigateTab('nickname')}
-              >
-                닉네임 생성기
-              </button>
-            )}
-          </div>
+          )}
 
           {kakaoError && (
-            <div className="warning-banner" role="alert">
+            <div className="warning-banner" role="alert" style={{ marginTop: '10px' }}>
               ⚠️ {kakaoError}
             </div>
           )}

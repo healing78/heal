@@ -4,13 +4,14 @@ import { suggestNewMemberNickname } from '../nicknameUtils';
 
 export default function NicknamePage({
   currentUser,
+  members = [],
   communityConfig = {},
   onAdminUpdateConfig,
   onSharePage
 }) {
   const [form, setForm] = useState({
-    name: currentUser?.realName || '홍길동',
-    city: currentUser?.city || '서울',
+    name: currentUser?.realName || '',
+    city: currentUser?.city || '수원',
     maritalStatus: currentUser?.maritalStatus || 'single',
     gender: currentUser?.gender || '남'
   });
@@ -22,6 +23,24 @@ export default function NicknamePage({
   );
 
   const isLeader = currentUser?.role === 'Leader';
+
+  const cleanName = (form.name || '').trim().toLowerCase();
+  const duplicateMember = cleanName
+    ? members.find(
+        (m) =>
+          (m.realName || '').trim().toLowerCase() === cleanName &&
+          m.uid !== currentUser?.uid
+      )
+    : null;
+  const hasDuplicateName = Boolean(duplicateMember);
+
+  const isFormComplete = Boolean(
+    form.name.trim() &&
+      form.city.trim() &&
+      form.maritalStatus &&
+      form.gender
+  );
+  const canCopy = isFormComplete && !hasDuplicateName;
 
   const handleSaveNotice = (e) => {
     e.preventDefault();
@@ -35,13 +54,14 @@ export default function NicknamePage({
   };
 
   const generatedNickname = suggestNewMemberNickname({
-    name: form.name || '이름',
-    city: form.city || '지역',
+    name: form.name.trim() || '이름',
+    city: form.city.trim() || '수원',
     maritalStatus: form.maritalStatus,
     gender: form.gender
   });
 
   const handleCopy = async () => {
+    if (!canCopy) return;
     try {
       await navigator.clipboard.writeText(generatedNickname);
       setCopied(true);
@@ -126,22 +146,53 @@ export default function NicknamePage({
           <button
             type="button"
             className="btn btn-primary"
+            disabled={!canCopy}
             onClick={handleCopy}
+            style={{
+              opacity: canCopy ? 1 : 0.45,
+              cursor: canCopy ? 'pointer' : 'not-allowed'
+            }}
           >
             {copied ? '복사 완료' : '닉네임 복사'}
           </button>
         </div>
+
+        {/* Validation / Helper Guidance */}
+        {!isFormComplete && (
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+            ℹ️ 이름과 거주 지역을 모두 입력해야 닉네임을 복사할 수 있습니다.
+          </div>
+        )}
+        {hasDuplicateName && (
+          <div
+            style={{
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              padding: '10px 14px',
+              marginTop: '6px',
+              color: '#991b1b',
+              fontSize: '13px',
+              lineHeight: 1.5
+            }}
+          >
+            ⚠️ <strong>[{duplicateMember.realName}]</strong> 님은 이미 힐링78에 활동 중인 친구입니다.
+            <div style={{ fontSize: '12px', color: '#b91c1c', marginTop: '2px' }}>
+              동일명을 가진 친구가 있으므로, 카톡방 구분을 위해 닉네임 뒤에 숫자나 다른 활동명을 추가해 주세요. (중복 방지를 위해 복사가 제한됩니다)
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Generator Input Form */}
       <section className="list-section">
         <div className="form-grid">
           <div className="form-field">
-            <label htmlFor="nick-name">이름</label>
+            <label htmlFor="nick-name">이름 (활동명)</label>
             <input
               id="nick-name"
               type="text"
-              placeholder="김힐링"
+              placeholder="예: 김힐링"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
@@ -151,7 +202,7 @@ export default function NicknamePage({
             <RegionInput
               id="nick-city"
               required
-              placeholder="서울 구, 지방 시·군 입력 (예: 강남, 수원)"
+              placeholder="서울 구, 지방 시·군 입력 (예: 수원, 강남)"
               value={form.city}
               onChange={(val) => setForm({ ...form, city: val })}
             />

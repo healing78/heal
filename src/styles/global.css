@@ -925,13 +925,22 @@ h3 {
 
 .form-field input,
 .form-field select,
-.form-field textarea {
+.form-field textarea,
+.region-input-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
   padding: 9px 11px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-base);
   font-size: 0.88rem;
   font-family: inherit;
   background: #ffffff;
+}
+
+.form-field input,
+.form-field select,
+.region-input-wrapper input {
+  height: 40px;
 }
 
 /* Nickname Preview Box */

@@ -381,6 +381,7 @@ export default function App() {
       return (
         <NicknamePage
           currentUser={currentUser}
+          members={members}
           communityConfig={communityConfig}
           onAdminUpdateConfig={handleAdminUpdateConfig}
           onNavigateTab={navigateToTab}

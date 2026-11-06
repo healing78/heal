@@ -62,6 +62,7 @@ export default function RegionInput({
         placeholder={placeholder}
         value={value}
         autoComplete="off"
+        style={{ width: '100%', boxSizing: 'border-box', height: '40px' }}
         onChange={(e) => {
           if (onChange) onChange(e.target.value);
           setIsOpen(true);
