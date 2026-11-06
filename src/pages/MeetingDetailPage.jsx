@@ -234,6 +234,14 @@ export default function MeetingDetailPage({
 
   const handleNavigateView = (nextView) => {
     setViewMode(nextView);
+    if (nextView === 'lounge' && currentUser?.uid && onUpdateMeeting && meeting?.id) {
+      const currentVisitors = meeting.loungeVisitors || [];
+      if (!currentVisitors.includes(currentUser.uid)) {
+        onUpdateMeeting(meeting.id, {
+          loungeVisitors: [...currentVisitors, currentUser.uid]
+        });
+      }
+    }
     if (onUpdateSubView) {
       onUpdateSubView(nextView === 'lounge' ? 'lounge' : null);
     }
@@ -241,6 +249,18 @@ export default function MeetingDetailPage({
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  // Auto-record lounge visitor when in lounge view
+  useEffect(() => {
+    if (viewMode === 'lounge' && currentUser?.uid && onUpdateMeeting && meeting?.id) {
+      const currentVisitors = meeting.loungeVisitors || [];
+      if (!currentVisitors.includes(currentUser.uid)) {
+        onUpdateMeeting(meeting.id, {
+          loungeVisitors: [...currentVisitors, currentUser.uid]
+        });
+      }
+    }
+  }, [viewMode, currentUser?.uid, meeting?.id, meeting?.loungeVisitors]);
 
   const handleDeleteThisMeeting = async () => {
     if (!onDeleteMeeting) return;
@@ -447,8 +467,8 @@ export default function MeetingDetailPage({
   const primaryPlaceText =
     rounds[0]?.placeName || meeting.placeDetail || meeting.location || '';
 
-  // Attendee & Absentee Lists for Chat Accordion
-  const attendeeUids = Array.from(
+  // Attendee & Absentee Lists for Chat Accordion (Scoped strictly to this meeting's attendees!)
+  const allMeetingAttendeeUids = Array.from(
     new Set(
       [
         meeting.hostUid,
@@ -458,8 +478,16 @@ export default function MeetingDetailPage({
       ].filter(Boolean)
     )
   );
-  const absenteeMembers = members.filter(
-    (m) => !attendeeUids.includes(m.uid)
+  const loungeVisitorUids = meeting.loungeVisitors || [];
+  // 1. 참석자 중 벙대기실을 누른 사람 (대기실 입장한 참석자)
+  const enteredAttendeeUids = allMeetingAttendeeUids.filter(
+    (uid) =>
+      loungeVisitorUids.includes(uid) ||
+      (currentUser?.uid === uid && viewMode === 'lounge')
+  );
+  // 2. 참석자 중 벙대기실을 아직 누르지 않은 사람 (대기실 미입장 참석자)
+  const notEnteredAttendeeUids = allMeetingAttendeeUids.filter(
+    (uid) => !enteredAttendeeUids.includes(uid)
   );
 
   // Subway Route Map Stages
@@ -1936,11 +1964,11 @@ export default function MeetingDetailPage({
             {/* TAB 0: 대화 (카카오톡 스타일 에메랄드 대화방) */}
             {loungeTab === 'chat' && (
               <div className="lounge-chat-container">
-                {/* Accordion: Attendees & Absentees (Toggled by tapping '대화' tab again) */}
+                {/* Accordion: Attendees inside lounge vs Attendees not in lounge */}
                 {showChatUsersAccordion && (
                   <div className="lounge-chat-accordion">
                     <div className="lounge-chat-accordion-title">
-                      <span>대기실 입장한 참석자 ({attendeeUids.length}명)</span>
+                      <span>대기실 입장한 참석자 ({enteredAttendeeUids.length}명)</span>
                       <button
                         type="button"
                         className="btn-link"
@@ -1951,43 +1979,59 @@ export default function MeetingDetailPage({
                       </button>
                     </div>
                     <div className="lounge-chat-accordion-list">
-                      {attendeeUids.map((uid) => {
-                        const m = members.find((mem) => mem.uid === uid);
-                        if (!m) return null;
-                        const isHost = uid === meeting.hostUid;
-                        return (
-                          <span
-                            key={uid}
-                            className="member-chip-btn active"
-                            style={{ fontSize: '11px', padding: '2px 7px' }}
-                          >
-                            {isHost ? '👑 ' : ''}
-                            {m.realName}
-                          </span>
-                        );
-                      })}
+                      {enteredAttendeeUids.length === 0 ? (
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                          아직 대기실에 입장한 참석자가 없습니다.
+                        </span>
+                      ) : (
+                        enteredAttendeeUids.map((uid) => {
+                          const m = members.find((mem) => mem.uid === uid);
+                          if (!m) return null;
+                          const isHost = uid === meeting.hostUid;
+                          return (
+                            <span
+                              key={uid}
+                              className="member-chip-btn active"
+                              style={{ fontSize: '11px', padding: '2px 7px' }}
+                            >
+                              {isHost ? '👑 ' : ''}
+                              {m.realName}
+                            </span>
+                          );
+                        })
+                      )}
                     </div>
 
                     <div
                       className="lounge-chat-accordion-title"
-                      style={{ marginTop: '6px' }}
+                      style={{ marginTop: '8px' }}
                     >
-                      <span>대기실 안 들어온 미참석자 ({absenteeMembers.length}명)</span>
+                      <span>대기실 미입장 참석자 ({notEnteredAttendeeUids.length}명)</span>
                     </div>
                     <div className="lounge-chat-accordion-list">
-                      {absenteeMembers.map((m) => (
-                        <span
-                          key={m.uid}
-                          className="member-chip-btn inactive"
-                          style={{
-                            fontSize: '11px',
-                            padding: '2px 7px',
-                            opacity: 0.6
-                          }}
-                        >
-                          {m.realName}
+                      {notEnteredAttendeeUids.length === 0 ? (
+                        <span style={{ fontSize: '12px', color: '#10b981' }}>
+                          참석자 전원이 대기실에 입장했습니다! 🎉
                         </span>
-                      ))}
+                      ) : (
+                        notEnteredAttendeeUids.map((uid) => {
+                          const m = members.find((mem) => mem.uid === uid);
+                          if (!m) return null;
+                          return (
+                            <span
+                              key={uid}
+                              className="member-chip-btn inactive"
+                              style={{
+                                fontSize: '11px',
+                                padding: '2px 7px',
+                                opacity: 0.65
+                              }}
+                            >
+                              {m.realName}
+                            </span>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 )}
