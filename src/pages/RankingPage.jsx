@@ -6,9 +6,14 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [cityFilter, setCityFilter] = useState('ALL');
 
-  const cities = ['ALL', ...new Set(members.map((m) => m.city))];
+  // 외출자(OnLeave), 방랑자(Wanderer), 강퇴자(Expelled), 탈퇴자(Withdrawn) 제외
+  const activeMembers = members.filter(
+    (m) => !['OnLeave', 'Wanderer', 'Expelled', 'Withdrawn'].includes(m.role)
+  );
 
-  const filteredMembers = members
+  const cities = ['ALL', ...new Set(activeMembers.map((m) => m.city).filter(Boolean))];
+
+  const filteredMembers = activeMembers
     .filter((m) => {
       const nickname = formatMemberNickname(m);
       const matchesQuery =
@@ -40,7 +45,7 @@ export default function RankingPage({ currentUser, members, scoreLogs }) {
             className={`subtab-btn ${subTab === 'total' ? 'active' : ''}`}
             onClick={() => setSubTab('total')}
           >
-            전체 누적 랭킹 ({members.length})
+            전체 누적 랭킹 ({activeMembers.length})
           </button>
           <button
             type="button"

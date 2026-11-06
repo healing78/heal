@@ -105,6 +105,9 @@ Healing78 커뮤니티 관리 시스템의 전체 화면 흐름과 하위 주소
 
 #### C. Ranking & Score Page (`랭킹·친구`, `/ranking`)
 - **서브 탭 구성:** `[전체 누적 랭킹 | 이번 달 랭킹 | 지역별 친구 | 내 점수 내역]` 탭으로 구성합니다.
+- **랭킹 집계 대상 회원 규칙:**
+  - 실제 활동 중인 정상 회원인 **신입(`Rookie`), 일반(`Member`), VIP(`VIP`), 운영진(`Leader`, `Deputy`)**만 랭킹 순위표 및 홈 화면의 TOP 5 랭킹에 집계됩니다.
+  - **외출자(`OnLeave`), 방랑자(`Wanderer`), 강퇴자(`Expelled`), 탈퇴자(`Withdrawn`)**는 랭킹 순위 및 지역별 검색 대상에서 완전히 제외됩니다.
 - **점수 구성 표시:** 각 회원의 총점(`totalScore`)과 기본 참석 점수, 원정 보너스 점수, 이벤트 수동 점수 세부 내역을 표시합니다.
 
 #### D. My Profile & Activity Report Page (`내 정보`, `/profile`)

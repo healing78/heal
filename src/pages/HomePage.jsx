@@ -46,7 +46,10 @@ export default function HomePage({
   const [editingNoticeId, setEditingNoticeId] = useState(null); // id of notice being edited, or 'new'
   const [noticeForm, setNoticeForm] = useState({ title: '', body: '' });
 
-  const sortedMembers = [...members].sort((a, b) => b.totalScore - a.totalScore);
+  const activeMembers = members.filter(
+    (m) => !['OnLeave', 'Wanderer', 'Expelled', 'Withdrawn'].includes(m.role)
+  );
+  const sortedMembers = [...activeMembers].sort((a, b) => b.totalScore - a.totalScore);
   const myRank = currentUser
     ? sortedMembers.findIndex((m) => m.uid === currentUser.uid) + 1 || '-'
     : '-';
