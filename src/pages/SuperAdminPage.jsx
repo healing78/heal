@@ -162,6 +162,41 @@ export default function SuperAdminPage({
     }
   };
 
+  const handleEnrichLiveMembersOnly = async () => {
+    if (!onBatchSyncData) return;
+    setIsSyncing(true);
+    try {
+      const enrichedMap = new Map(INITIAL_MEMBERS.map((m) => [m.realName, m]));
+      let count = 0;
+      const mergedMembers = members.map((live) => {
+        const enriched = enrichedMap.get(live.realName);
+        if (enriched) {
+          count++;
+          return {
+            ...live,
+            city: enriched.city,
+            homeCity: enriched.homeCity,
+            maritalStatus: enriched.maritalStatus,
+            gender: enriched.gender,
+            joinedAt: enriched.joinedAt,
+            entryBadge: enriched.entryBadge
+          };
+        }
+        return live;
+      });
+
+      await onBatchSyncData(mergedMembers, meetings, communityConfig);
+      setActionFeedback(
+        `✅ 원천 입장로그(001.log) 기반으로 회원 ${count}명의 도시, 성별, 결혼여부, 가입일이 즉시 갱신되었습니다.`
+      );
+    } catch (err) {
+      setActionFeedback(`❌ 회원 정보 갱신 중 오류가 발생했습니다: ${err.message || err}`);
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setActionFeedback(''), 5000);
+    }
+  };
+
   const handleParseAndSyncCustomText = async (e) => {
     e.preventDefault();
     if (!bungRawText.trim() || !onBatchSyncData) return;
@@ -474,6 +509,19 @@ export default function SuperAdminPage({
             {isArmed('sync-standard-seed')
               ? '⚡ 확인: 표준 벙기록 즉시 덮어쓰기'
               : `⚡ 공식 벙기록 표준 시드 즉시 동기화 (${INITIAL_MEMBERS.length}명 / ${INITIAL_MEETINGS.length}건)`}
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            disabled={isSyncing}
+            onClick={() =>
+              runArmed('enrich-live-members', () => handleEnrichLiveMembersOnly())
+            }
+          >
+            {isArmed('enrich-live-members')
+              ? '확인: 회원 정보 일괄 갱신 실행'
+              : '👥 원천 로그(001.log) 기반 도시·성별·결혼·가입일 갱신'}
           </button>
 
           <button
