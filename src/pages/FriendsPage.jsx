@@ -38,6 +38,7 @@ export default function FriendsPage({
 }) {
   const [internalFilter, setInternalFilter] = useState('ALL');
   const [internalSearch, setInternalSearch] = useState('');
+  const [sortBy, setSortBy] = useState('score'); // 'score' | 'name' | 'attendance' | 'newest'
 
   const activeFilter =
     controlledFilter !== undefined ? controlledFilter : internalFilter;
@@ -63,11 +64,11 @@ export default function FriendsPage({
       { key: 'Member', label: '일반' },
       { key: 'VIP', label: 'VIP' },
       { key: 'Staff', label: '운영진' },
-      { key: 'OnLeave', label: '외출자' },
-      { key: 'Withdrawn', label: '탈퇴자' }
+      { key: 'OnLeave', label: '외출자' }
     ];
 
     if (isAdmin) {
+      tabs.push({ key: 'Withdrawn', label: '탈퇴자 🔒' });
       tabs.push({ key: 'Wanderer', label: '방랑자 🔒' });
       tabs.push({ key: 'Expelled', label: '강퇴자 🔒' });
     }
@@ -79,13 +80,20 @@ export default function FriendsPage({
   const filteredMembers = useMemo(() => {
     let list = members;
 
-    // Privacy filter: Regular members cannot see Wanderer and Expelled members
+    // Privacy filter: Regular members cannot see Wanderer, Expelled, or Withdrawn members
     if (!isAdmin) {
-      list = list.filter((m) => m.role !== 'Expelled' && m.role !== 'Wanderer');
+      list = list.filter(
+        (m) => m.role !== 'Expelled' && m.role !== 'Wanderer' && m.role !== 'Withdrawn'
+      );
     }
 
     // Role subtab filter
-    if (activeFilter === 'Rookie') {
+    if (activeFilter === 'ALL') {
+      // "전체" 리스트에는 정상 활동 회원(신입, 일반, VIP, 운영진)만 노출
+      list = list.filter((m) =>
+        ['Rookie', 'Member', 'VIP', 'Leader', 'Deputy'].includes(m.role)
+      );
+    } else if (activeFilter === 'Rookie') {
       list = list.filter((m) => m.role === 'Rookie');
     } else if (activeFilter === 'Member') {
       list = list.filter((m) => m.role === 'Member');
@@ -114,8 +122,34 @@ export default function FriendsPage({
       });
     }
 
-    // Sort: Leader/Deputy first, then by totalScore desc, then attendanceCount desc
+    // Sort:
+    // 1. Current user is pinned to the very top (1st priority) across all tabs/search
+    // 2. Secondary sort according to chosen sortBy option
     return [...list].sort((a, b) => {
+      const isMeA = currentUser?.uid && a.uid === currentUser.uid;
+      const isMeB = currentUser?.uid && b.uid === currentUser.uid;
+      if (isMeA && !isMeB) return -1;
+      if (!isMeA && isMeB) return 1;
+
+      if (sortBy === 'name') {
+        const nameA = formatMemberNickname(a);
+        const nameB = formatMemberNickname(b);
+        return nameA.localeCompare(nameB, 'ko');
+      }
+
+      if (sortBy === 'attendance') {
+        const diff = (b.attendanceCount || 0) - (a.attendanceCount || 0);
+        if (diff !== 0) return diff;
+        return (b.totalScore || 0) - (a.totalScore || 0);
+      }
+
+      if (sortBy === 'newest') {
+        const timeA = a.createdAt || a.joinedAt || '';
+        const timeB = b.createdAt || b.joinedAt || '';
+        return timeB.localeCompare(timeA);
+      }
+
+      // Default: 'score' (운영진 가중치 우선 -> 누적점수 내림차순 -> 참석횟수 내림차순)
       const aIsStaff = a.role === 'Leader' ? 2 : a.role === 'Deputy' ? 1 : 0;
       const bIsStaff = b.role === 'Leader' ? 2 : b.role === 'Deputy' ? 1 : 0;
       if (aIsStaff !== bIsStaff) return bIsStaff - aIsStaff;
@@ -124,7 +158,7 @@ export default function FriendsPage({
       }
       return (b.attendanceCount || 0) - (a.attendanceCount || 0);
     });
-  }, [members, activeFilter, searchQuery, isAdmin]);
+  }, [members, activeFilter, searchQuery, isAdmin, currentUser?.uid, sortBy]);
 
   return (
     <div className="list-container">
@@ -197,42 +231,74 @@ export default function FriendsPage({
           })}
         </div>
 
-        {/* Search Bar */}
-        <div style={{ position: 'relative', marginBottom: '12px' }}>
-          <input
-            type="text"
-            placeholder="회원 이름, 닉네임, 지역 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+        {/* Search Bar & Sort Option */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+            marginBottom: '12px'
+          }}
+        >
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input
+              type="text"
+              placeholder="회원 이름, 닉네임, 지역 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '9px 12px',
+                paddingRight: searchQuery ? '32px' : '12px',
+                fontSize: '14px',
+                borderRadius: '8px',
+                border: '1px solid var(--color-border, #cbd5e1)',
+                background: 'var(--color-bg-primary, #ffffff)',
+                color: 'var(--color-text-primary, #0f172a)',
+                boxSizing: 'border-box'
+              }}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '14px',
+                  color: '#94a3b8',
+                  cursor: 'pointer'
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
             style={{
-              width: '100%',
-              padding: '9px 12px',
-              fontSize: '14px',
+              padding: '9px 10px',
+              fontSize: '13px',
               borderRadius: '8px',
               border: '1px solid var(--color-border, #cbd5e1)',
               background: 'var(--color-bg-primary, #ffffff)',
-              color: 'var(--color-text-primary, #0f172a)'
+              color: 'var(--color-text-primary, #0f172a)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
             }}
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                fontSize: '14px',
-                color: '#94a3b8',
-                cursor: 'pointer'
-              }}
-            >
-              ✕
-            </button>
-          )}
+            title="친구 정렬 기준 선택"
+          >
+            <option value="score">점수순</option>
+            <option value="name">이름순 (가나다)</option>
+            <option value="attendance">참석순</option>
+            <option value="newest">가입순</option>
+          </select>
         </div>
 
         {/* Friends Card List */}
