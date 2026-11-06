@@ -59,7 +59,6 @@ export default function MemberProfilePage({
   const [editForm, setEditForm] = useState(() => ({
     realName: member?.realName || '',
     city: member?.city || '',
-    homeCity: member?.homeCity || member?.city || '',
     maritalStatus: member?.maritalStatus || 'single',
     gender: member?.gender || '남',
     role: member?.role || 'Member',
@@ -74,7 +73,6 @@ export default function MemberProfilePage({
       setEditForm({
         realName: member.realName || '',
         city: member.city || '',
-        homeCity: member.homeCity || member.city || '',
         maritalStatus: member.maritalStatus || 'single',
         gender: member.gender || '남',
         role: member.role || 'Member',
@@ -145,7 +143,7 @@ export default function MemberProfilePage({
       await onAdminUpdateMember(member.uid, {
         realName: editForm.realName.trim(),
         city: editForm.city.trim(),
-        homeCity: editForm.homeCity.trim(),
+        homeCity: editForm.city.trim(),
         maritalStatus: editForm.maritalStatus,
         gender: editForm.gender,
         role: editForm.role,
@@ -410,16 +408,6 @@ export default function MemberProfilePage({
                 type="text"
                 value={editForm.city}
                 onChange={(e) => setEditForm((p) => ({ ...p, city: e.target.value }))}
-                style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-              />
-            </div>
-
-            <div>
-              <label style={{ fontSize: '11px', color: '#64748b' }}>연고지 (원정점수 기준)</label>
-              <input
-                type="text"
-                value={editForm.homeCity}
-                onChange={(e) => setEditForm((p) => ({ ...p, homeCity: e.target.value }))}
                 style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
               />
             </div>

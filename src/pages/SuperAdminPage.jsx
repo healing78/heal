@@ -378,7 +378,7 @@ export default function SuperAdminPage({
       nick.toLowerCase().includes(q) ||
       m.realName.toLowerCase().includes(q) ||
       m.uid.toLowerCase().includes(q) ||
-      m.homeCity.toLowerCase().includes(q)
+      (m.city || m.homeCity || '').toLowerCase().includes(q)
     );
   });
 
@@ -935,7 +935,7 @@ export default function SuperAdminPage({
         <div className="filter-bar" style={{ marginTop: 0, marginBottom: '12px' }}>
           <input
             type="text"
-            placeholder="회원 이름, 닉네임, UID, 연고지 검색..."
+            placeholder="회원 이름, 닉네임, UID, 거주지역 검색..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -984,7 +984,7 @@ export default function SuperAdminPage({
                     )}
                   </div>
                   <div className="sub-meta">
-                    UID: <span style={{ fontFamily: 'monospace' }}>{m.uid}</span> · 연고지: {m.homeCity} ·
+                    UID: <span style={{ fontFamily: 'monospace' }}>{m.uid}</span> · 거주지역: {m.city || m.homeCity} ·
                     참석 {m.attendanceCount}회 · 총점 {m.totalScore}점 (기본 {m.baseScore} / 원정 {m.expeditionScore} / 이벤트 {m.eventScore})
                   </div>
                 </div>

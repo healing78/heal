@@ -368,8 +368,8 @@ export default function ReportsPage({
                 </span>
               </div>
               <div className="sub-meta" style={{ marginTop: '4px' }}>
-                등록 계좌: {targetMember.bankAccount || '미등록'} · 연고지:{' '}
-                {targetMember.homeCity}
+                등록 계좌: {targetMember.bankAccount || '미등록'} · 거주지역:{' '}
+                {targetMember.city || targetMember.homeCity || '미설정'}
               </div>
             </div>
           </div>
