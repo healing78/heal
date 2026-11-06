@@ -60,6 +60,24 @@ const sanitizeBungText = (str) =>
 const sanitizeMeetingItem = (mtg) =>
   mtg ? { ...mtg, title: sanitizeBungText(mtg.title) } : mtg;
 
+const sanitizeMember = (m) => {
+  if (!m) return m;
+  // '잔치' 회원의 경우 원천 텍스트 데이터의 오타("잔치(0)")로 인해 attendanceCount: 0으로 파싱되었던 이력 자동 보정
+  if (
+    (m.uid === 'kakao:1121' || m.realName === '잔치') &&
+    (m.attendanceCount === 0 || m.baseScore === 0)
+  ) {
+    return {
+      ...m,
+      attendanceCount: 1,
+      baseScore: 1,
+      expeditionScore: 1,
+      totalScore: 2
+    };
+  }
+  return m;
+};
+
 const sanitizeConfig = (cfg) => {
   if (!cfg) return INITIAL_COMMUNITY_CONFIG;
   return {
@@ -78,7 +96,9 @@ const sanitizeConfig = (cfg) => {
 };
 
 const getLocalState = () => ({
-  members: readLocalJson(STORAGE_KEYS.members, INITIAL_MEMBERS),
+  members: readLocalJson(STORAGE_KEYS.members, INITIAL_MEMBERS).map(
+    sanitizeMember
+  ),
   meetings: readLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS).map(
     sanitizeMeetingItem
   ),
@@ -176,6 +196,23 @@ const ensureFirestoreSeeded = async () => {
         }
       }
     }
+
+    // Auto-patch Janchi's attendance in Firestore if needed
+    try {
+      const janchiDoc = doc(db, 'members', 'kakao:1121');
+      await setDoc(
+        janchiDoc,
+        {
+          attendanceCount: 1,
+          baseScore: 1,
+          expeditionScore: 1,
+          totalScore: 2
+        },
+        { merge: true }
+      );
+    } catch {
+      // ignore
+    }
   } catch (err) {
     console.warn('Firestore initial seed skipped:', err);
   }
@@ -220,7 +257,7 @@ export const subscribeCommunityData = (onUpdate) => {
       if (!snap.empty) {
         currentData = {
           ...currentData,
-          members: snap.docs.map((d) => d.data())
+          members: snap.docs.map((d) => sanitizeMember(d.data()))
         };
         writeLocalJson(STORAGE_KEYS.members, currentData.members);
         onUpdate(currentData);

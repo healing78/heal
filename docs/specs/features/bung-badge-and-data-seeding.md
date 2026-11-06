@@ -58,6 +58,12 @@
 ### 2. Synchronization APIs & Tools
 - **CLI Script**: `npm run seed:bung` (`scripts/seed-bung-records.mjs`)
 - **Service API**: `batchSyncCommunityData(members, meetings, config)`
+
+### 3. Historical Data Integrity Patch History
+- **'잔치' (`kakao:1121`, 창원) 벙 참석 점수 보정:**
+  - **원인:** 과거 원천 텍스트 기록(`raw_bung_doc.txt`) 상단 요약표의 오타(`2 : ... 잔치(0) ...`)로 인해 총점 2점임에도 참석 횟수 0회(`attendanceCount: 0`), 원정 2점으로 기형 파싱되었음.
+  - **확인:** 실제 2026년 8월 15일 벙 기록에 `잔치2`로 정상 참석하여 2점(기본 1점 + 원정 1점)을 획득한 이력이 존재함.
+  - **보정:** `attendanceCount: 1`, `baseScore: 1`, `expeditionScore: 1`, `totalScore: 2`로 원천 및 런타임 데이터 영구 정상화 완료.
   - Firestore의 500건 writeBatch 제한을 방지하기 위해 350건 단위로 청크 분할 커밋
   - LocalStorage 및 Firestore 동시 업데이트
 - **SuperAdmin UI Console** (`SuperAdminPage.jsx`):
