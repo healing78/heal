@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { canCreateMeeting, REGION_GROUPS } from '../core/communityRules';
 import MeetingDetailPage from './MeetingDetailPage';
+import BungRecordsTab from '../components/BungRecordsTab';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_FULL_KO = [
@@ -340,6 +341,13 @@ export default function MeetingsPage({
               내 일정
             </button>
           )}
+          <button
+            type="button"
+            className={`subtab-btn ${subTab === 'records' ? 'active' : ''}`}
+            onClick={() => setSubTab('records')}
+          >
+            벙기록 ({meetings.length})
+          </button>
         </div>
       </section>
 
@@ -619,82 +627,94 @@ export default function MeetingsPage({
         </section>
       )}
 
-      {/* Calendar Agenda Schedule List */}
-      <section className="list-section schedule-list-section">
-        {monthGroups.length === 0 ? (
-          <p className="muted-text">해당 탭에 표시할 일정이 없습니다.</p>
-        ) : (
-          <div className="schedule-month-list">
-            {monthGroups.map((group) => (
-              <div key={group.monthKey} className="schedule-month-group">
-                <div className="schedule-month-header">{group.monthLabel}</div>
+      {/* Bung Records Sub-tab View */}
+      {subTab === 'records' ? (
+        <BungRecordsTab
+          meetings={meetings}
+          members={members}
+          currentUser={currentUser}
+          onSelectMeetingId={onSelectMeetingId}
+          onCreateMeeting={onCreateMeeting}
+          onNavigateTab={onNavigateTab}
+        />
+      ) : (
+        /* Calendar Agenda Schedule List */
+        <section className="list-section schedule-list-section">
+          {monthGroups.length === 0 ? (
+            <p className="muted-text">해당 탭에 표시할 일정이 없습니다.</p>
+          ) : (
+            <div className="schedule-month-list">
+              {monthGroups.map((group) => (
+                <div key={group.monthKey} className="schedule-month-group">
+                  <div className="schedule-month-header">{group.monthLabel}</div>
 
-                <div className="schedule-items-wrap">
-                  {group.items.map(({ mtg, meta }, idx) => {
-                    const prevMeta = group.items[idx - 1]?.meta;
-                    const nextMeta = group.items[idx + 1]?.meta;
-                    const isSameDateAsPrev =
-                      prevMeta && prevMeta.dateKey === meta.dateKey;
-                    const isSameDateAsNext =
-                      nextMeta && nextMeta.dateKey === meta.dateKey;
-                    const isPast = isPastMeeting(mtg, todayStr);
+                  <div className="schedule-items-wrap">
+                    {group.items.map(({ mtg, meta }, idx) => {
+                      const prevMeta = group.items[idx - 1]?.meta;
+                      const nextMeta = group.items[idx + 1]?.meta;
+                      const isSameDateAsPrev =
+                        prevMeta && prevMeta.dateKey === meta.dateKey;
+                      const isSameDateAsNext =
+                        nextMeta && nextMeta.dateKey === meta.dateKey;
+                      const isPast = isPastMeeting(mtg, todayStr);
 
-                    return (
-                      <article
-                        key={mtg.id}
-                        role="button"
-                        tabIndex={0}
-                        className={`schedule-row ${
-                          isSameDateAsNext ? 'same-date-next' : ''
-                        }`}
-                        onClick={() => onSelectMeetingId(mtg.id)}
-                        onKeyDown={(e) =>
-                          e.key === 'Enter' && onSelectMeetingId(mtg.id)
-                        }
-                      >
-                        <div className="schedule-date-col">
-                          {!isSameDateAsPrev && (
-                            <>
-                              <span className="schedule-weekday">
-                                {meta.weekday}
-                              </span>
-                              <span className="schedule-day-num">
-                                {meta.day}
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="schedule-bar-col" aria-hidden="true">
-                          <span className="schedule-bar" />
-                        </div>
-
-                        <div className="schedule-info-col">
-                          <h3
-                            className={`schedule-title ${
-                              isPast ? 'is-settled' : ''
-                            }`}
-                          >
-                            {mtg.title}
-                          </h3>
-                          <div className="schedule-time">
-                            {meta.timeRangeText}
+                      return (
+                        <article
+                          key={mtg.id}
+                          role="button"
+                          tabIndex={0}
+                          className={`schedule-row ${
+                            isSameDateAsNext ? 'same-date-next' : ''
+                          }`}
+                          onClick={() => onSelectMeetingId(mtg.id)}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' && onSelectMeetingId(mtg.id)
+                          }
+                        >
+                          <div className="schedule-date-col">
+                            {!isSameDateAsPrev && (
+                              <>
+                                <span className="schedule-weekday">
+                                  {meta.weekday}
+                                </span>
+                                <span className="schedule-day-num">
+                                  {meta.day}
+                                </span>
+                              </>
+                            )}
                           </div>
-                          {meta.locationText && (
-                            <div className="schedule-location">
-                              {meta.locationText}
+
+                          <div className="schedule-bar-col" aria-hidden="true">
+                            <span className="schedule-bar" />
+                          </div>
+
+                          <div className="schedule-info-col">
+                            <h3
+                              className={`schedule-title ${
+                                isPast ? 'is-settled' : ''
+                              }`}
+                            >
+                              {mtg.title}
+                            </h3>
+                            <div className="schedule-time">
+                              {meta.timeRangeText}
                             </div>
-                          )}
-                        </div>
-                      </article>
-                    );
-                  })}
+                            {meta.locationText && (
+                              <div className="schedule-location">
+                                {meta.locationText}
+                              </div>
+                            )}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

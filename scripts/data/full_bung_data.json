@@ -11512,29 +11512,92 @@
     },
     {
       "id": "26081501",
-      "title": "승재2 스캇2 쩡쩡2 무니 모찌2 소소2 레시2 블랙 잔치2 제니2 쌤슨2 써니 깽이2 빨강2 가나2 오드비 가든 주연2 사과2 델타",
+      "title": "목포본벙",
       "dateOnly": "2026-08-15",
       "startTime": "19:00",
       "endTime": "22:30",
       "date": "2026-08-15 19:00",
-      "location": "서울",
-      "placeDetail": "서울 인근 약속 장소",
+      "location": "목포",
+      "placeDetail": "목포 모임 장소",
       "hostUid": "kakao:1001",
       "treasurerUid": "kakao:1001",
       "type": "Casual",
       "status": "settled",
-      "applicants": [],
-      "confirmedParticipants": [],
-      "description": "승재2 스캇2 쩡쩡2 무니 모찌2 소소2 레시2 블랙 잔치2 제니2 쌤슨2 써니 깽이2 빨강2 가나2 오드비 가든 주연2 사과2 델타 (2026-08-15) 벙기록입니다.",
+      "applicants": [
+        "kakao:1026",
+        "kakao:1011",
+        "kakao:1021",
+        "kakao:1059",
+        "kakao:2000",
+        "kakao:1055",
+        "kakao:1017",
+        "kakao:1038",
+        "kakao:1121",
+        "kakao:1070",
+        "kakao:1005",
+        "kakao:1050",
+        "kakao:1031",
+        "kakao:1079",
+        "kakao:1025",
+        "kakao:1043",
+        "kakao:1036",
+        "kakao:1069",
+        "kakao:2002",
+        "kakao:1062"
+      ],
+      "confirmedParticipants": [
+        "kakao:1026",
+        "kakao:1011",
+        "kakao:1021",
+        "kakao:1059",
+        "kakao:2000",
+        "kakao:1055",
+        "kakao:1017",
+        "kakao:1038",
+        "kakao:1121",
+        "kakao:1070",
+        "kakao:1005",
+        "kakao:1050",
+        "kakao:1031",
+        "kakao:1079",
+        "kakao:1025",
+        "kakao:1043",
+        "kakao:1036",
+        "kakao:1069",
+        "kakao:2002",
+        "kakao:1062"
+      ],
+      "description": "목포본벙 (2026-08-15) 벙기록입니다.",
       "roundingRule": "floor100",
       "rounds": [
         {
           "id": "r-26081501-1",
           "label": "1차",
-          "placeName": "서울 모임 장소",
+          "placeName": "목포 모임 장소",
           "mapUrl": "",
-          "participants": [],
-          "payerUid": "kakao:1001",
+          "participants": [
+            "kakao:1026",
+            "kakao:1011",
+            "kakao:1021",
+            "kakao:1059",
+            "kakao:2000",
+            "kakao:1055",
+            "kakao:1017",
+            "kakao:1038",
+            "kakao:1121",
+            "kakao:1070",
+            "kakao:1005",
+            "kakao:1050",
+            "kakao:1031",
+            "kakao:1079",
+            "kakao:1025",
+            "kakao:1043",
+            "kakao:1036",
+            "kakao:1069",
+            "kakao:2002",
+            "kakao:1062"
+          ],
+          "payerUid": "kakao:1026",
           "cost": 0,
           "receiptUrl": "",
           "isGoldenBell": false,
@@ -11543,7 +11606,88 @@
       ],
       "sponsorships": [],
       "manualAmounts": {},
-      "paymentStatuses": {},
+      "paymentStatuses": {
+        "kakao:1026": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1011": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1021": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1059": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:2000": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1055": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1017": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1038": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1121": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1070": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1005": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1050": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1031": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1079": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1025": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1043": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1036": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1069": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:2002": {
+          "paid": true,
+          "confirmed": true
+        },
+        "kakao:1062": {
+          "paid": true,
+          "confirmed": true
+        }
+      },
       "safeReturns": {},
       "likes": [],
       "comments": [],

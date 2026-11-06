@@ -7,6 +7,7 @@ import {
   ROLE_META
 } from '../core/communityRules';
 import { useArmedAction } from '../utils/useArmedAction';
+import { buildCoAttendanceIndex } from '../core/bungParser';
 
 const AVATAR_BG_PALETTE = [
   '#f59e0b',
@@ -175,13 +176,49 @@ export default function MemberProfilePage({
     }
   };
 
-  // Attended Meetings
+  // Co-attendance (만난 횟수) Index
+  const coAttendanceIndex = useMemo(() => {
+    return buildCoAttendanceIndex(meetings, members);
+  }, [meetings, members]);
+
+  const coAttendanceCount = useMemo(() => {
+    if (!currentUser || !member || currentUser.uid === member.uid) return 0;
+    return coAttendanceIndex.getCoAttendanceCount(currentUser.uid, member.uid);
+  }, [coAttendanceIndex, currentUser, member]);
+
+  const topBuddies = useMemo(() => {
+    if (!member) return [];
+    return coAttendanceIndex.getTopBuddies(member.uid, 5);
+  }, [coAttendanceIndex, member]);
+
+  const [filterSharedOnly, setFilterSharedOnly] = useState(false);
+
+  // Attended Meetings (Checks all participant fields: confirmedParticipants, applicants, attendeeUids, etc.)
   const attendedMeetings = useMemo(() => {
     if (!member) return [];
     return meetings
-      .filter((mtg) => (mtg.applicants || []).includes(member.uid))
+      .filter((mtg) => {
+        const uids =
+          mtg.confirmedParticipants ||
+          mtg.applicants ||
+          mtg.attendeeUids ||
+          mtg.rounds?.[0]?.participants ||
+          [];
+        if (uids.includes(member.uid)) return true;
+        if (mtg.attendeeNames && mtg.attendeeNames.includes(member.realName)) return true;
+        if (mtg.attendees && mtg.attendees.some((a) => (typeof a === 'string' ? a === member.realName : a?.name === member.realName))) return true;
+        return false;
+      })
       .sort((a, b) => String(b.dateOnly || b.date).localeCompare(String(a.dateOnly || a.date)));
   }, [meetings, member]);
+
+  // Displayed Meetings: Full or Shared Only
+  const displayedMeetings = useMemo(() => {
+    if (filterSharedOnly && currentUser && member && currentUser.uid !== member.uid) {
+      return coAttendanceIndex.getSharedMeetings(currentUser.uid, member.uid);
+    }
+    return attendedMeetings;
+  }, [filterSharedOnly, currentUser, member, coAttendanceIndex, attendedMeetings]);
 
   if (!member) {
     return (
@@ -519,7 +556,7 @@ export default function MemberProfilePage({
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '8px',
-          marginBottom: '14px'
+          marginBottom: '12px'
         }}
       >
         <div style={{ background: 'var(--color-bg-primary, #ffffff)', border: '1px solid var(--color-border, #e2e8f0)', borderRadius: '8px', padding: '10px 8px', textAlign: 'center' }}>
@@ -551,20 +588,165 @@ export default function MemberProfilePage({
         </div>
       </section>
 
+      {/* Co-attendance (나와 함께한 벙) Card */}
+      {currentUser && currentUser.uid !== member.uid && (
+        <section
+          onClick={() => {
+            if (coAttendanceCount > 0) {
+              setFilterSharedOnly((prev) => !prev);
+            }
+          }}
+          style={{
+            background: filterSharedOnly
+              ? 'linear-gradient(135deg, #eef2ff, #e0e7ff)'
+              : 'var(--color-bg-primary, #ffffff)',
+            border: `1px solid ${filterSharedOnly ? '#6366f1' : 'var(--color-border, #e2e8f0)'}`,
+            borderRadius: '8px',
+            padding: '12px 14px',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+            cursor: coAttendanceCount > 0 ? 'pointer' : 'default',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '22px' }}>🤝</span>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                나와 함께한 벙: <span style={{ color: '#4f46e5', fontWeight: 800 }}>{coAttendanceCount}회</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                {coAttendanceCount > 0
+                  ? filterSharedOnly
+                    ? '현재 나와 함께 참석한 벙만 필터링되어 있습니다 (클릭 시 전체 보기)'
+                    : `${currentUser.realName || '나'}님과 총 ${coAttendanceCount}번의 벙을 함께 즐겼습니다!`
+                  : '아직 함께 참석한 벙 기록이 없습니다.'}
+              </div>
+            </div>
+          </div>
+
+          {coAttendanceCount > 0 && (
+            <span
+              style={{
+                fontSize: '11px',
+                padding: '4px 10px',
+                borderRadius: '12px',
+                background: filterSharedOnly ? '#4f46e5' : '#e0e7ff',
+                color: filterSharedOnly ? '#ffffff' : '#4338ca',
+                fontWeight: 700,
+                flexShrink: 0
+              }}
+            >
+              {filterSharedOnly ? '전체 보기' : `함께한 벙 보기`}
+            </span>
+          )}
+        </section>
+      )}
+
+      {/* Top 5 Buddies (가장 자주 만난 단짝) */}
+      {topBuddies.length > 0 && (
+        <section
+          style={{
+            background: 'var(--color-bg-primary, #ffffff)',
+            border: '1px solid var(--color-border, #e2e8f0)',
+            borderRadius: '8px',
+            padding: '12px 14px',
+            marginBottom: '14px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '10px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '14px' }}>🏆</span>
+              <strong style={{ fontSize: '13px', color: '#0f172a' }}>
+                가장 자주 만난 단짝 TOP {topBuddies.length}
+              </strong>
+            </div>
+            <span style={{ fontSize: '11px', color: '#94a3b8' }}>함께한 벙 횟수</span>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              overflowX: 'auto',
+              paddingBottom: '4px'
+            }}
+          >
+            {topBuddies.map((buddy, bIdx) => {
+              const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+              return (
+                <button
+                  key={buddy.uid}
+                  type="button"
+                  onClick={() => onSelectMember && onSelectMember(buddy.uid, effectiveUidList)}
+                  style={{
+                    flex: '0 0 auto',
+                    minWidth: '78px',
+                    background: 'var(--color-bg-secondary, #f8fafc)',
+                    border: '1px solid var(--color-border, #e2e8f0)',
+                    borderRadius: '8px',
+                    padding: '8px 6px',
+                    textAlign: 'center',
+                    cursor: 'pointer'
+                  }}
+                  title={`${buddy.realName} 프로필 보기`}
+                >
+                  <div style={{ fontSize: '12px', marginBottom: '2px' }}>{medals[bIdx]}</div>
+                  <div
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: 'var(--color-text-primary, #0f172a)',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {buddy.realName}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: '#4f46e5',
+                      fontWeight: 800,
+                      marginTop: '2px'
+                    }}
+                  >
+                    {buddy.count}회
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Attended Meetings History */}
       <section className="list-section">
         <div className="section-title-row">
-          <h3>참석 모임 기록</h3>
-          <span className="count-badge">{attendedMeetings.length}건</span>
+          <h3>
+            {filterSharedOnly ? `나와 함께한 벙 기록` : `참석 모임 기록`}
+          </h3>
+          <span className="count-badge">{displayedMeetings.length}건</span>
         </div>
 
-        {attendedMeetings.length === 0 ? (
+        {displayedMeetings.length === 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
-            참석한 모임 기록이 아직 없습니다.
+            {filterSharedOnly ? '함께 참석한 모임이 없습니다.' : '참석한 모임 기록이 아직 없습니다.'}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-            {attendedMeetings.map((mtg) => (
+            {displayedMeetings.map((mtg) => (
               <div
                 key={mtg.id}
                 onClick={() => onNavigateTab && onNavigateTab('meetings', { id: mtg.id })}
