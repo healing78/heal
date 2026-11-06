@@ -36,11 +36,18 @@ export default function AdminPage({
   onDeleteMeeting,
   onAdminUpdateMember,
   onAdminAdjustEventScore,
-  onAdminUpdateConfig
+  onAdminUpdateConfig,
+  onApproveAccountLink,
+  onRejectAccountLink
 }) {
   const [subTab, setSubTab] = useState('members'); // 'members' | 'meetings' | 'requests' | 'scores' | 'config'
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
+
+  // Account link / recovery requests
+  const pendingLinkRequests = members.filter(
+    (m) => Boolean(m.linkRequestStatus === 'pending' || (m.linkRequestRealName && m.linkRequestStatus !== 'rejected'))
+  );
 
   // Lounge early access requests
   const pendingLoungeRequests = meetings.filter(
@@ -49,6 +56,8 @@ export default function AdminPage({
   const approvedLoungeMeetings = meetings.filter(
     (m) => m.requestAttendance !== false && m.loungeStatus === 'approved'
   );
+
+  const totalRequestsCount = pendingLoungeRequests.length + pendingLinkRequests.length;
 
   const handleApproveLoungeRequest = async (meetingId) => {
     if (!onUpdateMeeting) return;
@@ -170,9 +179,9 @@ export default function AdminPage({
             onClick={() => setSubTab('requests')}
           >
             요청
-            {pendingLoungeRequests.length > 0 && (
+            {totalRequestsCount > 0 && (
               <span className="lounge-waiting-badge" style={{ marginLeft: '6px' }}>
-                {pendingLoungeRequests.length}
+                {totalRequestsCount}
               </span>
             )}
           </button>
@@ -449,14 +458,145 @@ export default function AdminPage({
         </section>
       )}
 
-      {/* Sub-tab: Requests Management (벙대기실 조기 오픈 요청 관리) */}
+      {/* Sub-tab: Requests Management (계정 연동 승인 및 벙대기실 조기 오픈) */}
       {subTab === 'requests' && (
-        <section className="list-section">
-          <div className="section-title-row">
-            <h3 style={{ margin: 0 }}>
-              벙대기실 조기 오픈 대기 요청 ({pendingLoungeRequests.length})
-            </h3>
-          </div>
+        <>
+          {/* Section 1: Account Link / Historical Data Transfer Requests */}
+          <section className="list-section" style={{ marginBottom: '16px' }}>
+            <div className="section-title-row">
+              <h3 style={{ margin: 0 }}>
+                회원 계정 연동 및 이전 이력 복구 승인 요청 ({pendingLinkRequests.length})
+              </h3>
+            </div>
+            <p className="sub-meta" style={{ marginTop: '4px', marginBottom: '10px' }}>
+              카카오로 가입한 회원이 이전 벙기록/탈퇴자/방랑자 계정으로 연동을 신청한 목록입니다. 단톡방 본인 확인 후 승인 시 이전 최초 가입일, 누적 벙점수, 주최/참석 이력이 새 카카오 계정으로 안전하게 합쳐집니다.
+            </p>
+
+            {pendingLinkRequests.length === 0 ? (
+              <p className="muted-text" style={{ padding: '12px 0' }}>
+                현재 대기 중인 계정 연동 요청이 없습니다.
+              </p>
+            ) : (
+              <div className="divider-list" style={{ marginTop: '10px' }}>
+                {pendingLinkRequests.map((applicant) => {
+                  const target = members.find(
+                    (x) =>
+                      x.uid === applicant.linkRequestSourceUid ||
+                      (applicant.linkRequestRealName &&
+                        x.realName.toLowerCase() === applicant.linkRequestRealName.toLowerCase())
+                  );
+
+                  return (
+                    <div
+                      key={applicant.uid}
+                      style={{
+                        padding: '12px',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <span style={{ fontSize: '14px', fontWeight: 700 }}>
+                            신청자: {formatMemberNickname(applicant)}
+                          </span>
+                          <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '6px' }}>
+                            ({applicant.uid})
+                          </span>
+                        </div>
+                        <span className="lounge-waiting-badge">승인 대기</span>
+                      </div>
+
+                      {target ? (
+                        <div
+                          style={{
+                            background: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '6px',
+                            padding: '8px 10px',
+                            fontSize: '12px',
+                            lineHeight: 1.6
+                          }}
+                        >
+                          <div>
+                            <strong>연계 대상 원본:</strong>{' '}
+                            <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                              [{ROLE_META[target.role]?.label}] {formatMemberNickname(target)}
+                            </span>{' '}
+                            (UID: {target.uid})
+                          </div>
+                          <div>
+                            <strong>승계될 이력:</strong> 누적 점수{' '}
+                            <span style={{ fontWeight: 700, color: '#e11d48' }}>
+                              {target.totalScore}점
+                            </span>{' '}
+                            (참석 {target.attendanceCount}회, 주최 {target.hostCount}회)
+                          </div>
+                          <div>
+                            <strong>최초 가입일:</strong> {target.joinedAt || '기록 없음'} (뱃지 {target.entryBadge}) · 거주지 {target.city}
+                          </div>
+                          {target.role === 'Withdrawn' || target.role === 'Wanderer' ? (
+                            <div style={{ color: '#b45309', fontWeight: 600 }}>
+                              ⚠️ 현재 상태가 [{ROLE_META[target.role]?.label}]입니다. 승인 시 활동 등급({target.totalScore >= 100 ? 'VIP' : '일반회원'})으로 즉시 복원됩니다.
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>
+                          신청 닉네임: <strong>{applicant.linkRequestRealName || '미지정'}</strong> (일치하는 원본을 찾을 수 없습니다)
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                        {target && onApproveAccountLink && (
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={() =>
+                              runArmed(`approve-link:${applicant.uid}`, () =>
+                                onApproveAccountLink(applicant.uid, target.uid)
+                              )
+                            }
+                          >
+                            {isArmed(`approve-link:${applicant.uid}`)
+                              ? '확인: 모든 이력 승계 및 합치기'
+                              : '✅ 승인 (계정 연동 & 이력 승계)'}
+                          </button>
+                        )}
+                        {onRejectAccountLink && (
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            style={{ color: '#ef4444', borderColor: '#fca5a5' }}
+                            onClick={() =>
+                              runArmed(`reject-link:${applicant.uid}`, () =>
+                                onRejectAccountLink(applicant.uid)
+                              )
+                            }
+                          >
+                            {isArmed(`reject-link:${applicant.uid}`) ? '반려 확인' : '❌ 반려'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* Section 2: Early Lounge Access Requests */}
+          <section className="list-section">
+            <div className="section-title-row">
+              <h3 style={{ margin: 0 }}>
+                벙대기실 조기 오픈 대기 요청 ({pendingLoungeRequests.length})
+              </h3>
+            </div>
 
           {pendingLoungeRequests.length === 0 ? (
             <p className="muted-text" style={{ padding: '16px 0' }}>
@@ -587,7 +727,8 @@ export default function AdminPage({
             </div>
           )}
         </section>
-      )}
+      </>
+    )}
       {subTab === 'scores' && (
         <section className="list-section">
           <h3 style={{ marginBottom: '12px' }}>수동 점수 가감</h3>

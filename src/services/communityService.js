@@ -293,40 +293,10 @@ export const registerOnboardingMember = async (form, customUid) => {
   const newUid = customUid || `kakao:${Date.now()}`;
 
   const { members } = getLocalState();
-  const reqName = form.realName?.trim() || '';
   const linkReqName = form.linkRequestRealName?.trim() || '';
+  const linkSourceUid = form.linkSourceUid || '';
+  const isRequestingLink = Boolean(linkSourceUid || linkReqName);
 
-  // Check if this onboarding user is linking with a seeded historical account
-  const matchedHistorical = form.linkSourceUid
-    ? members.find((m) => m.uid === form.linkSourceUid)
-    : members.find(
-        (m) =>
-          m.uid !== newUid &&
-          (m.realName.toLowerCase() === reqName.toLowerCase() ||
-            (linkReqName && m.realName.toLowerCase() === linkReqName.toLowerCase())) &&
-          (m.totalScore > 0 || m.attendanceCount > 0)
-      );
-
-  if (matchedHistorical) {
-    // Migrate the historical account to the new Kakao UID
-    await reassignMemberUid(matchedHistorical.uid, newUid);
-
-    const mergedMember = {
-      ...matchedHistorical,
-      uid: newUid,
-      legalName: (form.legalName || matchedHistorical.legalName || '').trim(),
-      city: form.city ? form.city.trim() : matchedHistorical.city,
-      homeCity: form.homeCity ? form.homeCity.trim() : matchedHistorical.homeCity,
-      maritalStatus: form.maritalStatus || matchedHistorical.maritalStatus,
-      gender: form.gender || matchedHistorical.gender,
-      linkRequestRealName: ''
-    };
-
-    await updateMemberProfile(newUid, mergedMember);
-    return mergedMember;
-  }
-
-  // Otherwise, brand new rookie member
   const newMember = {
     uid: newUid,
     realName: form.realName.trim(),
@@ -346,7 +316,9 @@ export const registerOnboardingMember = async (form, customUid) => {
     eventScore: 0,
     totalScore: 0,
     monthlyScore: 0,
-    linkRequestRealName: (form.linkRequestRealName || '').trim(),
+    linkRequestRealName: linkReqName,
+    linkRequestSourceUid: linkSourceUid,
+    linkRequestStatus: isRequestingLink ? 'pending' : '',
     unlockedAlbums: []
   };
 
@@ -784,7 +756,7 @@ export const reassignMemberUid = async (oldUid, newUid) => {
   const target = members.find((m) => m.uid === oldUid);
   if (!target) return;
 
-  const updatedTarget = { ...target, uid: newUid, linkRequestRealName: '' };
+  const updatedTarget = { ...target, uid: newUid, linkRequestRealName: '', linkRequestSourceUid: '', linkRequestStatus: '' };
   const nextMembers = members
     .filter((m) => m.uid !== oldUid && m.uid !== newUid)
     .concat(updatedTarget);
@@ -832,6 +804,48 @@ export const reassignMemberUid = async (oldUid, newUid) => {
       console.warn('Firestore reassignMemberUid error:', err);
     }
   }
+};
+
+/**
+ * Admin: Approves an account link request, transferring historical data (score, joinedAt, role) to the new UID.
+ */
+export const approveAccountLinkRequest = async (applicantUid, sourceUid) => {
+  const { members } = getLocalState();
+  const source = members.find((m) => m.uid === sourceUid);
+  const applicant = members.find((m) => m.uid === applicantUid);
+  if (!source || !applicant) return;
+
+  // Restore role if source was Withdrawn or Wanderer
+  let nextRole = source.role;
+  if (nextRole === 'Withdrawn' || nextRole === 'Wanderer' || nextRole === 'Expelled' || nextRole === 'Rookie') {
+    nextRole = (source.totalScore >= 100) ? 'VIP' : 'Member';
+  }
+
+  // Reassign historical account to applicant's Kakao UID
+  await reassignMemberUid(sourceUid, applicantUid);
+
+  const finalProfile = {
+    ...source,
+    uid: applicantUid,
+    role: nextRole,
+    legalName: applicant.legalName || source.legalName || '',
+    linkRequestRealName: '',
+    linkRequestSourceUid: '',
+    linkRequestStatus: ''
+  };
+
+  await updateMemberProfile(applicantUid, finalProfile);
+};
+
+/**
+ * Admin: Rejects an account link request.
+ */
+export const rejectAccountLinkRequest = async (applicantUid) => {
+  await updateMemberProfile(applicantUid, {
+    linkRequestRealName: '',
+    linkRequestSourceUid: '',
+    linkRequestStatus: 'rejected'
+  });
 };
 
 /**

@@ -163,7 +163,7 @@ export default function LoginOnboardingPage({
                 🎉 기존 벙기록 회원 [{formatMemberNickname(matchedHistorical)}] 님의 이력이 확인되었습니다!
               </div>
               <div style={{ fontSize: '12px', color: '#15803d' }}>
-                총 점수 <strong>{matchedHistorical.totalScore}점</strong> (참석 {matchedHistorical.attendanceCount}회, 주최 {matchedHistorical.hostCount}회)의 활동 기록이 내 카카오 계정으로 자동 연동 및 합쳐집니다.
+                총 점수 <strong>{matchedHistorical.totalScore}점</strong> (참석 {matchedHistorical.attendanceCount}회, 최초 가입일 {matchedHistorical.joinedAt})의 이력을 연계 신청합니다. 가입 완료 후 운영진의 확인을 거쳐 안전하게 합쳐집니다.
               </div>
               {!onboardingForm.linkSourceUid && (
                 <button
@@ -172,7 +172,7 @@ export default function LoginOnboardingPage({
                   style={{ alignSelf: 'flex-start', marginTop: '4px' }}
                   onClick={() => handleSelectLinkSource(matchedHistorical.uid)}
                 >
-                  기존 이력 연동 적용하기 ⚡
+                  기존 이력 연동 신청 적용 ⚡
                 </button>
               )}
             </div>

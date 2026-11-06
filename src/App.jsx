@@ -23,6 +23,7 @@ import { getSavedTheme, saveAndApplyTheme } from './core/theme';
 import {
   adminAdjustEventScore,
   adminUpdateMember,
+  approveAccountLinkRequest,
   batchSyncCommunityData,
   createMeeting,
   deleteMember,
@@ -30,6 +31,7 @@ import {
   getSavedCurrentUserUid,
   reassignMemberUid,
   registerOnboardingMember,
+  rejectAccountLinkRequest,
   resetToInitialDemoData,
   saveCurrentUserUid,
   settleMeetingWithScores,
@@ -320,6 +322,14 @@ export default function App() {
     await updateCommunityConfig(nextConfig);
   };
 
+  const handleApproveAccountLink = async (applicantUid, sourceUid) => {
+    await approveAccountLinkRequest(applicantUid, sourceUid);
+  };
+
+  const handleRejectAccountLink = async (applicantUid) => {
+    await rejectAccountLinkRequest(applicantUid);
+  };
+
   const handleResetDemoData = () => {
     resetToInitialDemoData();
     setCurrentUserUid('kakao:1001');
@@ -431,6 +441,8 @@ export default function App() {
             onAdminUpdateMember={handleAdminUpdateMember}
             onAdminAdjustEventScore={handleAdminAdjustEventScore}
             onAdminUpdateConfig={handleAdminUpdateConfig}
+            onApproveAccountLink={handleApproveAccountLink}
+            onRejectAccountLink={handleRejectAccountLink}
           />
         );
       }
@@ -492,6 +504,8 @@ export default function App() {
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminAdjustEventScore={handleAdminAdjustEventScore}
           onAdminUpdateConfig={handleAdminUpdateConfig}
+          onApproveAccountLink={handleApproveAccountLink}
+          onRejectAccountLink={handleRejectAccountLink}
         />
       );
     }
