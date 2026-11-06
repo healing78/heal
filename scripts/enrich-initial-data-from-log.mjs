@@ -141,12 +141,76 @@ const EXPLICIT_DISTINCT_MEMBERS = {
     entryBadge: '1104'
   },
   '보리': {
-    city: '인천',
-    homeCity: '인천',
+    city: '청주',
+    homeCity: '청주',
+    maritalStatus: 'divorced',
+    gender: '여',
+    joinedAt: '2026-01-24',
+    entryBadge: '0124'
+  },
+  '다온': {
+    city: '전주',
+    homeCity: '전주',
+    maritalStatus: 'divorced',
+    gender: '여',
+    joinedAt: '2025-05-18',
+    entryBadge: '0518'
+  },
+  '도도': {
+    city: '강남',
+    homeCity: '강남',
+    maritalStatus: 'single',
+    gender: '여',
+    joinedAt: '2025-04-01',
+    entryBadge: '0401'
+  },
+  '겨울': {
+    city: '강북',
+    homeCity: '강북',
+    maritalStatus: 'divorced',
+    gender: '여',
+    joinedAt: '2025-09-17',
+    entryBadge: '0917'
+  },
+  '성민': {
+    city: '광주',
+    homeCity: '광주',
+    maritalStatus: 'married',
+    gender: '남',
+    joinedAt: '2024-09-01',
+    entryBadge: '0901'
+  },
+  '애플': {
+    city: '광진',
+    homeCity: '광진',
+    maritalStatus: 'single',
+    gender: '여',
+    joinedAt: '2025-03-21',
+    entryBadge: '0321'
+  },
+  '우리': {
+    city: '수원',
+    homeCity: '수원',
+    maritalStatus: 'married',
+    gender: '남',
+    joinedAt: '2026-07-04',
+    entryBadge: '0704'
+  },
+  '제니': {
+    city: '부산',
+    homeCity: '부산',
     maritalStatus: 'married',
     gender: '여',
-    joinedAt: '2024-09-14',
-    entryBadge: '0914'
+    joinedAt: '2025-09-23',
+    entryBadge: '0923'
+  },
+  '현이': {
+    city: '의정부',
+    homeCity: '의정부',
+    maritalStatus: 'married',
+    gender: '남',
+    joinedAt: '2025-06-12',
+    entryBadge: '0612'
   },
   '하늘': {
     city: '천안',
