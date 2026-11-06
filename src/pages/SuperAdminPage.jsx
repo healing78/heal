@@ -63,6 +63,8 @@ export default function SuperAdminPage({
   const [duplicateQuery, setDuplicateQuery] = useState('');
   const [reassignSourceUid, setReassignSourceUid] = useState('');
   const [reassignNewUid, setReassignNewUid] = useState('');
+  const [isReassigning, setIsReassigning] = useState(false);
+  const [manualUidMode, setManualUidMode] = useState(false);
 
   const duplicateCandidates = useMemo(() => {
     const q = duplicateQuery.trim().toLowerCase();
@@ -72,6 +74,14 @@ export default function SuperAdminPage({
       return real.includes(q) || q.includes(real);
     });
   }, [members, duplicateQuery]);
+
+  const sourceMember = useMemo(() => {
+    return members.find((m) => m.uid === reassignSourceUid);
+  }, [members, reassignSourceUid]);
+
+  const destMember = useMemo(() => {
+    return members.find((m) => m.uid === reassignNewUid.trim());
+  }, [members, reassignNewUid]);
 
   const handleDeleteDuplicate = async (targetUid) => {
     if (!onDeleteMember) return;
@@ -88,16 +98,21 @@ export default function SuperAdminPage({
   const handleAdminExecuteReassign = async (e) => {
     e.preventDefault();
     if (!reassignSourceUid || !reassignNewUid.trim() || !onReassignMemberUid) return;
+    setIsReassigning(true);
     try {
       await onReassignMemberUid(reassignSourceUid, reassignNewUid.trim());
+      const sNick = sourceMember?.realName || reassignSourceUid;
+      const dNick = destMember?.realName || reassignNewUid.trim();
       setActionFeedback(
-        `✅ 회원 데이터가 ${reassignNewUid.trim()} 계정으로 성공적으로 인계되었습니다.`
+        `✅ [${sNick}] 계정의 모든 이력(점수/출석/주최/가입일)이 [${dNick}] 계정으로 성공적으로 통합되었습니다!`
       );
       setReassignSourceUid('');
       setReassignNewUid('');
-      setTimeout(() => setActionFeedback(''), 3000);
     } catch (err) {
-      setActionFeedback(`❌ 인계 실패: ${err.message || err}`);
+      setActionFeedback(`❌ 계정 인계(합치기) 실패: ${err.message || err}`);
+    } finally {
+      setIsReassigning(false);
+      setTimeout(() => setActionFeedback(''), 6000);
     }
   };
 
@@ -636,48 +651,141 @@ export default function SuperAdminPage({
 
       {/* Section 1-4: Kakao UID Account Reassignment Console */}
       <section className="list-section">
-        <h3 style={{ marginBottom: '8px' }}>카카오 UID 계정 인계(연계) 도구</h3>
-        <p className="sub-meta" style={{ marginBottom: '10px' }}>
-          카카오 로그인이나 기기 변경으로 계정이 2개가 된 경우, 기존 벙점수와 참석 이력을 실제 로그인 계정으로 통째로 합칩니다.
+        <div className="section-title-row">
+          <h3 style={{ marginBottom: '4px' }}>카카오 UID 계정 인계(합치기) 도구</h3>
+          <span className="platform-badge" style={{ background: '#0284c7', color: '#fff' }}>
+            🔗 계정 통합
+          </span>
+        </div>
+        <p className="sub-meta" style={{ marginBottom: '12px' }}>
+          카카오 로그인으로 생성된 신규 계정에 과거 벙기록/점수/출석/가입일 데이터를 통째로 합칩니다.
+          새 계정이 최고관리자(슈퍼어드민)인 경우 슈퍼 권한이 그대로 유지되며, 원본 과거 계정은 안전하게 정리됩니다.
         </p>
 
-        <form onSubmit={handleAdminExecuteReassign} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <select
-            value={reassignSourceUid}
-            onChange={(e) => setReassignSourceUid(e.target.value)}
-            style={{ flex: 1, minWidth: '220px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-          >
-            <option value="">1. 점수/이력을 가져올 원본 계정 선택...</option>
-            {members.map((m) => (
-              <option key={m.uid} value={m.uid}>
-                {formatMemberNickname(m)} ({m.totalScore || 0}점 / {m.uid})
-              </option>
-            ))}
-          </select>
+        <form onSubmit={handleAdminExecuteReassign} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+            {/* Step 1: Source */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary, #1e293b)' }}>
+                1️⃣ 원본 계정 (점수/이력을 가져올 이전 계정)
+              </label>
+              <select
+                value={reassignSourceUid}
+                onChange={(e) => setReassignSourceUid(e.target.value)}
+                style={{ padding: '8px 10px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+              >
+                <option value="">-- 이전할 원본 계정 선택 --</option>
+                {members.map((m) => (
+                  <option key={m.uid} value={m.uid}>
+                    {formatMemberNickname(m)} ({m.totalScore || 0}점 / {m.attendanceCount || 0}회 출석 / {m.uid})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <input
-            type="text"
-            list="reassign-target-candidates"
-            placeholder="2. 이전받을 새 계정 선택 또는 UID 입력"
-            value={reassignNewUid}
-            onChange={(e) => setReassignNewUid(e.target.value)}
-            style={{ flex: 1, minWidth: '220px', padding: '7px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-          />
-          <datalist id="reassign-target-candidates">
-            {members.map((m) => (
-              <option key={m.uid} value={m.uid}>
-                {formatMemberNickname(m)} ({m.totalScore || 0}점 / {m.uid})
-              </option>
-            ))}
-          </datalist>
+            {/* Step 2: Destination */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary, #1e293b)' }}>
+                  2️⃣ 대상 계정 (이전받을 실제 로그인 새 계정)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setManualUidMode(!manualUidMode)}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    fontSize: '11px',
+                    color: '#6366f1',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  {manualUidMode ? '목록에서 선택하기' : '직접 UID 입력하기'}
+                </button>
+              </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-sm"
-            disabled={!reassignSourceUid || !reassignNewUid.trim()}
-          >
-            계정 인계(합치기) 실행
-          </button>
+              {manualUidMode ? (
+                <input
+                  type="text"
+                  placeholder="예: kakao:3948572910"
+                  value={reassignNewUid}
+                  onChange={(e) => setReassignNewUid(e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                />
+              ) : (
+                <select
+                  value={reassignNewUid}
+                  onChange={(e) => setReassignNewUid(e.target.value)}
+                  style={{ padding: '8px 10px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                >
+                  <option value="">-- 이전받을 새 계정 선택 --</option>
+                  {members
+                    .filter((m) => m.uid !== reassignSourceUid)
+                    .map((m) => {
+                      const isSuper = superAdminUids.includes(m.uid);
+                      return (
+                        <option key={m.uid} value={m.uid}>
+                          {isSuper ? '👑 [슈퍼어드민] ' : ''}{formatMemberNickname(m)} ({m.totalScore || 0}점 / {m.uid})
+                        </option>
+                      );
+                    })}
+                </select>
+              )}
+            </div>
+          </div>
+
+          {/* Merge Preview Box */}
+          {sourceMember && (
+            <div
+              style={{
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'var(--color-bg-secondary, #f8fafc)',
+                border: '1px solid var(--color-border, #e2e8f0)',
+                fontSize: '13px',
+                lineHeight: '1.6'
+              }}
+            >
+              <div style={{ fontWeight: 600, color: 'var(--color-text-primary, #1e293b)', marginBottom: '8px' }}>
+                🔍 계정 통합 미리보기
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '10px', borderRadius: '6px' }}>
+                  <div style={{ fontWeight: 700, color: '#991b1b', marginBottom: '4px' }}>
+                    [원본 계정] {formatMemberNickname(sourceMember)}
+                  </div>
+                  <div>📊 점수: <strong>{sourceMember.totalScore || 0}점</strong> (출석 {sourceMember.attendanceCount || 0}회 / 주최 {sourceMember.hostCount || 0}회)</div>
+                  <div>📅 최초 가입일: <strong>{sourceMember.joinedAt || '2024-01-26'}</strong> (뱃지: {sourceMember.entryBadge || '-'})</div>
+                  <div>🏷️ 등급: {sourceMember.role}</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>UID: {sourceMember.uid}</div>
+                </div>
+
+                <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', padding: '10px', borderRadius: '6px' }}>
+                  <div style={{ fontWeight: 700, color: '#3730a3', marginBottom: '4px' }}>
+                    [이전받을 계정] {destMember ? formatMemberNickname(destMember) : (reassignNewUid || '새 계정 선택 대기중')}
+                  </div>
+                  <div>📊 현재 점수: <strong>{destMember?.totalScore || 0}점</strong></div>
+                  <div>👑 슈퍼어드민 여부: {destMember && superAdminUids.includes(destMember.uid) ? '✅ 최고관리자 계정 유지됨' : '일반/운영진'}</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>UID: {reassignNewUid || '미선택'}</div>
+                </div>
+              </div>
+              <div style={{ marginTop: '10px', color: '#047857', fontSize: '12px', fontWeight: 500 }}>
+                💡 [실행 시] 원본 계정의 모든 점수, 출석기록, 주최기록, 가입일, 뱃지가 새 계정으로 합쳐집니다.
+                새 계정의 슈퍼관리자 권한은 완벽히 유지되며, 이전 원본 계정은 DB에서 안전하게 삭제됩니다.
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={!reassignSourceUid || !reassignNewUid.trim() || isReassigning}
+            >
+              {isReassigning ? '⏳ 계정 인계 처리 중...' : '🔗 계정 인계(합치기) 실행'}
+            </button>
+          </div>
         </form>
       </section>
 

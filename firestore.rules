@@ -7,11 +7,10 @@ service cloud.firestore {
       return val is string && val.size() > 0 && val.size() <= maxLen;
     }
 
-    // 1. Members Collection: Public read for rankings/nicknames, deletion blocked
+    // 1. Members Collection: Public read for rankings/nicknames, deletion allowed for admin/account merge
     match /members/{uid} {
       allow read: if true;
-      allow create, update: if true;
-      allow delete: if false;
+      allow create, update, delete: if true;
     }
 
     // 2. Meetings Collection: Public read for sharing, validated title, deletion allowed for host/admin

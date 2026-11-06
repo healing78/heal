@@ -749,59 +749,161 @@ export const deleteMember = async (targetUid) => {
 };
 
 /**
- * Reassigns an existing member's data to a new Kakao UID (account transfer).
+ * Reassigns an existing member's data to a new Kakao UID (account transfer / merge).
  */
 export const reassignMemberUid = async (oldUid, newUid) => {
-  const { members, meetings } = getLocalState();
-  const target = members.find((m) => m.uid === oldUid);
-  if (!target) return;
+  if (!oldUid || !newUid) {
+    throw new Error('원본 계정과 이전받을 새 계정을 모두 선택해 주세요.');
+  }
+  const cleanOldUid = String(oldUid).trim();
+  const cleanNewUid = String(newUid).trim();
+  if (cleanOldUid === cleanNewUid) {
+    throw new Error('원본 계정과 이전받을 새 계정의 UID가 동일합니다.');
+  }
 
-  const updatedTarget = { ...target, uid: newUid, linkRequestRealName: '', linkRequestSourceUid: '', linkRequestStatus: '' };
+  const { members, meetings, communityConfig } = getLocalState();
+  const target = members.find((m) => m.uid === cleanOldUid);
+  if (!target) {
+    throw new Error(`원본 회원 (${cleanOldUid}) 데이터를 찾을 수 없습니다.`);
+  }
+  const destination = members.find((m) => m.uid === cleanNewUid);
+
+  const combinedTotalScore = (target.totalScore || 0) + (destination?.totalScore || 0);
+  const combinedAttendance = (target.attendanceCount || 0) + (destination?.attendanceCount || 0);
+  const combinedHostCount = (target.hostCount || 0) + (destination?.hostCount || 0);
+  const combinedBaseScore = (target.baseScore || 0) + (destination?.baseScore || 0);
+  const combinedExpeditionScore = (target.expeditionScore || 0) + (destination?.expeditionScore || 0);
+  const combinedEventScore = (target.eventScore || 0) + (destination?.eventScore || 0);
+
+  // Role resolution
+  let resolvedRole = target.role;
+  if (target.role === 'Leader' || destination?.role === 'Leader') {
+    resolvedRole = 'Leader';
+  } else if (target.role === 'Admin' || destination?.role === 'Admin') {
+    resolvedRole = 'Admin';
+  } else if (combinedTotalScore >= 100 || target.role === 'VIP' || destination?.role === 'VIP') {
+    resolvedRole = 'VIP';
+  } else if (target.role && !['Rookie', 'Withdrawn', 'Wanderer'].includes(target.role)) {
+    resolvedRole = target.role;
+  } else {
+    resolvedRole = destination?.role || 'Member';
+  }
+
+  // Pick the earlier joined date
+  let resolvedJoinedAt = target.joinedAt || destination?.joinedAt || '2024-01-26';
+  if (target.joinedAt && destination?.joinedAt) {
+    resolvedJoinedAt = target.joinedAt < destination.joinedAt ? target.joinedAt : destination.joinedAt;
+  }
+
+  const updatedTarget = {
+    ...target,
+    ...(destination || {}),
+    uid: cleanNewUid,
+    realName: target.realName || destination?.realName || '',
+    role: resolvedRole,
+    totalScore: combinedTotalScore,
+    attendanceCount: combinedAttendance,
+    hostCount: combinedHostCount,
+    baseScore: combinedBaseScore,
+    expeditionScore: combinedExpeditionScore,
+    eventScore: combinedEventScore,
+    joinedAt: resolvedJoinedAt,
+    entryBadge: target.entryBadge || destination?.entryBadge || '',
+    customBadge: destination?.customBadge || target.customBadge || '',
+    homeCity: destination?.homeCity || target.homeCity || '수원',
+    city: destination?.city || target.city || '수원',
+    gender: destination?.gender || target.gender || '남',
+    maritalStatus: destination?.maritalStatus || target.maritalStatus || 'single',
+    legalName: destination?.legalName || target.legalName || '',
+    phone: destination?.phone || target.phone || '',
+    bankAccount: destination?.bankAccount || target.bankAccount || '',
+    photoURL: destination?.photoURL || target.photoURL || '',
+    profileImageUrl: destination?.profileImageUrl || target.profileImageUrl || '',
+    linkRequestRealName: '',
+    linkRequestSourceUid: '',
+    linkRequestStatus: ''
+  };
+
   const nextMembers = members
-    .filter((m) => m.uid !== oldUid && m.uid !== newUid)
+    .filter((m) => m.uid !== cleanOldUid && m.uid !== cleanNewUid)
     .concat(updatedTarget);
 
   const nextMeetings = meetings.map((mtg) => {
     let changed = false;
     let nextMtg = { ...mtg };
-    if (nextMtg.hostUid === oldUid) {
-      nextMtg.hostUid = newUid;
+    if (nextMtg.hostUid === cleanOldUid) {
+      nextMtg.hostUid = cleanNewUid;
       changed = true;
     }
-    if (nextMtg.treasurerUid === oldUid) {
-      nextMtg.treasurerUid = newUid;
+    if (nextMtg.treasurerUid === cleanOldUid) {
+      nextMtg.treasurerUid = cleanNewUid;
       changed = true;
     }
-    if (Array.isArray(nextMtg.applicants) && nextMtg.applicants.includes(oldUid)) {
-      nextMtg.applicants = nextMtg.applicants.map((u) => (u === oldUid ? newUid : u));
+    if (Array.isArray(nextMtg.applicants) && nextMtg.applicants.includes(cleanOldUid)) {
+      nextMtg.applicants = nextMtg.applicants.map((u) => (u === cleanOldUid ? cleanNewUid : u));
       changed = true;
     }
-    if (Array.isArray(nextMtg.confirmedParticipants) && nextMtg.confirmedParticipants.includes(oldUid)) {
+    if (Array.isArray(nextMtg.confirmedParticipants) && nextMtg.confirmedParticipants.includes(cleanOldUid)) {
       nextMtg.confirmedParticipants = nextMtg.confirmedParticipants.map((u) =>
-        u === oldUid ? newUid : u
+        u === cleanOldUid ? cleanNewUid : u
       );
       changed = true;
     }
     return changed ? nextMtg : mtg;
   });
 
+  // Preserve superAdmin whitelist if either account was super admin
+  let nextSuperAdminUids = Array.isArray(communityConfig.superAdminUids) ? [...communityConfig.superAdminUids] : [];
+  let configChanged = false;
+  if (nextSuperAdminUids.includes(cleanOldUid) || nextSuperAdminUids.includes(cleanNewUid)) {
+    const deduped = Array.from(new Set(
+      nextSuperAdminUids.filter((u) => u !== cleanOldUid).concat(cleanNewUid)
+    ));
+    if (JSON.stringify(deduped) !== JSON.stringify(nextSuperAdminUids)) {
+      nextSuperAdminUids = deduped;
+      configChanged = true;
+    }
+  }
+
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
   writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  if (configChanged) {
+    writeLocalJson(STORAGE_KEYS.config, { ...communityConfig, superAdminUids: nextSuperAdminUids });
+  }
   notifyLocalListeners();
 
   if (isFirebaseConfigured && db) {
     try {
-      const batch = writeBatch(db);
-      batch.delete(doc(db, 'members', oldUid));
-      batch.set(doc(db, 'members', newUid), updatedTarget);
-      for (const mtg of nextMeetings) {
-        if (mtg.hostUid === newUid || (mtg.applicants || []).includes(newUid)) {
+      // 1. Delete old member doc and save new member doc
+      await deleteDoc(doc(db, 'members', cleanOldUid));
+      await setDoc(doc(db, 'members', cleanNewUid), updatedTarget);
+
+      // 2. Batch update meetings in chunks of 50
+      const meetingsToUpdate = nextMeetings.filter(
+        (mtg) =>
+          mtg.hostUid === cleanNewUid ||
+          mtg.treasurerUid === cleanNewUid ||
+          (mtg.applicants || []).includes(cleanNewUid) ||
+          (mtg.confirmedParticipants || []).includes(cleanNewUid)
+      );
+
+      const CHUNK_SIZE = 50;
+      for (let i = 0; i < meetingsToUpdate.length; i += CHUNK_SIZE) {
+        const chunk = meetingsToUpdate.slice(i, i + CHUNK_SIZE);
+        const batch = writeBatch(db);
+        for (const mtg of chunk) {
           batch.set(doc(db, 'meetings', String(mtg.id)), mtg, { merge: true });
         }
+        await batch.commit();
       }
-      await batch.commit();
+
+      // 3. Update super admin config if needed
+      if (configChanged) {
+        await setDoc(doc(db, 'settings', 'community'), { superAdminUids: nextSuperAdminUids }, { merge: true });
+      }
     } catch (err) {
-      console.warn('Firestore reassignMemberUid error:', err);
+      console.error('Firestore reassignMemberUid error:', err);
+      throw err;
     }
   }
 };
