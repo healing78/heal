@@ -28,8 +28,50 @@ export default function LoginOnboardingPage({
     homeCity: '서울',
     maritalStatus: 'single',
     gender: '남',
-    linkRequestRealName: ''
+    linkRequestRealName: '',
+    linkSourceUid: ''
   });
+
+  const historicalCandidates = useMemo(() => {
+    return members
+      .filter((m) => (m.totalScore > 0 || m.attendanceCount > 0) && m.uid.startsWith('kakao:10'))
+      .sort((a, b) => b.totalScore - a.totalScore);
+  }, [members]);
+
+  const matchedHistorical = useMemo(() => {
+    if (onboardingForm.linkSourceUid) {
+      return members.find((m) => m.uid === onboardingForm.linkSourceUid) || null;
+    }
+    const q = (onboardingForm.realName || '').trim().toLowerCase();
+    if (!q) return null;
+    return (
+      historicalCandidates.find(
+        (m) => m.realName.toLowerCase() === q
+      ) || null
+    );
+  }, [historicalCandidates, members, onboardingForm.linkSourceUid, onboardingForm.realName]);
+
+  const handleSelectLinkSource = (sourceUid) => {
+    if (!sourceUid) {
+      setOnboardingForm((prev) => ({
+        ...prev,
+        linkSourceUid: ''
+      }));
+      return;
+    }
+    const target = members.find((m) => m.uid === sourceUid);
+    if (target) {
+      setOnboardingForm((prev) => ({
+        ...prev,
+        realName: target.realName,
+        city: target.city,
+        homeCity: target.homeCity || target.city,
+        maritalStatus: target.maritalStatus || 'single',
+        gender: target.gender || '남',
+        linkSourceUid: target.uid
+      }));
+    }
+  };
 
   const onboardingPreview = suggestNewMemberNickname({
     name: onboardingForm.realName || '이름',
@@ -101,6 +143,64 @@ export default function LoginOnboardingPage({
                 : '신입 등록'}
             </span>
             <h2>프로필 등록</h2>
+          </div>
+
+          {/* Historical Account Auto-Match / Link Banner */}
+          {matchedHistorical && (
+            <div
+              style={{
+                background: '#f0fdf4',
+                border: '1px solid #86efac',
+                borderRadius: '8px',
+                padding: '12px',
+                marginBottom: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}
+            >
+              <div style={{ fontWeight: 700, color: '#166534', fontSize: '14px' }}>
+                🎉 기존 벙기록 회원 [{formatMemberNickname(matchedHistorical)}] 님의 이력이 확인되었습니다!
+              </div>
+              <div style={{ fontSize: '12px', color: '#15803d' }}>
+                총 점수 <strong>{matchedHistorical.totalScore}점</strong> (참석 {matchedHistorical.attendanceCount}회, 주최 {matchedHistorical.hostCount}회)의 활동 기록이 내 카카오 계정으로 자동 연동 및 합쳐집니다.
+              </div>
+              {!onboardingForm.linkSourceUid && (
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  style={{ alignSelf: 'flex-start', marginTop: '4px' }}
+                  onClick={() => handleSelectLinkSource(matchedHistorical.uid)}
+                >
+                  기존 이력 연동 적용하기 ⚡
+                </button>
+              )}
+            </div>
+          )}
+
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>
+              기존 벙기록 계정 연동 (과거 활동 기록이 있는 경우 선택)
+            </label>
+            <select
+              value={onboardingForm.linkSourceUid || ''}
+              onChange={(e) => handleSelectLinkSource(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px',
+                fontSize: '13px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                background: onboardingForm.linkSourceUid ? '#f0fdf4' : '#ffffff'
+              }}
+            >
+              <option value="">새로운 신입 회원으로 가입 (기존 벙기록 없음)</option>
+              {historicalCandidates.map((m) => (
+                <option key={m.uid} value={m.uid}>
+                  {formatMemberNickname(m)} ({m.totalScore}점 / 참석 {m.attendanceCount}회)
+                </option>
+              ))}
+            </select>
           </div>
 
           <form onSubmit={handleOnboardingSubmit} className="stack-gap">

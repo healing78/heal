@@ -292,6 +292,41 @@ export const registerOnboardingMember = async (form, customUid) => {
   const dd = String(now.getDate()).padStart(2, '0');
   const newUid = customUid || `kakao:${Date.now()}`;
 
+  const { members } = getLocalState();
+  const reqName = form.realName?.trim() || '';
+  const linkReqName = form.linkRequestRealName?.trim() || '';
+
+  // Check if this onboarding user is linking with a seeded historical account
+  const matchedHistorical = form.linkSourceUid
+    ? members.find((m) => m.uid === form.linkSourceUid)
+    : members.find(
+        (m) =>
+          m.uid !== newUid &&
+          (m.realName.toLowerCase() === reqName.toLowerCase() ||
+            (linkReqName && m.realName.toLowerCase() === linkReqName.toLowerCase())) &&
+          (m.totalScore > 0 || m.attendanceCount > 0)
+      );
+
+  if (matchedHistorical) {
+    // Migrate the historical account to the new Kakao UID
+    await reassignMemberUid(matchedHistorical.uid, newUid);
+
+    const mergedMember = {
+      ...matchedHistorical,
+      uid: newUid,
+      legalName: (form.legalName || matchedHistorical.legalName || '').trim(),
+      city: form.city ? form.city.trim() : matchedHistorical.city,
+      homeCity: form.homeCity ? form.homeCity.trim() : matchedHistorical.homeCity,
+      maritalStatus: form.maritalStatus || matchedHistorical.maritalStatus,
+      gender: form.gender || matchedHistorical.gender,
+      linkRequestRealName: ''
+    };
+
+    await updateMemberProfile(newUid, mergedMember);
+    return mergedMember;
+  }
+
+  // Otherwise, brand new rookie member
   const newMember = {
     uid: newUid,
     realName: form.realName.trim(),
@@ -315,7 +350,6 @@ export const registerOnboardingMember = async (form, customUid) => {
     unlockedAlbums: []
   };
 
-  const { members } = getLocalState();
   writeLocalJson(STORAGE_KEYS.members, [...members, newMember]);
   notifyLocalListeners();
 
