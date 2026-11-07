@@ -282,6 +282,7 @@ export default function MeetingDetailPage({
   const [loungeTab, setLoungeTab] = useState('chat'); // 'chat' | 'rounds' | 'settlement' | 'returns' | 'album'
   const [showAttendeeDrawer, setShowAttendeeDrawer] = useState(false);
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
+  const [collapsedRoundIndices, setCollapsedRoundIndices] = useState({});
   const [showManagerTools, setShowManagerTools] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
 
@@ -2668,26 +2669,17 @@ export default function MeetingDetailPage({
               </div>
             )}
 
-            {/* TAB 1: 장소 (Read-only cards by default, toggle edit per round) */}
+            {/* TAB 1: 장소 (Accordion Cards on Chat Room #AFC1CF Background) */}
             {loungeTab === 'rounds' && (
-              <div className="lounge-tab-content-wrap stack-gap">
-                <div className="btn-row">
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={handleAddRound}
-                  >
-                    + {rounds.length + 1}차 추가
-                  </button>
-                </div>
-
-                <div className="divider-list">
+              <div className="lounge-tab-content-wrap lounge-rounds-wrap">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {rounds.map((r, idx) => {
                     const rSummary = settlement.roundSummaries[idx] || {};
                     const rParticipants = Array.isArray(r.participants)
                       ? r.participants
                       : [];
                     const isEditingThisRound = editingRoundIdx === idx;
+                    const isCollapsed = Boolean(collapsedRoundIndices[idx]);
                     const payerMember = members.find(
                       (m) => m.uid === (r.payerUid || treasurerUid)
                     );
@@ -2702,18 +2694,40 @@ export default function MeetingDetailPage({
                         )}`
                       : '';
 
+                    const myMember = members.find((mem) => mem.uid === currentUser?.uid);
+                    const isMyChecked = rParticipants.includes(currentUser?.uid);
+                    const otherAttendeeUids = displayAttendeeUids.filter(
+                      (uid) => uid !== currentUser?.uid
+                    );
+
                     return (
-                      <div key={r.id || idx} className="lounge-round-card">
-                        <div className="meeting-top">
-                          <div className="badge-group">
+                      <div key={r.id || idx} className="lounge-round-accordion-card">
+                        {/* Accordion Title Header */}
+                        <div
+                          className="lounge-round-accordion-header"
+                          onClick={() => {
+                            setCollapsedRoundIndices((prev) => ({
+                              ...prev,
+                              [idx]: !isCollapsed
+                            }));
+                          }}
+                        >
+                          <div className="lounge-round-header-left">
                             <span className="platform-badge">{idx + 1}차</span>
                             {r.placeName && (
                               <strong className="lounge-round-title">
                                 {r.placeName}
                               </strong>
                             )}
+                            <span className="lounge-round-header-meta">
+                              참석 {rParticipants.length}명 · 비용{' '}
+                              {(Number(r.cost) || 0).toLocaleString()}원
+                            </span>
                             {r.isGoldenBell && (
-                              <span className="expedition-pill">
+                              <span
+                                className="expedition-pill"
+                                style={{ fontSize: '11px', padding: '1px 6px' }}
+                              >
                                 골든벨 (
                                 {members.find((m) => m.uid === r.goldenBellUid)
                                   ?.realName || '찬조'}
@@ -2722,268 +2736,336 @@ export default function MeetingDetailPage({
                             )}
                           </div>
 
-                          <div className="btn-row">
+                          <div
+                            className="lounge-round-header-right"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <button
                               type="button"
-                              className="btn btn-outline btn-sm"
-                              onClick={() =>
-                                setEditingRoundIdx(
-                                  isEditingThisRound ? null : idx
-                                )
-                              }
+                              className={`btn btn-xs ${
+                                isEditingThisRound ? 'btn-primary' : 'btn-outline'
+                              }`}
+                              style={{
+                                padding: '4px 10px',
+                                fontSize: '12px',
+                                borderRadius: '14px',
+                                fontWeight: 600
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isEditingThisRound) {
+                                  // Finish editing -> collapse round as requested ("편집버튼 누르면 1차는 접히도록 해줘")
+                                  setEditingRoundIdx(null);
+                                  setCollapsedRoundIndices((prev) => ({
+                                    ...prev,
+                                    [idx]: true
+                                  }));
+                                } else {
+                                  // Open editing -> unfold round
+                                  setEditingRoundIdx(idx);
+                                  setCollapsedRoundIndices((prev) => ({
+                                    ...prev,
+                                    [idx]: false
+                                  }));
+                                }
+                              }}
                             >
-                              {isEditingThisRound ? '닫기' : '편집'}
+                              {isEditingThisRound ? '완료 ✓' : '편집 ✏️'}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-link lounge-round-accordion-arrow"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCollapsedRoundIndices((prev) => ({
+                                  ...prev,
+                                  [idx]: !isCollapsed
+                                }));
+                              }}
+                              aria-label={isCollapsed ? '펼치기' : '접기'}
+                            >
+                              {isCollapsed ? '▼' : '▲'}
                             </button>
                           </div>
                         </div>
 
-                        {/* Clean Read-Only Summary Meta */}
-                        <div className="lounge-round-meta">
-                          <span>
-                            참석 {rParticipants.length}명 · 비용{' '}
-                            <strong>
-                              {(Number(r.cost) || 0).toLocaleString()}원
-                            </strong>
-                            {!r.isGoldenBell &&
-                              rSummary.perPersonRounded > 0 && (
-                                <>
-                                  {' '}
-                                  (1인{' '}
-                                  {rSummary.perPersonRounded.toLocaleString()}
-                                  원)
-                                </>
-                              )}
-                          </span>
-                          {payerMember && Number(r.cost) > 0 && (
-                            <span> · 결제: {payerMember.realName}</span>
-                          )}
-                        </div>
-
-                        {/* Quick Map Links & Receipt View */}
-                        {(r.placeName || r.mapUrl || r.receiptUrl) && (
-                          <div className="badge-group">
-                            {r.mapUrl && (
-                              <a
-                                href={r.mapUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn btn-primary btn-sm"
-                                style={{ textDecoration: 'none' }}
-                              >
-                                지도 열기
-                              </a>
-                            )}
-                            {r.placeName && (
-                              <>
-                                <a
-                                  href={naverSearchUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="btn btn-outline btn-sm"
-                                  style={{ textDecoration: 'none' }}
-                                >
-                                  네이버 지도
-                                </a>
-                                <a
-                                  href={kakaoSearchUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="btn btn-outline btn-sm"
-                                  style={{ textDecoration: 'none' }}
-                                >
-                                  카카오맵
-                                </a>
-                              </>
-                            )}
-                            {r.receiptUrl && (
-                              <button
-                                type="button"
-                                className="btn btn-outline btn-sm"
-                                onClick={() =>
-                                  setPreviewReceiptUrl(
-                                    previewReceiptUrl === r.receiptUrl
-                                      ? ''
-                                      : r.receiptUrl
-                                  )
-                                }
-                              >
-                                영수증 보기
-                              </button>
-                            )}
-                          </div>
-                        )}
-
-                        {r.receiptUrl && previewReceiptUrl === r.receiptUrl && (
-                          <div className="receipt-preview-box">
-                            <img
-                              src={r.receiptUrl}
-                              alt={`${idx + 1}차 영수증`}
-                              className="receipt-preview-img"
-                            />
-                          </div>
-                        )}
-
-                        {/* Compact Participant Chips */}
-                        <div className="chip-list">
-                          {displayAttendeeUids.map((uid) => {
-                            const m = members.find((mem) => mem.uid === uid);
-                            if (!m) return null;
-                            const checked = rParticipants.includes(uid);
-                            const canClick =
-                              uid === currentUser?.uid || canManage;
-                            return (
-                              <button
-                                key={uid}
-                                type="button"
-                                disabled={!canClick}
-                                className={`member-chip-btn ${
-                                  checked ? 'active' : 'inactive'
-                                }`}
-                                onClick={() =>
-                                  handleToggleRoundParticipant(idx, uid)
-                                }
-                              >
-                                {checked ? '✓ ' : ''}
-                                {m.realName}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Collapsible Edit Form for this Round */}
-                        {isEditingThisRound && (
-                          <div className="round-finance-box">
-                            <div className="form-grid">
-                              <div className="form-field" style={{ gridColumn: '1 / -1' }}>
-                                <label>장소</label>
-                                <textarea
-                                  rows={2}
-                                  placeholder={`${idx + 1}차 상호명 또는 지도 URL 입력`}
-                                  value={r.placeName || ''}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    const isUrl = /^https?:\/\//i.test(val.trim());
-                                    handleUpdateRoundField(idx, {
-                                      placeName: val,
-                                      ...(isUrl ? { mapUrl: val.trim() } : {})
-                                    });
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '8px 10px',
-                                    fontSize: '13.5px',
-                                    borderRadius: 'var(--radius-base)',
-                                    border: '1px solid var(--color-divider)',
-                                    background: 'var(--color-surface)',
-                                    boxSizing: 'border-box'
-                                  }}
-                                />
-                              </div>
-                              <div className="form-field">
-                                <label>{idx + 1}차 결제자</label>
-                                <select
-                                  value={r.payerUid || treasurerUid}
-                                  onChange={(e) =>
-                                    handleUpdateRoundField(idx, {
-                                      payerUid: e.target.value
-                                    })
-                                  }
-                                >
-                                  {members.map((m) => (
-                                    <option key={m.uid} value={m.uid}>
-                                      {formatMemberNickname(m)}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                              <div className="form-field">
-                                <label>{idx + 1}차 비용 (원)</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  step="100"
-                                  placeholder="0"
-                                  value={r.cost || ''}
-                                  onChange={(e) =>
-                                    handleUpdateRoundField(idx, {
-                                      cost: Number(e.target.value) || 0
-                                    })
-                                  }
-                                />
-                              </div>
-                            </div>
-
-                            <div className="round-extra-row">
-                              <div className="control-inline">
-                                <label className="check-item">
-                                  <input
-                                    type="checkbox"
-                                    checked={Boolean(r.isGoldenBell)}
-                                    onChange={(e) =>
-                                      handleUpdateRoundField(idx, {
-                                        isGoldenBell: e.target.checked,
-                                        goldenBellUid: e.target.checked
-                                          ? r.goldenBellUid ||
-                                            r.payerUid ||
-                                            currentUser?.uid
-                                          : ''
-                                      })
-                                    }
-                                  />
-                                  <span>골든벨</span>
-                                </label>
-                                {r.isGoldenBell && (
-                                  <select
-                                    value={r.goldenBellUid || r.payerUid || ''}
-                                    onChange={(e) =>
-                                      handleUpdateRoundField(idx, {
-                                        goldenBellUid: e.target.value
-                                      })
-                                    }
+                        {/* Collapsible Round Body */}
+                        {!isCollapsed && (
+                          <div className="lounge-round-accordion-body">
+                            {/* Quick Map Links & Receipt View */}
+                            {(r.placeName || r.mapUrl || r.receiptUrl) && (
+                              <div className="badge-group">
+                                {r.mapUrl && (
+                                  <a
+                                    href={r.mapUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="btn btn-primary btn-sm"
+                                    style={{ textDecoration: 'none' }}
                                   >
-                                    {members.map((m) => (
-                                      <option key={m.uid} value={m.uid}>
-                                        {formatMemberNickname(m)}
-                                      </option>
-                                    ))}
-                                  </select>
+                                    지도 열기
+                                  </a>
                                 )}
-                              </div>
-
-                              <div className="control-inline">
-                                <label
-                                  className="btn btn-outline btn-sm"
-                                  style={{ cursor: 'pointer' }}
-                                >
-                                  {r.receiptUrl ? '영수증 변경' : '영수증 첨부'}
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    style={{ display: 'none' }}
-                                    onChange={(e) =>
-                                      handleReceiptUpload(
-                                        idx,
-                                        e.target.files?.[0]
-                                      )
-                                    }
-                                  />
-                                </label>
-                                {rounds.length > 1 && canManage && (
+                                {r.placeName && (
+                                  <>
+                                    <a
+                                      href={naverSearchUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="btn btn-outline btn-sm"
+                                      style={{ textDecoration: 'none' }}
+                                    >
+                                      네이버 지도
+                                    </a>
+                                    <a
+                                      href={kakaoSearchUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="btn btn-outline btn-sm"
+                                      style={{ textDecoration: 'none' }}
+                                    >
+                                      카카오맵
+                                    </a>
+                                  </>
+                                )}
+                                {r.receiptUrl && (
                                   <button
                                     type="button"
                                     className="btn btn-outline btn-sm"
-                                    onClick={() => handleRemoveRound(idx)}
+                                    onClick={() =>
+                                      setPreviewReceiptUrl(
+                                        previewReceiptUrl === r.receiptUrl
+                                          ? ''
+                                          : r.receiptUrl
+                                      )
+                                    }
                                   >
-                                    차수 삭제
+                                    영수증 보기
                                   </button>
                                 )}
                               </div>
+                            )}
+
+                            {r.receiptUrl && previewReceiptUrl === r.receiptUrl && (
+                              <div className="receipt-preview-box">
+                                <img
+                                  src={r.receiptUrl}
+                                  alt={`${idx + 1}차 영수증`}
+                                  className="receipt-preview-img"
+                                />
+                              </div>
+                            )}
+
+                            {/* Participant Chips Row: Others on left, my big badge on right */}
+                            <div className="round-participants-row">
+                              <div className="round-other-chips">
+                                {otherAttendeeUids.map((uid) => {
+                                  const m = members.find((mem) => mem.uid === uid);
+                                  if (!m) return null;
+                                  const checked = rParticipants.includes(uid);
+                                  const canClick = canManage;
+                                  const isHost = uid === meeting.hostUid;
+                                  return (
+                                    <button
+                                      key={uid}
+                                      type="button"
+                                      disabled={!canClick}
+                                      className={`member-chip-btn ${
+                                        checked ? 'active' : 'inactive'
+                                      }`}
+                                      onClick={() =>
+                                        handleToggleRoundParticipant(idx, uid)
+                                      }
+                                      title={
+                                        canClick
+                                          ? checked
+                                            ? '미참석으로 변경'
+                                            : '참석으로 변경'
+                                          : undefined
+                                      }
+                                    >
+                                      {isHost ? '👑 ' : ''}
+                                      {m.realName}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {myMember && (
+                                <button
+                                  type="button"
+                                  className={`my-round-badge ${
+                                    isMyChecked ? 'is-active' : 'is-inactive'
+                                  }`}
+                                  onClick={() =>
+                                    handleToggleRoundParticipant(
+                                      idx,
+                                      currentUser.uid
+                                    )
+                                  }
+                                  title="내 참석 여부 변경"
+                                >
+                                  <span>
+                                    {myMember.uid === meeting.hostUid ? '👑 ' : ''}
+                                    {myMember.realName}
+                                  </span>
+                                  <span className="my-round-badge-status">
+                                    {isMyChecked ? '참석' : '미참석'}
+                                  </span>
+                                </button>
+                              )}
                             </div>
+
+                            {/* Collapsible Edit Form for this Round */}
+                            {isEditingThisRound && (
+                              <div className="round-finance-box">
+                                <div className="form-grid">
+                                  <div
+                                    className="form-field"
+                                    style={{ gridColumn: '1 / -1' }}
+                                  >
+                                    <label>장소 상세</label>
+                                    <textarea
+                                      rows={8}
+                                      className="round-place-textarea"
+                                      placeholder={`${
+                                        idx + 1
+                                      }차 상호명, 상세 주소 또는 지도 URL 입력`}
+                                      value={r.placeName || ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        const isUrl = /^https?:\/\//i.test(
+                                          val.trim()
+                                        );
+                                        handleUpdateRoundField(idx, {
+                                          placeName: val,
+                                          ...(isUrl ? { mapUrl: val.trim() } : {})
+                                        });
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="form-field">
+                                    <label>{idx + 1}차 결제자</label>
+                                    <select
+                                      value={r.payerUid || treasurerUid}
+                                      onChange={(e) =>
+                                        handleUpdateRoundField(idx, {
+                                          payerUid: e.target.value
+                                        })
+                                      }
+                                    >
+                                      {members.map((m) => (
+                                        <option key={m.uid} value={m.uid}>
+                                          {formatMemberNickname(m)}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="form-field">
+                                    <label>{idx + 1}차 비용 (원)</label>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      step="100"
+                                      placeholder="0"
+                                      value={r.cost || ''}
+                                      onChange={(e) =>
+                                        handleUpdateRoundField(idx, {
+                                          cost: Number(e.target.value) || 0
+                                        })
+                                      }
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="round-extra-row">
+                                  <div className="control-inline">
+                                    <label className="check-item">
+                                      <input
+                                        type="checkbox"
+                                        checked={Boolean(r.isGoldenBell)}
+                                        onChange={(e) =>
+                                          handleUpdateRoundField(idx, {
+                                            isGoldenBell: e.target.checked,
+                                            goldenBellUid: e.target.checked
+                                              ? r.goldenBellUid ||
+                                                r.payerUid ||
+                                                currentUser?.uid
+                                              : ''
+                                          })
+                                        }
+                                      />
+                                      <span>골든벨</span>
+                                    </label>
+                                    {r.isGoldenBell && (
+                                      <select
+                                        value={
+                                          r.goldenBellUid || r.payerUid || ''
+                                        }
+                                        onChange={(e) =>
+                                          handleUpdateRoundField(idx, {
+                                            goldenBellUid: e.target.value
+                                          })
+                                        }
+                                      >
+                                        {members.map((m) => (
+                                          <option key={m.uid} value={m.uid}>
+                                            {formatMemberNickname(m)}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    )}
+                                  </div>
+
+                                  <div className="control-inline">
+                                    <label
+                                      className="btn btn-outline btn-sm"
+                                      style={{ cursor: 'pointer' }}
+                                    >
+                                      {r.receiptUrl
+                                        ? '영수증 변경'
+                                        : '영수증 첨부'}
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) =>
+                                          handleReceiptUpload(
+                                            idx,
+                                            e.target.files?.[0]
+                                          )
+                                        }
+                                      />
+                                    </label>
+                                    {rounds.length > 1 && canManage && (
+                                      <button
+                                        type="button"
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() => handleRemoveRound(idx)}
+                                      >
+                                        차수 삭제
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
                     );
                   })}
+                </div>
+
+                {/* + N차 추가 button below rounds section */}
+                <div className="lounge-add-round-row">
+                  <button
+                    type="button"
+                    className="btn btn-sm lounge-add-round-btn"
+                    onClick={handleAddRound}
+                  >
+                    + {rounds.length + 1}차 추가
+                  </button>
                 </div>
               </div>
             )}
