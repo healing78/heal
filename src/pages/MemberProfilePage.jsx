@@ -51,10 +51,26 @@ export default function MemberProfilePage({
   const [newKakaoUidInput, setNewKakaoUidInput] = useState('');
   const [showReassignBox, setShowReassignBox] = useState(false);
 
-  // Find target member
+  // Find target member with robust URI decoding and realName fallback
+  const cleanUid = useMemo(() => {
+    if (!memberUid) return '';
+    try {
+      return decodeURIComponent(String(memberUid).trim());
+    } catch {
+      return String(memberUid).trim();
+    }
+  }, [memberUid]);
+
   const member = useMemo(() => {
-    return members.find((m) => m.uid === memberUid) || null;
-  }, [members, memberUid]);
+    if (!cleanUid) return null;
+    return (
+      members.find((m) => m.uid === cleanUid || m.uid === memberUid) ||
+      members.find(
+        (m) => (m.realName || '').trim().toLowerCase() === cleanUid.toLowerCase()
+      ) ||
+      null
+    );
+  }, [members, cleanUid, memberUid]);
 
   // Edit form state
   const [editForm, setEditForm] = useState(() => ({
@@ -88,18 +104,18 @@ export default function MemberProfilePage({
 
   // Navigation within memberUidList
   const effectiveUidList = memberUidList.length > 0 ? memberUidList : members.map((m) => m.uid);
-  const currentIndex = effectiveUidList.indexOf(memberUid);
+  const currentIndex = effectiveUidList.findIndex((u) => u === cleanUid || u === memberUid);
   const totalCount = effectiveUidList.length;
 
   const goToPrev = () => {
     if (currentIndex > 0) {
-      onSelectMember(effectiveUidList[currentIndex - 1], effectiveUidList);
+      onSelectMember(effectiveUidList[currentIndex - 1], effectiveUidList, null, { replace: true });
     }
   };
 
   const goToNext = () => {
     if (currentIndex < totalCount - 1 && currentIndex !== -1) {
-      onSelectMember(effectiveUidList[currentIndex + 1], effectiveUidList);
+      onSelectMember(effectiveUidList[currentIndex + 1], effectiveUidList, null, { replace: true });
     }
   };
 
@@ -220,10 +236,20 @@ export default function MemberProfilePage({
     return attendedMeetings;
   }, [filterSharedOnly, currentUser, member, coAttendanceIndex, attendedMeetings]);
 
+  // Auto-recovery: If member is not found after popstate/invalid route, return to friends list
+  useEffect(() => {
+    if (!member && onBack) {
+      const timer = setTimeout(() => {
+        onBack();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [member, onBack]);
+
   if (!member) {
     return (
       <div className="list-container" style={{ textAlign: 'center', padding: '40px 10px' }}>
-        <p style={{ color: '#94a3b8', marginBottom: '14px' }}>존재하지 않거나 삭제된 회원입니다.</p>
+        <p style={{ color: '#94a3b8', marginBottom: '14px' }}>회원 정보를 불러오는 중입니다...</p>
         <button type="button" className="btn btn-outline" onClick={onBack}>
           ← 친구 목록으로 돌아가기
         </button>

@@ -134,17 +134,24 @@ export default function App() {
 
   // Listen to browser Back/Forward navigation
   useEffect(() => {
-    const handlePopState = () => {
+    const handlePopState = (event) => {
       const route = parseCurrentRoute();
       setActiveTab(route.tab);
-      setSelectedMeetingId(route.meetingId);
-      setSelectedMeetingSubView(route.subView);
+      setSelectedMeetingId(route.meetingId || null);
+      setSelectedMeetingSubView(route.subView || null);
       if (route.friendsFilter) {
         setFriendsFilter(route.friendsFilter);
       }
-      if (route.memberUid) {
-        setSelectedMemberUid(route.memberUid);
+      const rawMemberUid = route.memberUid || event?.state?.uid || null;
+      let cleanMemberUid = rawMemberUid;
+      if (cleanMemberUid) {
+        try {
+          cleanMemberUid = decodeURIComponent(cleanMemberUid);
+        } catch {
+          // ignore
+        }
       }
+      setSelectedMemberUid(cleanMemberUid);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -154,15 +161,22 @@ export default function App() {
   const effectiveUid = impersonatedUid || currentUserUid;
   const currentUser = members.find((m) => m.uid === effectiveUid) || null;
 
-  const navigateToTab = (nextTab, params = {}) => {
+  const navigateToTab = (nextTab, params = {}, options = {}) => {
     const meetingParam =
       nextTab === 'meetings' ? params.id ?? null : null;
     const subViewParam =
       nextTab === 'meetings' ? params.subView ?? null : null;
-    const memberUidParam =
+    let memberUidParam =
       nextTab === 'members'
         ? params.uid ?? selectedMemberUid ?? null
         : null;
+    if (memberUidParam) {
+      try {
+        memberUidParam = decodeURIComponent(memberUidParam);
+      } catch {
+        // ignore
+      }
+    }
     const filterParam =
       params.filter ?? friendsFilter;
 
@@ -176,21 +190,31 @@ export default function App() {
       setFriendsFilter(params.filter);
     }
 
-    pushRouteUrl(nextTab, {
-      ...(meetingParam ? { id: meetingParam } : {}),
-      ...(subViewParam ? { subView: subViewParam } : {}),
-      ...(memberUidParam ? { uid: memberUidParam } : {}),
-      ...((nextTab === 'friends' || nextTab === 'members') && filterParam && filterParam !== 'ALL'
-        ? { filter: filterParam }
-        : {})
-    });
-    if (typeof window !== 'undefined') {
+    pushRouteUrl(
+      nextTab,
+      {
+        ...(meetingParam ? { id: meetingParam } : {}),
+        ...(subViewParam ? { subView: subViewParam } : {}),
+        ...(memberUidParam ? { uid: memberUidParam } : {}),
+        ...((nextTab === 'friends' || nextTab === 'members') && filterParam && filterParam !== 'ALL'
+          ? { filter: filterParam }
+          : {})
+      },
+      Boolean(options.replace)
+    );
+    if (typeof window !== 'undefined' && !options.noScroll) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const handleSelectMember = (uid, uidList = null, currentFilter = null) => {
-    setSelectedMemberUid(uid);
+  const handleSelectMember = (uid, uidList = null, currentFilter = null, options = {}) => {
+    let cleanUid = uid;
+    try {
+      cleanUid = decodeURIComponent(String(uid).trim());
+    } catch {
+      cleanUid = String(uid).trim();
+    }
+    setSelectedMemberUid(cleanUid);
     if (uidList && Array.isArray(uidList)) {
       setMemberUidList(uidList);
     }
@@ -198,7 +222,7 @@ export default function App() {
     if (filterToUse) {
       setFriendsFilter(filterToUse);
     }
-    navigateToTab('members', { uid, filter: filterToUse });
+    navigateToTab('members', { uid: cleanUid, filter: filterToUse }, options);
   };
 
   const handleDeleteMember = async (targetUid) => {
@@ -450,9 +474,10 @@ export default function App() {
     }
 
     if (activeTab === 'members') {
+      const targetUid = selectedMemberUid || members[0]?.uid;
       return (
         <MemberProfilePage
-          memberUid={selectedMemberUid}
+          memberUid={targetUid}
           memberUidList={memberUidList}
           currentUser={currentUser}
           members={members}

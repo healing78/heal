@@ -69,10 +69,18 @@ export function parseCurrentRoute() {
     return { tab: 'home', meetingId: null, subView: null, memberQuery: '', friendsFilter: 'ALL' };
   }
 
-  const segments = window.location.pathname
+  const rawSegments = window.location.pathname
     .replace(/^\/+|\/+$/g, '')
     .split('/')
     .filter(Boolean);
+
+  const segments = rawSegments.map((seg) => {
+    try {
+      return decodeURIComponent(seg);
+    } catch {
+      return seg;
+    }
+  });
 
   const firstSeg = (segments[0] || '').toLowerCase();
   const secondSeg = segments[1] || null;
@@ -80,6 +88,7 @@ export function parseCurrentRoute() {
 
   const params = new URLSearchParams(window.location.search);
   const queryMeetingId = params.get('id') || null;
+  const queryMemberUid = params.get('uid') || null;
   const querySubView =
     params.get('view') || (params.get('lounge') === 'true' ? 'lounge' : null);
   const memberQuery = params.get('q') || '';
@@ -102,9 +111,17 @@ export function parseCurrentRoute() {
   }
 
   if (firstSeg === 'members') {
+    let resolvedMemberUid = secondSeg || queryMemberUid || null;
+    if (resolvedMemberUid) {
+      try {
+        resolvedMemberUid = decodeURIComponent(resolvedMemberUid);
+      } catch {
+        // ignore
+      }
+    }
     return {
       tab: 'members',
-      memberUid: secondSeg || null,
+      memberUid: resolvedMemberUid,
       meetingId: queryMeetingId,
       subView,
       memberQuery,
@@ -133,7 +150,7 @@ export function parseCurrentRoute() {
 /**
  * Push browser history URL for a given tab and optional query/path params
  */
-export function pushRouteUrl(tab, params = {}) {
+export function pushRouteUrl(tab, params = {}, replace = false) {
   if (typeof window === 'undefined') return;
   const cleanTab = VALID_TABS.includes(tab) ? tab : 'home';
 
@@ -169,7 +186,11 @@ export function pushRouteUrl(tab, params = {}) {
   const nextUrl = queryString ? `${path}?${queryString}` : path;
 
   if (`${window.location.pathname}${window.location.search}` !== nextUrl) {
-    window.history.pushState({ tab: cleanTab, ...params }, '', nextUrl);
+    if (replace) {
+      window.history.replaceState({ tab: cleanTab, ...params }, '', nextUrl);
+    } else {
+      window.history.pushState({ tab: cleanTab, ...params }, '', nextUrl);
+    }
   }
 }
 
