@@ -34,10 +34,10 @@ export default function LoginOnboardingPage({
     linkSourceUid: ''
   });
 
-  // Past active member candidates for account migration (kakao:10* temporary UIDs with records)
+  // Past active member candidates for account migration (all historical members with records)
   const historicalCandidates = useMemo(() => {
     return members
-      .filter((m) => (m.totalScore > 0 || m.attendanceCount > 0) && m.uid.startsWith('kakao:10'))
+      .filter((m) => (m.totalScore > 0 || m.attendanceCount > 0) && !m.uid.startsWith('kakao:5'))
       .sort((a, b) => b.totalScore - a.totalScore);
   }, [members]);
 

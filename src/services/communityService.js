@@ -895,7 +895,7 @@ export const reassignMemberUid = async (oldUid, newUid) => {
     throw new Error('원본 계정과 이전받을 새 계정의 UID가 동일합니다.');
   }
 
-  const { members, meetings, communityConfig } = getLocalState();
+  const { members, meetings, communityConfig, scoreLogs } = getLocalState();
   const target = members.find((m) => m.uid === cleanOldUid);
   if (!target) {
     throw new Error(`원본 회원 (${cleanOldUid}) 데이터를 찾을 수 없습니다.`);
@@ -962,6 +962,7 @@ export const reassignMemberUid = async (oldUid, newUid) => {
     .filter((m) => m.uid !== cleanOldUid && m.uid !== cleanNewUid)
     .concat(updatedTarget);
 
+  const changedMeetings = [];
   const nextMeetings = meetings.map((mtg) => {
     let changed = false;
     let nextMtg = { ...mtg };
@@ -983,7 +984,61 @@ export const reassignMemberUid = async (oldUid, newUid) => {
       );
       changed = true;
     }
+    if (Array.isArray(nextMtg.attendeeUids) && nextMtg.attendeeUids.includes(cleanOldUid)) {
+      nextMtg.attendeeUids = nextMtg.attendeeUids.map((u) => (u === cleanOldUid ? cleanNewUid : u));
+      changed = true;
+    }
+    if (Array.isArray(nextMtg.likes) && nextMtg.likes.includes(cleanOldUid)) {
+      nextMtg.likes = nextMtg.likes.map((u) => (u === cleanOldUid ? cleanNewUid : u));
+      changed = true;
+    }
+    if (Array.isArray(nextMtg.rounds)) {
+      let roundsChanged = false;
+      const nextRounds = nextMtg.rounds.map((r) => {
+        let rChanged = false;
+        let nextR = { ...r };
+        if (Array.isArray(nextR.participants) && nextR.participants.includes(cleanOldUid)) {
+          nextR.participants = nextR.participants.map((u) => (u === cleanOldUid ? cleanNewUid : u));
+          rChanged = true;
+        }
+        if (nextR.payerUid === cleanOldUid) {
+          nextR.payerUid = cleanNewUid;
+          rChanged = true;
+        }
+        if (nextR.goldenBellUid === cleanOldUid) {
+          nextR.goldenBellUid = cleanNewUid;
+          rChanged = true;
+        }
+        if (rChanged) roundsChanged = true;
+        return rChanged ? nextR : r;
+      });
+      if (roundsChanged) {
+        nextMtg.rounds = nextRounds;
+        changed = true;
+      }
+    }
+    if (nextMtg.paymentStatuses && cleanOldUid in nextMtg.paymentStatuses) {
+      const nextPaymentStatuses = { ...nextMtg.paymentStatuses };
+      nextPaymentStatuses[cleanNewUid] = nextPaymentStatuses[cleanOldUid];
+      delete nextPaymentStatuses[cleanOldUid];
+      nextMtg.paymentStatuses = nextPaymentStatuses;
+      changed = true;
+    }
+    if (changed) {
+      changedMeetings.push(nextMtg);
+    }
     return changed ? nextMtg : mtg;
+  });
+
+  // Also update any scoreLogs referencing the oldUid
+  const changedLogs = [];
+  const nextScoreLogs = (scoreLogs || []).map((log) => {
+    if (log.memberUid === cleanOldUid) {
+      const nextLog = { ...log, memberUid: cleanNewUid };
+      changedLogs.push(nextLog);
+      return nextLog;
+    }
+    return log;
   });
 
   // Preserve superAdmin whitelist if either account was super admin
@@ -1001,6 +1056,9 @@ export const reassignMemberUid = async (oldUid, newUid) => {
 
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
   writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  if (changedLogs.length > 0) {
+    writeLocalJson(STORAGE_KEYS.scoreLogs, nextScoreLogs);
+  }
   if (configChanged) {
     writeLocalJson(STORAGE_KEYS.config, { ...communityConfig, superAdminUids: nextSuperAdminUids });
   }
@@ -1012,18 +1070,10 @@ export const reassignMemberUid = async (oldUid, newUid) => {
       await deleteDoc(doc(db, 'members', cleanOldUid));
       await setDoc(doc(db, 'members', cleanNewUid), updatedTarget);
 
-      // 2. Batch update meetings in chunks of 50
-      const meetingsToUpdate = nextMeetings.filter(
-        (mtg) =>
-          mtg.hostUid === cleanNewUid ||
-          mtg.treasurerUid === cleanNewUid ||
-          (mtg.applicants || []).includes(cleanNewUid) ||
-          (mtg.confirmedParticipants || []).includes(cleanNewUid)
-      );
-
+      // 2. Batch update changed meetings in chunks of 50
       const CHUNK_SIZE = 50;
-      for (let i = 0; i < meetingsToUpdate.length; i += CHUNK_SIZE) {
-        const chunk = meetingsToUpdate.slice(i, i + CHUNK_SIZE);
+      for (let i = 0; i < changedMeetings.length; i += CHUNK_SIZE) {
+        const chunk = changedMeetings.slice(i, i + CHUNK_SIZE);
         const batch = writeBatch(db);
         for (const mtg of chunk) {
           batch.set(doc(db, 'meetings', String(mtg.id)), mtg, { merge: true });
@@ -1031,7 +1081,17 @@ export const reassignMemberUid = async (oldUid, newUid) => {
         await batch.commit();
       }
 
-      // 3. Update super admin config if needed
+      // 3. Batch update changed score logs in chunks of 50
+      for (let i = 0; i < changedLogs.length; i += CHUNK_SIZE) {
+        const chunk = changedLogs.slice(i, i + CHUNK_SIZE);
+        const batch = writeBatch(db);
+        for (const log of chunk) {
+          batch.set(doc(db, 'scoreLogs', String(log.id)), log, { merge: true });
+        }
+        await batch.commit();
+      }
+
+      // 4. Update super admin config if needed
       if (configChanged) {
         await setDoc(doc(db, 'settings', 'community'), { superAdminUids: nextSuperAdminUids }, { merge: true });
       }
