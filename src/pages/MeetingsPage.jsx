@@ -71,7 +71,12 @@ function buildScheduleMeta(mtg) {
     timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
   }
 
-  const locationText = (mtg.placeDetail || mtg.location || '').trim();
+  // Display only the registered schedule location ('location'); exclude 1차 round details
+  const r1Place = (mtg.rounds && mtg.rounds[0]?.placeName) || '';
+  let locationText = (mtg.location || '').trim();
+  if (!locationText && mtg.placeDetail && mtg.placeDetail !== r1Place) {
+    locationText = mtg.placeDetail.trim();
+  }
 
   return {
     monthKey: `${year}-${String(month).padStart(2, '0')}`,

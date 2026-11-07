@@ -355,7 +355,12 @@ export default function MeetingDetailPage({
       meeting.startTime || String(meeting.date || '').slice(11, 16) || '12:00',
     endTime: meeting.endTime || '13:00',
     allDay: Boolean(meeting.allDay),
-    placeDetail: meeting.placeDetail || meeting.location || '',
+    placeDetail:
+      meeting.location ||
+      (meeting.placeDetail !== (meeting.rounds?.[0]?.placeName)
+        ? meeting.placeDetail
+        : '') ||
+      '',
     reminder: meeting.reminder || '15분 전',
     requestAttendance: meeting.requestAttendance !== false,
     treasurerUid: meeting.treasurerUid || meeting.hostUid,
@@ -492,8 +497,13 @@ export default function MeetingDetailPage({
     (r) => r.uid === currentUser?.uid
   );
 
-  // Detail card displays basic location input ('placeDetail' / 'location'); 1차·2차 placeName is shown inside 벙대기실 [장소] tab
-  const primaryPlaceText = meeting.placeDetail || meeting.location || '';
+  // Detail card displays basic location input ('location'); 1차·2차 placeName is shown strictly inside 벙대기실 [장소] tab
+  const r1Place = (rounds && rounds[0]?.placeName) || '';
+  let cleanLocation = (meeting.location || '').trim();
+  if (!cleanLocation && meeting.placeDetail && meeting.placeDetail !== r1Place) {
+    cleanLocation = (meeting.placeDetail || '').trim();
+  }
+  const primaryPlaceText = cleanLocation;
   const regionDetection = detectMeetingRegion(meeting);
 
   const sortedMembers = useMemo(() => {
@@ -804,11 +814,7 @@ export default function MeetingDetailPage({
       idx === roundIdx ? { ...r, ...fieldPatch } : r
     );
     await onUpdateMeeting(meeting.id, {
-      rounds: nextRounds,
-      placeDetail:
-        roundIdx === 0 && fieldPatch.placeName !== undefined
-          ? fieldPatch.placeName
-          : meeting.placeDetail
+      rounds: nextRounds
     });
   };
 
