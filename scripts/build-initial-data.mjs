@@ -61,7 +61,7 @@ const members = parsedData.members.map((m, index) => {
     role,
     entryBadge,
     customBadge: '',
-    bankAccount: role === 'Leader' ? '카카오뱅크 3333-01-1234567 (예금주: 쭈)' : role === 'Deputy' ? '토스뱅크 1000-1234-5678' : '',
+    bankAccount: '',
     attendanceCount: m.attendanceCount,
     baseScore: m.attendanceCount,
     expeditionScore: m.expeditionScore,
@@ -150,7 +150,7 @@ const processedMeetings = parsedData.meetings.map((mtg, idx) => {
     location: loc,
     placeDetail: `${loc} 인근 약속 장소`,
     hostUid: bestHostUid,
-    treasurerUid: applicantUids[1] || bestHostUid,
+    treasurerUid: '',
     type: mtg.title.includes('정모') || mtg.title.includes('운동회') ? 'Official' : 'Casual',
     status,
     applicants: applicantUids,
@@ -164,8 +164,8 @@ const processedMeetings = parsedData.meetings.map((mtg, idx) => {
         placeName: `${loc} 모임 장소`,
         mapUrl: '',
         participants: applicantUids,
-        payerUid: bestHostUid,
-        cost: applicantUids.length * 20000,
+        payerUid: '',
+        cost: 0,
         receiptUrl: '',
         isGoldenBell: false,
         goldenBellUid: ''
@@ -173,12 +173,9 @@ const processedMeetings = parsedData.meetings.map((mtg, idx) => {
     ],
     sponsorships: [],
     manualAmounts: {},
-    paymentStatuses: applicantUids.reduce((acc, uid) => {
-      acc[uid] = { paid: true, confirmed: true };
-      return acc;
-    }, {}),
+    paymentStatuses: {},
     safeReturns: {},
-    likes: applicantUids.slice(0, 3),
+    likes: [],
     comments: [],
     album: []
   };

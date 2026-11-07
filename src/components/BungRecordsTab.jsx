@@ -175,8 +175,8 @@ export default function BungRecordsTab({
           endTime: '22:00',
           location: rec.title.slice(0, 4) || '모임 장소',
           placeDetail: `${rec.title} 모임 장소`,
-          hostUid: attendeeUids[0] || currentUser?.uid || 'kakao:1001',
-          treasurerUid: attendeeUids[0] || currentUser?.uid || 'kakao:1001',
+          hostUid: attendeeUids[0] || currentUser?.uid || '',
+          treasurerUid: '',
           type: 'Casual',
           status: 'settled',
           applicants: attendeeUids,
@@ -191,8 +191,8 @@ export default function BungRecordsTab({
               placeName: `${rec.title} 장소`,
               mapUrl: '',
               participants: attendeeUids,
-              payerUid: attendeeUids[0] || '',
-              cost: rec.total * 20000,
+              payerUid: '',
+              cost: 0,
               receiptUrl: '',
               isGoldenBell: false,
               goldenBellUid: ''
@@ -200,9 +200,7 @@ export default function BungRecordsTab({
           ],
           sponsorships: [],
           manualAmounts: {},
-          paymentStatuses: Object.fromEntries(
-            attendeeUids.map((u) => [u, { paid: true, confirmed: true }])
-          ),
+          paymentStatuses: {},
           safeReturns: {},
           likes: [],
           comments: [],

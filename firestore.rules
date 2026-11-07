@@ -21,11 +21,9 @@ service cloud.firestore {
       allow delete: if true;
     }
 
-    // 3. Score Logs Collection: Public read, tampering/deletion blocked
+    // 3. Score Logs Collection: Public read, maintenance and score adjustments allowed
     match /scoreLogs/{logId} {
-      allow read: if true;
-      allow create: if true;
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // 4. Community Settings & Notice: Public read, deletion blocked
