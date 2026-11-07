@@ -2242,7 +2242,16 @@ export default function MeetingDetailPage({
           ) : (
             <>
               {/* Meeting Summary Banner with Accordion Collapse button */}
-              <div className="lounge-meeting-summary">
+              <div
+                className="lounge-meeting-summary"
+                role="button"
+                tabIndex={0}
+                onClick={() => setIsLoungeHeaderCollapsed(true)}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && setIsLoungeHeaderCollapsed(true)
+                }
+                title="클릭 시 벙제목 최소화 (접기)"
+              >
                 <div className="lounge-summary-header-row">
                   <div>
                     <div className="lounge-summary-title">{meeting.title}</div>
@@ -2262,7 +2271,10 @@ export default function MeetingDetailPage({
                   <button
                     type="button"
                     className="lounge-collapse-btn"
-                    onClick={() => setIsLoungeHeaderCollapsed(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsLoungeHeaderCollapsed(true);
+                    }}
                     title="벙제목 및 서브탭 최소화"
                   >
                     <span>접기</span>
@@ -2271,7 +2283,10 @@ export default function MeetingDetailPage({
                 </div>
 
                 {/* Subway Route Map Progress Bar */}
-                <div className="lounge-metro-progress">
+                <div
+                  className="lounge-metro-progress"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="lounge-metro-track">
                     <div className="lounge-metro-line">
                       <div

@@ -2311,15 +2311,17 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   overflow: hidden;
 }
 
-/* Unified 벙대기실 Section styling across ALL tabs (Based on 대화 탭) */
+/* Unified 벙대기실 Section styling across ALL tabs (Seamless Kakao Blue #AFC1CF Canvas) */
 .list-section.bung-lounge-section {
-  padding: 0;
+  padding: 6px 0 0 0;
   margin: 0;
   border: none;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 0 !important;
+  background: #AFC1CF !important;
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - 110px);
+  box-sizing: border-box;
 }
 
 .list-section.bung-lounge-section.is-lounge-chat-mode {
@@ -2329,14 +2331,22 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   overflow: hidden;
 }
 
-/* Unified Meeting Title Banner (Identical position across all tabs) */
+/* Pinned White Notice Card Style (Identical position across all tabs) */
 .bung-lounge-section .lounge-meeting-summary {
-  margin: 4px 8px 4px 8px;
-  padding: 8px 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-divider);
+  margin: 4px 8px 6px 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-base);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bung-lounge-section .lounge-meeting-summary:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.09);
 }
 
 .bung-lounge-section .lounge-summary-header-row {
@@ -2385,12 +2395,12 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   flex-shrink: 0;
 }
 
-/* Minimized Accordion Bar for 벙제목 + 서브탭 */
+/* Minimized Pinned White Bar for 벙제목 + 서브탭 */
 .lounge-minimized-bar {
   margin: 4px 8px 6px 8px;
-  padding: 8px 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-divider);
+  padding: 9px 14px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-base);
   display: flex;
   align-items: center;
@@ -2398,11 +2408,12 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   cursor: pointer;
   flex-shrink: 0;
   user-select: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .lounge-minimized-bar:hover {
-  background: var(--color-subtle-bg);
+  background: #f8fafc;
 }
 
 .lounge-minimized-left {
@@ -2473,17 +2484,20 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 }
 
 /* Chat container & input bar flush pinning */
-.bung-lounge-section.is-lounge-chat-mode .lounge-chat-container {
+.bung-lounge-section.is-lounge-chat-mode .lounge-chat-container,
+.bung-lounge-section .lounge-chat-container {
   flex: 1;
   min-height: 0;
   height: auto;
   max-height: none;
-  border-radius: 12px 12px 0 0;
-  border-bottom: none;
+  background: transparent !important;
+  border-radius: 0 !important;
+  border: none !important;
   margin: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: none;
 }
 
 .bung-lounge-section.is-lounge-chat-mode .lounge-chat-messages {
@@ -2530,13 +2544,14 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
     overflow: visible;
     padding: 24px 28px !important;
   }
-  .list-section.bung-lounge-section.is-lounge-chat-mode {
+  .list-section.bung-lounge-section.is-lounge-chat-mode,
+  .list-section.bung-lounge-section {
     height: calc(100vh - 60px);
     max-height: 850px;
-    border: 1px solid var(--color-divider);
-    border-radius: var(--radius-card);
-    background: var(--color-surface);
-    padding: 16px;
+    border: 1px solid rgba(175, 193, 207, 0.7);
+    border-radius: 0 !important;
+    background: #AFC1CF !important;
+    padding: 10px 12px;
   }
   .bung-lounge-section .lounge-meeting-summary {
     margin: 0 0 10px 0;
@@ -2544,9 +2559,11 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   .bung-lounge-section .lounge-tab-bar {
     margin: 0 0 10px 0;
   }
-  .bung-lounge-section.is-lounge-chat-mode .lounge-chat-container {
-    border-radius: var(--radius-base);
-    border: 1px solid rgba(175, 193, 207, 0.7);
+  .bung-lounge-section.is-lounge-chat-mode .lounge-chat-container,
+  .bung-lounge-section .lounge-chat-container {
+    border-radius: 0 !important;
+    border: none !important;
+    background: transparent !important;
   }
 }
 
@@ -2597,17 +2614,50 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   font-weight: 700;
 }
 
-/* Rounds Tab Container - Kakao Pastel Slate Blue Chat Background (#AFC1CF) */
+/* Rounds Tab Container - Seamless on #AFC1CF Canvas */
 .lounge-rounds-wrap {
-  background: #AFC1CF;
-  border-radius: var(--radius-base);
-  border: 1px solid rgba(175, 193, 207, 0.7);
-  padding: 12px 10px 18px 10px;
+  background: transparent;
+  border: none;
+  padding: 0 0 18px 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 520px;
   box-sizing: border-box;
+}
+
+/* White Cards sitting on #AFC1CF Canvas for non-chat tabs (정산, 귀가, 앨범) */
+.bung-lounge-section .lounge-settle-hero,
+.bung-lounge-section .participants-box,
+.bung-lounge-section .round-finance-box,
+.bung-lounge-section .album-empty-box,
+.bung-lounge-section .random-box-panel {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-base);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.bung-lounge-section .stat-box {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-base);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.bung-lounge-section .divider-list {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-base);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 4px 12px;
+}
+
+.bung-lounge-section .album-header-bar {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-base);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 8px 12px;
 }
 
 /* Accordion Round Card on Chat Background */
