@@ -27,7 +27,8 @@ const STORAGE_KEYS = {
   scoreLogs: 'heal_community_v2_score_logs',
   config: 'heal_community_v2_config',
   currentUserUid: 'heal_community_v2_current_uid',
-  loginLogs: 'heal_community_v2_login_logs'
+  loginLogs: 'heal_community_v2_login_logs',
+  deletedMeetingIds: 'heal_community_v2_deleted_meetings'
 };
 
 const localListeners = new Set();
@@ -108,19 +109,27 @@ const sanitizeConfig = (cfg) => {
   };
 };
 
-const getLocalState = () => ({
-  members: readLocalJson(STORAGE_KEYS.members, INITIAL_MEMBERS).map(
-    sanitizeMember
-  ),
-  meetings: readLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS).map(
-    sanitizeMeetingItem
-  ),
-  scoreLogs: readLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS),
-  communityConfig: sanitizeConfig(
-    readLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG)
-  ),
-  loginLogs: readLocalJson(STORAGE_KEYS.loginLogs, [])
-});
+const getDeletedMeetingIdSet = () => {
+  const arr = readLocalJson(STORAGE_KEYS.deletedMeetingIds, []);
+  return new Set(Array.isArray(arr) ? arr.map(String) : []);
+};
+
+const getLocalState = () => {
+  const deletedSet = getDeletedMeetingIdSet();
+  return {
+    members: readLocalJson(STORAGE_KEYS.members, INITIAL_MEMBERS).map(
+      sanitizeMember
+    ),
+    meetings: readLocalJson(STORAGE_KEYS.meetings, INITIAL_MEETINGS)
+      .map(sanitizeMeetingItem)
+      .filter((m) => m && !deletedSet.has(String(m.id))),
+    scoreLogs: readLocalJson(STORAGE_KEYS.scoreLogs, INITIAL_SCORE_LOGS),
+    communityConfig: sanitizeConfig(
+      readLocalJson(STORAGE_KEYS.config, INITIAL_COMMUNITY_CONFIG)
+    ),
+    loginLogs: readLocalJson(STORAGE_KEYS.loginLogs, [])
+  };
+};
 
 const notifyLocalListeners = () => {
   const snapshot = getLocalState();
@@ -192,21 +201,6 @@ const ensureFirestoreSeeded = async () => {
           }
         }
         await batch.commit();
-      }
-    }
-
-    // Auto-sync any custom meetings created locally that are not yet in Firestore (e.g. from prior permission-denied periods)
-    const localState = getLocalState();
-    const existingMeetingIds = new Set(
-      existingMeetings.docs.map((d) => String(d.id))
-    );
-    for (const mtg of localState.meetings) {
-      if (mtg && mtg.id && !existingMeetingIds.has(String(mtg.id))) {
-        try {
-          await setDoc(doc(db, 'meetings', String(mtg.id)), mtg);
-        } catch (syncErr) {
-          console.warn('Local meeting sync to Firestore skipped:', syncErr);
-        }
       }
     }
 
@@ -294,9 +288,19 @@ export const subscribeCommunityData = (onUpdate) => {
     collection(db, 'meetings'),
     (snap) => {
       if (!snap.empty) {
+        const deletedSet = getDeletedMeetingIdSet();
         currentData = {
           ...currentData,
-          meetings: snap.docs.map((d) => sanitizeMeetingItem(d.data()))
+          meetings: snap.docs
+            .map((d) => {
+              const raw = d.data();
+              return sanitizeMeetingItem({
+                ...raw,
+                id: raw.id || d.id,
+                _docId: d.id
+              });
+            })
+            .filter((m) => m && !deletedSet.has(String(m.id)))
         };
         writeLocalJson(STORAGE_KEYS.meetings, currentData.meetings);
         onUpdate(currentData);
@@ -654,6 +658,12 @@ export const createMeeting = async (hostUid, meetingInput) => {
     }
   };
 
+  const deletedSetForCreate = getDeletedMeetingIdSet();
+  if (deletedSetForCreate.has(String(created.id))) {
+    deletedSetForCreate.delete(String(created.id));
+    writeLocalJson(STORAGE_KEYS.deletedMeetingIds, Array.from(deletedSetForCreate));
+  }
+
   writeLocalJson(STORAGE_KEYS.meetings, [created, ...meetings]);
   notifyLocalListeners();
 
@@ -691,16 +701,25 @@ export const updateMeetingDetails = async (meetingId, patch) => {
  * Deletes a meeting from Firestore and local storage.
  */
 export const deleteMeeting = async (meetingId) => {
+  const targetStr = String(meetingId);
   const { meetings } = getLocalState();
+  const targetObj = meetings.find((m) => String(m.id) === targetStr);
+  const deletedSet = getDeletedMeetingIdSet();
+  deletedSet.add(targetStr);
+  writeLocalJson(STORAGE_KEYS.deletedMeetingIds, Array.from(deletedSet));
+
   const nextMeetings = meetings.filter(
-    (m) => String(m.id) !== String(meetingId)
+    (m) => String(m.id) !== targetStr
   );
   writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
   notifyLocalListeners();
 
   if (isFirebaseConfigured && db) {
     try {
-      await deleteDoc(doc(db, 'meetings', String(meetingId)));
+      await deleteDoc(doc(db, 'meetings', targetStr));
+      if (targetObj?._docId && String(targetObj._docId) !== targetStr) {
+        await deleteDoc(doc(db, 'meetings', String(targetObj._docId)));
+      }
     } catch (err) {
       console.warn('Firestore write fallback (deleteMeeting):', err.code);
     }
@@ -719,6 +738,12 @@ export const adminSaveFullMeeting = async (meetingInput) => {
   );
   const dateOnly = meetingInput.dateOnly || new Date().toISOString().slice(0, 10);
   const targetId = isEditing ? String(meetingInput.id) : generateMeetingId(dateOnly, meetings);
+
+  const deletedSet = getDeletedMeetingIdSet();
+  if (deletedSet.has(String(targetId))) {
+    deletedSet.delete(String(targetId));
+    writeLocalJson(STORAGE_KEYS.deletedMeetingIds, Array.from(deletedSet));
+  }
   const existing = isEditing ? meetings.find((m) => String(m.id) === String(meetingInput.id)) : null;
 
   const resolvedRounds =
