@@ -79,8 +79,8 @@ export const REGION_GROUPS = [
     id: 7,
     name: '해외',
     keywords: [
-      '해외', '미국', '일본', '중국', '캐나다', '호주', '영국', '독일', '프랑스',
-      '베트남', '태국', '싱가포르', '필리핀', '대만', '홍콩', '유럽'
+      '해외', '멕시코', '미국', '일본', '중국', '캐나다', '호주', '영국', '독일', '프랑스',
+      '베트남', '태국', '싱가포르', '필리핀', '대만', '홍콩', '유럽', '남미', '북미'
     ]
   }
 ];
@@ -201,10 +201,11 @@ export const canSettleMeeting = (member, meeting) => {
  */
 export const calculateMeetingScoreForMember = (member, meetingLocation) => {
   const base = 1;
-  const homeLoc = (member?.city || member?.homeCity || '').trim();
+  const rawCity = (member?.city || '').trim();
+  const rawHomeCity = (member?.homeCity || '').trim();
   const mtgLoc = (meetingLocation || '').trim();
 
-  if (!homeLoc || !mtgLoc) {
+  if ((!rawCity && !rawHomeCity) || !mtgLoc) {
     return {
       base,
       expedition: 0,
@@ -215,10 +216,13 @@ export const calculateMeetingScoreForMember = (member, meetingLocation) => {
     };
   }
 
-  const memberGroup = resolveRegionGroup(homeLoc);
+  // Check both homeCity and city for overseas status (e.g. Mexico resident temporarily staying in 경광)
+  const cityGroup = rawCity ? resolveRegionGroup(rawCity) : null;
+  const homeGroup = rawHomeCity ? resolveRegionGroup(rawHomeCity) : null;
+  const isMemberOverseas = cityGroup?.id === 7 || homeGroup?.id === 7;
   const meetingGroup = resolveRegionGroup(mtgLoc);
 
-  if (memberGroup.id === 7 || meetingGroup.id === 7) {
+  if (isMemberOverseas || meetingGroup.id === 7) {
     return {
       base,
       expedition: 2,
@@ -229,6 +233,7 @@ export const calculateMeetingScoreForMember = (member, meetingLocation) => {
     };
   }
 
+  const memberGroup = homeGroup || cityGroup || { id: 1, name: '서울·경기' };
   const isDiffRegion = memberGroup.id !== meetingGroup.id;
   const expedition = isDiffRegion ? 1 : 0;
 

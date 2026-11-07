@@ -482,7 +482,7 @@ export const INITIAL_MEMBERS = [
     "maritalStatus": "married",
     "attendanceCount": 31,
     "unlockedAlbums": [],
-    "homeCity": "경광",
+    "homeCity": "멕시코",
     "joinedAt": "2024-01-27",
     "city": "경광",
     "bankAccount": "",
