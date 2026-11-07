@@ -27,10 +27,18 @@ export default function BungRecordsTab({
     [members]
   );
 
-  const nameToMemberMap = useMemo(
-    () => new Map(members.map((m) => [m.realName, m])),
-    [members]
-  );
+  const nameToMemberMap = useMemo(() => {
+    const map = new Map();
+    for (const m of members) {
+      if (m.realName) map.set(m.realName, m);
+      if (Array.isArray(m.aliases)) {
+        for (const alias of m.aliases) {
+          if (alias) map.set(alias, m);
+        }
+      }
+    }
+    return map;
+  }, [members]);
 
   // Helper to extract participant realNames from meeting
   const getMeetingParticipantNames = (mtg) => {

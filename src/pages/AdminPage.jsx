@@ -54,6 +54,7 @@ export default function AdminPage({
   onAdminAdjustEventScore,
   onAdminUpdateConfig,
   onApproveAccountLink,
+  onApproveSubPhone,
   onRejectAccountLink
 }) {
   const [subTab, setSubTab] = useState('login'); // 'login' | 'meetings' | 'requests' | 'scores' | 'config'
@@ -873,6 +874,8 @@ export default function AdminPage({
                         x.realName.toLowerCase() === applicant.linkRequestRealName.toLowerCase())
                   );
 
+                  const isSubPhone = applicant.linkRequestType === 'subPhone';
+
                   return (
                     <div
                       key={applicant.uid}
@@ -896,7 +899,15 @@ export default function AdminPage({
                             ({applicant.uid})
                           </span>
                         </div>
-                        <span className="lounge-waiting-badge">승인 대기</span>
+                        <span
+                          className="lounge-waiting-badge"
+                          style={{
+                            background: isSubPhone ? '#dbeafe' : '#fef3c7',
+                            color: isSubPhone ? '#1e40af' : '#92400e'
+                          }}
+                        >
+                          {isSubPhone ? '📱 서브폰 연동 요청' : '승인 대기 (이력 승계)'}
+                        </span>
                       </div>
 
                       {target ? (
@@ -911,27 +922,56 @@ export default function AdminPage({
                           }}
                         >
                           <div>
-                            <strong>연계 대상 원본:</strong>{' '}
+                            <strong>{isSubPhone ? '연계 대상 본계정:' : '연계 대상 원본:'}</strong>{' '}
                             <span style={{ fontWeight: 700, color: '#0f172a' }}>
                               [{ROLE_META[target.role]?.label}] {formatMemberNickname(target)}
                             </span>{' '}
                             (UID: {target.uid})
                           </div>
-                          <div>
-                            <strong>승계될 이력:</strong> 누적 점수{' '}
-                            <span style={{ fontWeight: 700, color: '#e11d48' }}>
-                              {target.totalScore}점
-                            </span>{' '}
-                            (참석 {target.attendanceCount}회, 주최 {target.hostCount}회)
-                          </div>
-                          <div>
-                            <strong>최초 가입일:</strong> {target.joinedAt || '기록 없음'} (뱃지 {target.entryBadge}) · 거주지 {target.city}
-                          </div>
-                          {target.role === 'Withdrawn' || target.role === 'Wanderer' ? (
-                            <div style={{ color: '#b45309', fontWeight: 600 }}>
-                              ⚠️ 현재 상태가 [{ROLE_META[target.role]?.label}]입니다. 승인 시 활동 등급({target.totalScore >= 100 ? 'VIP' : '일반회원'})으로 즉시 복원됩니다.
-                            </div>
-                          ) : null}
+
+                          {isSubPhone ? (
+                            <>
+                              <div>
+                                <strong>등록될 서브폰 Kakao UID:</strong>{' '}
+                                <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{applicant.uid}</span>
+                              </div>
+                              {applicant.linkRequestSubName ? (
+                                <div>
+                                  <strong>보조 닉네임 (별칭):</strong>{' '}
+                                  <span style={{ fontWeight: 700, color: '#2563eb' }}>{applicant.linkRequestSubName}</span>
+                                  <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '6px' }}>
+                                    (벙 기록 파서 및 출석부에서 본계정으로 자동 통합)
+                                  </span>
+                                </div>
+                              ) : null}
+                              {applicant.city && applicant.city !== target.city ? (
+                                <div>
+                                  <strong>서브 거주지:</strong> {applicant.city}
+                                  <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '6px' }}>
+                                    (본계정 기본 거주지: {target.city})
+                                  </span>
+                                </div>
+                              ) : null}
+                            </>
+                          ) : (
+                            <>
+                              <div>
+                                <strong>승계될 이력:</strong> 누적 점수{' '}
+                                <span style={{ fontWeight: 700, color: '#e11d48' }}>
+                                  {target.totalScore}점
+                                </span>{' '}
+                                (참석 {target.attendanceCount}회, 주최 {target.hostCount}회)
+                              </div>
+                              <div>
+                                <strong>최초 가입일:</strong> {target.joinedAt || '기록 없음'} (뱃지 {target.entryBadge}) · 거주지 {target.city}
+                              </div>
+                              {target.role === 'Withdrawn' || target.role === 'Wanderer' ? (
+                                <div style={{ color: '#b45309', fontWeight: 600 }}>
+                                  ⚠️ 현재 상태가 [{ROLE_META[target.role]?.label}]입니다. 승인 시 활동 등급({target.totalScore >= 100 ? 'VIP' : '일반회원'})으로 즉시 복원됩니다.
+                                </div>
+                              ) : null}
+                            </>
+                          )}
                         </div>
                       ) : (
                         <div style={{ fontSize: '12px', color: '#64748b' }}>
@@ -940,7 +980,22 @@ export default function AdminPage({
                       )}
 
                       <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                        {target && onApproveAccountLink && (
+                        {target && isSubPhone && onApproveSubPhone ? (
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            style={{ background: '#2563eb', borderColor: '#1d4ed8' }}
+                            onClick={() =>
+                              runArmed(`approve-subphone:${applicant.uid}`, () =>
+                                onApproveSubPhone(applicant.uid, target.uid, applicant.linkRequestSubName)
+                              )
+                            }
+                          >
+                            {isArmed(`approve-subphone:${applicant.uid}`)
+                              ? '확인: 본계정에 서브폰 즉시 등록'
+                              : '📱 승인 (본계정에 서브폰 등록)'}
+                          </button>
+                        ) : target && onApproveAccountLink ? (
                           <button
                             type="button"
                             className="btn btn-primary btn-sm"
@@ -954,7 +1009,7 @@ export default function AdminPage({
                               ? '확인: 모든 이력 승계 및 합치기'
                               : '✅ 승인 (계정 연동 & 이력 승계)'}
                           </button>
-                        )}
+                        ) : null}
                         {onRejectAccountLink && (
                           <button
                             type="button"

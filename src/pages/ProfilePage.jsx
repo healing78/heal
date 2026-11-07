@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useArmedAction } from '../utils/useArmedAction';
 import RegionInput from '../components/RegionInput';
 import { isValidKoreanName } from '../nicknameUtils';
 import {
@@ -46,6 +47,7 @@ export default function ProfilePage({
   communityConfig = {},
   onOpenMeetingDetail,
   onUpdateProfile,
+  onDisconnectSubPhone,
   onAdminUpdateMember,
   onAdminUpdateConfig,
   onLogout,
@@ -53,6 +55,7 @@ export default function ProfilePage({
   onToggleMasterTab,
   onNavigateTab
 }) {
+  const { runArmed, isArmed } = useArmedAction();
   const [subTab, setSubTab] = useState('profile'); // 'profile' | 'report'
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
@@ -313,6 +316,80 @@ export default function ProfilePage({
                   <strong>뱃지:</strong> {currentBadge} (가입일{' '}
                   {currentUser.entryBadge})
                 </div>
+              </div>
+
+              {/* Linked Sub-Phones (세컨폰/보조계정) */}
+              <div
+                style={{
+                  marginTop: '16px',
+                  padding: '12px 14px',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b' }}>
+                    📱 연결된 서브폰 (세컨폰/보조계정)
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>
+                    {Array.isArray(currentUser.subUids) ? currentUser.subUids.length : 0}개 등록됨
+                  </span>
+                </div>
+
+                {Array.isArray(currentUser.subUids) && currentUser.subUids.length > 0 ? (
+                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {currentUser.subUids.map((subUid) => (
+                      <div
+                        key={subUid}
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '6px',
+                          padding: '8px 10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '8px'
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 600 }}>
+                            {subUid}
+                          </div>
+                          {Array.isArray(currentUser.aliases) && currentUser.aliases.length > 0 && (
+                            <div style={{ fontSize: '11px', color: '#2563eb', marginTop: '2px' }}>
+                              보조 닉네임(별칭): {currentUser.aliases.join(', ')}
+                            </div>
+                          )}
+                          {Array.isArray(currentUser.subCities) && currentUser.subCities.length > 0 && (
+                            <div style={{ fontSize: '11px', color: '#059669', marginTop: '1px' }}>
+                              보조 거주지: {currentUser.subCities.join(', ')}
+                            </div>
+                          )}
+                        </div>
+                        {onDisconnectSubPhone && (
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-xs"
+                            style={{ color: '#ef4444', borderColor: '#fca5a5', fontSize: '11px', whiteSpace: 'nowrap' }}
+                            onClick={() =>
+                              runArmed(`disconnect-sub:${subUid}`, () =>
+                                onDisconnectSubPhone(currentUser.uid, subUid)
+                              )
+                            }
+                          >
+                            {isArmed(`disconnect-sub:${subUid}`) ? '해제 확인' : '연결 해제'}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '12px', color: '#94a3b8', margin: '6px 0 0 0' }}>
+                    등록된 서브폰이 없습니다. (보조 스마트폰으로 로그인 시 본 계정으로 연결 신청하면 운영진 승인 후 통합됩니다)
+                  </p>
+                )}
               </div>
 
               {savedBanner && (

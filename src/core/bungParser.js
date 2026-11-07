@@ -181,7 +181,15 @@ export function formatAllMeetingsToKakaoDocument(meetings = [], members = []) {
  * @returns {Object} Co-attendance helper methods
  */
 export function buildCoAttendanceIndex(meetings = [], members = []) {
-  const nameToUid = new Map(members.map((m) => [m.realName, m.uid]));
+  const nameToUid = new Map();
+  for (const m of members) {
+    if (m.realName) nameToUid.set(m.realName, m.uid);
+    if (Array.isArray(m.aliases)) {
+      for (const alias of m.aliases) {
+        if (alias) nameToUid.set(alias, m.uid);
+      }
+    }
+  }
   // Map<uidA, Map<uidB, number>>
   const pairCounts = new Map();
   // Map<uidA, Map<uidB, Array<meeting>>>

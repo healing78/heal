@@ -452,7 +452,12 @@ export const registerOnboardingMember = async (form, customUid) => {
     monthlyScore: 0,
     linkRequestRealName: linkReqName,
     linkRequestSourceUid: linkSourceUid,
+    linkRequestType: form.linkRequestType || (linkSourceUid ? 'historical' : ''),
+    linkRequestSubName: (form.linkRequestSubName || '').trim(),
     linkRequestStatus: isRequestingLink ? 'pending' : '',
+    subUids: [],
+    aliases: [],
+    subCities: [],
     unlockedAlbums: []
   };
 
@@ -1140,8 +1145,86 @@ export const rejectAccountLinkRequest = async (applicantUid) => {
   await updateMemberProfile(applicantUid, {
     linkRequestRealName: '',
     linkRequestSourceUid: '',
+    linkRequestType: '',
+    linkRequestSubName: '',
     linkRequestStatus: 'rejected'
   });
+};
+
+/**
+ * Admin: Approves a sub-phone link request, adding applicant's Kakao UID to primary member's subUids
+ * and optional alias to aliases.
+ */
+export const approveSubPhoneRequest = async (applicantUid, primaryUid, subName = '') => {
+  const { members } = getLocalState();
+  const primary = members.find((m) => m.uid === primaryUid);
+  const applicant = members.find((m) => m.uid === applicantUid);
+  if (!primary || !applicant) return;
+
+  const nextSubUids = Array.from(new Set([...(primary.subUids || []), applicantUid]));
+  const cleanSubName = (subName || applicant.linkRequestSubName || applicant.realName || '').trim();
+  const nextAliases =
+    cleanSubName && cleanSubName !== primary.realName
+      ? Array.from(new Set([...(primary.aliases || []), cleanSubName]))
+      : primary.aliases || [];
+
+  const cleanSubCity = (applicant.city || '').trim();
+  const nextSubCities =
+    cleanSubCity && cleanSubCity !== primary.city
+      ? Array.from(new Set([...(primary.subCities || []), cleanSubCity]))
+      : primary.subCities || [];
+
+  const updatedPrimary = {
+    ...primary,
+    subUids: nextSubUids,
+    aliases: nextAliases,
+    subCities: nextSubCities
+  };
+
+  // Remove the temporary applicant document from members list
+  const nextMembers = members
+    .filter((m) => m.uid !== applicantUid)
+    .map((m) => (m.uid === primaryUid ? updatedPrimary : m));
+
+  writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, 'members', applicantUid));
+      await updateDoc(doc(db, 'members', primaryUid), {
+        subUids: nextSubUids,
+        aliases: nextAliases,
+        subCities: nextSubCities
+      });
+    } catch (err) {
+      console.warn('Firestore write fallback (approveSubPhoneRequest):', err.code);
+    }
+  }
+};
+
+/**
+ * Disconnects a sub-phone Kakao UID from a primary member.
+ */
+export const disconnectSubPhone = async (primaryUid, subUidToRemove) => {
+  const { members } = getLocalState();
+  const primary = members.find((m) => m.uid === primaryUid);
+  if (!primary || !Array.isArray(primary.subUids)) return;
+
+  const nextSubUids = primary.subUids.filter((u) => u !== subUidToRemove);
+  const updatedPrimary = { ...primary, subUids: nextSubUids };
+  const nextMembers = members.map((m) => (m.uid === primaryUid ? updatedPrimary : m));
+
+  writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'members', primaryUid), { subUids: nextSubUids });
+    } catch (err) {
+      console.warn('Firestore write fallback (disconnectSubPhone):', err.code);
+    }
+  }
 };
 
 /**

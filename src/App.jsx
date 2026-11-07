@@ -24,10 +24,12 @@ import {
   adminAdjustEventScore,
   adminUpdateMember,
   approveAccountLinkRequest,
+  approveSubPhoneRequest,
   batchSyncCommunityData,
   createMeeting,
   deleteMember,
   deleteMeeting,
+  disconnectSubPhone,
   getSavedCurrentUserUid,
   reassignMemberUid,
   recordKakaoLogin,
@@ -159,7 +161,12 @@ export default function App() {
 
   const [impersonatedUid, setImpersonatedUid] = useState(null);
   const effectiveUid = impersonatedUid || currentUserUid;
-  const currentUser = members.find((m) => m.uid === effectiveUid) || null;
+  const currentUser =
+    members.find(
+      (m) =>
+        m.uid === effectiveUid ||
+        (Array.isArray(m.subUids) && m.subUids.includes(effectiveUid))
+    ) || null;
 
   const navigateToTab = (nextTab, params = {}, options = {}) => {
     const meetingParam =
@@ -378,6 +385,14 @@ export default function App() {
     await approveAccountLinkRequest(applicantUid, sourceUid);
   };
 
+  const handleApproveSubPhone = async (applicantUid, primaryUid, subName) => {
+    await approveSubPhoneRequest(applicantUid, primaryUid, subName);
+  };
+
+  const handleDisconnectSubPhone = async (primaryUid, subUid) => {
+    await disconnectSubPhone(primaryUid, subUid);
+  };
+
   const handleRejectAccountLink = async (applicantUid) => {
     await rejectAccountLinkRequest(applicantUid);
   };
@@ -507,6 +522,7 @@ export default function App() {
             onAdminAdjustEventScore={handleAdminAdjustEventScore}
             onAdminUpdateConfig={handleAdminUpdateConfig}
             onApproveAccountLink={handleApproveAccountLink}
+            onApproveSubPhone={handleApproveSubPhone}
             onRejectAccountLink={handleRejectAccountLink}
           />
         );
@@ -542,6 +558,7 @@ export default function App() {
           communityConfig={communityConfig}
           onOpenMeetingDetail={handleOpenMeetingDetail}
           onUpdateProfile={handleUpdateProfile}
+          onDisconnectSubPhone={handleDisconnectSubPhone}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminUpdateConfig={handleAdminUpdateConfig}
           onLogout={() => handleSwitchUser('__LOGOUT__')}
@@ -567,6 +584,7 @@ export default function App() {
           onAdminAdjustEventScore={handleAdminAdjustEventScore}
           onAdminUpdateConfig={handleAdminUpdateConfig}
           onApproveAccountLink={handleApproveAccountLink}
+          onApproveSubPhone={handleApproveSubPhone}
           onRejectAccountLink={handleRejectAccountLink}
         />
       );

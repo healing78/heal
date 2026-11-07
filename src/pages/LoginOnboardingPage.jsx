@@ -31,7 +31,9 @@ export default function LoginOnboardingPage({
     maritalStatus: 'single',
     gender: '남',
     linkRequestRealName: '',
-    linkSourceUid: ''
+    linkSourceUid: '',
+    linkRequestType: '', // 'historical' | 'subPhone'
+    linkRequestSubName: ''
   });
 
   // Past active member candidates for account migration (all historical members with records)
@@ -39,6 +41,13 @@ export default function LoginOnboardingPage({
     return members
       .filter((m) => (m.totalScore > 0 || m.attendanceCount > 0) && !m.uid.startsWith('kakao:5'))
       .sort((a, b) => b.totalScore - a.totalScore);
+  }, [members]);
+
+  // Active member candidates for sub-phone link
+  const activeCandidates = useMemo(() => {
+    return members
+      .filter((m) => m.status === 'active' || m.uid.startsWith('kakao:5') || m.role === 'admin' || m.role === 'operator')
+      .sort((a, b) => (a.realName || '').localeCompare(b.realName || '', 'ko'));
   }, [members]);
 
   const rawName = (onboardingForm.realName || '').trim();
@@ -72,6 +81,9 @@ export default function LoginOnboardingPage({
   }, [members, cleanName, onboardingForm.linkSourceUid]);
 
   const hasDuplicateName = Boolean(duplicateMember);
+  const isDuplicateActive = Boolean(
+    duplicateMember && !historicalCandidates.some((h) => h.uid === duplicateMember.uid)
+  );
 
   // Apply historical link
   const handleApplyLinkAccount = (target) => {
@@ -84,16 +96,37 @@ export default function LoginOnboardingPage({
       maritalStatus: target.maritalStatus || prev.maritalStatus || 'single',
       gender: target.gender || prev.gender || '남',
       linkSourceUid: target.uid,
-      linkRequestRealName: target.realName
+      linkRequestRealName: target.realName,
+      linkRequestType: 'historical',
+      linkRequestSubName: ''
     }));
   };
 
-  // Cancel historical link
+  // Apply sub-phone link
+  const handleApplySubPhoneLink = (target, subName = '') => {
+    if (!target) return;
+    setOnboardingForm((prev) => ({
+      ...prev,
+      realName: subName || target.realName,
+      city: target.city || prev.city || '수원',
+      homeCity: target.homeCity || target.city || prev.homeCity || '수원',
+      maritalStatus: target.maritalStatus || prev.maritalStatus || 'single',
+      gender: target.gender || prev.gender || '남',
+      linkSourceUid: target.uid,
+      linkRequestRealName: target.realName,
+      linkRequestType: 'subPhone',
+      linkRequestSubName: subName || (prev.realName !== target.realName ? prev.realName : '')
+    }));
+  };
+
+  // Cancel historical or subphone link
   const handleCancelLinkAccount = () => {
     setOnboardingForm((prev) => ({
       ...prev,
       linkSourceUid: '',
-      linkRequestRealName: ''
+      linkRequestRealName: '',
+      linkRequestType: '',
+      linkRequestSubName: ''
     }));
   };
 
@@ -142,7 +175,11 @@ export default function LoginOnboardingPage({
       // Record Kakao login event immediately upon successful authentication
       await recordKakaoLogin(kakaoUser.uid, kakaoUser.nickname);
 
-      const existingMember = members.find((m) => m.uid === kakaoUser.uid);
+      const existingMember = members.find(
+        (m) =>
+          m.uid === kakaoUser.uid ||
+          (Array.isArray(m.subUids) && m.subUids.includes(kakaoUser.uid))
+      );
 
       if (existingMember) {
         onSelectExistingMember(existingMember.uid);
@@ -262,12 +299,40 @@ export default function LoginOnboardingPage({
                   </div>
                 )}
 
-                {/* 2. Show applied status */}
+                {/* 2. Prompt for sub-phone link if duplicate active member is detected */}
+                {isDuplicateActive && !onboardingForm.linkSourceUid && (
+                  <div
+                    style={{
+                      background: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      marginTop: '8px'
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: '#1e40af', fontSize: '13px' }}>
+                      📱 혹시 <strong>[{duplicateMember.realName}]</strong> 님의 서브폰(세컨폰/보조계정)이신가요?
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#1d4ed8', marginTop: '4px', lineHeight: 1.5 }}>
+                      동일한 회원이 세컨폰 또는 보조 계정으로 로그인하시는 경우, 본계정([<strong>{duplicateMember.realName}</strong>])에 서브폰으로 연결을 신청하실 수 있습니다. (운영진 승인 후 기존 닉네임·점수가 통합 공유됩니다)
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      style={{ marginTop: '8px', fontSize: '12px', padding: '6px 12px', background: '#2563eb', borderColor: '#1d4ed8' }}
+                      onClick={() => handleApplySubPhoneLink(duplicateMember)}
+                    >
+                      📱 네, [{duplicateMember.realName}] 님의 서브폰으로 연결 신청하기
+                    </button>
+                  </div>
+                )}
+
+                {/* 3. Show applied status */}
                 {onboardingForm.linkSourceUid && (
                   <div
                     style={{
-                      background: '#f0fdf4',
-                      border: '1px solid #86efac',
+                      background: onboardingForm.linkRequestType === 'subPhone' ? '#eff6ff' : '#f0fdf4',
+                      border: `1px solid ${onboardingForm.linkRequestType === 'subPhone' ? '#bfdbfe' : '#86efac'}`,
                       borderRadius: '8px',
                       padding: '10px 14px',
                       marginTop: '8px',
@@ -278,8 +343,20 @@ export default function LoginOnboardingPage({
                       flexWrap: 'wrap'
                     }}
                   >
-                    <div style={{ fontSize: '13px', color: '#166534' }}>
-                      ✅ <strong>[{onboardingForm.linkRequestRealName}]</strong> 기존 활동 이력 연결 신청됨 (누적 {matchedHistorical?.totalScore || 0}점 / 운영진 승인 후 통합)
+                    <div style={{ fontSize: '13px', color: onboardingForm.linkRequestType === 'subPhone' ? '#1e40af' : '#166534' }}>
+                      {onboardingForm.linkRequestType === 'subPhone' ? (
+                        <>
+                          📱 <strong>[{onboardingForm.linkRequestRealName}]</strong> 님의 서브폰(보조계정)으로 연결 신청됨
+                          {onboardingForm.linkRequestSubName ? ` (보조 닉네임: ${onboardingForm.linkRequestSubName})` : ''}
+                          <span style={{ fontSize: '12px', display: 'block', color: '#3b82f6', marginTop: '2px' }}>
+                            (운영진 승인 후 본계정으로 자동 통합 연동됩니다)
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          ✅ <strong>[{onboardingForm.linkRequestRealName}]</strong> 기존 활동 이력 연결 신청됨 (누적 {matchedHistorical?.totalScore || 0}점 / 운영진 승인 후 통합)
+                        </>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -287,13 +364,13 @@ export default function LoginOnboardingPage({
                       style={{ fontSize: '11px', padding: '3px 8px' }}
                       onClick={handleCancelLinkAccount}
                     >
-                      신청 취소 (순수 신규 가입)
+                      신청 취소
                     </button>
                   </div>
                 )}
 
-                {/* 3. Duplicate name warning (when not linked to that member) */}
-                {hasDuplicateName && (
+                {/* 4. Duplicate name warning (when not linked to that member and not an active member duplicate prompting sub-phone) */}
+                {hasDuplicateName && !isDuplicateActive && !onboardingForm.linkSourceUid && (
                   <div
                     style={{
                       background: '#fef2f2',
@@ -313,7 +390,7 @@ export default function LoginOnboardingPage({
                   </div>
                 )}
 
-                {/* Optional manual picker toggle if used a different past nickname */}
+                {/* Optional manual picker toggle if linking past account or sub-phone */}
                 {!onboardingForm.linkSourceUid && (
                   <div style={{ marginTop: '8px' }}>
                     <button
@@ -330,28 +407,55 @@ export default function LoginOnboardingPage({
                       }}
                     >
                       {showManualHistoricalPicker
-                        ? '▲ 이전 계정 직접 찾기 닫기'
-                        : '과거에 다른 닉네임으로 활동하셨나요? (기존 활동 계정 직접 찾기 🔍)'}
+                        ? '▲ 직접 계정 찾기 닫기'
+                        : '과거 활동 계정 또는 서브폰 본계정 직접 찾기 🔍'}
                     </button>
 
                     {showManualHistoricalPicker && (
-                      <div style={{ marginTop: '6px' }}>
-                        <select
-                          className="switcher-select"
-                          style={{ width: '100%', fontSize: '12px', padding: '7px 10px' }}
-                          onChange={(e) => {
-                            const found = members.find((m) => m.uid === e.target.value);
-                            if (found) handleApplyLinkAccount(found);
-                          }}
-                          value=""
-                        >
-                          <option value="">-- 과거 활동했던 닉네임을 선택하세요 --</option>
-                          {historicalCandidates.map((m) => (
-                            <option key={m.uid} value={m.uid}>
-                              {formatMemberNickname(m)} (총 {m.totalScore}점 / 참석 {m.attendanceCount}회)
-                            </option>
-                          ))}
-                        </select>
+                      <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#475569', fontWeight: 600 }}>
+                            과거 활동 이력 연결 (과거 닉네임에서 승계):
+                          </label>
+                          <select
+                            className="switcher-select"
+                            style={{ width: '100%', fontSize: '12px', padding: '7px 10px', marginTop: '3px' }}
+                            onChange={(e) => {
+                              const found = members.find((m) => m.uid === e.target.value);
+                              if (found) handleApplyLinkAccount(found);
+                            }}
+                            value=""
+                          >
+                            <option value="">-- 과거 활동했던 닉네임을 선택하세요 --</option>
+                            {historicalCandidates.map((m) => (
+                              <option key={m.uid} value={m.uid}>
+                                {formatMemberNickname(m)} (총 {m.totalScore}점 / 참석 {m.attendanceCount}회)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#1e40af', fontWeight: 600 }}>
+                            📱 현재 활동 중인 본계정에 서브폰(세컨폰)으로 연결:
+                          </label>
+                          <select
+                            className="switcher-select"
+                            style={{ width: '100%', fontSize: '12px', padding: '7px 10px', marginTop: '3px' }}
+                            onChange={(e) => {
+                              const found = members.find((m) => m.uid === e.target.value);
+                              if (found) handleApplySubPhoneLink(found, rawName);
+                            }}
+                            value=""
+                          >
+                            <option value="">-- 본인의 본계정을 선택하세요 --</option>
+                            {activeCandidates.map((m) => (
+                              <option key={m.uid} value={m.uid}>
+                                {formatMemberNickname(m)} (누적 {m.totalScore}점)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     )}
                   </div>
