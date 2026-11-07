@@ -306,19 +306,26 @@ export default function MeetingDetailPage({
   const chatMessagesEndRef = useRef(null);
   const [isLoungeHeaderCollapsed, setIsLoungeHeaderCollapsed] = useState(false);
 
-  const isChatActive =
-    viewMode === 'lounge' && isBungMeeting && loungeTab === 'chat';
+  const isLoungeActive = viewMode === 'lounge' && isBungMeeting;
+  const isChatActive = isLoungeActive && loungeTab === 'chat';
 
   useEffect(() => {
-    if (isChatActive) {
-      document.body.classList.add('lounge-chat-active');
+    if (isLoungeActive) {
+      document.body.classList.add('lounge-active');
+      if (isChatActive) {
+        document.body.classList.add('lounge-chat-active');
+      } else {
+        document.body.classList.remove('lounge-chat-active');
+      }
     } else {
+      document.body.classList.remove('lounge-active');
       document.body.classList.remove('lounge-chat-active');
     }
     return () => {
+      document.body.classList.remove('lounge-active');
       document.body.classList.remove('lounge-chat-active');
     };
-  }, [isChatActive]);
+  }, [isLoungeActive, isChatActive]);
 
   // Album & Random Box states
   const album = Array.isArray(meeting.album) ? meeting.album : [];
@@ -1322,8 +1329,8 @@ export default function MeetingDetailPage({
   return (
     <div
       className={`list-container ${
-        isChatActive ? 'is-lounge-chat-mode' : ''
-      }`}
+        isLoungeActive ? 'is-lounge-mode' : ''
+      } ${isChatActive ? 'is-lounge-chat-mode' : ''}`}
     >
       {/* 1. Schedule Detail View */}
       {viewMode === 'detail' && (
@@ -2193,8 +2200,8 @@ export default function MeetingDetailPage({
         ) : (
         <section
           className={`list-section bung-lounge-section ${
-            isChatActive ? 'is-lounge-chat-mode' : ''
-          }`}
+            isLoungeActive ? 'is-lounge-mode' : ''
+          } ${isChatActive ? 'is-lounge-chat-mode' : ''}`}
           id="bung-lounge"
         >
           {/* Accordion Header: Minimized Bar vs Full Title & Tabs */}
@@ -2283,10 +2290,7 @@ export default function MeetingDetailPage({
                 </div>
 
                 {/* Subway Route Map Progress Bar */}
-                <div
-                  className="lounge-metro-progress"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <div className="lounge-metro-progress">
                   <div className="lounge-metro-track">
                     <div className="lounge-metro-line">
                       <div
@@ -2417,10 +2421,32 @@ export default function MeetingDetailPage({
               <div className="lounge-chat-container">
                 {/* Accordion: Attendees inside lounge vs Attendees not in lounge */}
                 {showChatUsersAccordion && (
-                  <div className="lounge-chat-accordion">
-                    <div className="lounge-chat-accordion-title">
+                  <div
+                    className="lounge-chat-accordion"
+                    role="region"
+                    aria-label="대기실 참석자 목록"
+                    onClick={() => {
+                      if (!isEditingChatUsers) {
+                        setShowChatUsersAccordion(false);
+                      }
+                    }}
+                    style={{ cursor: !isEditingChatUsers ? 'pointer' : 'default' }}
+                    title={!isEditingChatUsers ? '클릭 시 접기' : undefined}
+                  >
+                    <div
+                      className="lounge-chat-accordion-title"
+                      onClick={() => {
+                        if (isEditingChatUsers) {
+                          setShowChatUsersAccordion(false);
+                          setIsEditingChatUsers(false);
+                        }
+                      }}
+                    >
                       <span>대기실 입장한 참석자 ({enteredAttendeeUids.length}명)</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         {adminUser && (
                           <button
                             type="button"
@@ -2473,7 +2499,14 @@ export default function MeetingDetailPage({
                               key={uid}
                               disabled={!isEditingChatUsers}
                               className={`member-chip-btn active ${isEditingChatUsers ? 'is-editable' : ''}`}
-                              onClick={isEditingChatUsers ? () => handleToggleLoungeVisitor(uid) : undefined}
+                              onClick={
+                                isEditingChatUsers
+                                  ? (e) => {
+                                      e.stopPropagation();
+                                      handleToggleLoungeVisitor(uid);
+                                    }
+                                  : undefined
+                              }
                               style={{
                                 fontSize: '11.5px',
                                 padding: '3px 8px',
@@ -2494,6 +2527,12 @@ export default function MeetingDetailPage({
                     <div
                       className="lounge-chat-accordion-title"
                       style={{ marginTop: '8px' }}
+                      onClick={() => {
+                        if (isEditingChatUsers) {
+                          setShowChatUsersAccordion(false);
+                          setIsEditingChatUsers(false);
+                        }
+                      }}
                     >
                       <span>대기실 미입장 참석자 ({notEnteredAttendeeUids.length}명)</span>
                     </div>
@@ -2512,7 +2551,14 @@ export default function MeetingDetailPage({
                               key={uid}
                               disabled={!isEditingChatUsers}
                               className={`member-chip-btn inactive ${isEditingChatUsers ? 'is-editable' : ''}`}
-                              onClick={isEditingChatUsers ? () => handleToggleLoungeVisitor(uid) : undefined}
+                              onClick={
+                                isEditingChatUsers
+                                  ? (e) => {
+                                      e.stopPropagation();
+                                      handleToggleLoungeVisitor(uid);
+                                    }
+                                  : undefined
+                              }
                               style={{
                                 fontSize: '11.5px',
                                 padding: '3px 8px',
