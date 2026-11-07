@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useArmedAction } from '../utils/useArmedAction';
-import AdminMeetingEditModal from '../components/AdminMeetingEditModal';
 import {
   formatMemberNickname,
   ROLE_META
@@ -61,8 +60,6 @@ export default function AdminPage({
 }) {
   const [subTab, setSubTab] = useState('login'); // 'login' | 'meetings' | 'requests' | 'scores' | 'config'
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
-  const [editingMeeting, setEditingMeeting] = useState(null);
-  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [newcomerFilter, setNewcomerFilter] = useState('ALL'); // 'ALL' | 'UNREGISTERED' | 'REGISTERED'
   const [newcomerSearch, setNewcomerSearch] = useState('');
   const [copiedUid, setCopiedUid] = useState('');
@@ -676,17 +673,6 @@ export default function AdminPage({
               <p className="sub-meta">최신순 전체 모임 목록 · 카드 클릭 시 모임 상세로 이동합니다.</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                style={{ fontSize: '12px', padding: '5px 12px' }}
-                onClick={() => {
-                  setEditingMeeting(null);
-                  setIsMeetingModalOpen(true);
-                }}
-              >
-                + 신규 모임 등록
-              </button>
               <span className="platform-badge">{meetings.length}건</span>
             </div>
           </div>
@@ -774,23 +760,12 @@ export default function AdminPage({
                             👥 {applicants.length}명 참석 {isExpanded ? '▲' : '▼'}
                           </button>
 
-                          {/* Future Extension Action Slot (모임 취소/삭제/벙대기실 승인 등 확장 가능) */}
+                          {/* Future Extension Action Slot */}
                           <div
                             className="admin-meeting-actions-slot"
                             onClick={(e) => e.stopPropagation()}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                           >
-                            <button
-                              type="button"
-                              className="btn btn-outline btn-xs"
-                              style={{ fontSize: '11px', padding: '3px 8px' }}
-                              onClick={() => {
-                                setEditingMeeting(m);
-                                setIsMeetingModalOpen(true);
-                              }}
-                            >
-                              수정 ✏️
-                            </button>
                             <span
                               className="sub-meta"
                               style={{ fontSize: '12px', cursor: 'pointer' }}
@@ -855,7 +830,7 @@ export default function AdminPage({
                                     </span>
                                     {isHost && (
                                       <span className="platform-badge" style={{ fontSize: '10px' }}>
-                                        주최
+                                        벙주
                                       </span>
                                     )}
                                     {!isHost && isTreasurer && (
@@ -1333,26 +1308,6 @@ export default function AdminPage({
             </div>
           </form>
         </section>
-      )}
-
-      {isMeetingModalOpen && (
-        <AdminMeetingEditModal
-          isOpen={isMeetingModalOpen}
-          meeting={editingMeeting}
-          members={members}
-          onSave={async (savedData) => {
-            if (onAdminSaveMeeting) {
-              await onAdminSaveMeeting(savedData);
-            } else if (onUpdateMeeting && savedData.id) {
-              await onUpdateMeeting(savedData.id, savedData);
-            }
-          }}
-          onClose={() => {
-            setIsMeetingModalOpen(false);
-            setEditingMeeting(null);
-          }}
-          onDelete={onDeleteMeeting}
-        />
       )}
     </div>
   );

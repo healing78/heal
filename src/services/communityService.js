@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import {
   calculateMeetingScoreForMember,
+  detectMeetingRegion,
   generateMeetingId,
   REGION_GROUPS
 } from '../core/communityRules';
@@ -838,10 +839,18 @@ export const settleMeetingWithScores = async (
   meetingId,
   confirmedUids,
   currentMembers,
-  currentMeetings
+  currentMeetings,
+  overrideLocation = ''
 ) => {
   const targetMeeting = currentMeetings.find((m) => m.id === meetingId);
   if (!targetMeeting || targetMeeting.status === 'settled') return;
+
+  const detected = detectMeetingRegion(targetMeeting);
+  const resolvedLocation =
+    (overrideLocation || '').trim() ||
+    detected.matchedKeyword ||
+    (targetMeeting.location || '').trim() ||
+    (targetMeeting.placeDetail || '').trim();
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const newLogs = [];
@@ -850,7 +859,7 @@ export const settleMeetingWithScores = async (
     if (!confirmedUids.includes(member.uid)) return member;
     const calc = calculateMeetingScoreForMember(
       member,
-      targetMeeting.location
+      resolvedLocation
     );
 
     newLogs.push({
@@ -885,7 +894,12 @@ export const settleMeetingWithScores = async (
 
   const nextMeetings = currentMeetings.map((m) =>
     m.id === meetingId
-      ? { ...m, status: 'settled', confirmedParticipants: confirmedUids }
+      ? {
+          ...m,
+          status: 'settled',
+          confirmedParticipants: confirmedUids,
+          ...(resolvedLocation ? { location: resolvedLocation } : {})
+        }
       : m
   );
   const { scoreLogs } = getLocalState();
@@ -900,7 +914,8 @@ export const settleMeetingWithScores = async (
       const batch = writeBatch(db);
       batch.update(doc(db, 'meetings', meetingId), {
         status: 'settled',
-        confirmedParticipants: confirmedUids
+        confirmedParticipants: confirmedUids,
+        ...(resolvedLocation ? { location: resolvedLocation } : {})
       });
 
       for (const member of updatedMembers) {

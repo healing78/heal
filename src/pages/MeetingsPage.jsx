@@ -142,7 +142,7 @@ export default function MeetingsPage({
     allDay: false,
     placeDetail: '',
     reminder: '15분 전',
-    requestAttendance: false
+    requestAttendance: true
   });
 
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
@@ -239,7 +239,7 @@ export default function MeetingsPage({
       allDay: false,
       placeDetail: '',
       reminder: '15분 전',
-      requestAttendance: false
+      requestAttendance: true
     });
     setSubTab('open');
     setShowCreateForm(false);

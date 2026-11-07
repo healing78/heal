@@ -450,11 +450,9 @@ export default function HomePage({
                     {formattedLine}
                   </strong>
                   <div className="open-lounge-badge-group">
-                    {isAttendee ? (
+                    {isAttendee && (
                       <span className="lounge-attend-badge">참석 중</span>
-                    ) : adminUser ? (
-                      <span className="location-pill">운영진 참관</span>
-                    ) : null}
+                    )}
                     <span className="lounge-action-label" aria-hidden="true">
                       입장 &gt;
                     </span>

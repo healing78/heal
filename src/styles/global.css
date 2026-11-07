@@ -29,6 +29,12 @@
   --radius-base: 6px;
   --radius-pill: 6px;
 
+  /* Admin Edit Section Theme Tokens (mono: Cool Slate) */
+  --admin-edit-bg: #f1f5f9;
+  --admin-edit-border: #cbd5e1;
+  --admin-edit-accent: #334155;
+  --admin-edit-chip-bg: #e2e8f0;
+
   /* Native Safe Area Insets */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -69,6 +75,12 @@
 
   --radius-base: 2px;
   --radius-pill: 2px;
+
+  /* Admin Edit Section Theme Tokens (excel: Mint Green) */
+  --admin-edit-bg: #ecfdf5;
+  --admin-edit-border: #a7f3d0;
+  --admin-edit-accent: #0f766e;
+  --admin-edit-chip-bg: #d1fae5;
 }
 
 /* ==========================================================================
@@ -100,6 +112,12 @@
 
   --radius-base: 10px;
   --radius-pill: 999px;
+
+  /* Admin Edit Section Theme Tokens (rose: Soft Lavender & Purple) */
+  --admin-edit-bg: #f5f3ff;
+  --admin-edit-border: #ddd6fe;
+  --admin-edit-accent: #6d28d9;
+  --admin-edit-chip-bg: #ede9fe;
 }
 
 * {
@@ -3306,6 +3324,174 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Admin Edit Accordion Sections (Theme-Aware Soft Tint Cards)
+   ========================================================================== */
+.admin-edit-accordion-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.admin-edit-accordion {
+  background-color: var(--admin-edit-bg);
+  border: 1px solid var(--admin-edit-border);
+  border-radius: var(--radius-base);
+  overflow: hidden;
+}
+
+.admin-edit-accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--color-text);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.admin-edit-accordion-title {
+  color: var(--admin-edit-accent);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.admin-edit-accordion-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.admin-edit-accordion-arrow {
+  color: var(--admin-edit-accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-edit-accordion-body {
+  padding: 12px 14px;
+  border-top: 1px solid var(--admin-edit-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-edit-row-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--admin-edit-border);
+  border-radius: var(--radius-base);
+}
+
+.admin-edit-row-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--admin-edit-accent);
+  min-width: 36px;
+}
+
+.admin-edit-row-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  flex: 1;
+}
+
+.admin-edit-search-box {
+  background: var(--color-surface);
+  border: 1px solid var(--admin-edit-border);
+  border-radius: var(--radius-base);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-edit-search-input {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.admin-edit-search-list {
+  max-height: 168px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-edit-search-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: var(--radius-base);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.admin-edit-search-item:hover,
+.admin-edit-search-item.is-selected {
+  background: var(--admin-edit-chip-bg);
+}
+
+.admin-edit-chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-edit-member-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--admin-edit-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-edit-member-chip.is-host {
+  background: var(--admin-edit-chip-bg);
+  cursor: default;
+}
+
+.admin-edit-role-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--admin-edit-accent);
+  background: var(--admin-edit-bg);
+  padding: 1px 5px;
+  border-radius: var(--radius-base);
 }
 
 /* Desktop Breakpoint (>= 768px) */

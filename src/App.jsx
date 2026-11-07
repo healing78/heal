@@ -350,12 +350,13 @@ export default function App() {
     return await createMeeting(currentUser.uid, meetingInput);
   };
 
-  const handleSettleMeeting = async (meetingId, confirmedUids) => {
+  const handleSettleMeeting = async (meetingId, confirmedUids, overrideLocation = '') => {
     await settleMeetingWithScores(
       meetingId,
       confirmedUids,
       members,
-      meetings
+      meetings,
+      overrideLocation
     );
   };
 

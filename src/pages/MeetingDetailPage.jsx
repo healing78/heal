@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   calculateMeetingScoreForMember,
   calculateMeetingSettlement,
   canManageMeeting,
+  detectMeetingRegion,
   formatMemberNickname,
-  isAdminRole,
+  isAdminUser,
   REGION_GROUPS
 } from '../core/communityRules';
 import {
@@ -30,7 +31,6 @@ import {
   unlockMeetingAlbumForUser
 } from '../services/communityService';
 import { getTodayDateString, isMeetingLoungeOpen } from '../core/routeMeta';
-import AdminMeetingEditModal from '../components/AdminMeetingEditModal';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_FULL_KO = [
@@ -278,7 +278,17 @@ export default function MeetingDetailPage({
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
   const [showManagerTools, setShowManagerTools] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
-  const [isAdminEditModalOpen, setIsAdminEditModalOpen] = useState(false);
+
+  // Admin Accordion States ("벙주 변경", "참석자 변경")
+  const [isHostAccordionOpen, setIsHostAccordionOpen] = useState(false);
+  const [isAttendeeAccordionOpen, setIsAttendeeAccordionOpen] = useState(false);
+  const [isHostSearchOpen, setIsHostSearchOpen] = useState(false);
+  const [hostSearchQuery, setHostSearchQuery] = useState('');
+  const [isTreasurerSearchOpen, setIsTreasurerSearchOpen] = useState(false);
+  const [treasurerSearchQuery, setTreasurerSearchQuery] = useState('');
+  const [attendeeSearchQuery, setAttendeeSearchQuery] = useState('');
+  const [settleFallbackRegion, setSettleFallbackRegion] = useState('');
+  const [showRegionRequiredMsg, setShowRegionRequiredMsg] = useState(false);
 
   // Chat & Subway Route Progress states
   const [showChatUsersAccordion, setShowChatUsersAccordion] = useState(false);
@@ -374,8 +384,8 @@ export default function MeetingDetailPage({
     }
   };
 
-  const canManage = canManageMeeting(currentUser, meeting);
-  const adminUser = isAdminRole(currentUser?.role);
+  const adminUser = isAdminUser(currentUser, communityConfig);
+  const canManage = canManageMeeting(currentUser, meeting, communityConfig);
   const applicants = meeting.applicants || [];
   const confirmedList = meeting.confirmedParticipants || [];
   const isApplied = applicants.includes(currentUser?.uid);
@@ -386,7 +396,7 @@ export default function MeetingDetailPage({
     isApplied || isConfirmedParticipant || canManage || adminUser;
 
   const todayStr = getTodayDateString();
-  const loungeOpen = isMeetingLoungeOpen(meeting, todayStr);
+  const loungeOpen = isMeetingLoungeOpen(meeting, todayStr) || adminUser;
 
   const isLoungeRequested = meeting.loungeStatus === 'requested';
   const isMyLoungeRequest =
@@ -467,8 +477,154 @@ export default function MeetingDetailPage({
     (r) => r.uid === currentUser?.uid
   );
 
-  const primaryPlaceText =
-    rounds[0]?.placeName || meeting.placeDetail || meeting.location || '';
+  // Detail card displays basic location input ('placeDetail' / 'location'); 1차·2차 placeName is shown inside 벙대기실 [장소] tab
+  const primaryPlaceText = meeting.placeDetail || meeting.location || '';
+  const regionDetection = detectMeetingRegion(meeting);
+
+  const sortedMembers = useMemo(() => {
+    return [...(members || [])]
+      .filter((m) => m && typeof m === 'object')
+      .sort((a, b) => (a.realName || '').localeCompare(b.realName || '', 'ko'));
+  }, [members]);
+
+  const filteredHostCandidates = useMemo(() => {
+    const q = hostSearchQuery.trim().toLowerCase();
+    if (!q) return sortedMembers.slice(0, 20);
+    return sortedMembers
+      .filter((m) => {
+        const real = (m.realName || '').toLowerCase();
+        const nick = (m.nickname || '').toLowerCase();
+        const city = (m.city || m.homeCity || '').toLowerCase();
+        return real.includes(q) || nick.includes(q) || city.includes(q);
+      })
+      .slice(0, 20);
+  }, [sortedMembers, hostSearchQuery]);
+
+  const filteredTreasurerCandidates = useMemo(() => {
+    const q = treasurerSearchQuery.trim().toLowerCase();
+    if (!q) return sortedMembers.slice(0, 20);
+    return sortedMembers
+      .filter((m) => {
+        const real = (m.realName || '').toLowerCase();
+        const nick = (m.nickname || '').toLowerCase();
+        const city = (m.city || m.homeCity || '').toLowerCase();
+        return real.includes(q) || nick.includes(q) || city.includes(q);
+      })
+      .slice(0, 20);
+  }, [sortedMembers, treasurerSearchQuery]);
+
+  // Admin: Change 벙주 (auto-adds new 벙주 to attendees & auto-removes proxy-registered old 벙주)
+  const handleAdminChangeHost = async (newHostUid) => {
+    if (!onUpdateMeeting || !adminUser || !newHostUid) return;
+    const oldHostUid = meeting.hostUid;
+    const baseApplicants = (meeting.applicants || []).filter(
+      (uid) => uid !== oldHostUid
+    );
+    const nextApplicants = baseApplicants.includes(newHostUid)
+      ? baseApplicants
+      : [newHostUid, ...baseApplicants];
+
+    const baseConfirmed = (meeting.confirmedParticipants || []).filter(
+      (uid) => uid !== oldHostUid
+    );
+    const nextConfirmed =
+      meeting.status === 'settled' || baseConfirmed.length > 0
+        ? baseConfirmed.includes(newHostUid)
+          ? baseConfirmed
+          : [newHostUid, ...baseConfirmed]
+        : baseConfirmed;
+
+    const nextTreasurerUid =
+      !meeting.treasurerUid || meeting.treasurerUid === oldHostUid
+        ? newHostUid
+        : meeting.treasurerUid;
+
+    const nextRounds = rounds.map((r, idx) => {
+      const filteredParts = (Array.isArray(r.participants) ? r.participants : []).filter(
+        (uid) => uid !== oldHostUid
+      );
+      const nextParts =
+        idx === 0 && !filteredParts.includes(newHostUid)
+          ? [newHostUid, ...filteredParts]
+          : filteredParts;
+      const nextPayer =
+        !r.payerUid || r.payerUid === oldHostUid ? newHostUid : r.payerUid;
+      return {
+        ...r,
+        participants: nextParts,
+        payerUid: nextPayer
+      };
+    });
+
+    await onUpdateMeeting(meeting.id, {
+      hostUid: newHostUid,
+      treasurerUid: nextTreasurerUid,
+      applicants: nextApplicants,
+      confirmedParticipants: nextConfirmed,
+      rounds: nextRounds
+    });
+    setIsHostSearchOpen(false);
+    setHostSearchQuery('');
+  };
+
+  // Admin: Change 총무 (defaults to 벙주 when empty)
+  const handleAdminChangeTreasurer = async (newTreasurerUid) => {
+    if (!onUpdateMeeting || !adminUser) return;
+    const resolvedTreasurer = newTreasurerUid || meeting.hostUid;
+    await onUpdateMeeting(meeting.id, {
+      treasurerUid: resolvedTreasurer
+    });
+    setIsTreasurerSearchOpen(false);
+    setTreasurerSearchQuery('');
+  };
+
+  // Admin: Toggle Attendee (참석 / 미참석; 벙주는 항상 참석 고정)
+  const handleAdminToggleAttendee = async (targetUid) => {
+    if (!onUpdateMeeting || !adminUser || !targetUid) return;
+    if (targetUid === meeting.hostUid) return; // 벙주는 항상 참석 고정
+
+    const currentList = Array.from(
+      new Set([
+        meeting.hostUid,
+        ...(meeting.status === 'settled' && confirmedList.length > 0
+          ? confirmedList
+          : applicants)
+      ].filter(Boolean))
+    );
+    const isCurrentlyAttending = currentList.includes(targetUid);
+
+    const nextApplicants = isCurrentlyAttending
+      ? currentList.filter((uid) => uid !== targetUid)
+      : [...currentList, targetUid];
+
+    const nextConfirmed =
+      meeting.status === 'settled' || confirmedList.length > 0
+        ? nextApplicants
+        : confirmedList;
+
+    const nextRounds = rounds.map((r, idx) => {
+      const parts = Array.isArray(r.participants) ? r.participants : [];
+      if (isCurrentlyAttending) {
+        return {
+          ...r,
+          participants: parts.filter((uid) => uid !== targetUid)
+        };
+      }
+      if (idx === 0 && !parts.includes(targetUid)) {
+        return {
+          ...r,
+          participants: [...parts, targetUid]
+        };
+      }
+      return r;
+    });
+
+    await onUpdateMeeting(meeting.id, {
+      applicants: nextApplicants,
+      confirmedParticipants: nextConfirmed,
+      rounds: nextRounds
+    });
+  };
 
   // Attendee & Absentee Lists for Chat Accordion (Scoped strictly to this meeting's attendees!)
   const allMeetingAttendeeUids = Array.from(
@@ -745,11 +901,25 @@ export default function MeetingDetailPage({
   // Finalize meeting & grant attendance/expedition scores
   const handleFinalizeSettlement = async () => {
     if (!canManage || meeting.status === 'settled') return;
+    if (!regionDetection.recognized && !settleFallbackRegion) {
+      setShowRegionRequiredMsg(true);
+      return;
+    }
     const confirmedUids = settlement.participantRows
       .filter((row) => row.attendedRounds.length > 0)
       .map((row) => row.uid);
-    const finalUids = confirmedUids.length > 0 ? confirmedUids : applicants;
-    await onSettleMeeting(meeting.id, finalUids);
+    const finalUids = Array.from(
+      new Set(
+        [
+          meeting.hostUid,
+          ...(confirmedUids.length > 0 ? confirmedUids : applicants)
+        ].filter(Boolean)
+      )
+    );
+    const resolvedLoc = regionDetection.recognized
+      ? regionDetection.matchedKeyword
+      : settleFallbackRegion;
+    await onSettleMeeting(meeting.id, finalUids, resolvedLoc);
   };
 
   // Copy meeting settlement summary report text for KakaoTalk
@@ -758,7 +928,7 @@ export default function MeetingDetailPage({
       `[Healing78 정산 리포트 #${meeting.id}]`,
       `■ 일정명: ${meeting.title}`,
       `■ 일시/지역: ${meeting.date} (${meeting.location})`,
-      `■ 주최: ${hostMember ? formatMemberNickname(hostMember) : meeting.hostUid}`,
+      `■ 벙주: ${hostMember ? formatMemberNickname(hostMember) : meeting.hostUid}`,
       `■ 총무(입금계좌): ${
         treasurerMember ? formatMemberNickname(treasurerMember) : treasurerUid
       } / ${treasurerMember?.bankAccount || '계좌 미등록'}`,
@@ -1103,10 +1273,32 @@ export default function MeetingDetailPage({
     }
   };
 
-  const displayAttendeeUids =
-    meeting.status === 'settled' && confirmedList.length > 0
-      ? confirmedList
-      : applicants;
+  const displayAttendeeUids = Array.from(
+    new Set(
+      [
+        meeting.hostUid,
+        ...(meeting.status === 'settled' && confirmedList.length > 0
+          ? confirmedList
+          : applicants)
+      ].filter(Boolean)
+    )
+  );
+
+  const filteredAttendeeCandidates = useMemo(() => {
+    const q = attendeeSearchQuery.trim().toLowerCase();
+    const nonAttendees = sortedMembers.filter(
+      (m) => !displayAttendeeUids.includes(m.uid)
+    );
+    if (!q) return nonAttendees.slice(0, 15);
+    return nonAttendees
+      .filter((m) => {
+        const real = (m.realName || '').toLowerCase();
+        const nick = (m.nickname || '').toLowerCase();
+        const city = (m.city || m.homeCity || '').toLowerCase();
+        return real.includes(q) || nick.includes(q) || city.includes(q);
+      })
+      .slice(0, 20);
+  }, [sortedMembers, displayAttendeeUids, attendeeSearchQuery]);
 
   return (
     <div
@@ -1140,16 +1332,6 @@ export default function MeetingDetailPage({
               </button>
 
           <div className="badge-group">
-            {adminUser && (
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                style={{ fontSize: '12px', padding: '4px 10px' }}
-                onClick={() => setIsAdminEditModalOpen(true)}
-              >
-                🛠️ 운영자 편집
-              </button>
-            )}
             {canManage && (
               <>
                 <button
@@ -1278,7 +1460,7 @@ export default function MeetingDetailPage({
                           {formatMemberNickname(mem)}
                         </span>
                         {isHost && (
-                          <span className="platform-badge">주최</span>
+                          <span className="platform-badge">벙주</span>
                         )}
                         {!isHost && isTreasurer && (
                           <span className="location-pill">총무</span>
@@ -1637,6 +1819,229 @@ export default function MeetingDetailPage({
           </form>
         )}
 
+        {/* Admin-Only Collapsible Accordions: "벙주 변경" & "참석자 변경" */}
+        {adminUser && (
+          <div className="admin-edit-accordion-group">
+            {/* Accordion 1: 벙주 변경 */}
+            <div className="admin-edit-accordion">
+              <button
+                type="button"
+                className="admin-edit-accordion-header"
+                onClick={() => setIsHostAccordionOpen((prev) => !prev)}
+              >
+                <span className="admin-edit-accordion-title">벙주 변경</span>
+                <div className="admin-edit-accordion-meta">
+                  <span>
+                    {hostMember
+                      ? formatMemberNickname(hostMember)
+                      : meeting.hostUid}
+                    {treasurerUid &&
+                    treasurerUid !== meeting.hostUid &&
+                    treasurerMember
+                      ? ` · 총무 ${treasurerMember.realName}`
+                      : ''}
+                  </span>
+                  <span className="admin-edit-accordion-arrow">
+                    {isHostAccordionOpen ? '▲' : '▼'}
+                  </span>
+                </div>
+              </button>
+
+              {isHostAccordionOpen && (
+                <div className="admin-edit-accordion-body">
+                  {/* Row 1: 벙주 */}
+                  <div className="admin-edit-row-card">
+                    <span className="admin-edit-row-label">벙주</span>
+                    <span className="admin-edit-row-value">
+                      {hostMember
+                        ? formatMemberNickname(hostMember)
+                        : meeting.hostUid}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => setIsHostSearchOpen((prev) => !prev)}
+                    >
+                      {isHostSearchOpen ? '닫기' : '변경'}
+                    </button>
+                  </div>
+
+                  {isHostSearchOpen && (
+                    <div className="admin-edit-search-box">
+                      <input
+                        type="text"
+                        className="admin-edit-search-input"
+                        placeholder="벙주 이름·닉네임·지역 검색"
+                        value={hostSearchQuery}
+                        onChange={(e) => setHostSearchQuery(e.target.value)}
+                      />
+                      <div className="admin-edit-search-list">
+                        {filteredHostCandidates.map((m) => (
+                          <button
+                            key={m.uid}
+                            type="button"
+                            className={`admin-edit-search-item ${
+                              m.uid === meeting.hostUid ? 'is-selected' : ''
+                            }`}
+                            onClick={() => handleAdminChangeHost(m.uid)}
+                          >
+                            <span>{formatMemberNickname(m)}</span>
+                            <span className="sub-meta">{m.city || ''}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Row 2: 총무 (기본: 벙주) */}
+                  <div className="admin-edit-row-card">
+                    <span className="admin-edit-row-label">총무</span>
+                    <span className="admin-edit-row-value">
+                      {!meeting.treasurerUid ||
+                      meeting.treasurerUid === meeting.hostUid
+                        ? hostMember
+                          ? formatMemberNickname(hostMember)
+                          : '벙주'
+                        : treasurerMember
+                          ? formatMemberNickname(treasurerMember)
+                          : meeting.treasurerUid}
+                    </span>
+                    <div className="btn-row">
+                      {meeting.treasurerUid &&
+                        meeting.treasurerUid !== meeting.hostUid && (
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            onClick={() =>
+                              handleAdminChangeTreasurer(meeting.hostUid)
+                            }
+                          >
+                            벙주로
+                          </button>
+                        )}
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() =>
+                          setIsTreasurerSearchOpen((prev) => !prev)
+                        }
+                      >
+                        {isTreasurerSearchOpen ? '닫기' : '변경'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {isTreasurerSearchOpen && (
+                    <div className="admin-edit-search-box">
+                      <input
+                        type="text"
+                        className="admin-edit-search-input"
+                        placeholder="총무 이름·닉네임·지역 검색"
+                        value={treasurerSearchQuery}
+                        onChange={(e) =>
+                          setTreasurerSearchQuery(e.target.value)
+                        }
+                      />
+                      <div className="admin-edit-search-list">
+                        {filteredTreasurerCandidates.map((m) => (
+                          <button
+                            key={m.uid}
+                            type="button"
+                            className={`admin-edit-search-item ${
+                              m.uid === treasurerUid ? 'is-selected' : ''
+                            }`}
+                            onClick={() => handleAdminChangeTreasurer(m.uid)}
+                          >
+                            <span>{formatMemberNickname(m)}</span>
+                            <span className="sub-meta">
+                              {m.bankAccount ? '계좌등록' : m.city || ''}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Accordion 2: 참석자 변경 */}
+            <div className="admin-edit-accordion">
+              <button
+                type="button"
+                className="admin-edit-accordion-header"
+                onClick={() => setIsAttendeeAccordionOpen((prev) => !prev)}
+              >
+                <span className="admin-edit-accordion-title">참석자 변경</span>
+                <div className="admin-edit-accordion-meta">
+                  <span>{displayAttendeeUids.length}명 참석</span>
+                  <span className="admin-edit-accordion-arrow">
+                    {isAttendeeAccordionOpen ? '▲' : '▼'}
+                  </span>
+                </div>
+              </button>
+
+              {isAttendeeAccordionOpen && (
+                <div className="admin-edit-accordion-body">
+                  {/* Current Attendees (벙주는 참석 고정, 일반 참석자는 터치 시 미참석 전환) */}
+                  <div className="admin-edit-chip-wrap">
+                    {displayAttendeeUids.map((uid) => {
+                      const mem = members.find((m) => m.uid === uid);
+                      if (!mem) return null;
+                      const isHost = uid === meeting.hostUid;
+                      return (
+                        <button
+                          key={uid}
+                          type="button"
+                          disabled={isHost}
+                          className={`admin-edit-member-chip ${
+                            isHost ? 'is-host' : ''
+                          }`}
+                          onClick={() => handleAdminToggleAttendee(uid)}
+                        >
+                          <span>{formatMemberNickname(mem)}</span>
+                          {isHost ? (
+                            <span className="admin-edit-role-tag">벙주</span>
+                          ) : (
+                            <span className="admin-edit-role-tag">미참석 ✕</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Add Attendee Search Box */}
+                  <div className="admin-edit-search-box">
+                    <input
+                      type="text"
+                      className="admin-edit-search-input"
+                      placeholder="참석자 추가 검색 (이름·닉네임·지역)"
+                      value={attendeeSearchQuery}
+                      onChange={(e) => setAttendeeSearchQuery(e.target.value)}
+                    />
+                    <div className="admin-edit-search-list">
+                      {filteredAttendeeCandidates.map((m) => (
+                        <button
+                          key={m.uid}
+                          type="button"
+                          className="admin-edit-search-item"
+                          onClick={() => {
+                            handleAdminToggleAttendee(m.uid);
+                            setAttendeeSearchQuery('');
+                          }}
+                        >
+                          <span>{formatMemberNickname(m)}</span>
+                          <span className="admin-edit-role-tag">+ 참석</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Prominent 벙대기실 Entry Card (Only rendered to attendees & admins when requestAttendance !== false) */}
         {isBungMeeting && canAccessLounge && (
           loungeOpen ? (
@@ -1652,11 +2057,9 @@ export default function MeetingDetailPage({
               <div className="lounge-entry-body">
                 <div className="lounge-entry-title">
                   <strong>벙대기실 입장하기</strong>
-                  {isApplied || isConfirmedParticipant ? (
+                  {(isApplied || isConfirmedParticipant) && (
                     <span className="lounge-attend-badge">참석 중</span>
-                  ) : adminUser ? (
-                    <span className="location-pill">운영진 참관</span>
-                  ) : null}
+                  )}
                 </div>
               </div>
               <span className="lounge-entry-arrow" aria-hidden="true">
@@ -1828,7 +2231,7 @@ export default function MeetingDetailPage({
                       <span>{meeting.date}</span>
                       {meeting.location && <span> · {meeting.location}</span>}
                       <span>
-                        {' '}· 주최:{' '}
+                        {' '}· 벙주:{' '}
                         {hostMember ? hostMember.realName : meeting.hostUid} ·
                         총무:{' '}
                         {treasurerMember
@@ -2358,7 +2761,7 @@ export default function MeetingDetailPage({
 
                         {/* Compact Participant Chips */}
                         <div className="chip-list">
-                          {applicants.map((uid) => {
+                          {displayAttendeeUids.map((uid) => {
                             const m = members.find((mem) => mem.uid === uid);
                             if (!m) return null;
                             const checked = rParticipants.includes(uid);
@@ -2535,11 +2938,6 @@ export default function MeetingDetailPage({
                             ? '내가 보낼 회비'
                             : '총무에게 환급받을 정산금'
                           : '1/N 정산 대상 총액'}
-                        {!mySettlementRow && adminUser && (
-                          <span className="location-pill" style={{ marginLeft: '6px' }}>
-                            운영진 참관
-                          </span>
-                        )}
                       </div>
                       <div className="preview-value">
                         {mySettlementRow
@@ -2857,13 +3255,47 @@ export default function MeetingDetailPage({
                       )}
 
                       {canManage && meeting.status === 'open' && (
-                        <button
-                          type="button"
-                          className="btn btn-settle"
-                          onClick={handleFinalizeSettlement}
-                        >
-                          최종 마감 · 참석 점수 정산 완료
-                        </button>
+                        <div className="stack-gap">
+                          {(!regionDetection.recognized || showSettleRegionPrompt) && (
+                            <div className="participants-box stack-gap">
+                              <div className="meeting-top">
+                                <strong>권역 선택</strong>
+                                <span className="sub-meta">점수 산정용</span>
+                              </div>
+                              <div
+                                style={{
+                                  display: 'grid',
+                                  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                                  gap: '6px'
+                                }}
+                              >
+                                {REGION_GROUPS.map((reg) => {
+                                  const isSelected = settleRegionChoice === reg;
+                                  return (
+                                    <button
+                                      key={reg}
+                                      type="button"
+                                      className={`btn btn-sm ${
+                                        isSelected ? 'btn-primary' : 'btn-outline'
+                                      }`}
+                                      onClick={() => setSettleRegionChoice(reg)}
+                                    >
+                                      {reg}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            className="btn btn-settle"
+                            disabled={!regionDetection.recognized && !settleRegionChoice}
+                            onClick={handleFinalizeSettlement}
+                          >
+                            최종 마감 · 참석 점수 정산 완료
+                          </button>
+                        </div>
                       )}
                     </div>
                   )}
@@ -2879,15 +3311,10 @@ export default function MeetingDetailPage({
                     <div>
                       <div className="preview-caption">
                         내 안심 귀가 상태
-                        {adminUser && !isApplied && !isConfirmedParticipant && (
-                          <span className="location-pill" style={{ marginLeft: '6px' }}>
-                            운영진 참관
-                          </span>
-                        )}
                       </div>
                       <div className="preview-value">
                         {adminUser && !isApplied && !isConfirmedParticipant
-                          ? '참관 중 (귀가 확인 제외)'
+                          ? '귀가 확인 제외'
                           : mySafeReturn || '귀가 전'}
                       </div>
                     </div>
@@ -2912,7 +3339,7 @@ export default function MeetingDetailPage({
                     const returnTime = safeReturns[uid];
                     const scoreInfo = calculateMeetingScoreForMember(
                       m,
-                      meeting.location
+                      regionDetection.region || meeting.location
                     );
                     return (
                       <div key={uid} className="ranking-row">
@@ -3534,23 +3961,6 @@ export default function MeetingDetailPage({
             </div>
           </div>
         </div>
-      )}
-
-      {isAdminEditModalOpen && (
-        <AdminMeetingEditModal
-          isOpen={isAdminEditModalOpen}
-          meeting={meeting}
-          members={members}
-          onSave={async (saved) => {
-            if (onAdminSaveMeeting) {
-              await onAdminSaveMeeting(saved);
-            } else if (onUpdateMeeting) {
-              await onUpdateMeeting(saved.id, saved);
-            }
-          }}
-          onClose={() => setIsAdminEditModalOpen(false)}
-          onDelete={handleDeleteThisMeeting}
-        />
       )}
     </div>
   );

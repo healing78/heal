@@ -41,6 +41,14 @@
   - 한국 문화에서는 사람의 이름(실명, 규격 닉네임)을 빨간색으로 표기하는 것을 강하게 금기시합니다.
   - `rose` 테마의 포인트 색상(`--color-primary: #e11d48`)이 닉네임 생성기(`.nickname-preview-box .preview-value`), 프로필, 랭킹 리스트, 참석자 명단, 토글 칩(`.member-chip-btn`) 등 회원 이름/닉네임 텍스트에 적용되지 않도록 보장해야 합니다.
   - 사람의 이름 및 닉네임 텍스트는 모든 테마(mono, excel, rose)에서 항상 짙은 기본 텍스트 색상(`var(--color-text-primary, #0f172a)`)을 유지해야 합니다.
+- **Operator Edit UI Theme Palette (운영자 전용 편집 UI 테마 팔레트 규칙):**
+  - 운영자(`Leader`, `Deputy`, `Stealth SuperAdmin`)에게만 노출되는 인라인 편집 카드 및 아코디언(`.admin-edit-accordion*`)은 일반 회원 화면과 시각적으로 명확히 구분되면서도 각 테마와 조화를 이루도록 `src/styles/global.css`의 `--admin-edit-*` CSS 변수를 일관되게 사용합니다:
+    - **`mono` (Cool Slate):** 배경 `--admin-edit-bg: #f1f5f9`, 테두리 `--admin-edit-border: #cbd5e1`, 강조 `--admin-edit-accent: #334155`, 칩 배경 `--admin-edit-chip-bg: #e2e8f0`
+    - **`excel` (Mint Green):** 배경 `--admin-edit-bg: #ecfdf5`, 테두리 `--admin-edit-border: #a7f3d0`, 강조 `--admin-edit-accent: #0f766e`, 칩 배경 `--admin-edit-chip-bg: #d1fae5`
+    - **`rose` (Soft Lavender & Purple):** 배경 `--admin-edit-bg: #f5f3ff`, 테두리 `--admin-edit-border: #ddd6fe`, 강조 `--admin-edit-accent: #6d28d9`, 칩 배경 `--admin-edit-chip-bg: #ede9fe` (일반 핑크 영역과 구분되면서 한국 문화 이름 빨간색 금기를 완벽히 준수하는 보라/라벤더 톤)
+- **Terminology & Badge Cleanliness Rule (용어 통일 및 불필요한 캡슐 배지 금지):**
+  - 모임 주최자 명칭은 모든 화면에서 **`벙주`**로 단일 통일합니다 (`벙주(주최자)`, `주최자`, `주최` 표기 금지).
+  - 화면을 복잡하게 만드는 `[기본값]`, `[운영진 참관]` 등의 부연 캡슐 알림 배지는 사용하지 않습니다.
 - **Zero-Explanation / Data-Only UI Rule (불필요한 설명 문구 절대 금지):**
   - 페이지를 생성하거나 수정할 때 화면 안에 기능 소개, 사용 방법 안내, 규칙 부연 설명, 가이드 박스(`.muted-text` 설명 줄글, `.rules-list`, 괄호 안의 장황한 부연 라벨 등)를 넣지 않습니다.
   - 모든 화면은 오직 **간결한 섹션 제목, 핵심 데이터, 짧은 입력 라벨(2~6자), 액션 버튼**만 남기고 직관적으로 구성합니다 (유일한 예외: 홈 화면 상단의 운영진 공지 본문).

@@ -93,11 +93,52 @@ export const resolveRegionGroup = (locationStr) => {
   if (!clean) return { id: 1, name: '서울·경기' };
 
   for (const group of REGION_GROUPS) {
-    if (group.keywords.some((kw) => clean.includes(kw))) {
+    if (
+      clean === group.name ||
+      group.keywords.some((kw) => clean.includes(kw))
+    ) {
       return { id: group.id, name: group.name };
     }
   }
   return { id: 1, name: clean };
+};
+
+/**
+ * Checks if a meeting has a recognizable region keyword in placeDetail, location, or rounds (1차, 2차, ...).
+ * Returns { recognized: boolean, group: object|null, matchedKeyword: string }
+ */
+export const detectMeetingRegion = (meeting) => {
+  if (!meeting) return { recognized: false, group: null, matchedKeyword: '' };
+  const candidates = [
+    meeting.placeDetail,
+    meeting.location,
+    ...(Array.isArray(meeting.rounds)
+      ? meeting.rounds.map((r) => r?.placeName)
+      : [])
+  ]
+    .map((s) => String(s || '').trim())
+    .filter(Boolean);
+
+  for (const text of candidates) {
+    for (const group of REGION_GROUPS) {
+      if (text === group.name) {
+        return {
+          recognized: true,
+          group: { id: group.id, name: group.name },
+          matchedKeyword: group.keywords[0] || group.name
+        };
+      }
+      const matched = group.keywords.find((kw) => text.includes(kw));
+      if (matched) {
+        return {
+          recognized: true,
+          group: { id: group.id, name: group.name },
+          matchedKeyword: matched
+        };
+      }
+    }
+  }
+  return { recognized: false, group: null, matchedKeyword: '' };
 };
 
 export const MASTER_ADMIN_SECRET =
@@ -181,18 +222,18 @@ export const canCreateMeeting = (member) => {
 /**
  * Checks whether a member can edit/manage/settle a meeting (Host, Treasurer, or Admin).
  */
-export const canManageMeeting = (member, meeting) => {
+export const canManageMeeting = (member, meeting, communityConfig = {}) => {
   if (!member || !meeting) return false;
   return (
     member.uid === meeting.hostUid ||
     member.uid === meeting.treasurerUid ||
-    isAdminRole(member.role)
+    isAdminUser(member, communityConfig)
   );
 };
 
-export const canSettleMeeting = (member, meeting) => {
+export const canSettleMeeting = (member, meeting, communityConfig = {}) => {
   if (!member || !meeting || meeting.status !== 'open') return false;
-  return canManageMeeting(member, meeting);
+  return canManageMeeting(member, meeting, communityConfig);
 };
 
 /**
