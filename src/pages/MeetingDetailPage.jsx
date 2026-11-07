@@ -424,6 +424,8 @@ export default function MeetingDetailPage({
     amount: '',
     memo: ''
   });
+  const [isSponsorSearchOpen, setIsSponsorSearchOpen] = useState(false);
+  const [sponsorSearchQuery, setSponsorSearchQuery] = useState('');
   const [previewReceiptUrl, setPreviewReceiptUrl] = useState('');
   const [commentInput, setCommentInput] = useState('');
 
@@ -959,7 +961,7 @@ export default function MeetingDetailPage({
 
   // Sponsorship management (찬조금)
   const handleAddSponsorship = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     const numericAmount = Number(sponsorForm.amount);
     if (!sponsorForm.uid || !numericAmount || numericAmount <= 0) return;
     const entry = {
@@ -976,6 +978,8 @@ export default function MeetingDetailPage({
       amount: '',
       memo: ''
     });
+    setIsSponsorSearchOpen(false);
+    setSponsorSearchQuery('');
   };
 
   const handleDeleteSponsorship = async (spId) => {
@@ -1441,6 +1445,24 @@ export default function MeetingDetailPage({
       })
       .slice(0, 20);
   }, [sortedMembers, displayAttendeeUids, attendeeSearchQuery]);
+
+  const filteredSponsorCandidates = useMemo(() => {
+    const q = sponsorSearchQuery.trim().toLowerCase();
+    if (!q) {
+      const nonAttendees = sortedMembers.filter(
+        (m) => !displayAttendeeUids.includes(m.uid)
+      );
+      return [...attendeeMembers, ...nonAttendees].slice(0, 25);
+    }
+    return sortedMembers
+      .filter((m) => {
+        const real = (m.realName || '').toLowerCase();
+        const nick = (m.nickname || '').toLowerCase();
+        const city = (m.city || m.homeCity || '').toLowerCase();
+        return real.includes(q) || nick.includes(q) || city.includes(q);
+      })
+      .slice(0, 25);
+  }, [sortedMembers, attendeeMembers, displayAttendeeUids, sponsorSearchQuery]);
 
   return (
     <div
@@ -2002,8 +2024,8 @@ export default function MeetingDetailPage({
           </form>
         )}
 
-        {/* Admin-Only Collapsible Accordions: "벙주 변경" & "참석자 변경" */}
-        {adminUser && (
+        {/* Admin-Only Collapsible Accordions: "벙주 변경" & "참석자 변경" (일정 수정 시에만 노출) */}
+        {editingInfo && adminUser && (
           <div className="admin-edit-accordion-group">
             {/* Accordion 1: 벙주 변경 */}
             <div className="admin-edit-accordion">
@@ -3581,44 +3603,154 @@ export default function MeetingDetailPage({
                           );
                         })}
 
+                        {/* 찬조 추가 폼 (검색형 찬조자 선택) */}
                         <form
                           onSubmit={handleAddSponsorship}
-                          className="inline-input-row"
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                            marginTop: '8px'
+                          }}
                         >
-                          <select
-                            value={sponsorForm.uid}
-                            onChange={(e) =>
-                              setSponsorForm({
-                                ...sponsorForm,
-                                uid: e.target.value
-                              })
-                            }
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: '6px',
+                              alignItems: 'center'
+                            }}
                           >
-                            {members.map((m) => (
-                              <option key={m.uid} value={m.uid}>
-                                {m.realName}
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            type="number"
-                            min="1000"
-                            step="1000"
-                            placeholder="찬조 금액"
-                            value={sponsorForm.amount}
-                            onChange={(e) =>
-                              setSponsorForm({
-                                ...sponsorForm,
-                                amount: e.target.value
-                              })
-                            }
-                          />
-                          <button
-                            type="submit"
-                            className="btn btn-outline btn-sm"
-                          >
-                            찬조 추가
-                          </button>
+                            <button
+                              type="button"
+                              className="btn btn-outline btn-sm"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                flex: '1 1 140px',
+                                justifyContent: 'space-between'
+                              }}
+                              onClick={() =>
+                                setIsSponsorSearchOpen((prev) => !prev)
+                              }
+                            >
+                              <span>
+                                찬조자:{' '}
+                                <strong>
+                                  {(() => {
+                                    const spM = members.find(
+                                      (m) => m.uid === sponsorForm.uid
+                                    );
+                                    return spM
+                                      ? formatMemberNickname(spM)
+                                      : '선택';
+                                  })()}
+                                </strong>
+                              </span>
+                              <span style={{ fontSize: '10px', opacity: 0.7 }}>
+                                {isSponsorSearchOpen ? '▲' : '▼'}
+                              </span>
+                            </button>
+
+                            <input
+                              type="number"
+                              min="1000"
+                              step="1000"
+                              placeholder="찬조 금액"
+                              style={{ flex: '1 1 110px' }}
+                              value={sponsorForm.amount}
+                              onChange={(e) =>
+                                setSponsorForm({
+                                  ...sponsorForm,
+                                  amount: e.target.value
+                                })
+                              }
+                            />
+
+                            <input
+                              type="text"
+                              placeholder="내용(선택)"
+                              style={{ flex: '1 1 100px' }}
+                              value={sponsorForm.memo}
+                              onChange={(e) =>
+                                setSponsorForm({
+                                  ...sponsorForm,
+                                  memo: e.target.value
+                                })
+                              }
+                            />
+
+                            <button
+                              type="submit"
+                              className="btn btn-outline btn-sm"
+                              disabled={
+                                !sponsorForm.uid ||
+                                !sponsorForm.amount ||
+                                Number(sponsorForm.amount) <= 0
+                              }
+                            >
+                              찬조 추가
+                            </button>
+                          </div>
+
+                          {isSponsorSearchOpen && (
+                            <div className="admin-edit-search-box">
+                              <input
+                                type="text"
+                                className="admin-edit-search-input"
+                                placeholder="찬조자 검색 (이름·닉네임·지역)"
+                                value={sponsorSearchQuery}
+                                onChange={(e) =>
+                                  setSponsorSearchQuery(e.target.value)
+                                }
+                                autoFocus
+                              />
+                              <div className="admin-edit-search-list">
+                                {filteredSponsorCandidates.length === 0 ? (
+                                  <div
+                                    className="muted-text"
+                                    style={{
+                                      padding: '8px',
+                                      fontSize: '12px',
+                                      textAlign: 'center'
+                                    }}
+                                  >
+                                    일치하는 회원이 없습니다.
+                                  </div>
+                                ) : (
+                                  filteredSponsorCandidates.map((m) => {
+                                    const isSelected =
+                                      m.uid === sponsorForm.uid;
+                                    const isAttendee =
+                                      displayAttendeeUids.includes(m.uid);
+                                    return (
+                                      <button
+                                        key={m.uid}
+                                        type="button"
+                                        className={`admin-edit-search-item ${
+                                          isSelected ? 'is-selected' : ''
+                                        }`}
+                                        onClick={() => {
+                                          setSponsorForm((prev) => ({
+                                            ...prev,
+                                            uid: m.uid
+                                          }));
+                                          setIsSponsorSearchOpen(false);
+                                          setSponsorSearchQuery('');
+                                        }}
+                                      >
+                                        <span>{formatMemberNickname(m)}</span>
+                                        <span className="sub-meta">
+                                          {isAttendee ? '참석자' : m.city || ''}
+                                        </span>
+                                      </button>
+                                    );
+                                  })
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </form>
                       </div>
 
