@@ -71,14 +71,7 @@ function buildScheduleMeta(mtg) {
     timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
   }
 
-  const firstRoundPlace = mtg.rounds?.[0]?.placeName || mtg.placeDetail || '';
-  const baseLocation = (mtg.location || '').trim();
-  let locationText = baseLocation;
-  if (firstRoundPlace) {
-    locationText = firstRoundPlace.startsWith(baseLocation)
-      ? firstRoundPlace
-      : `${baseLocation} ${firstRoundPlace}`.trim();
-  }
+  const locationText = (mtg.placeDetail || mtg.location || '').trim();
 
   return {
     monthKey: `${year}-${String(month).padStart(2, '0')}`,
