@@ -3,7 +3,8 @@ import {
   canCreateMeeting,
   REGION_GROUPS,
   isAdminUser,
-  cleanScheduleLocation
+  cleanScheduleLocation,
+  detectRegionFromText
 } from '../core/communityRules';
 import MeetingDetailPage from './MeetingDetailPage';
 import BungRecordsTab from '../components/BungRecordsTab';
@@ -147,9 +148,12 @@ export default function MeetingsPage({
     endTime: '13:00',
     allDay: false,
     placeDetail: '',
+    region: '',
     reminder: '15분 전',
     requestAttendance: true
   });
+
+  const scheduleRegionDetected = detectRegionFromText(newSchedule.placeDetail);
 
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
 
@@ -219,6 +223,10 @@ export default function MeetingsPage({
     if (!newSchedule.title.trim()) return;
 
     const placeInput = newSchedule.placeDetail.trim();
+    const resolvedRegion = scheduleRegionDetected.recognized
+      ? scheduleRegionDetected.group.name
+      : (newSchedule.region || '');
+
     const created = await onCreateMeeting({
       title: newSchedule.title.trim(),
       dateOnly: newSchedule.dateOnly,
@@ -228,6 +236,7 @@ export default function MeetingsPage({
       allDay: newSchedule.allDay,
       location: placeInput,
       placeDetail: placeInput,
+      region: resolvedRegion,
       reminder: newSchedule.reminder,
       requestAttendance: newSchedule.requestAttendance,
       treasurerUid: currentUser.uid,
@@ -244,6 +253,7 @@ export default function MeetingsPage({
       endTime: '13:00',
       allDay: false,
       placeDetail: '',
+      region: '',
       reminder: '15분 전',
       requestAttendance: true
     });
@@ -539,6 +549,47 @@ export default function MeetingsPage({
                       </option>
                     ))}
                   </datalist>
+
+                  {/* Smart Region Detection / Fallback Dropdown */}
+                  {newSchedule.placeDetail.trim() && (
+                    <div style={{ marginTop: '4px', fontSize: '11px' }}>
+                      {scheduleRegionDetected.recognized ? (
+                        <span style={{ color: '#059669', fontWeight: 600 }}>
+                          ✓ {scheduleRegionDetected.group.name} (권역 자동 감지)
+                        </span>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                          <span style={{ color: '#d97706', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            권역 설정:
+                          </span>
+                          <select
+                            style={{
+                              fontSize: '11px',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              border: '1px solid #cbd5e1',
+                              background: 'var(--color-surface, #ffffff)',
+                              color: 'var(--color-text, #1e293b)'
+                            }}
+                            value={newSchedule.region || ''}
+                            onChange={(e) =>
+                              setNewSchedule((prev) => ({
+                                ...prev,
+                                region: e.target.value
+                              }))
+                            }
+                          >
+                            <option value="">권역을 선택해주세요 (점수 산정용)</option>
+                            {REGION_GROUPS.map((g) => (
+                              <option key={g.id} value={g.name}>
+                                {g.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

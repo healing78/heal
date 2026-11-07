@@ -644,6 +644,7 @@ export const createMeeting = async (hostUid, meetingInput) => {
     date: combinedDate,
     location: resolvedLocation,
     placeDetail: rawPlaceInput,
+    region: (meetingInput.region || resolvedLocation || '').trim(),
     hostUid,
     treasurerUid: meetingInput.treasurerUid || hostUid,
     type: meetingInput.type || 'Casual',
@@ -799,6 +800,7 @@ export const adminSaveFullMeeting = async (meetingInput) => {
     date: `${dateOnly} ${meetingInput.allDay ? '00:00' : meetingInput.startTime || '19:00'}`,
     location: (meetingInput.location || '서울').trim(),
     placeDetail: (meetingInput.placeDetail || '').trim(),
+    region: (meetingInput.region || existing?.region || '').trim(),
     hostUid: meetingInput.hostUid || existing?.hostUid || '',
     treasurerUid:
       meetingInput.treasurerUid !== undefined

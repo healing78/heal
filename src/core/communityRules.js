@@ -104,12 +104,42 @@ export const resolveRegionGroup = (locationStr) => {
 };
 
 /**
- * Checks if a meeting has a recognizable region keyword in placeDetail, location, or rounds (1차, 2차, ...).
+ * Detects region group from a single piece of text.
+ * Returns { recognized: boolean, group: object|null, matchedKeyword: string }
+ */
+export const detectRegionFromText = (rawText = '') => {
+  const text = String(rawText || '').trim();
+  if (!text) return { recognized: false, group: null, matchedKeyword: '' };
+
+  for (const group of REGION_GROUPS) {
+    if (text === group.name) {
+      return {
+        recognized: true,
+        group: { id: group.id, name: group.name },
+        matchedKeyword: group.keywords[0] || group.name
+      };
+    }
+    const matched = group.keywords.find((kw) => text.includes(kw));
+    if (matched) {
+      return {
+        recognized: true,
+        group: { id: group.id, name: group.name },
+        matchedKeyword: matched
+      };
+    }
+  }
+  return { recognized: false, group: null, matchedKeyword: '' };
+};
+
+/**
+ * Checks if a meeting has a recognizable region keyword in explicit region, placeDetail, location, or rounds (1차, 2차, ...).
  * Returns { recognized: boolean, group: object|null, matchedKeyword: string }
  */
 export const detectMeetingRegion = (meeting) => {
   if (!meeting) return { recognized: false, group: null, matchedKeyword: '' };
   const candidates = [
+    meeting.region,
+    meeting.regionGroup,
     meeting.placeDetail,
     meeting.location,
     ...(Array.isArray(meeting.rounds)
@@ -120,23 +150,8 @@ export const detectMeetingRegion = (meeting) => {
     .filter(Boolean);
 
   for (const text of candidates) {
-    for (const group of REGION_GROUPS) {
-      if (text === group.name) {
-        return {
-          recognized: true,
-          group: { id: group.id, name: group.name },
-          matchedKeyword: group.keywords[0] || group.name
-        };
-      }
-      const matched = group.keywords.find((kw) => text.includes(kw));
-      if (matched) {
-        return {
-          recognized: true,
-          group: { id: group.id, name: group.name },
-          matchedKeyword: matched
-        };
-      }
-    }
+    const res = detectRegionFromText(text);
+    if (res.recognized) return res;
   }
   return { recognized: false, group: null, matchedKeyword: '' };
 };

@@ -5,6 +5,7 @@ import {
   canManageMeeting,
   cleanScheduleLocation,
   detectMeetingRegion,
+  detectRegionFromText,
   formatMemberNickname,
   isAdminUser,
   REGION_GROUPS
@@ -402,12 +403,15 @@ export default function MeetingDetailPage({
       cleanScheduleLocation(meeting.location, meeting.rounds?.[0]?.placeName) ||
       cleanScheduleLocation(meeting.placeDetail, meeting.rounds?.[0]?.placeName) ||
       '',
+    region: meeting.region || '',
     reminder: meeting.reminder || '15분 전',
     requestAttendance: meeting.requestAttendance !== false,
     treasurerUid: meeting.treasurerUid || meeting.hostUid,
     type: meeting.type || 'Casual',
     description: meeting.description || ''
   });
+
+  const editRegionDetected = detectRegionFromText(infoForm.placeDetail);
 
   const [myBankInput, setMyBankInput] = useState(
     currentUser?.bankAccount || ''
@@ -830,6 +834,9 @@ export default function MeetingDetailPage({
       date: combinedDate,
       location: cleanPlace,
       placeDetail: cleanPlace,
+      region: editRegionDetected.recognized
+        ? editRegionDetected.group.name
+        : (infoForm.region || meeting.region || ''),
       reminder: infoForm.reminder || '15분 전',
       requestAttendance: infoForm.requestAttendance,
       treasurerUid: infoForm.treasurerUid,
@@ -1803,6 +1810,47 @@ export default function MeetingDetailPage({
                       </option>
                     ))}
                   </datalist>
+
+                  {/* Smart Region Detection / Fallback Dropdown */}
+                  {infoForm.placeDetail.trim() && (
+                    <div style={{ marginTop: '4px', fontSize: '11px' }}>
+                      {editRegionDetected.recognized ? (
+                        <span style={{ color: '#059669', fontWeight: 600 }}>
+                          ✓ {editRegionDetected.group.name} (권역 자동 감지)
+                        </span>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                          <span style={{ color: '#d97706', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            권역 설정:
+                          </span>
+                          <select
+                            style={{
+                              fontSize: '11px',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              border: '1px solid #cbd5e1',
+                              background: 'var(--color-surface, #ffffff)',
+                              color: 'var(--color-text, #1e293b)'
+                            }}
+                            value={infoForm.region || ''}
+                            onChange={(e) =>
+                              setInfoForm((prev) => ({
+                                ...prev,
+                                region: e.target.value
+                              }))
+                            }
+                          >
+                            <option value="">권역을 선택해주세요 (점수 산정용)</option>
+                            {REGION_GROUPS.map((g) => (
+                              <option key={g.id} value={g.name}>
+                                {g.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -3105,12 +3153,58 @@ export default function MeetingDetailPage({
                                         const isUrl = /^https?:\/\//i.test(
                                           val.trim()
                                         );
+                                        const detected = idx === 0 ? detectRegionFromText(val) : null;
                                         handleUpdateRoundField(idx, {
                                           placeName: val,
                                           ...(isUrl ? { mapUrl: val.trim() } : {})
                                         });
+                                        if (detected && detected.recognized) {
+                                          onUpdateMeeting(meeting.id, {
+                                            region: detected.group.name
+                                          });
+                                        }
                                       }}
                                     />
+
+                                    {/* Smart Region Detection / Fallback Dropdown for 1차 장소 */}
+                                    {idx === 0 && (r.placeName || '').trim() && (
+                                      <div style={{ marginTop: '4px', fontSize: '11px' }}>
+                                        {detectRegionFromText(r.placeName).recognized ? (
+                                          <span style={{ color: '#059669', fontWeight: 600 }}>
+                                            ✓ {detectRegionFromText(r.placeName).group.name} (권역 자동 감지)
+                                          </span>
+                                        ) : (
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                                            <span style={{ color: '#d97706', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                              권역 설정:
+                                            </span>
+                                            <select
+                                              style={{
+                                                fontSize: '11px',
+                                                padding: '2px 8px',
+                                                borderRadius: '6px',
+                                                border: '1px solid #cbd5e1',
+                                                background: 'var(--color-surface, #ffffff)',
+                                                color: 'var(--color-text, #1e293b)'
+                                              }}
+                                              value={meeting.region || ''}
+                                              onChange={(e) =>
+                                                onUpdateMeeting(meeting.id, {
+                                                  region: e.target.value
+                                                })
+                                              }
+                                            >
+                                              <option value="">권역을 선택해주세요 (점수 산정용)</option>
+                                              {REGION_GROUPS.map((g) => (
+                                                <option key={g.id} value={g.name}>
+                                                  {g.name}
+                                                </option>
+                                              ))}
+                                            </select>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                   <div className="form-field">
                                     <label>{idx + 1}차 결제자</label>
