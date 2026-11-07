@@ -316,7 +316,7 @@ export const INITIAL_MEMBERS = [
     "unlockedAlbums": []
   },
   {
-    "uid": "kakao:1016",
+    "uid": "kakao:5166442426",
     "realName": "카일",
     "city": "수원",
     "homeCity": "수원",
@@ -421,7 +421,7 @@ export const INITIAL_MEMBERS = [
     "unlockedAlbums": []
   },
   {
-    "uid": "kakao:1021",
+    "uid": "kakao:5172630139",
     "realName": "쩡쩡",
     "city": "노원",
     "homeCity": "노원",
@@ -547,7 +547,7 @@ export const INITIAL_MEMBERS = [
     "unlockedAlbums": []
   },
   {
-    "uid": "kakao:1027",
+    "uid": "kakao:5172644939",
     "realName": "루크",
     "city": "인천",
     "homeCity": "인천",
@@ -715,7 +715,7 @@ export const INITIAL_MEMBERS = [
     "unlockedAlbums": []
   },
   {
-    "uid": "kakao:1035",
+    "uid": "kakao:5172677404",
     "realName": "상큼",
     "city": "화성",
     "homeCity": "화성",
@@ -820,7 +820,7 @@ export const INITIAL_MEMBERS = [
     "unlockedAlbums": []
   },
   {
-    "uid": "kakao:1040",
+    "uid": "kakao:5172627322",
     "realName": "연이",
     "city": "광주",
     "homeCity": "광주",
@@ -3004,7 +3004,7 @@ export const INITIAL_MEMBERS = [
     "unlockedAlbums": []
   },
   {
-    "uid": "kakao:2001",
+    "uid": "kakao:2128",
     "realName": "가을",
     "city": "시흥",
     "homeCity": "시흥",
@@ -6160,7 +6160,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1036",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1010"
     ],
     "confirmedParticipants": [
@@ -6174,7 +6174,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1036",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1010"
     ],
     "description": "논현벙 (2026-10-27) 벙기록입니다.",
@@ -6196,7 +6196,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1003",
           "kakao:1036",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1010"
         ],
         "payerUid": "kakao:1001",
@@ -6249,7 +6249,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -6537,12 +6537,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "open",
     "applicants": [
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1028",
       "kakao:1017",
@@ -6550,7 +6550,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1028",
       "kakao:1017",
@@ -6566,7 +6566,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:1028",
           "kakao:1017",
@@ -6586,7 +6586,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -6610,7 +6610,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014"
     ],
     "comments": [],
@@ -6961,7 +6961,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1007",
       "kakao:1052",
       "kakao:1033",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1032",
       "kakao:1003"
@@ -6970,7 +6970,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1007",
       "kakao:1052",
       "kakao:1033",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1032",
       "kakao:1003"
@@ -6987,7 +6987,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1007",
           "kakao:1052",
           "kakao:1033",
-          "kakao:2001",
+          "kakao:2128",
           "kakao:1064",
           "kakao:1032",
           "kakao:1003"
@@ -7014,7 +7014,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:2001": {
+      "kakao:2128": {
         "paid": true,
         "confirmed": true
       },
@@ -7050,12 +7050,12 @@ export const INITIAL_MEETINGS = [
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1018",
       "kakao:1012",
       "kakao:1082",
@@ -7064,7 +7064,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1018",
       "kakao:1012",
       "kakao:1082",
@@ -7081,7 +7081,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1018",
           "kakao:1012",
           "kakao:1082",
@@ -7102,7 +7102,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -7130,7 +7130,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1018"
     ],
     "comments": [],
@@ -7221,13 +7221,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1020",
       "kakao:1017",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1008",
       "kakao:1020",
       "kakao:1017",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "미사벙 (2026-10-10) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -7241,7 +7241,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1008",
           "kakao:1020",
           "kakao:1017",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1008",
         "cost": 80000,
@@ -7265,7 +7265,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -7869,16 +7869,16 @@ export const INITIAL_MEETINGS = [
     "date": "2026-09-30 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1034",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1013",
       "kakao:1034",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1054",
       "kakao:1046",
       "kakao:1093"
@@ -7886,9 +7886,9 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1013",
       "kakao:1034",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1054",
       "kakao:1046",
       "kakao:1093"
@@ -7904,14 +7904,14 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1013",
           "kakao:1034",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1011",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1054",
           "kakao:1046",
           "kakao:1093"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -7929,7 +7929,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -7937,7 +7937,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -7958,7 +7958,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1013",
       "kakao:1034",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -7979,13 +7979,13 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015"
     ],
     "confirmedParticipants": [
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015"
     ],
     "description": "동암닭한마리벙 (2026-09-29) 벙기록입니다.",
@@ -7999,7 +7999,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1004",
           "kakao:1009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015"
         ],
         "payerUid": "kakao:1004",
@@ -8020,7 +8020,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -8033,7 +8033,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -8136,7 +8136,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1004",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1001",
       "kakao:1056",
       "kakao:1089",
@@ -8147,7 +8147,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1004",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1001",
       "kakao:1056",
       "kakao:1089",
@@ -8166,7 +8166,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1004",
           "kakao:1002",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1001",
           "kakao:1056",
           "kakao:1089",
@@ -8192,7 +8192,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -8225,7 +8225,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1004",
       "kakao:1002",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -8326,14 +8326,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1068",
       "kakao:1132",
       "kakao:1108",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1010",
       "kakao:1018",
       "kakao:1009",
       "kakao:1098",
       "kakao:1089",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1001",
@@ -8343,14 +8343,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1068",
       "kakao:1132",
       "kakao:1108",
-      "kakao:2001",
+      "kakao:2128",
       "kakao:1064",
       "kakao:1010",
       "kakao:1018",
       "kakao:1009",
       "kakao:1098",
       "kakao:1089",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "한가위벙 (2026-09-25) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -8368,14 +8368,14 @@ export const INITIAL_MEETINGS = [
           "kakao:1068",
           "kakao:1132",
           "kakao:1108",
-          "kakao:2001",
+          "kakao:2128",
           "kakao:1064",
           "kakao:1010",
           "kakao:1018",
           "kakao:1009",
           "kakao:1098",
           "kakao:1089",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1001",
         "cost": 300000,
@@ -8415,7 +8415,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:2001": {
+      "kakao:2128": {
         "paid": true,
         "confirmed": true
       },
@@ -8443,7 +8443,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -8809,21 +8809,21 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1011",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1018"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1018"
     ],
     "description": "관악산등산벙 (2026-09-19) 벙기록입니다.",
@@ -8836,9 +8836,9 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1018"
         ],
         "payerUid": "kakao:1011",
@@ -8855,7 +8855,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -8863,7 +8863,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -8875,7 +8875,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015"
     ],
     "comments": [],
@@ -8890,7 +8890,7 @@ export const INITIAL_MEETINGS = [
     "date": "2026-09-19 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1050",
     "type": "Casual",
     "status": "settled",
@@ -8899,7 +8899,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1050",
       "kakao:2000",
       "kakao:1100",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1059",
       "kakao:1079",
       "kakao:1008",
@@ -8919,7 +8919,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1050",
       "kakao:2000",
       "kakao:1100",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1059",
       "kakao:1079",
       "kakao:1008",
@@ -8947,7 +8947,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1050",
           "kakao:2000",
           "kakao:1100",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1059",
           "kakao:1079",
           "kakao:1008",
@@ -8962,7 +8962,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1025",
           "kakao:1066"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 360000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -8988,7 +8988,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -9132,12 +9132,12 @@ export const INITIAL_MEETINGS = [
     "location": "제주",
     "placeDetail": "제주 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1035",
+    "treasurerUid": "kakao:5172677404",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1001",
       "kakao:1070",
       "kakao:1018",
@@ -9148,7 +9148,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1001",
       "kakao:1070",
       "kakao:1018",
@@ -9167,7 +9167,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1004",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1001",
           "kakao:1070",
           "kakao:1018",
@@ -9190,7 +9190,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -9226,7 +9226,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1001"
     ],
     "comments": [],
@@ -9351,7 +9351,7 @@ export const INITIAL_MEETINGS = [
     "date": "2026-09-16 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1002",
     "type": "Casual",
     "status": "settled",
@@ -9361,7 +9361,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1013",
       "kakao:1043",
       "kakao:1025",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "confirmedParticipants": [
       "kakao:1062",
@@ -9369,7 +9369,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1013",
       "kakao:1043",
       "kakao:1025",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "description": "광주점심벙 (2026-09-16) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -9385,9 +9385,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1013",
           "kakao:1043",
           "kakao:1025",
-          "kakao:1040"
+          "kakao:5172627322"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 120000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -9417,7 +9417,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       }
@@ -9605,17 +9605,17 @@ export const INITIAL_MEETINGS = [
     "location": "인천",
     "placeDetail": "인천 인근 약속 장소",
     "hostUid": "kakao:1015",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009"
     ],
     "confirmedParticipants": [
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009"
     ],
     "description": "인천벙 (2026-09-11) 벙기록입니다.",
@@ -9628,7 +9628,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1009"
         ],
         "payerUid": "kakao:1015",
@@ -9645,7 +9645,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -9657,7 +9657,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009"
     ],
     "comments": [],
@@ -9680,12 +9680,12 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1012",
       "kakao:1008",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1020",
       "kakao:1003",
       "kakao:1002",
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1017",
       "kakao:1082",
       "kakao:1091",
@@ -9696,12 +9696,12 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1012",
       "kakao:1008",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1020",
       "kakao:1003",
       "kakao:1002",
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1017",
       "kakao:1082",
       "kakao:1091",
@@ -9720,12 +9720,12 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1012",
           "kakao:1008",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1020",
           "kakao:1003",
           "kakao:1002",
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1017",
           "kakao:1082",
           "kakao:1091",
@@ -9754,7 +9754,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -9774,7 +9774,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -10569,14 +10569,14 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1015",
       "kakao:1004",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1006"
     ],
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1004",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1006"
     ],
@@ -10591,7 +10591,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1015",
           "kakao:1004",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1009",
           "kakao:1006"
         ],
@@ -10613,7 +10613,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -10630,7 +10630,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1015",
       "kakao:1004",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -10740,20 +10740,20 @@ export const INITIAL_MEETINGS = [
     "date": "2026-08-28 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1100"
     ],
     "confirmedParticipants": [
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1100"
     ],
     "description": "광주커벙 (2026-08-28) 벙기록입니다.",
@@ -10767,10 +10767,10 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1036",
           "kakao:1043",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1100"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -10788,7 +10788,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -10801,7 +10801,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "comments": [],
     "album": []
@@ -10822,7 +10822,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1011",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082",
       "kakao:1018",
       "kakao:1017"
@@ -10830,7 +10830,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082",
       "kakao:1018",
       "kakao:1017"
@@ -10846,7 +10846,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1011",
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1082",
           "kakao:1018",
           "kakao:1017"
@@ -10869,7 +10869,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -10890,7 +10890,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1011",
       "kakao:1001",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -11091,7 +11091,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1031",
       "kakao:1017",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1041",
       "kakao:1014"
     ],
@@ -11100,7 +11100,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1031",
       "kakao:1017",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1041",
       "kakao:1014"
     ],
@@ -11117,7 +11117,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1008",
           "kakao:1031",
           "kakao:1017",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1041",
           "kakao:1014"
         ],
@@ -11147,7 +11147,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -11186,7 +11186,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1017",
       "kakao:1019",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1003",
       "kakao:1020",
       "kakao:1008",
@@ -11198,7 +11198,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1017",
       "kakao:1019",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1003",
       "kakao:1020",
       "kakao:1008",
@@ -11218,7 +11218,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1017",
           "kakao:1019",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1003",
           "kakao:1020",
           "kakao:1008",
@@ -11248,7 +11248,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -11377,7 +11377,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1018",
       "kakao:1098",
       "kakao:1017",
@@ -11386,7 +11386,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1018",
       "kakao:1098",
       "kakao:1017",
@@ -11403,7 +11403,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1018",
           "kakao:1098",
           "kakao:1017",
@@ -11427,7 +11427,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -11452,7 +11452,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -11754,7 +11754,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1026",
       "kakao:1011",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1059",
       "kakao:2000",
       "kakao:1055",
@@ -11776,7 +11776,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1026",
       "kakao:1011",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1059",
       "kakao:2000",
       "kakao:1055",
@@ -11806,7 +11806,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1026",
           "kakao:1011",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1059",
           "kakao:2000",
           "kakao:1055",
@@ -11843,7 +11843,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -12012,7 +12012,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1007",
       "kakao:1036",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1033",
       "kakao:1011",
       "kakao:1003",
@@ -12024,7 +12024,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1007",
       "kakao:1036",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1033",
       "kakao:1011",
       "kakao:1003",
@@ -12044,7 +12044,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1007",
           "kakao:1036",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1033",
           "kakao:1011",
           "kakao:1003",
@@ -12071,7 +12071,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -12108,7 +12108,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1007",
       "kakao:1036",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -12211,7 +12211,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1110",
       "kakao:1019",
       "kakao:1015",
@@ -12220,7 +12220,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1110",
       "kakao:1019",
       "kakao:1015",
@@ -12237,7 +12237,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1110",
           "kakao:1019",
           "kakao:1015",
@@ -12261,7 +12261,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -12286,7 +12286,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1014",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -12307,14 +12307,14 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1019",
       "kakao:1017",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1008"
     ],
     "confirmedParticipants": [
       "kakao:1019",
       "kakao:1017",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1008"
     ],
@@ -12329,7 +12329,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1019",
           "kakao:1017",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:1008"
         ],
@@ -12351,7 +12351,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -12368,7 +12368,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1019",
       "kakao:1017",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -12594,12 +12594,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1011",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1028",
       "kakao:1011",
       "kakao:1017",
@@ -12607,13 +12607,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1055",
       "kakao:1019",
       "kakao:1093",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1012",
       "kakao:1006"
     ],
     "confirmedParticipants": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1028",
       "kakao:1011",
       "kakao:1017",
@@ -12621,7 +12621,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1055",
       "kakao:1019",
       "kakao:1093",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1012",
       "kakao:1006"
     ],
@@ -12635,7 +12635,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1028",
           "kakao:1011",
           "kakao:1017",
@@ -12643,7 +12643,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1055",
           "kakao:1019",
           "kakao:1093",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1012",
           "kakao:1006"
         ],
@@ -12661,7 +12661,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -12693,7 +12693,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -12709,7 +12709,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1028"
     ],
     "comments": [],
@@ -12904,13 +12904,13 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1015",
       "kakao:1006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1072"
     ],
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1072"
     ],
     "description": "서울역벙 (2026-08-06) 벙기록입니다.",
@@ -12924,7 +12924,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1015",
           "kakao:1006",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1072"
         ],
         "payerUid": "kakao:1015",
@@ -12945,7 +12945,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -12958,7 +12958,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1015",
       "kakao:1006",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -13190,14 +13190,14 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1015",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1006",
       "kakao:2003"
     ],
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1006",
       "kakao:2003"
     ],
@@ -13212,7 +13212,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1015",
           "kakao:1009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1006",
           "kakao:2003"
         ],
@@ -13234,7 +13234,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -13251,7 +13251,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1015",
       "kakao:1009",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -13434,7 +13434,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1110",
       "kakao:1019",
       "kakao:1017",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1005",
       "kakao:1093"
     ],
@@ -13446,7 +13446,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1110",
       "kakao:1019",
       "kakao:1017",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1005",
       "kakao:1093"
     ],
@@ -13466,7 +13466,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1110",
           "kakao:1019",
           "kakao:1017",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1005",
           "kakao:1093"
         ],
@@ -13508,7 +13508,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -13911,7 +13911,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1009",
       "kakao:1031",
       "kakao:1041",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1003",
       "kakao:1034",
       "kakao:1039",
@@ -13922,7 +13922,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1009",
       "kakao:1031",
       "kakao:1041",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1003",
       "kakao:1034",
       "kakao:1039",
@@ -13941,7 +13941,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1009",
           "kakao:1031",
           "kakao:1041",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1003",
           "kakao:1034",
           "kakao:1039",
@@ -13973,7 +13973,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -14101,20 +14101,20 @@ export const INITIAL_MEETINGS = [
     "date": "2026-07-27 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1017",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
       "kakao:1017",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1122"
     ],
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1017",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1122"
     ],
     "description": "강남벙 (2026-07-27) 벙기록입니다.",
@@ -14128,10 +14128,10 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1011",
           "kakao:1017",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1122"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -14149,7 +14149,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -14162,7 +14162,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1011",
       "kakao:1017",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -14183,8 +14183,8 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1011",
       "kakao:1006",
-      "kakao:1035",
-      "kakao:1027",
+      "kakao:5172677404",
+      "kakao:5172644939",
       "kakao:1044",
       "kakao:1010",
       "kakao:1032",
@@ -14195,8 +14195,8 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1006",
-      "kakao:1035",
-      "kakao:1027",
+      "kakao:5172677404",
+      "kakao:5172644939",
       "kakao:1044",
       "kakao:1010",
       "kakao:1032",
@@ -14215,8 +14215,8 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1011",
           "kakao:1006",
-          "kakao:1035",
-          "kakao:1027",
+          "kakao:5172677404",
+          "kakao:5172644939",
           "kakao:1044",
           "kakao:1010",
           "kakao:1032",
@@ -14242,11 +14242,11 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -14279,7 +14279,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1011",
       "kakao:1006",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -14293,7 +14293,7 @@ export const INITIAL_MEETINGS = [
     "date": "2026-07-25 19:00",
     "location": "대구",
     "placeDetail": "대구 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1029",
     "type": "Casual",
     "status": "settled",
@@ -14306,7 +14306,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1069",
       "kakao:1019",
       "kakao:1036",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1059",
       "kakao:1050",
       "kakao:1025"
@@ -14320,7 +14320,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1069",
       "kakao:1019",
       "kakao:1036",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1059",
       "kakao:1050",
       "kakao:1025"
@@ -14342,12 +14342,12 @@ export const INITIAL_MEETINGS = [
           "kakao:1069",
           "kakao:1019",
           "kakao:1036",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1059",
           "kakao:1050",
           "kakao:1025"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 240000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -14389,7 +14389,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -14431,7 +14431,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1023",
       "kakao:1001",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1010",
       "kakao:1017",
       "kakao:1015",
@@ -14448,7 +14448,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1023",
       "kakao:1001",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1010",
       "kakao:1017",
       "kakao:1015",
@@ -14473,7 +14473,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1023",
           "kakao:1001",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1010",
           "kakao:1017",
           "kakao:1015",
@@ -14505,7 +14505,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -14562,7 +14562,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1023",
       "kakao:1001",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -14656,8 +14656,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1003",
       "kakao:1006",
-      "kakao:1027",
-      "kakao:1021",
+      "kakao:5172644939",
+      "kakao:5172630139",
       "kakao:1001"
     ],
     "confirmedParticipants": [
@@ -14668,8 +14668,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1003",
       "kakao:1006",
-      "kakao:1027",
-      "kakao:1021",
+      "kakao:5172644939",
+      "kakao:5172630139",
       "kakao:1001"
     ],
     "description": "남영역벙 (2026-07-24) 벙기록입니다.",
@@ -14688,8 +14688,8 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1003",
           "kakao:1006",
-          "kakao:1027",
-          "kakao:1021",
+          "kakao:5172644939",
+          "kakao:5172630139",
           "kakao:1001"
         ],
         "payerUid": "kakao:1001",
@@ -14730,11 +14730,11 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -14837,19 +14837,19 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
       "kakao:1002",
       "kakao:1006"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
       "kakao:1002",
       "kakao:1006"
@@ -14864,7 +14864,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1001",
           "kakao:1002",
           "kakao:1006"
@@ -14883,7 +14883,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -14903,7 +14903,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001"
     ],
     "comments": [],
@@ -14926,13 +14926,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1019",
       "kakao:1028",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1019",
       "kakao:1028",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "갑오징어구이벙 (2026-07-21) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -14946,7 +14946,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1019",
           "kakao:1028",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1014",
         "cost": 80000,
@@ -14970,7 +14970,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -14994,12 +14994,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1011",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1014",
       "kakao:1019",
@@ -15007,7 +15007,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1014",
       "kakao:1019",
@@ -15023,7 +15023,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:1014",
           "kakao:1019",
@@ -15043,7 +15043,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -15067,7 +15067,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015"
     ],
     "comments": [],
@@ -15094,7 +15094,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1062",
       "kakao:1007",
       "kakao:1033",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059",
       "kakao:1025",
@@ -15110,7 +15110,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1062",
       "kakao:1007",
       "kakao:1033",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059",
       "kakao:1025",
@@ -15134,7 +15134,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1062",
           "kakao:1007",
           "kakao:1033",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1059",
           "kakao:1025",
@@ -15180,7 +15180,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -15541,20 +15541,20 @@ export const INITIAL_MEETINGS = [
     "date": "2026-07-13 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050"
     ],
     "confirmedParticipants": [
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050"
     ],
     "description": "광주용봉벙 (2026-07-13) 벙기록입니다.",
@@ -15568,10 +15568,10 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1036",
           "kakao:1043",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1050"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -15589,7 +15589,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -15602,7 +15602,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "comments": [],
     "album": []
@@ -15809,12 +15809,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1035",
+    "treasurerUid": "kakao:5172677404",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1013",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1001",
       "kakao:1006",
@@ -15830,7 +15830,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1013",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1001",
       "kakao:1006",
@@ -15854,7 +15854,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1013",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1009",
           "kakao:1001",
           "kakao:1006",
@@ -15882,7 +15882,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -15938,7 +15938,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1013",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009"
     ],
     "comments": [],
@@ -15954,12 +15954,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1007",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1087",
       "kakao:1089",
       "kakao:1007",
@@ -15968,7 +15968,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1087",
       "kakao:1089",
       "kakao:1007",
@@ -15985,7 +15985,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1008",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1087",
           "kakao:1089",
           "kakao:1007",
@@ -16006,7 +16006,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -16034,7 +16034,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1087"
     ],
     "comments": [],
@@ -16049,20 +16049,20 @@ export const INITIAL_MEETINGS = [
     "date": "2026-07-08 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1017",
       "kakao:1023",
       "kakao:1003"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1017",
       "kakao:1023",
       "kakao:1003"
@@ -16077,12 +16077,12 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1017",
           "kakao:1023",
           "kakao:1003"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -16096,7 +16096,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -16116,7 +16116,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1017"
     ],
     "comments": [],
@@ -16410,12 +16410,12 @@ export const INITIAL_MEETINGS = [
       "kakao:1058",
       "kakao:1017",
       "kakao:1028",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1136",
       "kakao:2005",
       "kakao:1026",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1019",
@@ -16425,12 +16425,12 @@ export const INITIAL_MEETINGS = [
       "kakao:1058",
       "kakao:1017",
       "kakao:1028",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1136",
       "kakao:2005",
       "kakao:1026",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "육해공벙 (2026-07-04) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -16448,12 +16448,12 @@ export const INITIAL_MEETINGS = [
           "kakao:1058",
           "kakao:1017",
           "kakao:1028",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1136",
           "kakao:2005",
           "kakao:1026",
           "kakao:1015",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1026",
         "cost": 260000,
@@ -16493,7 +16493,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -16513,7 +16513,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -16537,19 +16537,19 @@ export const INITIAL_MEETINGS = [
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082",
       "kakao:1001",
       "kakao:1060"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082",
       "kakao:1001",
       "kakao:1060"
@@ -16564,7 +16564,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1082",
           "kakao:1001",
           "kakao:1060"
@@ -16583,7 +16583,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -16603,7 +16603,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082"
     ],
     "comments": [],
@@ -16768,14 +16768,14 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1047",
       "kakao:1001"
     ],
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1047",
       "kakao:1001"
     ],
@@ -16790,7 +16790,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1011",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1047",
           "kakao:1001"
         ],
@@ -16812,7 +16812,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -16829,7 +16829,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -16852,7 +16852,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1056",
       "kakao:1006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1028"
     ],
     "confirmedParticipants": [
@@ -16860,7 +16860,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1056",
       "kakao:1006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1028"
     ],
     "description": "영등포벙 (2026-06-28) 벙기록입니다.",
@@ -16876,7 +16876,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:1056",
           "kakao:1006",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1028"
         ],
         "payerUid": "kakao:1001",
@@ -16905,7 +16905,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -17593,14 +17593,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1011",
       "kakao:1006",
       "kakao:1017"
     ],
     "confirmedParticipants": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1011",
       "kakao:1006",
@@ -17615,7 +17615,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:1011",
           "kakao:1006",
@@ -17631,7 +17631,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -17654,7 +17654,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1011"
     ],
@@ -17757,13 +17757,13 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2005",
       "kakao:1003"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2005",
       "kakao:1003"
@@ -17777,7 +17777,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2005",
           "kakao:1003"
@@ -17792,7 +17792,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -17811,7 +17811,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2005"
     ],
@@ -18040,7 +18040,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1012",
       "kakao:1017",
@@ -18049,7 +18049,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1012",
       "kakao:1017",
@@ -18066,7 +18066,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1006",
           "kakao:1012",
           "kakao:1017",
@@ -18090,7 +18090,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -18115,7 +18115,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1014",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -18257,7 +18257,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1011",
       "kakao:2007",
       "kakao:1028",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "confirmedParticipants": [
       "kakao:2005",
@@ -18266,7 +18266,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1011",
       "kakao:2007",
       "kakao:1028",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "description": "수원시청점심벙 (2026-06-15) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -18283,7 +18283,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1011",
           "kakao:2007",
           "kakao:1028",
-          "kakao:1016"
+          "kakao:5166442426"
         ],
         "payerUid": "kakao:1001",
         "cost": 140000,
@@ -18319,7 +18319,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       }
@@ -18343,25 +18343,25 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1011",
       "kakao:1028",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2009",
       "kakao:1017",
       "kakao:1006"
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1011",
       "kakao:1028",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2009",
       "kakao:1017",
       "kakao:1006"
@@ -18376,10 +18376,10 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1011",
           "kakao:1028",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:2009",
           "kakao:1017",
           "kakao:1006"
@@ -18398,7 +18398,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -18410,7 +18410,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -18430,7 +18430,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1011"
     ],
     "comments": [],
@@ -18445,13 +18445,13 @@ export const INITIAL_MEETINGS = [
     "date": "2026-06-13 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
-    "treasurerUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
+    "treasurerUid": "kakao:5172627322",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1026",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1002",
       "kakao:1036",
       "kakao:1013",
@@ -18469,7 +18469,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1026",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1002",
       "kakao:1036",
       "kakao:1013",
@@ -18495,7 +18495,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1026",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1002",
           "kakao:1036",
           "kakao:1013",
@@ -18511,7 +18511,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1073",
           "kakao:1078"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 320000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -18525,7 +18525,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -18589,7 +18589,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1026",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1002"
     ],
     "comments": [],
@@ -18768,7 +18768,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1101",
       "kakao:1053",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2005",
       "kakao:1042",
       "kakao:1071",
@@ -18784,7 +18784,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1101",
       "kakao:1053",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2005",
       "kakao:1042",
       "kakao:1071",
@@ -18808,7 +18808,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1101",
           "kakao:1053",
           "kakao:1005",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2005",
           "kakao:1042",
           "kakao:1071",
@@ -18860,7 +18860,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -18910,7 +18910,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1017",
       "kakao:1015",
       "kakao:1006",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:2005",
@@ -18919,7 +18919,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1017",
       "kakao:1015",
       "kakao:1006",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "수내에서용산까지벙 (2026-06-08) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -18936,7 +18936,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1017",
           "kakao:1015",
           "kakao:1006",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1001",
         "cost": 140000,
@@ -18972,7 +18972,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -19003,14 +19003,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1011",
       "kakao:1017",
       "kakao:2009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1061"
     ],
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1017",
       "kakao:2009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1061"
     ],
     "description": "런닝벙 (2026-06-07) 벙기록입니다.",
@@ -19025,7 +19025,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1011",
           "kakao:1017",
           "kakao:2009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1061"
         ],
         "payerUid": "kakao:1011",
@@ -19050,7 +19050,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -19146,12 +19146,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1026",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:2005",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1058",
       "kakao:1008",
       "kakao:1020",
@@ -19169,7 +19169,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:2005",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1058",
       "kakao:1008",
       "kakao:1020",
@@ -19195,7 +19195,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:2005",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1058",
           "kakao:1008",
           "kakao:1020",
@@ -19225,7 +19225,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -19289,7 +19289,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:2005",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1058"
     ],
     "comments": [],
@@ -19475,20 +19475,20 @@ export const INITIAL_MEETINGS = [
     "date": "2026-06-04 19:00",
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082",
       "kakao:2005",
       "kakao:1055"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082",
       "kakao:2005",
       "kakao:1055"
@@ -19503,12 +19503,12 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1082",
           "kakao:2005",
           "kakao:1055"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -19522,7 +19522,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -19542,7 +19542,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1082"
     ],
     "comments": [],
@@ -19557,19 +19557,19 @@ export const INITIAL_MEETINGS = [
     "date": "2026-06-03 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1060",
       "kakao:2004"
     ],
     "confirmedParticipants": [
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1060",
       "kakao:2004"
     ],
@@ -19583,11 +19583,11 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1049",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1060",
           "kakao:2004"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -19601,7 +19601,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -19617,7 +19617,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1060"
     ],
     "comments": [],
@@ -19632,17 +19632,17 @@ export const INITIAL_MEETINGS = [
     "date": "2026-06-03 19:00",
     "location": "목포",
     "placeDetail": "목포 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1059",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1059",
       "kakao:1066"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1059",
       "kakao:1066"
     ],
@@ -19655,11 +19655,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "목포 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1059",
           "kakao:1066"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -19669,7 +19669,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -19684,7 +19684,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1059",
       "kakao:1066"
     ],
@@ -20214,18 +20214,18 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1011",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:2012"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:2012"
     ],
@@ -20239,7 +20239,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:2012"
         ],
@@ -20257,7 +20257,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -20273,7 +20273,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015"
     ],
     "comments": [],
@@ -20289,12 +20289,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1028",
       "kakao:2008",
@@ -20303,7 +20303,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1028",
       "kakao:2008",
@@ -20320,7 +20320,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1006",
           "kakao:1028",
           "kakao:2008",
@@ -20341,7 +20341,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -20369,7 +20369,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006"
     ],
     "comments": [],
@@ -20385,18 +20385,18 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1011",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1017",
       "kakao:1006"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1017",
       "kakao:1006"
     ],
@@ -20410,7 +20410,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1017",
           "kakao:1006"
         ],
@@ -20428,7 +20428,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -20444,7 +20444,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1017"
     ],
     "comments": [],
@@ -20627,7 +20627,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1012",
       "kakao:1084",
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1003"
     ],
     "confirmedParticipants": [
@@ -20637,7 +20637,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1012",
       "kakao:1084",
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1003"
     ],
     "description": "주명집들이벙 (2026-05-23) 벙기록입니다.",
@@ -20655,7 +20655,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1012",
           "kakao:1084",
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1003"
         ],
         "payerUid": "kakao:1001",
@@ -20692,7 +20692,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -20731,8 +20731,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1015",
       "kakao:1012",
-      "kakao:1027",
-      "kakao:1021",
+      "kakao:5172644939",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1017",
       "kakao:1090",
@@ -20750,8 +20750,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1015",
       "kakao:1012",
-      "kakao:1027",
-      "kakao:1021",
+      "kakao:5172644939",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1017",
       "kakao:1090",
@@ -20777,8 +20777,8 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1015",
           "kakao:1012",
-          "kakao:1027",
-          "kakao:1021",
+          "kakao:5172644939",
+          "kakao:5172630139",
           "kakao:1019",
           "kakao:1017",
           "kakao:1090",
@@ -20826,11 +20826,11 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -21200,7 +21200,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:1001",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1023",
       "kakao:1003"
     ],
@@ -21208,7 +21208,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:1001",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1023",
       "kakao:1003"
     ],
@@ -21224,7 +21224,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1024",
           "kakao:1001",
           "kakao:1002",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1023",
           "kakao:1003"
         ],
@@ -21250,7 +21250,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -21464,14 +21464,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1050",
       "kakao:1089",
       "kakao:1053",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1057",
       "kakao:1073",
       "kakao:1015",
       "kakao:1023",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1085",
       "kakao:1087",
       "kakao:1004",
@@ -21517,14 +21517,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1050",
       "kakao:1089",
       "kakao:1053",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1057",
       "kakao:1073",
       "kakao:1015",
       "kakao:1023",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1085",
       "kakao:1087",
       "kakao:1004",
@@ -21578,14 +21578,14 @@ export const INITIAL_MEETINGS = [
           "kakao:1050",
           "kakao:1089",
           "kakao:1053",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1057",
           "kakao:1073",
           "kakao:1015",
           "kakao:1023",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1008",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1085",
           "kakao:1087",
           "kakao:1004",
@@ -21745,7 +21745,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -21765,7 +21765,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -21773,7 +21773,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -21835,7 +21835,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1019",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1058",
       "kakao:2008",
       "kakao:1072",
@@ -21845,7 +21845,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1019",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1058",
       "kakao:2008",
       "kakao:1072",
@@ -21863,7 +21863,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1019",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1058",
           "kakao:2008",
           "kakao:1072",
@@ -21888,7 +21888,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -21917,7 +21917,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1019",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -21943,7 +21943,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1058",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1019"
     ],
     "confirmedParticipants": [
@@ -21954,7 +21954,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1058",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1019"
     ],
     "description": "종로벙 (2026-05-14) 벙기록입니다.",
@@ -21973,7 +21973,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1058",
           "kakao:1006",
           "kakao:1010",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1019"
         ],
         "payerUid": "kakao:1011",
@@ -22014,7 +22014,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -22048,23 +22048,23 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1015",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:1011",
       "kakao:1023",
       "kakao:2006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1017"
     ],
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:1011",
       "kakao:1023",
       "kakao:2006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1017"
     ],
     "description": "남대문벙 (2026-05-13) 벙기록입니다.",
@@ -22078,12 +22078,12 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1015",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1008",
           "kakao:1011",
           "kakao:1023",
           "kakao:2006",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1017"
         ],
         "payerUid": "kakao:1011",
@@ -22104,7 +22104,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -22124,7 +22124,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -22137,7 +22137,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1015",
       "kakao:1014",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -22158,14 +22158,14 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1019",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1020",
       "kakao:1008"
     ],
     "confirmedParticipants": [
       "kakao:1019",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1020",
       "kakao:1008"
     ],
@@ -22180,7 +22180,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1019",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1020",
           "kakao:1008"
         ],
@@ -22202,7 +22202,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -22219,7 +22219,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1019",
       "kakao:1014",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -22242,7 +22242,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1012",
       "kakao:2009",
       "kakao:1017",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1010",
       "kakao:1011",
       "kakao:2004"
@@ -22252,7 +22252,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1012",
       "kakao:2009",
       "kakao:1017",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1010",
       "kakao:1011",
       "kakao:2004"
@@ -22270,7 +22270,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1012",
           "kakao:2009",
           "kakao:1017",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1010",
           "kakao:1011",
           "kakao:2004"
@@ -22301,7 +22301,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -22336,19 +22336,19 @@ export const INITIAL_MEETINGS = [
     "date": "2026-05-09 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1050",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050",
       "kakao:1059",
       "kakao:1066",
       "kakao:1102"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050",
       "kakao:1059",
       "kakao:1066",
@@ -22363,13 +22363,13 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1050",
           "kakao:1059",
           "kakao:1066",
           "kakao:1102"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -22379,7 +22379,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -22402,7 +22402,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050",
       "kakao:1059"
     ],
@@ -22418,17 +22418,17 @@ export const INITIAL_MEETINGS = [
     "date": "2026-05-07 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1066",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1073"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1073"
     ],
@@ -22441,11 +22441,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1073"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -22455,7 +22455,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -22470,7 +22470,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1073"
     ],
@@ -22760,9 +22760,9 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1045",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1076",
       "kakao:1091",
@@ -22773,9 +22773,9 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1045",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1076",
       "kakao:1091",
@@ -22794,9 +22794,9 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1045",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1001",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1006",
           "kakao:1076",
           "kakao:1091",
@@ -22822,7 +22822,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -22830,7 +22830,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -22863,7 +22863,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1045",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -22877,17 +22877,17 @@ export const INITIAL_MEETINGS = [
     "date": "2026-05-02 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1066",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059"
     ],
@@ -22900,11 +22900,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1059"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -22914,7 +22914,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -22929,7 +22929,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059"
     ],
@@ -22945,18 +22945,18 @@ export const INITIAL_MEETINGS = [
     "date": "2026-05-01 19:00",
     "location": "목포",
     "placeDetail": "목포 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1066",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059",
       "kakao:1050"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059",
       "kakao:1050"
@@ -22970,12 +22970,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "목포 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1059",
           "kakao:1050"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -22985,7 +22985,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -23004,7 +23004,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059"
     ],
@@ -23021,12 +23021,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
       "kakao:1009",
       "kakao:1006",
@@ -23034,7 +23034,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
       "kakao:1009",
       "kakao:1006",
@@ -23050,7 +23050,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1001",
           "kakao:1009",
           "kakao:1006",
@@ -23070,7 +23070,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -23094,7 +23094,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001"
     ],
     "comments": [],
@@ -23109,14 +23109,14 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-29 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1013",
-      "kakao:1016",
-      "kakao:1035",
+      "kakao:5166442426",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1025",
       "kakao:2005",
@@ -23135,8 +23135,8 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1013",
-      "kakao:1016",
-      "kakao:1035",
+      "kakao:5166442426",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1025",
       "kakao:2005",
@@ -23163,8 +23163,8 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1013",
-          "kakao:1016",
-          "kakao:1035",
+          "kakao:5166442426",
+          "kakao:5172677404",
           "kakao:1042",
           "kakao:1025",
           "kakao:2005",
@@ -23181,7 +23181,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1087",
           "kakao:1060"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 360000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -23195,11 +23195,11 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -23267,8 +23267,8 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1013",
-      "kakao:1016",
-      "kakao:1035"
+      "kakao:5166442426",
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -23358,7 +23358,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1019",
       "kakao:1008",
       "kakao:1020",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1001",
       "kakao:1006",
@@ -23372,7 +23372,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1019",
       "kakao:1008",
       "kakao:1020",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1001",
       "kakao:1006",
@@ -23394,7 +23394,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1019",
           "kakao:1008",
           "kakao:1020",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:1001",
           "kakao:1006",
@@ -23426,7 +23426,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -23577,18 +23577,18 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-26 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1036",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1069",
       "kakao:1025"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1069",
       "kakao:1025"
@@ -23602,12 +23602,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1036",
           "kakao:1069",
           "kakao:1025"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -23617,7 +23617,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -23636,7 +23636,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1069"
     ],
@@ -23748,18 +23748,18 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-25 19:00",
     "location": "전주",
     "placeDetail": "전주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1066",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059",
       "kakao:1002"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059",
       "kakao:1002"
@@ -23773,12 +23773,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "전주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1059",
           "kakao:1002"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -23788,7 +23788,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -23807,7 +23807,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1059"
     ],
@@ -24001,7 +24001,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1044",
       "kakao:1047",
       "kakao:1112",
@@ -24010,7 +24010,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1044",
       "kakao:1047",
       "kakao:1112",
@@ -24027,7 +24027,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1011",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1044",
           "kakao:1047",
           "kakao:1112",
@@ -24051,7 +24051,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -24076,7 +24076,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -24090,18 +24090,18 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-23 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1066",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1036",
       "kakao:1073"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1036",
       "kakao:1073"
@@ -24115,12 +24115,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1036",
           "kakao:1073"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -24130,7 +24130,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -24149,7 +24149,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1036"
     ],
@@ -24336,18 +24336,18 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-21 19:00",
     "location": "목포",
     "placeDetail": "목포 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1066",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1050",
       "kakao:1059"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1050",
       "kakao:1059"
@@ -24361,12 +24361,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "목포 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1050",
           "kakao:1059"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -24376,7 +24376,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -24395,7 +24395,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1050"
     ],
@@ -24687,7 +24687,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1031",
       "kakao:1034",
       "kakao:2014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2006",
       "kakao:1051",
       "kakao:2005",
@@ -24704,7 +24704,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1031",
       "kakao:1034",
       "kakao:2014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2006",
       "kakao:1051",
       "kakao:2005",
@@ -24729,7 +24729,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1031",
           "kakao:1034",
           "kakao:2014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2006",
           "kakao:1051",
           "kakao:2005",
@@ -24767,7 +24767,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -24910,14 +24910,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1011",
       "kakao:1012",
       "kakao:2005"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1011",
       "kakao:1012",
@@ -24932,7 +24932,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1011",
           "kakao:1012",
@@ -24948,7 +24948,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -24971,7 +24971,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1011"
     ],
@@ -25344,7 +25344,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1012",
       "kakao:1061",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1011",
       "kakao:1019",
       "kakao:1014"
@@ -25353,7 +25353,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1012",
       "kakao:1061",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1011",
       "kakao:1019",
       "kakao:1014"
@@ -25370,7 +25370,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1012",
           "kakao:1061",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1011",
           "kakao:1019",
           "kakao:1014"
@@ -25397,7 +25397,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -25439,7 +25439,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1024",
       "kakao:1001",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1006",
       "kakao:1009",
       "kakao:1049",
@@ -25453,7 +25453,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1024",
       "kakao:1001",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1006",
       "kakao:1009",
       "kakao:1049",
@@ -25475,7 +25475,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1024",
           "kakao:1001",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1006",
           "kakao:1009",
           "kakao:1049",
@@ -25504,7 +25504,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -25549,7 +25549,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1024",
       "kakao:1001",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -25563,17 +25563,17 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-10 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1066",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1043"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1043"
     ],
@@ -25586,11 +25586,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1066",
           "kakao:1043"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -25600,7 +25600,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -25615,7 +25615,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1066",
       "kakao:1043"
     ],
@@ -25631,17 +25631,17 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-09 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1073",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1073",
       "kakao:1066"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1073",
       "kakao:1066"
     ],
@@ -25654,11 +25654,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1073",
           "kakao:1066"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -25668,7 +25668,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -25683,7 +25683,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1073",
       "kakao:1066"
     ],
@@ -25699,7 +25699,7 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-08 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1042",
     "type": "Casual",
     "status": "settled",
@@ -25707,9 +25707,9 @@ export const INITIAL_MEETINGS = [
       "kakao:1013",
       "kakao:1042",
       "kakao:1053",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2005",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1044",
       "kakao:1022",
@@ -25723,9 +25723,9 @@ export const INITIAL_MEETINGS = [
       "kakao:1013",
       "kakao:1042",
       "kakao:1053",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2005",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1044",
       "kakao:1022",
@@ -25747,9 +25747,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1013",
           "kakao:1042",
           "kakao:1053",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2005",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2004",
           "kakao:1044",
           "kakao:1022",
@@ -25759,7 +25759,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1036",
           "kakao:1046"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 280000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -25781,7 +25781,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -25789,7 +25789,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -25844,18 +25844,18 @@ export const INITIAL_MEETINGS = [
     "date": "2026-04-08 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1100",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1100",
       "kakao:1127",
       "kakao:1025"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1100",
       "kakao:1127",
       "kakao:1025"
@@ -25869,12 +25869,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1100",
           "kakao:1127",
           "kakao:1025"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -25884,7 +25884,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -25903,7 +25903,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1100",
       "kakao:1127"
     ],
@@ -26343,7 +26343,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1030",
       "kakao:1019",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1011",
       "kakao:1047"
     ],
@@ -26355,7 +26355,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1030",
       "kakao:1019",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1011",
       "kakao:1047"
     ],
@@ -26375,7 +26375,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1030",
           "kakao:1019",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1011",
           "kakao:1047"
         ],
@@ -26417,7 +26417,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -26456,7 +26456,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1020",
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1037"
     ],
@@ -26464,7 +26464,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1020",
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1037"
     ],
@@ -26480,7 +26480,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1020",
           "kakao:1008",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1019",
           "kakao:1037"
         ],
@@ -26506,7 +26506,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -26855,7 +26855,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:2008",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1058",
       "kakao:2004",
       "kakao:1005"
@@ -26865,7 +26865,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:2008",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1058",
       "kakao:2004",
       "kakao:1005"
@@ -26883,7 +26883,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1024",
           "kakao:2008",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1058",
           "kakao:2004",
           "kakao:1005"
@@ -26914,7 +26914,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -27204,7 +27204,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1039",
       "kakao:1004",
       "kakao:1047",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1022",
       "kakao:1045",
       "kakao:1009"
@@ -27214,7 +27214,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1039",
       "kakao:1004",
       "kakao:1047",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1022",
       "kakao:1045",
       "kakao:1009"
@@ -27232,7 +27232,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1039",
           "kakao:1004",
           "kakao:1047",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1022",
           "kakao:1045",
           "kakao:1009"
@@ -27263,7 +27263,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -27438,7 +27438,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1024",
       "kakao:1017",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1004",
       "kakao:1006",
@@ -27452,7 +27452,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1024",
       "kakao:1017",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1004",
       "kakao:1006",
@@ -27474,7 +27474,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1024",
           "kakao:1017",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1009",
           "kakao:1004",
           "kakao:1006",
@@ -27509,7 +27509,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -27857,7 +27857,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:1084",
       "kakao:1051",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1096",
       "kakao:1015",
       "kakao:1019",
@@ -27871,7 +27871,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:1084",
       "kakao:1051",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1096",
       "kakao:1015",
       "kakao:1019",
@@ -27893,7 +27893,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1024",
           "kakao:1084",
           "kakao:1051",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1096",
           "kakao:1015",
           "kakao:1019",
@@ -27934,7 +27934,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -27977,7 +27977,7 @@ export const INITIAL_MEETINGS = [
     "date": "2026-03-20 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1044",
     "type": "Casual",
     "status": "settled",
@@ -27987,7 +27987,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:1084",
       "kakao:1019",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1047",
       "kakao:1024"
     ],
@@ -27997,7 +27997,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:1084",
       "kakao:1019",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1047",
       "kakao:1024"
     ],
@@ -28015,11 +28015,11 @@ export const INITIAL_MEETINGS = [
           "kakao:1053",
           "kakao:1084",
           "kakao:1019",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1047",
           "kakao:1024"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -28049,7 +28049,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -28391,7 +28391,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1045",
       "kakao:1010",
       "kakao:1024",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1039",
       "kakao:1025",
@@ -28405,7 +28405,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1045",
       "kakao:1010",
       "kakao:1024",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1039",
       "kakao:1025",
@@ -28427,7 +28427,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1045",
           "kakao:1010",
           "kakao:1024",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1042",
           "kakao:1039",
           "kakao:1025",
@@ -28462,7 +28462,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -28588,23 +28588,23 @@ export const INITIAL_MEETINGS = [
     "date": "2026-03-12 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1042",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1046",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1071",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "confirmedParticipants": [
       "kakao:1046",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1071",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "description": "오산사다리급벙 (2026-03-12) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -28617,11 +28617,11 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1046",
           "kakao:1042",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1071",
-          "kakao:1016"
+          "kakao:5166442426"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -28639,7 +28639,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -28647,7 +28647,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       }
@@ -28656,7 +28656,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1046",
       "kakao:1042",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -28679,7 +28679,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1062",
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1013"
     ],
     "confirmedParticipants": [
@@ -28687,7 +28687,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1062",
       "kakao:1036",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1013"
     ],
     "description": "화순벙 (2026-03-12) 벙기록입니다.",
@@ -28703,7 +28703,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1062",
           "kakao:1036",
           "kakao:1043",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1013"
         ],
         "payerUid": "kakao:1007",
@@ -28732,7 +28732,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -28768,7 +28768,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1047",
       "kakao:1024",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2006",
       "kakao:1095",
       "kakao:1006",
@@ -28779,7 +28779,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1047",
       "kakao:1024",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2006",
       "kakao:1095",
       "kakao:1006",
@@ -28798,7 +28798,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:1047",
           "kakao:1024",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:2006",
           "kakao:1095",
           "kakao:1006",
@@ -28830,7 +28830,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -29126,7 +29126,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2014",
       "kakao:1009",
       "kakao:1071",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1047",
       "kakao:1032",
       "kakao:1024",
@@ -29139,7 +29139,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2014",
       "kakao:1009",
       "kakao:1071",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1047",
       "kakao:1032",
       "kakao:1024",
@@ -29160,7 +29160,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2014",
           "kakao:1009",
           "kakao:1071",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1047",
           "kakao:1032",
           "kakao:1024",
@@ -29200,7 +29200,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -29249,7 +29249,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1047",
       "kakao:1011",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1006",
       "kakao:1017",
@@ -29261,7 +29261,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1047",
       "kakao:1011",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1006",
       "kakao:1017",
@@ -29281,7 +29281,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1047",
           "kakao:1011",
           "kakao:1009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:1006",
           "kakao:1017",
@@ -29317,7 +29317,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -29361,7 +29361,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1017",
       "kakao:1047",
@@ -29373,11 +29373,11 @@ export const INITIAL_MEETINGS = [
       "kakao:1089",
       "kakao:1039",
       "kakao:2006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1019"
     ],
     "confirmedParticipants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1017",
       "kakao:1047",
@@ -29389,7 +29389,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1089",
       "kakao:1039",
       "kakao:2006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1019"
     ],
     "description": "종로벙 (2026-03-04) 벙기록입니다.",
@@ -29401,7 +29401,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2014",
           "kakao:1017",
           "kakao:1047",
@@ -29413,7 +29413,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1089",
           "kakao:1039",
           "kakao:2006",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1019"
         ],
         "payerUid": "kakao:1011",
@@ -29426,7 +29426,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -29474,7 +29474,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -29485,7 +29485,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1017"
     ],
@@ -29658,17 +29658,17 @@ export const INITIAL_MEETINGS = [
     "date": "2026-03-02 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1102",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1102",
       "kakao:1036"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1102",
       "kakao:1036"
     ],
@@ -29681,11 +29681,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1102",
           "kakao:1036"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -29695,7 +29695,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -29710,7 +29710,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1102",
       "kakao:1036"
     ],
@@ -29972,13 +29972,13 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1046",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1013"
     ],
     "confirmedParticipants": [
       "kakao:1046",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1013"
     ],
     "description": "태국여행벙 (2026-02-28) 벙기록입니다.",
@@ -29992,7 +29992,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1046",
           "kakao:1042",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1013"
         ],
         "payerUid": "kakao:1013",
@@ -30013,7 +30013,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -30026,7 +30026,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1046",
       "kakao:1042",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -30050,7 +30050,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1033",
       "kakao:1030",
       "kakao:1007",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "confirmedParticipants": [
       "kakao:1001",
@@ -30058,7 +30058,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1033",
       "kakao:1030",
       "kakao:1007",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "description": "성심당찍고벙 (2026-02-27) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -30074,7 +30074,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1033",
           "kakao:1030",
           "kakao:1007",
-          "kakao:1016"
+          "kakao:5166442426"
         ],
         "payerUid": "kakao:1001",
         "cost": 120000,
@@ -30106,7 +30106,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       }
@@ -30548,7 +30548,7 @@ export const INITIAL_MEETINGS = [
     "date": "2026-02-21 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1010",
     "type": "Casual",
     "status": "settled",
@@ -30558,7 +30558,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1073",
       "kakao:1036",
       "kakao:1025",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "confirmedParticipants": [
       "kakao:1062",
@@ -30566,7 +30566,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1073",
       "kakao:1036",
       "kakao:1025",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "description": "광주파티룸벙 (2026-02-21) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -30582,9 +30582,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1073",
           "kakao:1036",
           "kakao:1025",
-          "kakao:1040"
+          "kakao:5172627322"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 120000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -30614,7 +30614,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       }
@@ -30638,14 +30638,14 @@ export const INITIAL_MEETINGS = [
     "location": "인천",
     "placeDetail": "인천 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1015",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1047",
       "kakao:1019",
@@ -30655,9 +30655,9 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1015",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1047",
       "kakao:1019",
@@ -30675,9 +30675,9 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1015",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1009",
           "kakao:1047",
           "kakao:1019",
@@ -30699,7 +30699,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -30707,7 +30707,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -30739,7 +30739,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1015",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001"
     ],
     "comments": [],
@@ -30755,23 +30755,23 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1015",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1011",
       "kakao:1072",
       "kakao:1024"
     ],
     "confirmedParticipants": [
       "kakao:1015",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1011",
       "kakao:1072",
       "kakao:1024"
@@ -30786,9 +30786,9 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1015",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1011",
           "kakao:1072",
           "kakao:1024"
@@ -30807,7 +30807,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -30815,7 +30815,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -30835,7 +30835,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1015",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001"
     ],
     "comments": [],
@@ -30863,7 +30863,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1084",
       "kakao:1065",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2009"
     ],
     "confirmedParticipants": [
@@ -30875,7 +30875,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1084",
       "kakao:1065",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2009"
     ],
     "description": "명절극복벙 (2026-02-18) 벙기록입니다.",
@@ -30895,7 +30895,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1084",
           "kakao:1065",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:2009"
         ],
         "payerUid": "kakao:1001",
@@ -30940,7 +30940,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -31237,7 +31237,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1002",
       "kakao:1047",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1017",
       "kakao:2009",
       "kakao:1056",
@@ -31252,7 +31252,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1002",
       "kakao:1047",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1017",
       "kakao:2009",
       "kakao:1056",
@@ -31275,7 +31275,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1003",
           "kakao:1002",
           "kakao:1047",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1017",
           "kakao:2009",
           "kakao:1056",
@@ -31314,7 +31314,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -31450,7 +31450,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1017",
       "kakao:1071",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1004",
       "kakao:1009",
       "kakao:1011"
@@ -31461,7 +31461,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1017",
       "kakao:1071",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1004",
       "kakao:1009",
       "kakao:1011"
@@ -31480,7 +31480,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1017",
           "kakao:1071",
           "kakao:1003",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1004",
           "kakao:1009",
           "kakao:1011"
@@ -31515,7 +31515,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -31550,12 +31550,12 @@ export const INITIAL_MEETINGS = [
     "date": "2026-02-12 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1042",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1042",
       "kakao:1053",
       "kakao:1046",
@@ -31566,10 +31566,10 @@ export const INITIAL_MEETINGS = [
       "kakao:2000",
       "kakao:1049",
       "kakao:1039",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1042",
       "kakao:1053",
       "kakao:1046",
@@ -31580,7 +31580,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2000",
       "kakao:1049",
       "kakao:1039",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "description": "오산뿌시기벙 (2026-02-12) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -31591,7 +31591,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1042",
           "kakao:1053",
           "kakao:1046",
@@ -31602,9 +31602,9 @@ export const INITIAL_MEETINGS = [
           "kakao:2000",
           "kakao:1049",
           "kakao:1039",
-          "kakao:1035"
+          "kakao:5172677404"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 240000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -31614,7 +31614,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -31658,14 +31658,14 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       }
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1042",
       "kakao:1053"
     ],
@@ -31689,7 +31689,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:2014",
       "kakao:1017",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1014",
       "kakao:1010",
@@ -31701,7 +31701,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:2014",
       "kakao:1017",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1014",
       "kakao:1010",
@@ -31721,7 +31721,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1008",
           "kakao:2014",
           "kakao:1017",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1019",
           "kakao:1014",
           "kakao:1010",
@@ -31751,7 +31751,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -31798,18 +31798,18 @@ export const INITIAL_MEETINGS = [
     "date": "2026-02-11 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1036",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1066",
       "kakao:1025"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1066",
       "kakao:1025"
@@ -31823,12 +31823,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1036",
           "kakao:1066",
           "kakao:1025"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -31838,7 +31838,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -31857,7 +31857,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1066"
     ],
@@ -31885,7 +31885,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1028",
       "kakao:1008",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2012"
     ],
     "confirmedParticipants": [
@@ -31896,7 +31896,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1028",
       "kakao:1008",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2012"
     ],
     "description": "영화관람벙 (2026-02-10) 벙기록입니다.",
@@ -31915,7 +31915,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1028",
           "kakao:1008",
           "kakao:1009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:2012"
         ],
         "payerUid": "kakao:1001",
@@ -31956,7 +31956,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -32585,7 +32585,7 @@ export const INITIAL_MEETINGS = [
     "date": "2026-01-31 19:00",
     "location": "대전",
     "placeDetail": "대전 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2014",
     "type": "Casual",
     "status": "settled",
@@ -32604,7 +32604,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1030",
       "kakao:2000",
       "kakao:1075",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2022"
     ],
     "confirmedParticipants": [
@@ -32622,7 +32622,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1030",
       "kakao:2000",
       "kakao:1075",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2022"
     ],
     "description": "대전벙 (2026-01-31) 벙기록입니다.",
@@ -32648,10 +32648,10 @@ export const INITIAL_MEETINGS = [
           "kakao:1030",
           "kakao:2000",
           "kakao:1075",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2022"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 320000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -32717,7 +32717,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -32752,14 +32752,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1007",
       "kakao:1003",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014"
     ],
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1007",
       "kakao:1003",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014"
     ],
     "description": "쿠우쿠우벙 (2026-01-30) 벙기록입니다.",
@@ -32774,7 +32774,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1007",
           "kakao:1003",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2014"
         ],
         "payerUid": "kakao:1007",
@@ -32799,7 +32799,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -33022,7 +33022,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1032",
       "kakao:1044",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1011",
       "kakao:1017",
       "kakao:1055",
@@ -33032,7 +33032,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1049",
       "kakao:1028",
       "kakao:1012",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1047",
       "kakao:1014",
       "kakao:2004",
@@ -33055,7 +33055,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1032",
       "kakao:1044",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1011",
       "kakao:1017",
       "kakao:1055",
@@ -33065,7 +33065,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1049",
       "kakao:1028",
       "kakao:1012",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1047",
       "kakao:1014",
       "kakao:2004",
@@ -33096,7 +33096,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1032",
           "kakao:1044",
           "kakao:1010",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1011",
           "kakao:1017",
           "kakao:1055",
@@ -33106,7 +33106,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1049",
           "kakao:1028",
           "kakao:1012",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1047",
           "kakao:1014",
           "kakao:2004",
@@ -33156,7 +33156,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -33196,7 +33196,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -33283,7 +33283,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2014",
       "kakao:1084",
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1020",
       "kakao:1014",
@@ -33298,7 +33298,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2014",
       "kakao:1084",
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1020",
       "kakao:1014",
@@ -33321,7 +33321,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2014",
           "kakao:1084",
           "kakao:1008",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1019",
           "kakao:1020",
           "kakao:1014",
@@ -33354,7 +33354,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -33826,7 +33826,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1042",
       "kakao:1003",
       "kakao:1022",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1071",
       "kakao:1019",
       "kakao:1055",
@@ -33844,7 +33844,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1042",
       "kakao:1003",
       "kakao:1022",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1071",
       "kakao:1019",
       "kakao:1055",
@@ -33870,7 +33870,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1042",
           "kakao:1003",
           "kakao:1022",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1071",
           "kakao:1019",
           "kakao:1055",
@@ -33912,7 +33912,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -33976,12 +33976,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1011",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1081",
       "kakao:1024",
       "kakao:1006",
@@ -33995,7 +33995,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1081",
       "kakao:1024",
       "kakao:1006",
@@ -34017,7 +34017,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1081",
           "kakao:1024",
           "kakao:1006",
@@ -34043,7 +34043,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -34091,7 +34091,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1081"
     ],
     "comments": [],
@@ -34106,19 +34106,19 @@ export const INITIAL_MEETINGS = [
     "date": "2026-01-16 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1036",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1062",
       "kakao:1013",
       "kakao:1025"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1062",
       "kakao:1013",
@@ -34133,13 +34133,13 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1036",
           "kakao:1062",
           "kakao:1013",
           "kakao:1025"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -34149,7 +34149,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -34172,7 +34172,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1062"
     ],
@@ -34291,8 +34291,8 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1024",
-      "kakao:1035",
-      "kakao:1016",
+      "kakao:5172677404",
+      "kakao:5166442426",
       "kakao:1006",
       "kakao:1010",
       "kakao:1014",
@@ -34311,8 +34311,8 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1024",
-      "kakao:1035",
-      "kakao:1016",
+      "kakao:5172677404",
+      "kakao:5166442426",
       "kakao:1006",
       "kakao:1010",
       "kakao:1014",
@@ -34339,8 +34339,8 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1024",
-          "kakao:1035",
-          "kakao:1016",
+          "kakao:5172677404",
+          "kakao:5166442426",
           "kakao:1006",
           "kakao:1010",
           "kakao:1014",
@@ -34374,11 +34374,11 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -34443,7 +34443,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1024",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -34965,7 +34965,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1003",
       "kakao:1061",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1074",
       "kakao:1017",
       "kakao:1077",
@@ -34978,7 +34978,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1003",
       "kakao:1061",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1074",
       "kakao:1017",
       "kakao:1077",
@@ -34999,7 +34999,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1003",
           "kakao:1061",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1074",
           "kakao:1017",
           "kakao:1077",
@@ -35027,7 +35027,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -35068,7 +35068,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1003",
       "kakao:1061",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -35329,12 +35329,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1014",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1037",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:2014",
       "kakao:1058",
@@ -35343,11 +35343,11 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1037",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:2014",
       "kakao:1058",
@@ -35356,7 +35356,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "성신여대벙 (2026-01-04) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -35368,7 +35368,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1037",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1019",
           "kakao:2014",
           "kakao:1058",
@@ -35377,7 +35377,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:1006",
           "kakao:1010",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1014",
         "cost": 220000,
@@ -35393,7 +35393,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -35429,7 +35429,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -35437,7 +35437,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1037",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019"
     ],
     "comments": [],
@@ -35549,19 +35549,19 @@ export const INITIAL_MEETINGS = [
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1017",
       "kakao:1006"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1017",
       "kakao:1006"
@@ -35576,7 +35576,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1017",
           "kakao:1006"
@@ -35595,7 +35595,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -35615,7 +35615,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001"
     ],
     "comments": [],
@@ -35723,7 +35723,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1017",
       "kakao:1006",
       "kakao:1056",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1011",
       "kakao:1097"
     ],
@@ -35734,7 +35734,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1017",
       "kakao:1006",
       "kakao:1056",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1011",
       "kakao:1097"
     ],
@@ -35753,7 +35753,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1017",
           "kakao:1006",
           "kakao:1056",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1011",
           "kakao:1097"
         ],
@@ -35791,7 +35791,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -35823,18 +35823,18 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1003",
-    "treasurerUid": "kakao:1035",
+    "treasurerUid": "kakao:5172677404",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1006",
       "kakao:2018"
     ],
     "confirmedParticipants": [
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1006",
       "kakao:2018"
     ],
@@ -35848,7 +35848,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1003",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1006",
           "kakao:2018"
         ],
@@ -35866,7 +35866,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -35882,7 +35882,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1006"
     ],
     "comments": [],
@@ -36350,12 +36350,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1008",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1019",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1008",
       "kakao:1020",
@@ -36363,7 +36363,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1019",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1008",
       "kakao:1020",
@@ -36379,7 +36379,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1019",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2014",
           "kakao:1008",
           "kakao:1020",
@@ -36399,7 +36399,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -36423,7 +36423,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1019",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014"
     ],
     "comments": [],
@@ -36447,7 +36447,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1015",
       "kakao:1098",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1045",
       "kakao:1006",
       "kakao:1019",
@@ -36459,7 +36459,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1015",
       "kakao:1098",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1045",
       "kakao:1006",
       "kakao:1019",
@@ -36479,7 +36479,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1015",
           "kakao:1098",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1045",
           "kakao:1006",
           "kakao:1019",
@@ -36512,7 +36512,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -36667,7 +36667,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1006",
       "kakao:1011",
       "kakao:1058",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1024"
     ],
     "confirmedParticipants": [
@@ -36675,7 +36675,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1006",
       "kakao:1011",
       "kakao:1058",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1024"
     ],
     "description": "속초벙 (2025-12-23) 벙기록입니다.",
@@ -36691,7 +36691,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1006",
           "kakao:1011",
           "kakao:1058",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1024"
         ],
         "payerUid": "kakao:1001",
@@ -36720,7 +36720,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -36760,7 +36760,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1068",
       "kakao:1048",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1012",
       "kakao:1017",
@@ -36778,7 +36778,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1068",
       "kakao:1048",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1012",
       "kakao:1017",
@@ -36804,7 +36804,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1003",
           "kakao:1068",
           "kakao:1048",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2014",
           "kakao:1012",
           "kakao:1017",
@@ -36855,7 +36855,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -37120,7 +37120,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1006",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1013",
       "kakao:1053"
     ],
@@ -37128,7 +37128,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1006",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1013",
       "kakao:1053"
     ],
@@ -37144,7 +37144,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2004",
           "kakao:1006",
           "kakao:1042",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1013",
           "kakao:1053"
         ],
@@ -37170,7 +37170,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -37210,14 +37210,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1011",
       "kakao:1003",
       "kakao:1017",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1011",
       "kakao:1003",
       "kakao:1017",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "점심벙 (2025-12-17) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -37232,7 +37232,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1011",
           "kakao:1003",
           "kakao:1017",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1001",
         "cost": 100000,
@@ -37260,7 +37260,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -37292,7 +37292,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1032",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1017"
     ],
     "confirmedParticipants": [
@@ -37300,7 +37300,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1032",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1017"
     ],
     "description": "의정부벙 (2025-12-16) 벙기록입니다.",
@@ -37316,7 +37316,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1008",
           "kakao:1032",
           "kakao:1010",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1017"
         ],
         "payerUid": "kakao:1008",
@@ -37345,7 +37345,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -37613,7 +37613,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:2020",
       "kakao:1046",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1003"
     ],
@@ -37622,7 +37622,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:2020",
       "kakao:1046",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1003"
     ],
@@ -37639,7 +37639,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1053",
           "kakao:2020",
           "kakao:1046",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1042",
           "kakao:1003"
         ],
@@ -37669,7 +37669,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -37705,7 +37705,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:2014",
       "kakao:1034",
@@ -37713,7 +37713,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015"
     ],
     "confirmedParticipants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:2014",
       "kakao:1034",
@@ -37729,7 +37729,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:2014",
           "kakao:1034",
@@ -37746,7 +37746,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -37773,7 +37773,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:2014"
     ],
@@ -37789,19 +37789,19 @@ export const INITIAL_MEETINGS = [
     "date": "2025-12-11 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1017",
       "kakao:1061"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1017",
       "kakao:1061"
     ],
@@ -37815,11 +37815,11 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1017",
           "kakao:1061"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -37833,7 +37833,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -37849,7 +37849,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1017"
     ],
     "comments": [],
@@ -38056,12 +38056,12 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1011",
       "kakao:1067",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1067",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "공덕점심벙 (2025-12-09) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -38074,7 +38074,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1011",
           "kakao:1067",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1011",
         "cost": 60000,
@@ -38094,7 +38094,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -38103,7 +38103,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1011",
       "kakao:1067",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -38567,7 +38567,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:2025",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1006",
@@ -38575,7 +38575,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:2025",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "인천구월동벙 (2025-12-04) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -38591,7 +38591,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1010",
           "kakao:2025",
           "kakao:1015",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1001",
         "cost": 120000,
@@ -38623,7 +38623,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -38750,18 +38750,18 @@ export const INITIAL_MEETINGS = [
     "location": "인천",
     "placeDetail": "인천 인근 약속 장소",
     "hostUid": "kakao:1011",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1009"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1009"
     ],
@@ -38775,7 +38775,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:1009"
         ],
@@ -38793,7 +38793,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -38809,7 +38809,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015"
     ],
     "comments": [],
@@ -38925,13 +38925,13 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1006",
       "kakao:1010",
       "kakao:2011",
       "kakao:2004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1053",
       "kakao:1038",
@@ -38939,13 +38939,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1061"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1006",
       "kakao:1010",
       "kakao:2011",
       "kakao:2004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
       "kakao:1053",
       "kakao:1038",
@@ -38961,13 +38961,13 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1006",
           "kakao:1010",
           "kakao:2011",
           "kakao:2004",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1042",
           "kakao:1053",
           "kakao:1038",
@@ -38984,7 +38984,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -39008,7 +39008,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -39035,7 +39035,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1006"
     ],
@@ -39051,18 +39051,18 @@ export const INITIAL_MEETINGS = [
     "date": "2025-11-27 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1106",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1106",
       "kakao:1044",
       "kakao:1003"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1106",
       "kakao:1044",
       "kakao:1003"
@@ -39076,12 +39076,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1106",
           "kakao:1044",
           "kakao:1003"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -39091,7 +39091,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -39110,7 +39110,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1106",
       "kakao:1044"
     ],
@@ -39209,13 +39209,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "구월동뼈구이벙 (2025-11-24) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -39229,7 +39229,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:1006",
           "kakao:1010",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1015",
         "cost": 80000,
@@ -39253,7 +39253,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -39284,7 +39284,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1074",
       "kakao:1014",
       "kakao:1032",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1003",
       "kakao:2023",
       "kakao:1015",
@@ -39294,7 +39294,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1074",
       "kakao:1014",
       "kakao:1032",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1003",
       "kakao:2023",
       "kakao:1015",
@@ -39312,7 +39312,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1074",
           "kakao:1014",
           "kakao:1032",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1003",
           "kakao:2023",
           "kakao:1015",
@@ -39340,7 +39340,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -39543,14 +39543,14 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1014",
       "kakao:1015",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1010"
     ],
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1015",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1010"
     ],
@@ -39565,7 +39565,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1014",
           "kakao:1015",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1006",
           "kakao:1010"
         ],
@@ -39587,7 +39587,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -39604,7 +39604,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1014",
       "kakao:1015",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -39693,17 +39693,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-11-19 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:2004",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1071",
       "kakao:1009",
       "kakao:1013",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1044",
       "kakao:1046",
       "kakao:1106",
@@ -39718,12 +39718,12 @@ export const INITIAL_MEETINGS = [
       "kakao:1055"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1071",
       "kakao:1009",
       "kakao:1013",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1044",
       "kakao:1046",
       "kakao:1106",
@@ -39746,12 +39746,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2004",
           "kakao:1071",
           "kakao:1009",
           "kakao:1013",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1044",
           "kakao:1046",
           "kakao:1106",
@@ -39765,7 +39765,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1018",
           "kakao:1055"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 360000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -39775,7 +39775,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -39795,7 +39795,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -39850,7 +39850,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1071"
     ],
@@ -39871,14 +39871,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1011",
       "kakao:1006",
       "kakao:2004"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1011",
       "kakao:1006",
@@ -39893,7 +39893,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1011",
           "kakao:1006",
@@ -39909,7 +39909,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -39932,7 +39932,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1011"
     ],
@@ -40074,7 +40074,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1032",
       "kakao:1126",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1074",
       "kakao:2014",
       "kakao:1006"
@@ -40084,7 +40084,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1032",
       "kakao:1126",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1074",
       "kakao:2014",
       "kakao:1006"
@@ -40102,7 +40102,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:1032",
           "kakao:1126",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1074",
           "kakao:2014",
           "kakao:1006"
@@ -40133,7 +40133,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -40309,14 +40309,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1006",
       "kakao:1015",
       "kakao:1045",
       "kakao:2025"
     ],
     "confirmedParticipants": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1006",
       "kakao:1015",
       "kakao:1045",
@@ -40331,7 +40331,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "인천 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1006",
           "kakao:1015",
           "kakao:1045",
@@ -40347,7 +40347,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -40370,7 +40370,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1006",
       "kakao:1015"
     ],
@@ -40618,18 +40618,18 @@ export const INITIAL_MEETINGS = [
     "date": "2025-11-10 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1074",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1074",
       "kakao:1003",
       "kakao:1053"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1074",
       "kakao:1003",
       "kakao:1053"
@@ -40643,12 +40643,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1074",
           "kakao:1003",
           "kakao:1053"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -40658,7 +40658,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -40677,7 +40677,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1074",
       "kakao:1003"
     ],
@@ -40700,12 +40700,12 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1014",
       "kakao:1006",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1006",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "조개벙 (2025-11-09) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -40718,7 +40718,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1014",
           "kakao:1006",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1014",
         "cost": 60000,
@@ -40738,7 +40738,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -40747,7 +40747,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1014",
       "kakao:1006",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -40930,15 +40930,15 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1012",
       "kakao:1005",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1008",
       "kakao:1020",
@@ -40953,15 +40953,15 @@ export const INITIAL_MEETINGS = [
       "kakao:1018"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1012",
       "kakao:1005",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1006",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1008",
       "kakao:1020",
@@ -40984,15 +40984,15 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1012",
           "kakao:1005",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:1006",
           "kakao:1010",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:1008",
           "kakao:1020",
@@ -41016,7 +41016,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -41032,7 +41032,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -41048,7 +41048,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -41103,7 +41103,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1012"
     ],
@@ -41127,7 +41127,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1011",
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1006",
       "kakao:1081",
       "kakao:2012",
@@ -41137,7 +41137,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1011",
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1006",
       "kakao:1081",
       "kakao:2012",
@@ -41155,7 +41155,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1011",
           "kakao:1001",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1006",
           "kakao:1081",
           "kakao:2012",
@@ -41183,7 +41183,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -41227,14 +41227,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1030",
       "kakao:1001",
       "kakao:1005",
       "kakao:2004"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1030",
       "kakao:1001",
       "kakao:1005",
@@ -41249,7 +41249,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1030",
           "kakao:1001",
           "kakao:1005",
@@ -41265,7 +41265,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -41288,7 +41288,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1030",
       "kakao:1001"
     ],
@@ -41504,18 +41504,18 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1003",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:2014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:1049",
       "kakao:1020",
       "kakao:1014",
       "kakao:1051",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1060",
       "kakao:2023",
       "kakao:1003",
@@ -41527,13 +41527,13 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:2014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:1049",
       "kakao:1020",
       "kakao:1014",
       "kakao:1051",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1060",
       "kakao:2023",
       "kakao:1003",
@@ -41553,13 +41553,13 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:2014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1008",
           "kakao:1049",
           "kakao:1020",
           "kakao:1014",
           "kakao:1051",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1060",
           "kakao:2023",
           "kakao:1003",
@@ -41583,7 +41583,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -41607,7 +41607,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -41647,7 +41647,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:2014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008"
     ],
     "comments": [],
@@ -41662,7 +41662,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-30 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2028",
     "type": "Casual",
     "status": "settled",
@@ -41671,14 +41671,14 @@ export const INITIAL_MEETINGS = [
       "kakao:2028",
       "kakao:1038",
       "kakao:2030",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "confirmedParticipants": [
       "kakao:2027",
       "kakao:2028",
       "kakao:1038",
       "kakao:2030",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "description": "광주청단벙 (2025-10-30) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -41693,9 +41693,9 @@ export const INITIAL_MEETINGS = [
           "kakao:2028",
           "kakao:1038",
           "kakao:2030",
-          "kakao:1040"
+          "kakao:5172627322"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -41721,7 +41721,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       }
@@ -41853,7 +41853,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1073",
       "kakao:2004",
       "kakao:2027",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1003"
     ],
     "confirmedParticipants": [
@@ -41865,7 +41865,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1073",
       "kakao:2004",
       "kakao:2027",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1003"
     ],
     "description": "조문 (2025-10-28) 벙기록입니다.",
@@ -41885,7 +41885,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1073",
           "kakao:2004",
           "kakao:2027",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1003"
         ],
         "payerUid": "kakao:1001",
@@ -41930,7 +41930,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -41964,7 +41964,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1014",
       "kakao:1032",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1074",
       "kakao:1060",
       "kakao:2031",
@@ -41974,7 +41974,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1032",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1074",
       "kakao:1060",
       "kakao:2031",
@@ -41992,7 +41992,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1014",
           "kakao:1032",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1074",
           "kakao:1060",
           "kakao:2031",
@@ -42017,7 +42017,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -42046,7 +42046,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1014",
       "kakao:1032",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -42135,7 +42135,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-25 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2029",
     "type": "Casual",
     "status": "settled",
@@ -42147,7 +42147,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1002",
       "kakao:1038",
       "kakao:2030",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1013",
       "kakao:1019"
     ],
@@ -42159,7 +42159,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1002",
       "kakao:1038",
       "kakao:2030",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1013",
       "kakao:1019"
     ],
@@ -42179,11 +42179,11 @@ export const INITIAL_MEETINGS = [
           "kakao:1002",
           "kakao:1038",
           "kakao:2030",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1013",
           "kakao:1019"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 200000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -42221,7 +42221,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -42252,14 +42252,14 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-24 19:00",
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1042",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1053",
       "kakao:1042",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2011",
       "kakao:2031",
       "kakao:1061",
@@ -42269,7 +42269,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1053",
       "kakao:1042",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2011",
       "kakao:2031",
       "kakao:1061",
@@ -42287,14 +42287,14 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1053",
           "kakao:1042",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2011",
           "kakao:2031",
           "kakao:1061",
           "kakao:1003",
           "kakao:2028"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -42312,7 +42312,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -42341,7 +42341,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1053",
       "kakao:1042",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -42465,13 +42465,13 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-21 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2011",
       "kakao:1047",
       "kakao:1053",
@@ -42483,7 +42483,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2011",
       "kakao:1047",
       "kakao:1053",
@@ -42503,7 +42503,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1049",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2011",
           "kakao:1047",
           "kakao:1053",
@@ -42513,7 +42513,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1071",
           "kakao:2031"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 200000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -42527,7 +42527,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -42567,7 +42567,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2011"
     ],
     "comments": [],
@@ -42651,19 +42651,19 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1014",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1074",
       "kakao:1051",
       "kakao:1015",
       "kakao:1053",
       "kakao:2029",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1045",
       "kakao:2031",
       "kakao:2023",
@@ -42671,14 +42671,14 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014",
       "kakao:1074",
       "kakao:1051",
       "kakao:1015",
       "kakao:1053",
       "kakao:2029",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1045",
       "kakao:2031",
       "kakao:2023",
@@ -42694,14 +42694,14 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2014",
           "kakao:1074",
           "kakao:1051",
           "kakao:1015",
           "kakao:1053",
           "kakao:2029",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1045",
           "kakao:2031",
           "kakao:2023",
@@ -42721,7 +42721,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -42749,7 +42749,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -42773,7 +42773,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2014"
     ],
     "comments": [],
@@ -43788,7 +43788,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-11 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
@@ -43798,7 +43798,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1078",
       "kakao:2030",
       "kakao:1036",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "confirmedParticipants": [
       "kakao:1002",
@@ -43806,7 +43806,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1078",
       "kakao:2030",
       "kakao:1036",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "description": "광주풍암호수모닝커피벙 (2025-10-11) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -43822,9 +43822,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1078",
           "kakao:2030",
           "kakao:1036",
-          "kakao:1040"
+          "kakao:5172627322"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 120000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -43854,7 +43854,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       }
@@ -44267,24 +44267,24 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1032",
       "kakao:1074",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2026",
       "kakao:2014",
       "kakao:1051",
       "kakao:2023",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1003"
     ],
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1032",
       "kakao:1074",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2026",
       "kakao:2014",
       "kakao:1051",
       "kakao:2023",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1003"
     ],
     "description": "잠실벙 (2025-10-08) 벙기록입니다.",
@@ -44299,12 +44299,12 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1032",
           "kakao:1074",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2026",
           "kakao:2014",
           "kakao:1051",
           "kakao:2023",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1003"
         ],
         "payerUid": "kakao:1003",
@@ -44329,7 +44329,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -44349,7 +44349,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -44472,12 +44472,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-07 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1039",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1039",
       "kakao:1043",
       "kakao:1078",
@@ -44485,7 +44485,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1025"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1039",
       "kakao:1043",
       "kakao:1078",
@@ -44501,14 +44501,14 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1039",
           "kakao:1043",
           "kakao:1078",
           "kakao:1013",
           "kakao:1025"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 120000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -44518,7 +44518,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -44545,7 +44545,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1039",
       "kakao:1043"
     ],
@@ -44774,17 +44774,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-07 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1062",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1062",
       "kakao:1036"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1062",
       "kakao:1036"
     ],
@@ -44797,11 +44797,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1062",
           "kakao:1036"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -44811,7 +44811,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -44826,7 +44826,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1062",
       "kakao:1036"
     ],
@@ -45048,17 +45048,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-04 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2034",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2034",
       "kakao:2027"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2034",
       "kakao:2027"
     ],
@@ -45071,11 +45071,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2034",
           "kakao:2027"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -45085,7 +45085,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -45100,7 +45100,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2034",
       "kakao:2027"
     ],
@@ -45130,7 +45130,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:1006",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1092",
       "kakao:1096",
       "kakao:2014",
@@ -45149,7 +45149,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:1006",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1092",
       "kakao:1096",
       "kakao:2014",
@@ -45176,7 +45176,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1010",
           "kakao:1006",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1092",
           "kakao:1096",
           "kakao:2014",
@@ -45231,7 +45231,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -45632,18 +45632,18 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2031",
       "kakao:2014"
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2031",
       "kakao:2014"
     ],
@@ -45657,7 +45657,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2031",
           "kakao:2014"
         ],
@@ -45675,7 +45675,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -45691,7 +45691,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2031"
     ],
     "comments": [],
@@ -45706,7 +45706,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-10-01 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:2031",
     "type": "Casual",
     "status": "settled",
@@ -45718,7 +45718,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1074",
       "kakao:1061",
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2023"
     ],
     "confirmedParticipants": [
@@ -45729,7 +45729,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1074",
       "kakao:1061",
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2023"
     ],
     "description": "서현벙 (2025-10-01) 벙기록입니다.",
@@ -45748,10 +45748,10 @@ export const INITIAL_MEETINGS = [
           "kakao:1074",
           "kakao:1061",
           "kakao:1003",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2023"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 180000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -45789,7 +45789,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -45920,13 +45920,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1032",
       "kakao:1003",
       "kakao:2026",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1032",
       "kakao:1003",
       "kakao:2026",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "인천벙 (2025-09-30) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -45940,7 +45940,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1032",
           "kakao:1003",
           "kakao:2026",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1003",
         "cost": 80000,
@@ -45964,7 +45964,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -46186,12 +46186,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-09-25 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1003",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:2020",
       "kakao:1046",
@@ -46202,7 +46202,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:2020",
       "kakao:1046",
@@ -46221,7 +46221,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1003",
           "kakao:2020",
           "kakao:1046",
@@ -46231,7 +46231,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1042",
           "kakao:1053"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 180000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -46241,7 +46241,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -46280,7 +46280,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:2020"
     ],
@@ -46540,19 +46540,19 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1072",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1039",
       "kakao:1011",
       "kakao:1012"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1072",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1039",
       "kakao:1011",
       "kakao:1012"
@@ -46566,10 +46566,10 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1072",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1039",
           "kakao:1011",
           "kakao:1012"
@@ -46584,7 +46584,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -46596,7 +46596,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -46615,7 +46615,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1072"
     ],
@@ -46640,11 +46640,11 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:2034",
       "kakao:1088",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1032",
       "kakao:1006",
@@ -46661,11 +46661,11 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:2034",
       "kakao:1088",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1032",
       "kakao:1006",
@@ -46690,11 +46690,11 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1004",
           "kakao:1009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:2034",
           "kakao:1088",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:1032",
           "kakao:1006",
@@ -46732,7 +46732,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -46748,7 +46748,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -46888,7 +46888,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1086",
       "kakao:1098",
       "kakao:2031",
@@ -46899,7 +46899,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1086",
       "kakao:1098",
       "kakao:2031",
@@ -46918,7 +46918,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:1004",
           "kakao:1009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1086",
           "kakao:1098",
           "kakao:2031",
@@ -46950,7 +46950,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -46994,7 +46994,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1002",
       "kakao:1004",
@@ -47009,7 +47009,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1009"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1002",
       "kakao:1004",
@@ -47032,7 +47032,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1002",
           "kakao:1004",
@@ -47056,7 +47056,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -47111,7 +47111,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1002"
     ],
@@ -47137,7 +47137,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1006",
       "kakao:2014",
       "kakao:1099",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1014",
@@ -47145,7 +47145,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1006",
       "kakao:2014",
       "kakao:1099",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "미사벙 (2025-09-18) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -47161,7 +47161,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1006",
           "kakao:2014",
           "kakao:1099",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1014",
         "cost": 120000,
@@ -47193,7 +47193,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -47305,7 +47305,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1015",
       "kakao:1001",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2029",
       "kakao:1045",
       "kakao:2031",
@@ -47316,7 +47316,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1001",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2029",
       "kakao:1045",
       "kakao:2031",
@@ -47335,7 +47335,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1015",
           "kakao:1001",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:2029",
           "kakao:1045",
           "kakao:2031",
@@ -47361,7 +47361,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -47394,7 +47394,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1015",
       "kakao:1001",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -47408,17 +47408,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-09-16 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1062"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1062"
     ],
@@ -47431,11 +47431,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1043",
           "kakao:1062"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -47445,7 +47445,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -47460,7 +47460,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1062"
     ],
@@ -47586,14 +47586,14 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1015",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
       "kakao:1011"
     ],
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1009",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1001",
       "kakao:1011"
     ],
@@ -47608,7 +47608,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1015",
           "kakao:1009",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1001",
           "kakao:1011"
         ],
@@ -47630,7 +47630,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -47647,7 +47647,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1015",
       "kakao:1009",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -47736,7 +47736,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-09-12 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1011",
     "type": "Casual",
     "status": "settled",
@@ -47746,7 +47746,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2026",
       "kakao:1014",
       "kakao:1032",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2029",
       "kakao:1060"
     ],
@@ -47756,7 +47756,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2026",
       "kakao:1014",
       "kakao:1032",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2029",
       "kakao:1060"
     ],
@@ -47774,11 +47774,11 @@ export const INITIAL_MEETINGS = [
           "kakao:2026",
           "kakao:1014",
           "kakao:1032",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2029",
           "kakao:1060"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -47808,7 +47808,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -47919,7 +47919,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1009",
       "kakao:2037",
       "kakao:2038",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1014",
@@ -47929,7 +47929,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1009",
       "kakao:2037",
       "kakao:2038",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "노원벙 (2025-09-10) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -47947,7 +47947,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1009",
           "kakao:2037",
           "kakao:2038",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1014",
         "cost": 160000,
@@ -47987,7 +47987,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -48180,7 +48180,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1030",
       "kakao:1018",
       "kakao:1019",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1055",
       "kakao:2033",
       "kakao:1042",
@@ -48199,7 +48199,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1030",
       "kakao:1018",
       "kakao:1019",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1055",
       "kakao:2033",
       "kakao:1042",
@@ -48226,7 +48226,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1030",
           "kakao:1018",
           "kakao:1019",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1055",
           "kakao:2033",
           "kakao:1042",
@@ -48278,7 +48278,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -48333,18 +48333,18 @@ export const INITIAL_MEETINGS = [
     "date": "2025-09-06 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
-    "treasurerUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
+    "treasurerUid": "kakao:5172627322",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1036",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1062"
     ],
     "confirmedParticipants": [
       "kakao:1036",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1062"
     ],
     "description": "광주민속주점벙 (2025-09-06) 벙기록입니다.",
@@ -48357,10 +48357,10 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1036",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1062"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -48374,7 +48374,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -48386,7 +48386,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1036",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1062"
     ],
     "comments": [],
@@ -48539,12 +48539,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-09-04 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1044",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1044",
       "kakao:1046",
       "kakao:2004",
@@ -48556,7 +48556,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1010"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1044",
       "kakao:1046",
       "kakao:2004",
@@ -48576,7 +48576,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1044",
           "kakao:1046",
           "kakao:2004",
@@ -48587,7 +48587,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1006",
           "kakao:1010"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 200000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -48597,7 +48597,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -48640,7 +48640,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1044",
       "kakao:1046"
     ],
@@ -48959,16 +48959,16 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1010",
       "kakao:1006",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1012",
       "kakao:2039",
       "kakao:1045",
@@ -48978,11 +48978,11 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1010",
       "kakao:1006",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1012",
       "kakao:2039",
       "kakao:1045",
@@ -49000,11 +49000,11 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1010",
           "kakao:1006",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1012",
           "kakao:2039",
           "kakao:1045",
@@ -49026,7 +49026,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -49042,7 +49042,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -49074,7 +49074,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1010"
     ],
     "comments": [],
@@ -49097,14 +49097,14 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:1009",
       "kakao:1004",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1068"
     ],
     "confirmedParticipants": [
       "kakao:1015",
       "kakao:1009",
       "kakao:1004",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1068"
     ],
     "description": "계양산벙 (2025-08-31) 벙기록입니다.",
@@ -49119,7 +49119,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:1009",
           "kakao:1004",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1068"
         ],
         "payerUid": "kakao:1004",
@@ -49144,7 +49144,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -49405,18 +49405,18 @@ export const INITIAL_MEETINGS = [
     "date": "2025-08-29 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078",
       "kakao:1062"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078",
       "kakao:1062"
@@ -49430,12 +49430,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1043",
           "kakao:1078",
           "kakao:1062"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -49445,7 +49445,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -49464,7 +49464,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078"
     ],
@@ -49488,7 +49488,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1009",
       "kakao:1004",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2037",
       "kakao:1006",
       "kakao:2031",
@@ -49501,7 +49501,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1009",
       "kakao:1004",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2037",
       "kakao:1006",
       "kakao:2031",
@@ -49522,7 +49522,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1009",
           "kakao:1004",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2037",
           "kakao:1006",
           "kakao:2031",
@@ -49553,7 +49553,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -49763,8 +49763,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
-      "kakao:1021",
+      "kakao:5172644939",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:2004"
     ],
@@ -49778,8 +49778,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1027",
-      "kakao:1021",
+      "kakao:5172644939",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:2004"
     ],
@@ -49801,8 +49801,8 @@ export const INITIAL_MEETINGS = [
           "kakao:1010",
           "kakao:1004",
           "kakao:1009",
-          "kakao:1027",
-          "kakao:1021",
+          "kakao:5172644939",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:2004"
         ],
@@ -49852,11 +49852,11 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -50074,7 +50074,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1056",
       "kakao:2031",
       "kakao:1006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1086",
       "kakao:1003"
     ],
@@ -50083,7 +50083,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1056",
       "kakao:2031",
       "kakao:1006",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1086",
       "kakao:1003"
     ],
@@ -50100,7 +50100,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1056",
           "kakao:2031",
           "kakao:1006",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1086",
           "kakao:1003"
         ],
@@ -50130,7 +50130,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -50292,12 +50292,12 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1014",
       "kakao:1015",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1015",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "수유벙 (2025-08-22) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -50310,7 +50310,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1014",
           "kakao:1015",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1014",
         "cost": 60000,
@@ -50330,7 +50330,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -50339,7 +50339,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1014",
       "kakao:1015",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -50363,7 +50363,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1042",
       "kakao:1044",
       "kakao:1013",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2034",
       "kakao:1071",
       "kakao:1006"
@@ -50374,7 +50374,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1042",
       "kakao:1044",
       "kakao:1013",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2034",
       "kakao:1071",
       "kakao:1006"
@@ -50393,7 +50393,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1042",
           "kakao:1044",
           "kakao:1013",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2034",
           "kakao:1071",
           "kakao:1006"
@@ -50428,7 +50428,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -50468,7 +50468,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1001",
       "kakao:1053",
@@ -50480,7 +50480,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2044"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1001",
       "kakao:1053",
@@ -50500,7 +50500,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2004",
           "kakao:1001",
           "kakao:1053",
@@ -50521,7 +50521,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -50564,7 +50564,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2004",
       "kakao:1001"
     ],
@@ -50581,12 +50581,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1004",
       "kakao:1009",
       "kakao:2031",
@@ -50599,7 +50599,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1004",
       "kakao:1009",
       "kakao:2031",
@@ -50620,7 +50620,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1004",
           "kakao:1009",
           "kakao:2031",
@@ -50645,7 +50645,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -50689,7 +50689,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1004"
     ],
     "comments": [],
@@ -50712,7 +50712,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:1001",
       "kakao:1002",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1049",
       "kakao:1003",
       "kakao:1039",
@@ -50729,7 +50729,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:1001",
       "kakao:1002",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1049",
       "kakao:1003",
       "kakao:1039",
@@ -50754,7 +50754,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1004",
           "kakao:1001",
           "kakao:1002",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1049",
           "kakao:1003",
           "kakao:1039",
@@ -50789,7 +50789,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -51456,7 +51456,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1071",
       "kakao:1044",
       "kakao:1022",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1018",
       "kakao:1042"
@@ -51467,7 +51467,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1071",
       "kakao:1044",
       "kakao:1022",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1018",
       "kakao:1042"
@@ -51486,7 +51486,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1071",
           "kakao:1044",
           "kakao:1022",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2045",
           "kakao:1018",
           "kakao:1042"
@@ -51521,7 +51521,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -51728,12 +51728,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1015",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1015",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1012",
       "kakao:1092",
       "kakao:1032",
@@ -51744,7 +51744,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1015",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1012",
       "kakao:1092",
       "kakao:1032",
@@ -51763,7 +51763,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1015",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1012",
           "kakao:1092",
           "kakao:1032",
@@ -51786,7 +51786,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -51822,7 +51822,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1015",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1012"
     ],
     "comments": [],
@@ -52095,13 +52095,13 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1006",
       "kakao:1010"
     ],
     "confirmedParticipants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1006",
       "kakao:1010"
@@ -52115,7 +52115,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1019",
           "kakao:1006",
           "kakao:1010"
@@ -52130,7 +52130,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -52149,7 +52149,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:1006"
     ],
@@ -52589,7 +52589,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:2037",
       "kakao:2038",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1028",
       "kakao:1009",
       "kakao:1014"
@@ -52597,7 +52597,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:2037",
       "kakao:2038",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1028",
       "kakao:1009",
       "kakao:1014"
@@ -52613,7 +52613,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:2037",
           "kakao:2038",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1028",
           "kakao:1009",
           "kakao:1014"
@@ -52636,7 +52636,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -52657,7 +52657,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:2037",
       "kakao:2038",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -53055,7 +53055,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1014",
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1009",
       "kakao:2037",
       "kakao:1006",
@@ -53066,7 +53066,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1009",
       "kakao:2037",
       "kakao:1006",
@@ -53085,7 +53085,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1014",
           "kakao:1001",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1009",
           "kakao:2037",
           "kakao:1006",
@@ -53111,7 +53111,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -53144,7 +53144,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1014",
       "kakao:1001",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -53240,7 +53240,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-07-21 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1038",
     "type": "Casual",
     "status": "settled",
@@ -53252,7 +53252,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1043",
       "kakao:2027",
       "kakao:1023",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "confirmedParticipants": [
       "kakao:2004",
@@ -53262,7 +53262,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1043",
       "kakao:2027",
       "kakao:1023",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "description": "화순벙 (2025-07-21) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -53280,9 +53280,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1043",
           "kakao:2027",
           "kakao:1023",
-          "kakao:1040"
+          "kakao:5172627322"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -53320,7 +53320,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       }
@@ -53351,7 +53351,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:2008",
       "kakao:1051",
@@ -53363,7 +53363,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1004",
       "kakao:1009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1019",
       "kakao:2008",
       "kakao:1051",
@@ -53383,7 +53383,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1004",
           "kakao:1009",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1019",
           "kakao:2008",
           "kakao:1051",
@@ -53413,7 +53413,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -53483,7 +53483,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:1018",
       "kakao:1123",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1023",
@@ -53504,7 +53504,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1010",
       "kakao:1018",
       "kakao:1123",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "구의역벙 (2025-07-19) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -53533,7 +53533,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1010",
           "kakao:1018",
           "kakao:1123",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1026",
         "cost": 380000,
@@ -53617,7 +53617,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -53640,18 +53640,18 @@ export const INITIAL_MEETINGS = [
     "date": "2025-07-18 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1062",
       "kakao:1078"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1062",
       "kakao:1078"
@@ -53665,12 +53665,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1043",
           "kakao:1062",
           "kakao:1078"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -53680,7 +53680,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -53699,7 +53699,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1062"
     ],
@@ -54086,7 +54086,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1002",
       "kakao:2004",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2027",
       "kakao:1007",
       "kakao:1026",
@@ -54111,7 +54111,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2043",
       "kakao:2047",
       "kakao:1039",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1062",
       "kakao:1013",
       "kakao:1087",
@@ -54121,7 +54121,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2044",
       "kakao:1086",
       "kakao:2045",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1014"
     ],
@@ -54129,7 +54129,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1002",
       "kakao:2004",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2027",
       "kakao:1007",
       "kakao:1026",
@@ -54154,7 +54154,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2043",
       "kakao:2047",
       "kakao:1039",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1062",
       "kakao:1013",
       "kakao:1087",
@@ -54164,7 +54164,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2044",
       "kakao:1086",
       "kakao:2045",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1014"
     ],
@@ -54180,7 +54180,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1002",
           "kakao:2004",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2027",
           "kakao:1007",
           "kakao:1026",
@@ -54205,7 +54205,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2043",
           "kakao:2047",
           "kakao:1039",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1062",
           "kakao:1013",
           "kakao:1087",
@@ -54215,7 +54215,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2044",
           "kakao:1086",
           "kakao:2045",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1009",
           "kakao:1014"
         ],
@@ -54241,7 +54241,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -54341,7 +54341,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -54381,7 +54381,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -54495,18 +54495,18 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1008",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1020"
     ],
     "confirmedParticipants": [
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006",
       "kakao:1020"
     ],
@@ -54520,7 +54520,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1008",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1006",
           "kakao:1020"
         ],
@@ -54538,7 +54538,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -54554,7 +54554,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1006"
     ],
     "comments": [],
@@ -54665,17 +54665,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-07-06 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1036",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1062"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1062"
     ],
@@ -54688,11 +54688,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1036",
           "kakao:1062"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -54702,7 +54702,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -54717,7 +54717,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1036",
       "kakao:1062"
     ],
@@ -54738,7 +54738,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:2048",
       "kakao:2044",
@@ -54747,7 +54747,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1005"
     ],
     "confirmedParticipants": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:2048",
       "kakao:2044",
@@ -54764,7 +54764,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1008",
           "kakao:2048",
           "kakao:2044",
@@ -54782,7 +54782,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -54813,7 +54813,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:2048"
     ],
@@ -55046,7 +55046,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1006",
       "kakao:1020",
       "kakao:2049",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2044",
       "kakao:1014",
       "kakao:1028"
@@ -55058,7 +55058,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1006",
       "kakao:1020",
       "kakao:2049",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2044",
       "kakao:1014",
       "kakao:1028"
@@ -55078,7 +55078,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1006",
           "kakao:1020",
           "kakao:2049",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2044",
           "kakao:1014",
           "kakao:1028"
@@ -55117,7 +55117,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -55262,18 +55262,18 @@ export const INITIAL_MEETINGS = [
     "date": "2025-07-01 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078",
       "kakao:1036"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078",
       "kakao:1036"
@@ -55287,12 +55287,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1043",
           "kakao:1078",
           "kakao:1036"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -55302,7 +55302,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -55321,7 +55321,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078"
     ],
@@ -55342,7 +55342,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:2004",
       "kakao:2039",
@@ -55350,7 +55350,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1009"
     ],
     "confirmedParticipants": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:2004",
       "kakao:2039",
@@ -55366,7 +55366,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:2004",
           "kakao:2039",
@@ -55383,7 +55383,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -55410,7 +55410,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:2004"
     ],
@@ -55665,18 +55665,18 @@ export const INITIAL_MEETINGS = [
     "date": "2025-06-27 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2004",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2004",
       "kakao:1043",
       "kakao:1078"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2004",
       "kakao:1043",
       "kakao:1078"
@@ -55690,12 +55690,12 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2004",
           "kakao:1043",
           "kakao:1078"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -55705,7 +55705,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -55724,7 +55724,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2004",
       "kakao:1043"
     ],
@@ -55750,7 +55750,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1032",
       "kakao:1028",
       "kakao:1009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1001",
       "kakao:1006"
     ],
@@ -55760,7 +55760,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1032",
       "kakao:1028",
       "kakao:1009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1001",
       "kakao:1006"
     ],
@@ -55778,7 +55778,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1032",
           "kakao:1028",
           "kakao:1009",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1001",
           "kakao:1006"
         ],
@@ -55812,7 +55812,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -55850,12 +55850,12 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "시청벙 (2025-06-25) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -55868,7 +55868,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1011",
           "kakao:1015",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1011",
         "cost": 60000,
@@ -55888,7 +55888,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -55897,7 +55897,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1011",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -55918,7 +55918,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2009",
       "kakao:1015",
       "kakao:1020",
@@ -55928,7 +55928,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1008",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2009",
       "kakao:1015",
       "kakao:1020",
@@ -55946,7 +55946,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1008",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2009",
           "kakao:1015",
           "kakao:1020",
@@ -55971,7 +55971,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -56000,7 +56000,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1008",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -56022,21 +56022,21 @@ export const INITIAL_MEETINGS = [
       "kakao:1041",
       "kakao:1031",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1022",
       "kakao:2049",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1041",
       "kakao:1031",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1022",
       "kakao:2049",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "부천벙 (2025-06-21) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -56050,11 +56050,11 @@ export const INITIAL_MEETINGS = [
           "kakao:1041",
           "kakao:1031",
           "kakao:1002",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2045",
           "kakao:1022",
           "kakao:2049",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1041",
         "cost": 160000,
@@ -56078,7 +56078,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -56094,7 +56094,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -56126,7 +56126,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1028",
       "kakao:1001",
       "kakao:2004",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1038",
       "kakao:1005",
       "kakao:2047",
@@ -56142,7 +56142,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1028",
       "kakao:1001",
       "kakao:2004",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1038",
       "kakao:1005",
       "kakao:2047",
@@ -56166,7 +56166,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1028",
           "kakao:1001",
           "kakao:2004",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1038",
           "kakao:1005",
           "kakao:2047",
@@ -56203,7 +56203,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -56267,13 +56267,13 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078",
       "kakao:1011"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078",
       "kakao:1011"
@@ -56287,7 +56287,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1043",
           "kakao:1078",
           "kakao:1011"
@@ -56302,7 +56302,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -56321,7 +56321,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078"
     ],
@@ -56337,12 +56337,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-06-15 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2054",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1100",
       "kakao:2027",
@@ -56350,7 +56350,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1078"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1100",
       "kakao:2027",
@@ -56366,14 +56366,14 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2054",
           "kakao:1100",
           "kakao:2027",
           "kakao:1043",
           "kakao:1078"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 120000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -56383,7 +56383,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -56410,7 +56410,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1100"
     ],
@@ -56435,14 +56435,14 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:2045",
       "kakao:1071",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "confirmedParticipants": [
       "kakao:1003",
       "kakao:2004",
       "kakao:2045",
       "kakao:1071",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "description": "수원인계동벙 (2025-06-14) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -56457,7 +56457,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2004",
           "kakao:2045",
           "kakao:1071",
-          "kakao:1035"
+          "kakao:5172677404"
         ],
         "payerUid": "kakao:1003",
         "cost": 100000,
@@ -56485,7 +56485,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       }
@@ -56590,17 +56590,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-06-12 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1043",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078"
     ],
@@ -56613,11 +56613,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1043",
           "kakao:1078"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -56627,7 +56627,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -56642,7 +56642,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1043",
       "kakao:1078"
     ],
@@ -56671,7 +56671,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:1028",
       "kakao:1072",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1010",
       "kakao:1009",
       "kakao:1015"
@@ -56685,7 +56685,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:1028",
       "kakao:1072",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1010",
       "kakao:1009",
       "kakao:1015"
@@ -56707,7 +56707,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1053",
           "kakao:1028",
           "kakao:1072",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1010",
           "kakao:1009",
           "kakao:1015"
@@ -56754,7 +56754,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -56801,7 +56801,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2043",
       "kakao:1009",
       "kakao:2055",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014"
     ],
     "confirmedParticipants": [
@@ -56812,7 +56812,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2043",
       "kakao:1009",
       "kakao:2055",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014"
     ],
     "description": "잠실야구벙 (2025-06-10) 벙기록입니다.",
@@ -56831,7 +56831,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2043",
           "kakao:1009",
           "kakao:2055",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014"
         ],
         "payerUid": "kakao:1011",
@@ -56872,7 +56872,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -56906,13 +56906,13 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:2009",
       "kakao:1004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045"
     ],
     "confirmedParticipants": [
       "kakao:2009",
       "kakao:1004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045"
     ],
     "description": "제주프리여행벙 (2025-06-10) 벙기록입니다.",
@@ -56926,7 +56926,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:2009",
           "kakao:1004",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2045"
         ],
         "payerUid": "kakao:1004",
@@ -56947,7 +56947,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -56960,7 +56960,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:2009",
       "kakao:1004",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -57091,7 +57091,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1028",
       "kakao:2044",
       "kakao:1018"
@@ -57099,7 +57099,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1028",
       "kakao:2044",
       "kakao:1018"
@@ -57115,7 +57115,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1028",
           "kakao:2044",
           "kakao:1018"
@@ -57138,7 +57138,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -57159,7 +57159,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "comments": [],
     "album": []
@@ -57183,7 +57183,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1045",
       "kakao:1001",
       "kakao:2044",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1008",
       "kakao:1028",
       "kakao:2039",
@@ -57196,7 +57196,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1045",
       "kakao:1001",
       "kakao:2044",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1008",
       "kakao:1028",
       "kakao:2039",
@@ -57217,7 +57217,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1045",
           "kakao:1001",
           "kakao:2044",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1008",
           "kakao:1028",
           "kakao:2039",
@@ -57254,7 +57254,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -57304,12 +57304,12 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1002",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1002",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "description": "정모사전답사벙 (2025-06-04) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -57322,7 +57322,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1002",
-          "kakao:1016"
+          "kakao:5166442426"
         ],
         "payerUid": "kakao:1001",
         "cost": 60000,
@@ -57342,7 +57342,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       }
@@ -57351,7 +57351,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1002",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -57365,7 +57365,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-06-03 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2049",
     "type": "Casual",
     "status": "settled",
@@ -57375,7 +57375,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1063",
       "kakao:1038",
       "kakao:1043",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "confirmedParticipants": [
       "kakao:2027",
@@ -57383,7 +57383,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1063",
       "kakao:1038",
       "kakao:1043",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "description": "광주벙 (2025-06-03) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -57399,9 +57399,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1063",
           "kakao:1038",
           "kakao:1043",
-          "kakao:1040"
+          "kakao:5172627322"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 120000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -57431,7 +57431,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       }
@@ -57454,12 +57454,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-06-02 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1002",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1002",
       "kakao:2004",
       "kakao:1100",
@@ -57471,7 +57471,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1025"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1002",
       "kakao:2004",
       "kakao:1100",
@@ -57491,7 +57491,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1002",
           "kakao:2004",
           "kakao:1100",
@@ -57502,7 +57502,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2054",
           "kakao:1025"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 200000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -57512,7 +57512,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -57555,7 +57555,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1002",
       "kakao:2004"
     ],
@@ -57669,7 +57669,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2009",
       "kakao:2045",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1004",
       "kakao:1028",
       "kakao:2044"
@@ -57679,7 +57679,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2009",
       "kakao:2045",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1004",
       "kakao:1028",
       "kakao:2044"
@@ -57697,7 +57697,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2009",
           "kakao:2045",
           "kakao:1005",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1004",
           "kakao:1028",
           "kakao:2044"
@@ -57728,7 +57728,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -57763,20 +57763,20 @@ export const INITIAL_MEETINGS = [
     "date": "2025-05-30 19:00",
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1005",
       "kakao:1053",
       "kakao:1044"
     ],
     "confirmedParticipants": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1005",
       "kakao:1053",
       "kakao:1044"
@@ -57791,12 +57791,12 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1011",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1005",
           "kakao:1053",
           "kakao:1044"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -57810,7 +57810,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -57830,7 +57830,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1011",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1005"
     ],
     "comments": [],
@@ -58024,7 +58024,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1142"
     ],
@@ -58032,7 +58032,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:1001",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1009",
       "kakao:1142"
     ],
@@ -58048,7 +58048,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1004",
           "kakao:1001",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1009",
           "kakao:1142"
         ],
@@ -58074,7 +58074,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -58197,7 +58197,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2009",
       "kakao:1002",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1036"
     ],
@@ -58207,7 +58207,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2009",
       "kakao:1002",
       "kakao:1043",
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1036"
     ],
@@ -58225,7 +58225,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2009",
           "kakao:1002",
           "kakao:1043",
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2054",
           "kakao:1036"
         ],
@@ -58259,7 +58259,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -58533,7 +58533,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:1032",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2048"
     ],
     "confirmedParticipants": [
@@ -58543,7 +58543,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:1032",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2048"
     ],
     "description": "한울이3탄집벙 (2025-05-21) 벙기록입니다.",
@@ -58561,7 +58561,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1004",
           "kakao:1032",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2048"
         ],
         "payerUid": "kakao:1014",
@@ -58598,7 +58598,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -58638,7 +58638,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1015",
       "kakao:1018",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1001",
@@ -58649,7 +58649,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1015",
       "kakao:1018",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "문래벙 (2025-05-20) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -58668,7 +58668,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2004",
           "kakao:1015",
           "kakao:1018",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1001",
         "cost": 180000,
@@ -58712,7 +58712,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -58831,17 +58831,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-05-18 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2054",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1043"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1043"
     ],
@@ -58854,11 +58854,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2054",
           "kakao:1043"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -58868,7 +58868,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -58883,7 +58883,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2054",
       "kakao:1043"
     ],
@@ -58900,12 +58900,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Official",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1033",
       "kakao:1002",
       "kakao:1003",
@@ -58913,7 +58913,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1007",
       "kakao:1026",
       "kakao:1032",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:1005",
       "kakao:1022",
@@ -58926,7 +58926,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1055",
       "kakao:1004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:2047",
       "kakao:2044",
@@ -58944,7 +58944,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1033",
       "kakao:1002",
       "kakao:1003",
@@ -58952,7 +58952,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1007",
       "kakao:1026",
       "kakao:1032",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1008",
       "kakao:1005",
       "kakao:1022",
@@ -58965,7 +58965,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1055",
       "kakao:1004",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:2047",
       "kakao:2044",
@@ -58991,7 +58991,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1033",
           "kakao:1002",
           "kakao:1003",
@@ -58999,7 +58999,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1007",
           "kakao:1026",
           "kakao:1032",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1008",
           "kakao:1005",
           "kakao:1022",
@@ -59012,7 +59012,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2004",
           "kakao:1055",
           "kakao:1004",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2045",
           "kakao:2047",
           "kakao:2044",
@@ -59042,7 +59042,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -59074,7 +59074,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -59126,7 +59126,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -59190,7 +59190,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1033"
     ],
     "comments": [],
@@ -59210,14 +59210,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1011",
       "kakao:1043",
       "kakao:2027",
       "kakao:2054"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1011",
       "kakao:1043",
       "kakao:2027",
@@ -59232,7 +59232,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1011",
           "kakao:1043",
           "kakao:2027",
@@ -59248,7 +59248,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -59271,7 +59271,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1011",
       "kakao:1043"
     ],
@@ -59372,7 +59372,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1032",
       "kakao:2055",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1103",
       "kakao:2004",
       "kakao:1010"
@@ -59383,7 +59383,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1032",
       "kakao:2055",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1103",
       "kakao:2004",
       "kakao:1010"
@@ -59402,7 +59402,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1032",
           "kakao:2055",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1103",
           "kakao:2004",
           "kakao:1010"
@@ -59437,7 +59437,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -59477,24 +59477,24 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2004",
       "kakao:1002",
       "kakao:1015",
       "kakao:1019",
       "kakao:1106",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2004",
       "kakao:1002",
       "kakao:1015",
       "kakao:1019",
       "kakao:1106",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "수원화흥파티룸벙 (2025-05-13) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -59505,14 +59505,14 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2004",
           "kakao:1002",
           "kakao:1015",
           "kakao:1019",
           "kakao:1106",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1001",
         "cost": 160000,
@@ -59524,7 +59524,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -59552,14 +59552,14 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2004"
     ],
@@ -59651,12 +59651,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1027",
+    "treasurerUid": "kakao:5172644939",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1012",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1001",
       "kakao:1008",
@@ -59667,7 +59667,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1012",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015",
       "kakao:1001",
       "kakao:1008",
@@ -59686,7 +59686,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1012",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1015",
           "kakao:1001",
           "kakao:1008",
@@ -59709,7 +59709,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -59745,7 +59745,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1012",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1015"
     ],
     "comments": [],
@@ -59760,14 +59760,14 @@ export const INITIAL_MEETINGS = [
     "date": "2025-05-07 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1046",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1053",
       "kakao:2004",
@@ -59775,9 +59775,9 @@ export const INITIAL_MEETINGS = [
       "kakao:1042"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1053",
       "kakao:2004",
@@ -59793,16 +59793,16 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1046",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2045",
           "kakao:1053",
           "kakao:2004",
           "kakao:1071",
           "kakao:1042"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -59812,7 +59812,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -59820,7 +59820,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -59847,9 +59847,9 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -59870,13 +59870,13 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1001",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1019",
       "kakao:2044",
       "kakao:1028",
       "kakao:2004",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1011",
       "kakao:1045",
       "kakao:1014",
@@ -59887,13 +59887,13 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1001",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1019",
       "kakao:2044",
       "kakao:1028",
       "kakao:2004",
       "kakao:1015",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1011",
       "kakao:1045",
       "kakao:1014",
@@ -59912,13 +59912,13 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1001",
           "kakao:1003",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1019",
           "kakao:2044",
           "kakao:1028",
           "kakao:2004",
           "kakao:1015",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1011",
           "kakao:1045",
           "kakao:1014",
@@ -59944,7 +59944,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -59968,7 +59968,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -60001,7 +60001,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1001",
       "kakao:1003",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -60015,17 +60015,17 @@ export const INITIAL_MEETINGS = [
     "date": "2025-05-05 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1050",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050",
       "kakao:2059"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050",
       "kakao:2059"
     ],
@@ -60038,11 +60038,11 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1050",
           "kakao:2059"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 60000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -60052,7 +60052,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -60067,7 +60067,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1050",
       "kakao:2059"
     ],
@@ -60165,12 +60165,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-05-03 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:1038",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1038",
       "kakao:2059",
       "kakao:1043",
@@ -60180,7 +60180,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1059"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1038",
       "kakao:2059",
       "kakao:1043",
@@ -60198,7 +60198,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:1038",
           "kakao:2059",
           "kakao:1043",
@@ -60207,7 +60207,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1012",
           "kakao:1059"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -60217,7 +60217,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -60252,7 +60252,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:1038",
       "kakao:2059"
     ],
@@ -60277,12 +60277,12 @@ export const INITIAL_MEETINGS = [
       "kakao:2061",
       "kakao:2055",
       "kakao:1009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1015",
       "kakao:1032",
       "kakao:1011",
       "kakao:2004",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2062",
       "kakao:1028",
       "kakao:1001",
@@ -60295,12 +60295,12 @@ export const INITIAL_MEETINGS = [
       "kakao:2061",
       "kakao:2055",
       "kakao:1009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1015",
       "kakao:1032",
       "kakao:1011",
       "kakao:2004",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:2062",
       "kakao:1028",
       "kakao:1001",
@@ -60321,12 +60321,12 @@ export const INITIAL_MEETINGS = [
           "kakao:2061",
           "kakao:2055",
           "kakao:1009",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1015",
           "kakao:1032",
           "kakao:1011",
           "kakao:2004",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:2062",
           "kakao:1028",
           "kakao:1001",
@@ -60360,7 +60360,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -60380,7 +60380,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -60434,35 +60434,35 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:2027",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2044",
       "kakao:1015",
       "kakao:2057",
       "kakao:1018",
       "kakao:2004",
       "kakao:1003",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1028",
       "kakao:2062",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1107"
     ],
     "confirmedParticipants": [
       "kakao:2027",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2044",
       "kakao:1015",
       "kakao:2057",
       "kakao:1018",
       "kakao:2004",
       "kakao:1003",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1014",
       "kakao:1028",
       "kakao:2062",
-      "kakao:1027",
+      "kakao:5172644939",
       "kakao:1107"
     ],
     "description": "신림벙 (2025-04-30) 벙기록입니다.",
@@ -60476,18 +60476,18 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:2027",
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2044",
           "kakao:1015",
           "kakao:2057",
           "kakao:1018",
           "kakao:2004",
           "kakao:1003",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1014",
           "kakao:1028",
           "kakao:2062",
-          "kakao:1027",
+          "kakao:5172644939",
           "kakao:1107"
         ],
         "payerUid": "kakao:1001",
@@ -60508,7 +60508,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -60536,7 +60536,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -60552,7 +60552,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       },
@@ -60565,7 +60565,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:2027",
       "kakao:1001",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -60683,7 +60683,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:1029",
       "kakao:1018",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2004",
       "kakao:1038",
@@ -60693,7 +60693,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1053",
       "kakao:1029",
       "kakao:1018",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2004",
       "kakao:1038",
@@ -60711,7 +60711,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1053",
           "kakao:1029",
           "kakao:1018",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2004",
           "kakao:1038",
@@ -60739,7 +60739,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -60787,7 +60787,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2047",
       "kakao:1020",
       "kakao:1001",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1028",
       "kakao:1115",
@@ -60803,7 +60803,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2047",
       "kakao:1020",
       "kakao:1001",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1028",
       "kakao:1115",
@@ -60827,7 +60827,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2047",
           "kakao:1020",
           "kakao:1001",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2045",
           "kakao:1028",
           "kakao:1115",
@@ -60864,7 +60864,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -60931,7 +60931,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2037",
       "kakao:2063",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:2004",
       "kakao:2058"
@@ -60940,7 +60940,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2037",
       "kakao:2063",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:2004",
       "kakao:2058"
@@ -60957,7 +60957,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2037",
           "kakao:2063",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2055",
           "kakao:2004",
           "kakao:2058"
@@ -60984,7 +60984,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -61029,7 +61029,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:2004",
       "kakao:1024",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "confirmedParticipants": [
       "kakao:1001",
@@ -61037,7 +61037,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1015",
       "kakao:2004",
       "kakao:1024",
-      "kakao:1027"
+      "kakao:5172644939"
     ],
     "description": "부천벙 (2025-04-22) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -61053,7 +61053,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1015",
           "kakao:2004",
           "kakao:1024",
-          "kakao:1027"
+          "kakao:5172644939"
         ],
         "payerUid": "kakao:1001",
         "cost": 120000,
@@ -61085,7 +61085,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1027": {
+      "kakao:5172644939": {
         "paid": true,
         "confirmed": true
       }
@@ -61123,7 +61123,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2009",
       "kakao:1018",
       "kakao:1010",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1028",
       "kakao:1005"
     ],
@@ -61138,7 +61138,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2009",
       "kakao:1018",
       "kakao:1010",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1028",
       "kakao:1005"
     ],
@@ -61161,7 +61161,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2009",
           "kakao:1018",
           "kakao:1010",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1028",
           "kakao:1005"
         ],
@@ -61215,7 +61215,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -61255,7 +61255,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1063",
       "kakao:2045",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1002",
       "kakao:2033",
@@ -61274,7 +61274,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1063",
       "kakao:2045",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1002",
       "kakao:2033",
@@ -61301,7 +61301,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2004",
           "kakao:1063",
           "kakao:2045",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1009",
           "kakao:1002",
           "kakao:2033",
@@ -61341,7 +61341,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -61614,7 +61614,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1028",
       "kakao:2055",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2061"
     ],
     "confirmedParticipants": [
@@ -61623,7 +61623,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1028",
       "kakao:2055",
       "kakao:1010",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2061"
     ],
     "description": "홍대무야호벙 (2025-04-14) 벙기록입니다.",
@@ -61640,7 +61640,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1028",
           "kakao:2055",
           "kakao:1010",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2061"
         ],
         "payerUid": "kakao:1014",
@@ -61673,7 +61673,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -61700,12 +61700,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-04-12 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2059",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2059",
       "kakao:1031",
       "kakao:1003",
@@ -61714,7 +61714,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1043"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2059",
       "kakao:1031",
       "kakao:1003",
@@ -61731,7 +61731,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2059",
           "kakao:1031",
           "kakao:1003",
@@ -61739,7 +61739,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2009",
           "kakao:1043"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 140000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -61749,7 +61749,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -61780,7 +61780,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2059",
       "kakao:1031"
     ],
@@ -61983,7 +61983,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1032",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055"
     ],
     "confirmedParticipants": [
@@ -61991,7 +61991,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2004",
       "kakao:1032",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055"
     ],
     "description": "스크린야구벙 (2025-04-10) 벙기록입니다.",
@@ -62007,7 +62007,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2004",
           "kakao:1032",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2055"
         ],
         "payerUid": "kakao:1014",
@@ -62036,7 +62036,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -62150,19 +62150,19 @@ export const INITIAL_MEETINGS = [
     "type": "Official",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1024",
       "kakao:1046"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2045",
       "kakao:1024",
       "kakao:1046"
@@ -62176,10 +62176,10 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1005",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2045",
           "kakao:1024",
           "kakao:1046"
@@ -62194,7 +62194,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -62206,7 +62206,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -62225,7 +62225,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1005"
     ],
@@ -62249,7 +62249,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1009",
       "kakao:1028",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1018",
       "kakao:1014",
       "kakao:1107"
@@ -62258,7 +62258,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1009",
       "kakao:1028",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1018",
       "kakao:1014",
       "kakao:1107"
@@ -62275,7 +62275,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1009",
           "kakao:1028",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1018",
           "kakao:1014",
           "kakao:1107"
@@ -62302,7 +62302,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -62337,19 +62337,19 @@ export const INITIAL_MEETINGS = [
     "date": "2025-04-05 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1040",
+    "hostUid": "kakao:5172627322",
     "treasurerUid": "kakao:2064",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2064",
       "kakao:2059",
       "kakao:2065",
       "kakao:1043"
     ],
     "confirmedParticipants": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2064",
       "kakao:2059",
       "kakao:2065",
@@ -62364,13 +62364,13 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1040",
+          "kakao:5172627322",
           "kakao:2064",
           "kakao:2059",
           "kakao:2065",
           "kakao:1043"
         ],
-        "payerUid": "kakao:1040",
+        "payerUid": "kakao:5172627322",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -62380,7 +62380,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       },
@@ -62403,7 +62403,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1040",
+      "kakao:5172627322",
       "kakao:2064",
       "kakao:2059"
     ],
@@ -62426,7 +62426,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1026",
       "kakao:2045",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1029",
       "kakao:2004"
@@ -62434,7 +62434,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1026",
       "kakao:2045",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1009",
       "kakao:1029",
       "kakao:2004"
@@ -62450,7 +62450,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1026",
           "kakao:2045",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1009",
           "kakao:1029",
           "kakao:2004"
@@ -62473,7 +62473,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -62494,7 +62494,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1026",
       "kakao:2045",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -62520,7 +62520,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2066",
       "kakao:1018",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1008",
       "kakao:1032"
     ],
@@ -62532,7 +62532,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2066",
       "kakao:1018",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1008",
       "kakao:1032"
     ],
@@ -62552,7 +62552,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2066",
           "kakao:1018",
           "kakao:1003",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1008",
           "kakao:1032"
         ],
@@ -62594,7 +62594,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -62867,13 +62867,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:2009",
       "kakao:2045",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "confirmedParticipants": [
       "kakao:1003",
       "kakao:2009",
       "kakao:2045",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "description": "일요일야탑벙 (2025-03-30) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -62887,7 +62887,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1003",
           "kakao:2009",
           "kakao:2045",
-          "kakao:1035"
+          "kakao:5172677404"
         ],
         "payerUid": "kakao:1003",
         "cost": 80000,
@@ -62911,7 +62911,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       }
@@ -63045,14 +63045,14 @@ export const INITIAL_MEETINGS = [
       "kakao:2037",
       "kakao:1009",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1032"
     ],
     "confirmedParticipants": [
       "kakao:2037",
       "kakao:1009",
       "kakao:1014",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1032"
     ],
     "description": "다산벙 (2025-03-26) 벙기록입니다.",
@@ -63067,7 +63067,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2037",
           "kakao:1009",
           "kakao:1014",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1032"
         ],
         "payerUid": "kakao:1014",
@@ -63092,7 +63092,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -63204,8 +63204,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1009",
       "kakao:1002",
-      "kakao:1035",
-      "kakao:1021",
+      "kakao:5172677404",
+      "kakao:5172630139",
       "kakao:1024",
       "kakao:1010",
       "kakao:2045",
@@ -63219,8 +63219,8 @@ export const INITIAL_MEETINGS = [
       "kakao:1001",
       "kakao:1009",
       "kakao:1002",
-      "kakao:1035",
-      "kakao:1021",
+      "kakao:5172677404",
+      "kakao:5172630139",
       "kakao:1024",
       "kakao:1010",
       "kakao:2045",
@@ -63242,8 +63242,8 @@ export const INITIAL_MEETINGS = [
           "kakao:1001",
           "kakao:1009",
           "kakao:1002",
-          "kakao:1035",
-          "kakao:1021",
+          "kakao:5172677404",
+          "kakao:5172630139",
           "kakao:1024",
           "kakao:1010",
           "kakao:2045",
@@ -63281,11 +63281,11 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -63428,7 +63428,7 @@ export const INITIAL_MEETINGS = [
     "date": "2025-03-22 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1026",
     "type": "Casual",
     "status": "settled",
@@ -63436,7 +63436,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1023",
       "kakao:1026",
       "kakao:1029",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1018",
       "kakao:1080",
       "kakao:1012"
@@ -63445,7 +63445,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1023",
       "kakao:1026",
       "kakao:1029",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1018",
       "kakao:1080",
       "kakao:1012"
@@ -63462,12 +63462,12 @@ export const INITIAL_MEETINGS = [
           "kakao:1023",
           "kakao:1026",
           "kakao:1029",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1018",
           "kakao:1080",
           "kakao:1012"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 140000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -63489,7 +63489,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -63702,12 +63702,12 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1014",
       "kakao:1009",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1014",
       "kakao:1009",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "치킨벙 (2025-03-19) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -63720,7 +63720,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1014",
           "kakao:1009",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1014",
         "cost": 60000,
@@ -63740,7 +63740,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -63749,7 +63749,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1014",
       "kakao:1009",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -63851,7 +63851,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2058",
       "kakao:1103",
       "kakao:2055",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:2037",
@@ -63862,7 +63862,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2058",
       "kakao:1103",
       "kakao:2055",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "수유된장벙 (2025-03-17) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -63881,7 +63881,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2058",
           "kakao:1103",
           "kakao:2055",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1014",
         "cost": 180000,
@@ -63925,7 +63925,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -63955,13 +63955,13 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1024",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045"
     ],
     "confirmedParticipants": [
       "kakao:1024",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045"
     ],
     "description": "문래동벙 (2025-03-16) 벙기록입니다.",
@@ -63975,7 +63975,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1024",
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2045"
         ],
         "payerUid": "kakao:1001",
@@ -63996,7 +63996,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -64009,7 +64009,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1024",
       "kakao:1001",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -64032,7 +64032,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1033",
       "kakao:2064",
       "kakao:2045",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1031",
       "kakao:2009",
       "kakao:2057",
@@ -64050,7 +64050,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1033",
       "kakao:2064",
       "kakao:2045",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1031",
       "kakao:2009",
       "kakao:2057",
@@ -64076,7 +64076,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1033",
           "kakao:2064",
           "kakao:2045",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1031",
           "kakao:2009",
           "kakao:2057",
@@ -64115,7 +64115,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -64182,14 +64182,14 @@ export const INITIAL_MEETINGS = [
     "date": "2025-03-13 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1046",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1053",
       "kakao:2045",
       "kakao:2004",
@@ -64202,9 +64202,9 @@ export const INITIAL_MEETINGS = [
       "kakao:2069"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1053",
       "kakao:2045",
       "kakao:2004",
@@ -64225,9 +64225,9 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1046",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1053",
           "kakao:2045",
           "kakao:2004",
@@ -64239,7 +64239,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1071",
           "kakao:2069"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 260000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -64249,7 +64249,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -64257,7 +64257,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -64304,9 +64304,9 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "comments": [],
     "album": []
@@ -64331,7 +64331,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1023",
       "kakao:2009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:1032",
       "kakao:1009",
@@ -64345,7 +64345,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1023",
       "kakao:2009",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:1032",
       "kakao:1009",
@@ -64367,7 +64367,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1008",
           "kakao:1023",
           "kakao:2009",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2055",
           "kakao:1032",
           "kakao:1009",
@@ -64408,7 +64408,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -64459,11 +64459,11 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1023",
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1002",
       "kakao:2055",
       "kakao:2027",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1007",
       "kakao:2009",
       "kakao:1028",
@@ -64481,11 +64481,11 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1023",
       "kakao:1001",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1002",
       "kakao:2055",
       "kakao:2027",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1007",
       "kakao:2009",
       "kakao:1028",
@@ -64511,11 +64511,11 @@ export const INITIAL_MEETINGS = [
           "kakao:1008",
           "kakao:1023",
           "kakao:1001",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1002",
           "kakao:2055",
           "kakao:2027",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1007",
           "kakao:2009",
           "kakao:1028",
@@ -64551,7 +64551,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -64567,7 +64567,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -64736,10 +64736,10 @@ export const INITIAL_MEETINGS = [
       "kakao:1002",
       "kakao:1010",
       "kakao:1018",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1012",
       "kakao:2009",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001"
     ],
     "confirmedParticipants": [
@@ -64747,10 +64747,10 @@ export const INITIAL_MEETINGS = [
       "kakao:1002",
       "kakao:1010",
       "kakao:1018",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1012",
       "kakao:2009",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001"
     ],
     "description": "영등포벙 (2025-03-09) 벙기록입니다.",
@@ -64766,10 +64766,10 @@ export const INITIAL_MEETINGS = [
           "kakao:1002",
           "kakao:1010",
           "kakao:1018",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1012",
           "kakao:2009",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001"
         ],
         "payerUid": "kakao:1001",
@@ -64798,7 +64798,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -64810,7 +64810,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -64846,7 +64846,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:2049",
       "kakao:2067",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:1010",
       "kakao:2045",
@@ -64857,7 +64857,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:2049",
       "kakao:2067",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:1010",
       "kakao:2045",
@@ -64876,7 +64876,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:2049",
           "kakao:2067",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2055",
           "kakao:1010",
           "kakao:2045",
@@ -64908,7 +64908,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -64952,7 +64952,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1028",
       "kakao:1002",
@@ -64963,7 +64963,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1020"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1028",
       "kakao:1002",
@@ -64982,7 +64982,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1028",
           "kakao:1002",
@@ -65002,7 +65002,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -65041,7 +65041,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1028"
     ],
@@ -65249,12 +65249,12 @@ export const INITIAL_MEETINGS = [
     "date": "2025-02-28 19:00",
     "location": "광주",
     "placeDetail": "광주 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:2045",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1005",
       "kakao:2059",
@@ -65262,10 +65262,10 @@ export const INITIAL_MEETINGS = [
       "kakao:1043",
       "kakao:1038",
       "kakao:2027",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1005",
       "kakao:2059",
@@ -65273,7 +65273,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1043",
       "kakao:1038",
       "kakao:2027",
-      "kakao:1040"
+      "kakao:5172627322"
     ],
     "description": "광주벙 (2025-02-28) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -65284,7 +65284,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "광주 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2045",
           "kakao:1005",
           "kakao:2059",
@@ -65292,9 +65292,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1043",
           "kakao:1038",
           "kakao:2027",
-          "kakao:1040"
+          "kakao:5172627322"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 180000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -65304,7 +65304,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -65336,14 +65336,14 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1040": {
+      "kakao:5172627322": {
         "paid": true,
         "confirmed": true
       }
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1005"
     ],
@@ -65360,12 +65360,12 @@ export const INITIAL_MEETINGS = [
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:2037",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2057",
       "kakao:1029",
@@ -65378,7 +65378,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:2037",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2057",
       "kakao:1029",
@@ -65399,7 +65399,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:2037",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2057",
           "kakao:1029",
@@ -65424,7 +65424,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -65468,7 +65468,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:2037",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001"
     ],
     "comments": [],
@@ -65492,7 +65492,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1032",
       "kakao:1028",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:2049",
       "kakao:1018"
@@ -65502,7 +65502,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1014",
       "kakao:1032",
       "kakao:1028",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2055",
       "kakao:2049",
       "kakao:1018"
@@ -65520,7 +65520,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1014",
           "kakao:1032",
           "kakao:1028",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2055",
           "kakao:2049",
           "kakao:1018"
@@ -65551,7 +65551,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -65689,7 +65689,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1004",
       "kakao:1012",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2009",
       "kakao:1018",
       "kakao:1010",
@@ -65702,7 +65702,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1004",
       "kakao:1012",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2009",
       "kakao:1018",
       "kakao:1010",
@@ -65723,7 +65723,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1004",
           "kakao:1012",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2009",
           "kakao:1018",
           "kakao:1010",
@@ -65751,7 +65751,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -65792,7 +65792,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1004",
       "kakao:1012",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -65807,12 +65807,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1014",
-    "treasurerUid": "kakao:1021",
+    "treasurerUid": "kakao:5172630139",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:2049",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1010",
       "kakao:1009",
       "kakao:1028",
@@ -65820,7 +65820,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:2049",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1010",
       "kakao:1009",
       "kakao:1028",
@@ -65836,7 +65836,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:2049",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1010",
           "kakao:1009",
           "kakao:1028",
@@ -65856,7 +65856,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -65880,7 +65880,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:2049",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1010"
     ],
     "comments": [],
@@ -66071,7 +66071,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1004",
       "kakao:1002",
@@ -66082,7 +66082,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2037"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1004",
       "kakao:1002",
@@ -66101,7 +66101,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1004",
           "kakao:1002",
@@ -66121,7 +66121,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -66160,7 +66160,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1004"
     ],
@@ -66455,7 +66455,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:2055",
       "kakao:2058",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "confirmedParticipants": [
       "kakao:1011",
@@ -66463,7 +66463,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1004",
       "kakao:2055",
       "kakao:2058",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "description": "왕십리벙 (2025-02-13) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -66479,7 +66479,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1004",
           "kakao:2055",
           "kakao:2058",
-          "kakao:1021"
+          "kakao:5172630139"
         ],
         "payerUid": "kakao:1011",
         "cost": 120000,
@@ -66511,7 +66511,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       }
@@ -66539,7 +66539,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1053",
       "kakao:1044",
@@ -66548,7 +66548,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2049"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1053",
       "kakao:1044",
@@ -66565,7 +66565,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1053",
           "kakao:1044",
@@ -66583,7 +66583,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -66614,7 +66614,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1053"
     ],
@@ -66886,7 +66886,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2059",
       "kakao:2045",
       "kakao:1063",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1087",
       "kakao:1053",
       "kakao:1029",
@@ -66900,7 +66900,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2059",
       "kakao:2045",
       "kakao:1063",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:1087",
       "kakao:1053",
       "kakao:1029",
@@ -66922,7 +66922,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2059",
           "kakao:2045",
           "kakao:1063",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:1087",
           "kakao:1053",
           "kakao:1029",
@@ -66960,7 +66960,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -67014,7 +67014,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1004",
       "kakao:2063",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2059",
       "kakao:2009",
       "kakao:1014",
@@ -67026,7 +67026,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1004",
       "kakao:2063",
-      "kakao:1021",
+      "kakao:5172630139",
       "kakao:2059",
       "kakao:2009",
       "kakao:1014",
@@ -67046,7 +67046,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1004",
           "kakao:2063",
-          "kakao:1021",
+          "kakao:5172630139",
           "kakao:2059",
           "kakao:2009",
           "kakao:1014",
@@ -67073,7 +67073,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1021": {
+      "kakao:5172630139": {
         "paid": true,
         "confirmed": true
       },
@@ -67110,7 +67110,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1004",
       "kakao:2063",
-      "kakao:1021"
+      "kakao:5172630139"
     ],
     "comments": [],
     "album": []
@@ -67217,7 +67217,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2055",
       "kakao:1009",
       "kakao:1028",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "confirmedParticipants": [
       "kakao:1001",
@@ -67226,7 +67226,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2055",
       "kakao:1009",
       "kakao:1028",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "description": "성신여대벙 (2025-02-03) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -67243,7 +67243,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2055",
           "kakao:1009",
           "kakao:1028",
-          "kakao:1016"
+          "kakao:5166442426"
         ],
         "payerUid": "kakao:1001",
         "cost": 140000,
@@ -67279,7 +67279,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       }
@@ -67742,7 +67742,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1002",
       "kakao:1004",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1014",
       "kakao:2045",
       "kakao:1010",
@@ -67757,7 +67757,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1002",
       "kakao:1004",
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1014",
       "kakao:2045",
       "kakao:1010",
@@ -67780,7 +67780,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1002",
           "kakao:1004",
           "kakao:1003",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1014",
           "kakao:2045",
           "kakao:1010",
@@ -67816,7 +67816,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -67953,14 +67953,14 @@ export const INITIAL_MEETINGS = [
     "date": "2025-01-24 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:2045",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1003",
       "kakao:2045",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1029",
       "kakao:1009",
       "kakao:1044"
@@ -67968,7 +67968,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1003",
       "kakao:2045",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1029",
       "kakao:1009",
       "kakao:1044"
@@ -67984,12 +67984,12 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1003",
           "kakao:2045",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1029",
           "kakao:1009",
           "kakao:1044"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 120000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -68007,7 +68007,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -68028,7 +68028,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1003",
       "kakao:2045",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -68129,9 +68129,9 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1053",
       "kakao:1037",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:2045",
       "kakao:1029",
@@ -68163,9 +68163,9 @@ export const INITIAL_MEETINGS = [
       "kakao:1008",
       "kakao:1053",
       "kakao:1037",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:2045",
       "kakao:1029",
@@ -68205,9 +68205,9 @@ export const INITIAL_MEETINGS = [
           "kakao:1008",
           "kakao:1053",
           "kakao:1037",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1042",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1003",
           "kakao:2045",
           "kakao:1029",
@@ -68269,7 +68269,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -68277,7 +68277,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -68919,7 +68919,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2074",
       "kakao:1003",
       "kakao:1022",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "confirmedParticipants": [
       "kakao:1046",
@@ -68928,7 +68928,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2074",
       "kakao:1003",
       "kakao:1022",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "description": "빵기부벙 (2025-01-11) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -68945,7 +68945,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2074",
           "kakao:1003",
           "kakao:1022",
-          "kakao:1035"
+          "kakao:5172677404"
         ],
         "payerUid": "kakao:1003",
         "cost": 140000,
@@ -68981,7 +68981,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       }
@@ -69084,23 +69084,23 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1053",
       "kakao:1002",
       "kakao:2045",
       "kakao:2059",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1029"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1053",
       "kakao:1002",
       "kakao:2045",
       "kakao:2059",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1029"
     ],
     "description": "수원역동남아음식투어벙 (2025-01-09) 벙기록입니다.",
@@ -69112,13 +69112,13 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1053",
           "kakao:1002",
           "kakao:2045",
           "kakao:2059",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1029"
         ],
         "payerUid": "kakao:1001",
@@ -69131,7 +69131,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -69155,7 +69155,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -69166,7 +69166,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1053"
     ],
@@ -70620,7 +70620,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1003",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2073",
       "kakao:1007",
       "kakao:1037",
@@ -70656,7 +70656,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1003",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2073",
       "kakao:1007",
       "kakao:1037",
@@ -70700,7 +70700,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1003",
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2073",
           "kakao:1007",
           "kakao:1037",
@@ -70751,7 +70751,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -70884,7 +70884,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1003",
       "kakao:1001",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -70903,14 +70903,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1077",
       "kakao:1012",
       "kakao:1001"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1077",
       "kakao:1012",
@@ -70925,7 +70925,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2045",
           "kakao:1077",
           "kakao:1012",
@@ -70941,7 +70941,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -70964,7 +70964,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1077"
     ],
@@ -70985,7 +70985,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1009",
       "kakao:1014",
       "kakao:1077",
@@ -70997,7 +70997,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1044"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1009",
       "kakao:1014",
       "kakao:1077",
@@ -71017,7 +71017,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1009",
           "kakao:1014",
           "kakao:1077",
@@ -71038,7 +71038,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -71081,7 +71081,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1009",
       "kakao:1014"
     ],
@@ -71441,30 +71441,30 @@ export const INITIAL_MEETINGS = [
     "date": "2024-11-26 19:00",
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:2045",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1077",
       "kakao:1024",
       "kakao:1065",
       "kakao:1018",
       "kakao:1029",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1115"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1077",
       "kakao:1024",
       "kakao:1065",
       "kakao:1018",
       "kakao:1029",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1115"
     ],
     "description": "수원나혜석벙 (2024-11-26) 벙기록입니다.",
@@ -71476,17 +71476,17 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2045",
           "kakao:1077",
           "kakao:1024",
           "kakao:1065",
           "kakao:1018",
           "kakao:1029",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1115"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 180000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -71496,7 +71496,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -71524,7 +71524,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -71535,7 +71535,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1077"
     ],
@@ -71641,13 +71641,13 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1104",
       "kakao:2045",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "confirmedParticipants": [
       "kakao:1003",
       "kakao:1104",
       "kakao:2045",
-      "kakao:1035"
+      "kakao:5172677404"
     ],
     "description": "스크린벙 (2024-11-21) 벙기록입니다.",
     "roundingRule": "floor100",
@@ -71661,7 +71661,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1003",
           "kakao:1104",
           "kakao:2045",
-          "kakao:1035"
+          "kakao:5172677404"
         ],
         "payerUid": "kakao:1003",
         "cost": 80000,
@@ -71685,7 +71685,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       }
@@ -71945,9 +71945,9 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1026",
       "kakao:1009",
@@ -71961,9 +71961,9 @@ export const INITIAL_MEETINGS = [
       "kakao:1010"
     ],
     "confirmedParticipants": [
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1026",
       "kakao:1009",
@@ -71985,9 +71985,9 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1003",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1026",
           "kakao:1009",
@@ -72010,7 +72010,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -72018,7 +72018,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -72069,9 +72069,9 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1003",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -72329,7 +72329,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1037",
       "kakao:1003",
@@ -72345,7 +72345,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2009"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1037",
       "kakao:1003",
@@ -72369,7 +72369,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1037",
           "kakao:1003",
@@ -72394,7 +72394,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -72453,7 +72453,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1037"
     ],
@@ -72554,7 +72554,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1046",
       "kakao:1053",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1022"
     ],
     "confirmedParticipants": [
@@ -72563,7 +72563,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:1046",
       "kakao:1053",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1022"
     ],
     "description": "오산벙 (2024-11-03) 벙기록입니다.",
@@ -72580,7 +72580,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1003",
           "kakao:1046",
           "kakao:1053",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1022"
         ],
         "payerUid": "kakao:1003",
@@ -72613,7 +72613,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -72820,7 +72820,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2073",
       "kakao:1009",
       "kakao:1018",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042"
     ],
     "confirmedParticipants": [
@@ -72828,7 +72828,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2073",
       "kakao:1009",
       "kakao:1018",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1042"
     ],
     "description": "한우벙 (2024-10-22) 벙기록입니다.",
@@ -72844,7 +72844,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2073",
           "kakao:1009",
           "kakao:1018",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1042"
         ],
         "payerUid": "kakao:1018",
@@ -72873,7 +72873,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -74350,7 +74350,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1002",
       "kakao:1004",
@@ -74363,7 +74363,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2058"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1002",
       "kakao:1004",
@@ -74384,7 +74384,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1002",
           "kakao:1004",
@@ -74406,7 +74406,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -74453,7 +74453,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1002"
     ],
@@ -74730,12 +74730,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1003",
-    "treasurerUid": "kakao:1035",
+    "treasurerUid": "kakao:5172677404",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1023",
       "kakao:1048",
       "kakao:1029",
@@ -74743,7 +74743,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1023",
       "kakao:1048",
       "kakao:1029",
@@ -74759,7 +74759,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1003",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1023",
           "kakao:1048",
           "kakao:1029",
@@ -74779,7 +74779,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -74803,7 +74803,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1003",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1023"
     ],
     "comments": [],
@@ -75682,19 +75682,19 @@ export const INITIAL_MEETINGS = [
     "date": "2024-09-03 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1024",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:2009"
     ],
     "confirmedParticipants": [
       "kakao:1024",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:2009"
     ],
@@ -75708,11 +75708,11 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1024",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2045",
           "kakao:2009"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -75726,7 +75726,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -75742,7 +75742,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1024",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045"
     ],
     "comments": [],
@@ -76030,7 +76030,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2059",
       "kakao:1007",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1005",
       "kakao:1043",
       "kakao:2058",
@@ -76059,7 +76059,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2059",
       "kakao:1007",
       "kakao:1002",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1005",
       "kakao:1043",
       "kakao:2058",
@@ -76096,7 +76096,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2059",
           "kakao:1007",
           "kakao:1002",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1005",
           "kakao:1043",
           "kakao:2058",
@@ -76194,7 +76194,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -76969,13 +76969,13 @@ export const INITIAL_MEETINGS = [
     "date": "2024-08-16 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1018",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1022",
       "kakao:1044",
       "kakao:2088",
@@ -76985,7 +76985,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1018",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1022",
       "kakao:1044",
       "kakao:2088",
@@ -77003,7 +77003,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1018",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1022",
           "kakao:1044",
           "kakao:2088",
@@ -77011,7 +77011,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2084",
           "kakao:1048"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -77025,7 +77025,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -77057,7 +77057,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1018",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1022"
     ],
     "comments": [],
@@ -77194,7 +77194,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1104",
       "kakao:2045",
@@ -77208,7 +77208,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1104",
       "kakao:2045",
@@ -77230,7 +77230,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1104",
           "kakao:2045",
@@ -77253,7 +77253,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -77304,7 +77304,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1104"
     ],
@@ -77794,7 +77794,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2045",
       "kakao:1005",
       "kakao:2073",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2037",
       "kakao:1046",
@@ -77816,7 +77816,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2045",
       "kakao:1005",
       "kakao:2073",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2037",
       "kakao:1046",
@@ -77846,7 +77846,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2045",
           "kakao:1005",
           "kakao:2073",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2037",
           "kakao:1046",
@@ -77922,7 +77922,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -78051,12 +78051,12 @@ export const INITIAL_MEETINGS = [
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1008",
       "kakao:1020",
       "kakao:1012",
@@ -78066,7 +78066,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1008",
       "kakao:1020",
       "kakao:1012",
@@ -78084,7 +78084,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1008",
           "kakao:1020",
           "kakao:1012",
@@ -78106,7 +78106,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -78138,7 +78138,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1008"
     ],
     "comments": [],
@@ -78237,7 +78237,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:2079",
       "kakao:1029",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1032",
       "kakao:1054",
       "kakao:2091",
@@ -78258,7 +78258,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1003",
       "kakao:2079",
       "kakao:1029",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:1032",
       "kakao:1054",
       "kakao:2091",
@@ -78287,7 +78287,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1003",
           "kakao:2079",
           "kakao:1029",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:1032",
           "kakao:1054",
           "kakao:2091",
@@ -78329,7 +78329,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -78626,7 +78626,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1065",
       "kakao:1037",
@@ -78637,7 +78637,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2073"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1065",
       "kakao:1037",
@@ -78656,7 +78656,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1065",
           "kakao:1037",
@@ -78676,7 +78676,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -78715,7 +78715,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1065"
     ],
@@ -78820,19 +78820,19 @@ export const INITIAL_MEETINGS = [
     "date": "2024-07-18 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1049",
       "kakao:1044"
     ],
     "confirmedParticipants": [
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1049",
       "kakao:1044"
     ],
@@ -78846,11 +78846,11 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1003",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1049",
           "kakao:1044"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 80000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -78864,7 +78864,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -78880,7 +78880,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1049"
     ],
     "comments": [],
@@ -79580,12 +79580,12 @@ export const INITIAL_MEETINGS = [
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
     "hostUid": "kakao:1001",
-    "treasurerUid": "kakao:1016",
+    "treasurerUid": "kakao:5166442426",
     "type": "Official",
     "status": "settled",
     "applicants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:1012",
       "kakao:1008",
@@ -79594,7 +79594,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:2073",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2079",
       "kakao:2094",
       "kakao:1007",
@@ -79622,7 +79622,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:1012",
       "kakao:1008",
@@ -79631,7 +79631,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1024",
       "kakao:2073",
       "kakao:1042",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2079",
       "kakao:2094",
       "kakao:1007",
@@ -79667,7 +79667,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1003",
           "kakao:1012",
           "kakao:1008",
@@ -79676,7 +79676,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1024",
           "kakao:2073",
           "kakao:1042",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2079",
           "kakao:2094",
           "kakao:1007",
@@ -79716,7 +79716,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -79752,7 +79752,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -79856,7 +79856,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003"
     ],
     "comments": [],
@@ -80105,7 +80105,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:2079",
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1048",
       "kakao:1008",
@@ -80114,7 +80114,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:2079",
       "kakao:1049",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1048",
       "kakao:1008",
@@ -80131,7 +80131,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:2079",
           "kakao:1049",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1048",
           "kakao:1008",
@@ -80155,7 +80155,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -80180,7 +80180,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:2079",
       "kakao:1049",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -80567,7 +80567,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1131",
       "kakao:1044",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2073",
       "kakao:2083",
       "kakao:1003",
@@ -80581,7 +80581,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1131",
       "kakao:1044",
       "kakao:1005",
-      "kakao:1035",
+      "kakao:5172677404",
       "kakao:2073",
       "kakao:2083",
       "kakao:1003",
@@ -80603,7 +80603,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1131",
           "kakao:1044",
           "kakao:1005",
-          "kakao:1035",
+          "kakao:5172677404",
           "kakao:2073",
           "kakao:2083",
           "kakao:1003",
@@ -80641,7 +80641,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1035": {
+      "kakao:5172677404": {
         "paid": true,
         "confirmed": true
       },
@@ -80693,14 +80693,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2100",
       "kakao:1003",
       "kakao:2045"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2100",
       "kakao:1003",
@@ -80715,7 +80715,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2100",
           "kakao:1003",
@@ -80731,7 +80731,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -80754,7 +80754,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2100"
     ],
@@ -81100,13 +81100,13 @@ export const INITIAL_MEETINGS = [
     "date": "2024-06-13 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:2078",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
       "kakao:1131",
       "kakao:1022",
@@ -81117,7 +81117,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:2078",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046",
       "kakao:1131",
       "kakao:1022",
@@ -81136,7 +81136,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:2078",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1046",
           "kakao:1131",
           "kakao:1022",
@@ -81145,7 +81145,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2045",
           "kakao:2101"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 180000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -81159,7 +81159,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -81195,7 +81195,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:2078",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1046"
     ],
     "comments": [],
@@ -81580,7 +81580,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1001",
       "kakao:2073",
@@ -81589,7 +81589,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1044"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1001",
       "kakao:2073",
@@ -81606,7 +81606,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2045",
           "kakao:1001",
           "kakao:2073",
@@ -81624,7 +81624,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -81655,7 +81655,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:1001"
     ],
@@ -81937,7 +81937,7 @@ export const INITIAL_MEETINGS = [
     "date": "2024-05-30 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1042",
     "type": "Casual",
     "status": "settled",
@@ -81947,7 +81947,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1046",
       "kakao:1022",
       "kakao:1054",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2073",
       "kakao:1003"
     ],
@@ -81957,7 +81957,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1046",
       "kakao:1022",
       "kakao:1054",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2073",
       "kakao:1003"
     ],
@@ -81975,11 +81975,11 @@ export const INITIAL_MEETINGS = [
           "kakao:1046",
           "kakao:1022",
           "kakao:1054",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2073",
           "kakao:1003"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -82009,7 +82009,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -82671,7 +82671,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2102",
       "kakao:2096",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2097",
       "kakao:2045",
       "kakao:1018"
@@ -82680,7 +82680,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2102",
       "kakao:2096",
       "kakao:1001",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2097",
       "kakao:2045",
       "kakao:1018"
@@ -82697,7 +82697,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2102",
           "kakao:2096",
           "kakao:1001",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2097",
           "kakao:2045",
           "kakao:1018"
@@ -82724,7 +82724,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -83438,14 +83438,14 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2073",
       "kakao:1054",
       "kakao:1003"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2073",
       "kakao:1054",
@@ -83460,7 +83460,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2073",
           "kakao:1054",
@@ -83476,7 +83476,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -83499,7 +83499,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2073"
     ],
@@ -83604,12 +83604,12 @@ export const INITIAL_MEETINGS = [
     "date": "2024-05-07 19:00",
     "location": "서울",
     "placeDetail": "서울 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1003",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:1042",
       "kakao:1058",
@@ -83623,7 +83623,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2107"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:1042",
       "kakao:1058",
@@ -83645,7 +83645,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1003",
           "kakao:1042",
           "kakao:1058",
@@ -83658,7 +83658,7 @@ export const INITIAL_MEETINGS = [
           "kakao:1105",
           "kakao:2107"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 240000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -83668,7 +83668,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -83719,7 +83719,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1003",
       "kakao:1042"
     ],
@@ -85193,12 +85193,12 @@ export const INITIAL_MEETINGS = [
     "date": "2024-04-23 19:00",
     "location": "경기",
     "placeDetail": "경기 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:2073",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2073",
       "kakao:1046",
       "kakao:2078",
@@ -85211,7 +85211,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2112"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2073",
       "kakao:1046",
       "kakao:2078",
@@ -85232,7 +85232,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2073",
           "kakao:1046",
           "kakao:2078",
@@ -85244,7 +85244,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2111",
           "kakao:2112"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 220000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -85254,7 +85254,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -85301,7 +85301,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2073",
       "kakao:1046"
     ],
@@ -85722,19 +85722,19 @@ export const INITIAL_MEETINGS = [
     "date": "2024-04-17 19:00",
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1058",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1058",
       "kakao:2073",
       "kakao:1003",
       "kakao:2087"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1058",
       "kakao:2073",
       "kakao:1003",
@@ -85749,13 +85749,13 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1058",
           "kakao:2073",
           "kakao:1003",
           "kakao:2087"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -85765,7 +85765,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -85788,7 +85788,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1058",
       "kakao:2073"
     ],
@@ -86235,7 +86235,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2045",
       "kakao:1012",
@@ -86247,7 +86247,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1011"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2045",
       "kakao:1012",
@@ -86267,7 +86267,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2045",
           "kakao:1012",
@@ -86288,7 +86288,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -86331,7 +86331,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2045"
     ],
@@ -86355,7 +86355,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2094",
       "kakao:1012",
       "kakao:2009",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2108",
       "kakao:1001",
       "kakao:2045",
@@ -86370,7 +86370,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2094",
       "kakao:1012",
       "kakao:2009",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2108",
       "kakao:1001",
       "kakao:2045",
@@ -86393,7 +86393,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2094",
           "kakao:1012",
           "kakao:2009",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2108",
           "kakao:1001",
           "kakao:2045",
@@ -86426,7 +86426,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -87021,19 +87021,19 @@ export const INITIAL_MEETINGS = [
     "date": "2024-03-27 19:00",
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
-    "hostUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
     "treasurerUid": "kakao:1058",
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1058",
       "kakao:1012",
       "kakao:1003",
       "kakao:1044"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1058",
       "kakao:1012",
       "kakao:1003",
@@ -87048,13 +87048,13 @@ export const INITIAL_MEETINGS = [
         "placeName": "수원 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1058",
           "kakao:1012",
           "kakao:1003",
           "kakao:1044"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 100000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -87064,7 +87064,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -87087,7 +87087,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1058",
       "kakao:1012"
     ],
@@ -87347,7 +87347,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:2073",
       "kakao:2078",
@@ -87357,7 +87357,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1001"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:2073",
       "kakao:2078",
@@ -87375,7 +87375,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "경기 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:2045",
           "kakao:2073",
           "kakao:2078",
@@ -87394,7 +87394,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -87429,7 +87429,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:2045",
       "kakao:2073"
     ],
@@ -87450,7 +87450,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1020",
       "kakao:1007",
       "kakao:1077",
@@ -87483,7 +87483,7 @@ export const INITIAL_MEETINGS = [
       "kakao:1038"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1020",
       "kakao:1007",
       "kakao:1077",
@@ -87524,7 +87524,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1020",
           "kakao:1007",
           "kakao:1077",
@@ -87566,7 +87566,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -87693,7 +87693,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1020",
       "kakao:1007"
     ],
@@ -88449,7 +88449,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2116",
       "kakao:1056",
@@ -88458,7 +88458,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2087"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2116",
       "kakao:1056",
@@ -88475,7 +88475,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:2116",
           "kakao:1056",
@@ -88493,7 +88493,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -88524,7 +88524,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:2116"
     ],
@@ -89041,7 +89041,7 @@ export const INITIAL_MEETINGS = [
     "type": "Casual",
     "status": "settled",
     "applicants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1044",
       "kakao:2045",
@@ -89052,7 +89052,7 @@ export const INITIAL_MEETINGS = [
       "kakao:2075"
     ],
     "confirmedParticipants": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1044",
       "kakao:2045",
@@ -89071,7 +89071,7 @@ export const INITIAL_MEETINGS = [
         "placeName": "서울 모임 장소",
         "mapUrl": "",
         "participants": [
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1001",
           "kakao:1044",
           "kakao:2045",
@@ -89091,7 +89091,7 @@ export const INITIAL_MEETINGS = [
     "sponsorships": [],
     "manualAmounts": {},
     "paymentStatuses": {
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -89130,7 +89130,7 @@ export const INITIAL_MEETINGS = [
     },
     "safeReturns": {},
     "likes": [
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1001",
       "kakao:1044"
     ],
@@ -89408,7 +89408,7 @@ export const INITIAL_MEETINGS = [
     "applicants": [
       "kakao:1049",
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1012",
       "kakao:1056",
       "kakao:1020",
@@ -89422,7 +89422,7 @@ export const INITIAL_MEETINGS = [
     "confirmedParticipants": [
       "kakao:1049",
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1012",
       "kakao:1056",
       "kakao:1020",
@@ -89444,7 +89444,7 @@ export const INITIAL_MEETINGS = [
         "participants": [
           "kakao:1049",
           "kakao:1003",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1012",
           "kakao:1056",
           "kakao:1020",
@@ -89473,7 +89473,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -89518,7 +89518,7 @@ export const INITIAL_MEETINGS = [
     "likes": [
       "kakao:1049",
       "kakao:1003",
-      "kakao:1016"
+      "kakao:5166442426"
     ],
     "comments": [],
     "album": []
@@ -90206,13 +90206,13 @@ export const INITIAL_MEETINGS = [
     "date": "2024-02-01 19:00",
     "location": "수원",
     "placeDetail": "수원 인근 약속 장소",
-    "hostUid": "kakao:1016",
-    "treasurerUid": "kakao:1016",
+    "hostUid": "kakao:5166442426",
+    "treasurerUid": "kakao:5166442426",
     "type": "Casual",
     "status": "settled",
     "applicants": [
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1012",
       "kakao:2126",
       "kakao:1005",
@@ -90222,7 +90222,7 @@ export const INITIAL_MEETINGS = [
     ],
     "confirmedParticipants": [
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1012",
       "kakao:2126",
       "kakao:1005",
@@ -90240,7 +90240,7 @@ export const INITIAL_MEETINGS = [
         "mapUrl": "",
         "participants": [
           "kakao:1003",
-          "kakao:1016",
+          "kakao:5166442426",
           "kakao:1012",
           "kakao:2126",
           "kakao:1005",
@@ -90248,7 +90248,7 @@ export const INITIAL_MEETINGS = [
           "kakao:2078",
           "kakao:1054"
         ],
-        "payerUid": "kakao:1016",
+        "payerUid": "kakao:5166442426",
         "cost": 160000,
         "receiptUrl": "",
         "isGoldenBell": false,
@@ -90262,7 +90262,7 @@ export const INITIAL_MEETINGS = [
         "paid": true,
         "confirmed": true
       },
-      "kakao:1016": {
+      "kakao:5166442426": {
         "paid": true,
         "confirmed": true
       },
@@ -90294,7 +90294,7 @@ export const INITIAL_MEETINGS = [
     "safeReturns": {},
     "likes": [
       "kakao:1003",
-      "kakao:1016",
+      "kakao:5166442426",
       "kakao:1012"
     ],
     "comments": [],

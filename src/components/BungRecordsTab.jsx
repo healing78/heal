@@ -101,9 +101,10 @@ export default function BungRecordsTab({
         const locMatch = (mtg.location || '').toLowerCase().includes(q);
         const dateMatch = (mtg.dateOnly || '').includes(q);
         const participants = getMeetingParticipantNames(mtg);
-        const nameMatch = participants.some((name) =>
-          name.toLowerCase().includes(q)
-        );
+        const nameMatch = participants.some((name) => {
+          const clean = name.replace(/[0-9]/g, '').toLowerCase();
+          return clean.includes(q) || name.toLowerCase().includes(q);
+        });
         return titleMatch || locMatch || dateMatch || nameMatch;
       });
     }
