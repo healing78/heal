@@ -179,7 +179,12 @@ export function parsePlaceSummary(rawText = '') {
     placeName = textWithoutUrl || text;
   }
 
-  return { placeName: placeName.trim(), address: address.trim(), mapUrl };
+  return {
+    placeName: placeName.trim(),
+    address: address.trim(),
+    mapUrl,
+    textWithoutUrl
+  };
 }
 
 function getAvatarBg(uid) {
@@ -2877,25 +2882,12 @@ export default function MeetingDetailPage({
                         >
                           <div className="lounge-round-header-left">
                             <span className="platform-badge">{idx + 1}차</span>
-                            {placeSummary.mapUrl ? (
-                              <a
-                                href={placeSummary.mapUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="lounge-round-place-link"
-                                onClick={(e) => e.stopPropagation()}
-                                title={`${placeSummary.placeName || '지도 열기'} (클릭 시 지도 이동)`}
-                              >
-                                {placeSummary.placeName || `${idx + 1}차 장소`}
-                              </a>
-                            ) : (
-                              <span
-                                className="lounge-round-place-text"
-                                title={placeSummary.placeName}
-                              >
-                                {placeSummary.placeName || `${idx + 1}차 장소`}
-                              </span>
-                            )}
+                            <span
+                              className="lounge-round-place-text"
+                              title={placeSummary.placeName || r.placeName}
+                            >
+                              {placeSummary.placeName || r.placeName || `${idx + 1}차 장소`}
+                            </span>
                           </div>
 
                           <div
@@ -2979,7 +2971,27 @@ export default function MeetingDetailPage({
                         {/* Collapsible Round Body */}
                         {!isCollapsed && (
                           <div className="lounge-round-accordion-body">
-                            {/* Round Meta: Attendee count, cost, and golden bell (Moved from Title) */}
+                            {/* 장소 상세 내용 (Title 아래, 참석자 수 위) */}
+                            {(placeSummary.address || placeSummary.mapUrl || (r.placeName && r.placeName !== placeSummary.placeName)) && (
+                              <div className="lounge-round-detail-row">
+                                <div className="lounge-round-detail-text">
+                                  {placeSummary.address || placeSummary.textWithoutUrl || r.placeName}
+                                </div>
+                                {placeSummary.mapUrl && (
+                                  <a
+                                    href={placeSummary.mapUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-xs btn-outline lounge-round-map-btn"
+                                    title="지도 새 탭 열기"
+                                  >
+                                    지도 바로가기 ↗
+                                  </a>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Round Meta: Attendee count, cost, and golden bell */}
                             <div className="lounge-round-body-meta">
                               <span className="lounge-round-meta-stat">
                                 참석 <strong>{rParticipants.length}</strong>명 · 비용{' '}
