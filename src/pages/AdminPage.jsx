@@ -898,6 +898,14 @@ export default function AdminPage({
                           <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '6px' }}>
                             ({applicant.uid})
                           </span>
+                          {(applicant.isSimulation || (applicant.uid && applicant.uid.startsWith('kakao:sim-'))) && (
+                            <span
+                              className="platform-badge"
+                              style={{ background: '#10b981', color: '#fff', fontSize: '10px', marginLeft: '6px' }}
+                            >
+                              🧪 시뮬레이션
+                            </span>
+                          )}
                         </div>
                         <span
                           className="lounge-waiting-badge"

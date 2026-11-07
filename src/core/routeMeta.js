@@ -66,7 +66,7 @@ export function formatCompactDate(dateStr) {
  */
 export function parseCurrentRoute() {
   if (typeof window === 'undefined') {
-    return { tab: 'home', meetingId: null, subView: null, memberQuery: '', friendsFilter: 'ALL' };
+    return { tab: 'home', meetingId: null, subView: null, memberQuery: '', friendsFilter: 'ALL', debugMode: null };
   }
 
   const rawSegments = window.location.pathname
@@ -93,11 +93,17 @@ export function parseCurrentRoute() {
     params.get('view') || (params.get('lounge') === 'true' ? 'lounge' : null);
   const memberQuery = params.get('q') || '';
   const friendsFilter = params.get('filter') || params.get('sub') || 'ALL';
+  const debugMode =
+    params.get('debug') === 'onboarding' ||
+    params.get('mode') === 'onboarding' ||
+    params.get('onboarding') === 'true'
+      ? 'onboarding'
+      : null;
   const subView =
     thirdSeg === 'lounge' || querySubView === 'lounge' ? 'lounge' : null;
 
   if (!firstSeg || firstSeg === 'home') {
-    return { tab: 'home', meetingId: queryMeetingId, subView, memberQuery, friendsFilter };
+    return { tab: 'home', meetingId: queryMeetingId, subView, memberQuery, friendsFilter, debugMode };
   }
 
   if (firstSeg === 'meetings') {
@@ -106,7 +112,8 @@ export function parseCurrentRoute() {
       meetingId: secondSeg || queryMeetingId,
       subView,
       memberQuery,
-      friendsFilter
+      friendsFilter,
+      debugMode
     };
   }
 
@@ -125,7 +132,8 @@ export function parseCurrentRoute() {
       meetingId: queryMeetingId,
       subView,
       memberQuery,
-      friendsFilter
+      friendsFilter,
+      debugMode
     };
   }
 
@@ -136,15 +144,16 @@ export function parseCurrentRoute() {
       meetingId: firstSeg,
       subView: secondSeg === 'lounge' ? 'lounge' : subView,
       memberQuery,
-      friendsFilter
+      friendsFilter,
+      debugMode
     };
   }
 
   if (VALID_TABS.includes(firstSeg)) {
-    return { tab: firstSeg, meetingId: queryMeetingId, subView, memberQuery, friendsFilter };
+    return { tab: firstSeg, meetingId: queryMeetingId, subView, memberQuery, friendsFilter, debugMode };
   }
 
-  return { tab: 'home', meetingId: null, subView: null, memberQuery, friendsFilter };
+  return { tab: 'home', meetingId: null, subView: null, memberQuery, friendsFilter, debugMode };
 }
 
 /**

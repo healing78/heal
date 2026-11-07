@@ -88,6 +88,9 @@ export default function App() {
   const [memberUidList, setMemberUidList] = useState([]);
   const [shareToast, setShareToast] = useState('');
   const [theme, setTheme] = useState(() => getSavedTheme());
+  const [isOnboardingSimulation, setIsOnboardingSimulation] = useState(
+    () => initialRoute.debugMode === 'onboarding'
+  );
   const [isMasterTabEnabled, setIsMasterTabEnabled] = useState(() => {
     try {
       return localStorage.getItem('heal78_master_tab_enabled') === 'true';
@@ -409,7 +412,10 @@ export default function App() {
       activeTab={activeTab}
       headerSummary={currentMeta.headerSummary}
       members={members}
+      isSimulation={isOnboardingSimulation}
+      onExitSimulation={() => setIsOnboardingSimulation(false)}
       onSelectExistingMember={(uid) => {
+        setIsOnboardingSimulation(false);
         setCurrentUserUid(uid);
         saveCurrentUserUid(uid);
         const targetMember = members.find((m) => m.uid === uid);
@@ -418,7 +424,10 @@ export default function App() {
           navigateToTab('home');
         }
       }}
-      onCompleteOnboarding={handleCompleteOnboarding}
+      onCompleteOnboarding={async (form, customUid) => {
+        setIsOnboardingSimulation(false);
+        await handleCompleteOnboarding(form, customUid);
+      }}
       onNavigateTab={navigateToTab}
     />
   );
@@ -427,6 +436,10 @@ export default function App() {
   // - '/nickname' is always accessible before and after login
   // - All other tabs show Before-Login screen when !currentUser, and After-Login screen when currentUser is present
   const renderPageBody = () => {
+    if (isOnboardingSimulation) {
+      return renderBeforeLoginView();
+    }
+
     if (activeTab === 'nickname') {
       return (
         <NicknamePage
@@ -606,6 +619,7 @@ export default function App() {
           onSwitchUser={handleSwitchUser}
           onBatchSyncData={batchSyncCommunityData}
           onResetInitialData={handleResetDemoData}
+          onStartOnboardingSimulation={() => setIsOnboardingSimulation(true)}
           onImpersonateUser={(uid) => {
             setImpersonatedUid(uid);
             navigateToTab('home');

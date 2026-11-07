@@ -13,13 +13,26 @@ export default function LoginOnboardingPage({
   members = [],
   onSelectExistingMember,
   onCompleteOnboarding,
-  onNavigateTab
+  onNavigateTab,
+  isSimulation = false,
+  onExitSimulation
 }) {
-  const [step, setStep] = useState('login'); // 'login' | 'onboarding'
+  const isDebugUrl =
+    typeof window !== 'undefined' &&
+    (window.location.search.includes('debug=onboarding') ||
+      window.location.search.includes('mode=onboarding') ||
+      window.location.search.includes('onboarding=true'));
+
+  const [isSimulating, setIsSimulating] = useState(() => Boolean(isSimulation || isDebugUrl));
+  const [step, setStep] = useState(() => (isSimulation || isDebugUrl ? 'onboarding' : 'login'));
   const [copied, setCopied] = useState(false);
   const [kakaoLoading, setKakaoLoading] = useState(false);
   const [kakaoError, setKakaoError] = useState('');
-  const [pendingKakaoUser, setPendingKakaoUser] = useState(null);
+  const [pendingKakaoUser, setPendingKakaoUser] = useState(() =>
+    isSimulation || isDebugUrl
+      ? { uid: `kakao:sim-${Date.now().toString().slice(-6)}`, nickname: '' }
+      : null
+  );
   const [showManualHistoricalPicker, setShowManualHistoricalPicker] = useState(false);
 
   // New member onboarding form
@@ -205,20 +218,75 @@ export default function LoginOnboardingPage({
     }
   };
 
+  const handleStartSimulation = () => {
+    setIsSimulating(true);
+    setPendingKakaoUser({
+      uid: `kakao:sim-${Date.now().toString().slice(-6)}`,
+      nickname: ''
+    });
+    setStep('onboarding');
+  };
+
+  const handleExitSimulation = () => {
+    setIsSimulating(false);
+    setPendingKakaoUser(null);
+    setStep('login');
+    if (onExitSimulation) onExitSimulation();
+  };
+
   const handleOnboardingSubmit = (e) => {
     e.preventDefault();
     if (!isFormValid) return;
-    onCompleteOnboarding(onboardingForm, pendingKakaoUser?.uid);
+    onCompleteOnboarding(
+      { ...onboardingForm, isSimulation: isSimulating },
+      pendingKakaoUser?.uid
+    );
   };
 
   if (step === 'onboarding') {
     return (
       <div className="list-container">
         <section className="list-section">
+          {isSimulating && (
+            <div
+              style={{
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                marginBottom: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '8px',
+                flexWrap: 'wrap'
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 700, color: '#1e40af', fontSize: '13px' }}>
+                  🧪 온보딩 시뮬레이터 모드 ({pendingKakaoUser?.uid})
+                </div>
+                <div style={{ fontSize: '11px', color: '#2563eb', marginTop: '2px' }}>
+                  중복 이름 경고, 서브폰 연동 신청, 과거 이력 승계 UI를 실시간으로 테스트할 수 있습니다.
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline btn-xs"
+                style={{ fontSize: '11px', padding: '3px 8px', color: '#1e40af', borderColor: '#93c5fd' }}
+                onClick={handleExitSimulation}
+              >
+                시뮬레이션 종료
+              </button>
+            </div>
+          )}
+
           <div className="section-header">
             <span className="platform-badge">
               {pendingKakaoUser?.uid
-                ? `카카오 인증 (${pendingKakaoUser.uid})`
+                ? isSimulating
+                  ? `🧪 시뮬레이션 (${pendingKakaoUser.uid})`
+                  : `카카오 인증 (${pendingKakaoUser.uid})`
                 : '신입 등록'}
             </span>
             <h2>프로필 등록</h2>
@@ -621,6 +689,24 @@ export default function LoginOnboardingPage({
               🏷️ 신입 규격 닉네임 생성기
             </button>
           )}
+
+          <div style={{ marginTop: '14px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={handleStartSimulation}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#64748b',
+                fontSize: '11px',
+                cursor: 'pointer',
+                padding: '4px',
+                textDecoration: 'underline'
+              }}
+            >
+              🧪 신규 가입 & 서브폰 온보딩 시뮬레이터 체험 모드
+            </button>
+          </div>
 
           {kakaoError && (
             <div className="warning-banner" role="alert" style={{ marginTop: '10px' }}>

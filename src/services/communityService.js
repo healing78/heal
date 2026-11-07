@@ -444,6 +444,7 @@ export const registerOnboardingMember = async (form, customUid) => {
     joinedAt: `${year}-${mm}-${dd}`,
     customBadge: '',
     bankAccount: (form.bankAccount || '').trim(),
+    isSimulation: Boolean(form.isSimulation),
     attendanceCount: 0,
     baseScore: 0,
     expeditionScore: 0,
@@ -1225,6 +1226,51 @@ export const disconnectSubPhone = async (primaryUid, subUidToRemove) => {
       console.warn('Firestore write fallback (disconnectSubPhone):', err.code);
     }
   }
+};
+
+/**
+ * Admin: Cleans up any test/simulation members (uid starting with 'kakao:sim-' or isSimulation=true)
+ * and purges simulation UIDs from any member's subUids array.
+ */
+export const cleanupSimulationMembers = async () => {
+  const { members } = getLocalState();
+  const simUids = members
+    .filter((m) => (m.uid && m.uid.startsWith('kakao:sim-')) || m.isSimulation)
+    .map((m) => m.uid);
+
+  const nextMembers = members
+    .filter((m) => !((m.uid && m.uid.startsWith('kakao:sim-')) || m.isSimulation))
+    .map((m) => {
+      if (Array.isArray(m.subUids) && m.subUids.some((u) => u.startsWith('kakao:sim-'))) {
+        return {
+          ...m,
+          subUids: m.subUids.filter((u) => !u.startsWith('kakao:sim-'))
+        };
+      }
+      return m;
+    });
+
+  writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      for (const uid of simUids) {
+        await deleteDoc(doc(db, 'members', uid));
+      }
+      for (const m of nextMembers) {
+        if (Array.isArray(m.subUids) && m.subUids.some((u) => u.startsWith('kakao:sim-'))) {
+          await updateDoc(doc(db, 'members', m.uid), {
+            subUids: m.subUids.filter((u) => !u.startsWith('kakao:sim-'))
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Firestore write fallback (cleanupSimulationMembers):', err.code);
+    }
+  }
+
+  return simUids.length;
 };
 
 /**

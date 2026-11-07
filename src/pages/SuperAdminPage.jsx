@@ -11,6 +11,7 @@ import {
   INITIAL_MEETINGS,
   INITIAL_MEMBERS
 } from '../core/initialData';
+import { cleanupSimulationMembers } from '../services/communityService';
 import { useArmedAction } from '../utils/useArmedAction';
 
 const AVATAR_BG_PALETTE = [
@@ -46,7 +47,8 @@ export default function SuperAdminPage({
   onBatchSyncData,
   onResetInitialData,
   onDeleteMember,
-  onReassignMemberUid
+  onReassignMemberUid,
+  onStartOnboardingSimulation
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [newSuperUid, setNewSuperUid] = useState('');
@@ -93,6 +95,16 @@ export default function SuperAdminPage({
       setTimeout(() => setActionFeedback(''), 3000);
     } catch (err) {
       setActionFeedback(`❌ 계정 삭제 실패: ${err.message || err}`);
+    }
+  };
+
+  const handleCleanupSimulations = async () => {
+    try {
+      const removed = await cleanupSimulationMembers();
+      setActionFeedback(`🧹 테스트 시뮬레이션 데이터 (${removed}건)가 안전하게 정리되었습니다.`);
+      setTimeout(() => setActionFeedback(''), 3000);
+    } catch (err) {
+      setActionFeedback(`❌ 정리 실패: ${err.message || err}`);
     }
   };
 
@@ -433,6 +445,51 @@ export default function SuperAdminPage({
           </div>
         </section>
       )}
+
+      {/* Section 0-1: Onboarding & Sub-Phone Simulator */}
+      <section className="list-section" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+        <div className="section-title-row">
+          <h3 style={{ margin: 0, color: '#1e293b' }}>
+            🧪 신규 가입 & 서브폰 온보딩 시뮬레이터 (Sandbox)
+          </h3>
+          <span className="platform-badge" style={{ background: '#16a34a', color: '#fff' }}>
+            Simulator
+          </span>
+        </div>
+        <p className="sub-meta" style={{ marginTop: '6px', marginBottom: '12px', lineHeight: 1.5 }}>
+          실제 카카오 로그아웃이나 별도 세컨폰 없이도, 가상의 신규 카카오 사용자 환경으로 온보딩 화면에 즉시 진입하여
+          중복 이름 검증, 서브폰 연동 신청, 과거 이력 승계 UI를 실시간으로 테스트하고 디버깅할 수 있습니다.
+        </p>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            style={{ background: '#16a34a', borderColor: '#15803d' }}
+            onClick={() => onStartOnboardingSimulation && onStartOnboardingSimulation()}
+          >
+            🚀 온보딩 시뮬레이터 즉시 실행
+          </button>
+          <a
+            href="/?debug=onboarding"
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-outline btn-sm"
+            style={{ fontSize: '12px', color: '#15803d', borderColor: '#86efac', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+          >
+            🔗 새 창에서 온보딩 테스트 열기 (?debug=onboarding)
+          </a>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            style={{ fontSize: '12px', color: '#64748b' }}
+            onClick={() =>
+              runArmed('cleanup-simulations', () => handleCleanupSimulations())
+            }
+          >
+            {isArmed('cleanup-simulations') ? '확인: 테스트 데이터 일괄 정리' : '🧹 테스트 데이터 정리'}
+          </button>
+        </div>
+      </section>
 
       {/* Section 1: Master Account & DB Backup */}
       <section className="list-section">
