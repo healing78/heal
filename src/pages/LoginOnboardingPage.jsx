@@ -367,7 +367,7 @@ export default function LoginOnboardingPage({
                   </div>
                 )}
 
-                {/* 2. Prompt for sub-phone link if duplicate active member is detected */}
+                {/* 2. Prompt for account transfer (device change) or sub-phone link if duplicate active member is detected */}
                 {isDuplicateActive && !onboardingForm.linkSourceUid && (
                   <div
                     style={{
@@ -379,19 +379,29 @@ export default function LoginOnboardingPage({
                     }}
                   >
                     <div style={{ fontWeight: 700, color: '#1e40af', fontSize: '13px' }}>
-                      📱 혹시 <strong>[{duplicateMember.realName}]</strong> 님의 서브폰(세컨폰/보조계정)이신가요?
+                      💡 혹시 <strong>[{duplicateMember.realName}]</strong> 님이신가요? (기기변경 또는 서브폰)
                     </div>
                     <div style={{ fontSize: '12px', color: '#1d4ed8', marginTop: '4px', lineHeight: 1.5 }}>
-                      동일한 회원이 세컨폰 또는 보조 계정으로 로그인하시는 경우, 본계정([<strong>{duplicateMember.realName}</strong>])에 서브폰으로 연결을 신청하실 수 있습니다. (운영진 승인 후 기존 닉네임·점수가 통합 공유됩니다)
+                      동일한 회원의 카카오톡 계정 또는 스마트폰이 달라진 경우, 본인의 상황에 맞게 선택해 주세요:
                     </div>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      style={{ marginTop: '8px', fontSize: '12px', padding: '6px 12px', background: '#2563eb', borderColor: '#1d4ed8' }}
-                      onClick={() => handleApplySubPhoneLink(duplicateMember)}
-                    >
-                      📱 네, [{duplicateMember.realName}] 님의 서브폰으로 연결 신청하기
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        style={{ fontSize: '12px', padding: '6px 12px' }}
+                        onClick={() => handleApplyLinkAccount(duplicateMember)}
+                      >
+                        🔄 기기변경 (새 폰으로 기존 계정 완전 승계)
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        style={{ fontSize: '12px', padding: '6px 12px', background: '#2563eb', borderColor: '#1d4ed8' }}
+                        onClick={() => handleApplySubPhoneLink(duplicateMember)}
+                      >
+                        📱 서브폰 등록 (기존 폰과 함께 복수 기기 사용)
+                      </button>
+                    </div>
                   </div>
                 )}
 
