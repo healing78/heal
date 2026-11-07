@@ -3,6 +3,17 @@
 ## Project Overview
 힐(Heal) 커뮤니티 관리 시스템은 회원의 프로필, 고유 닉네임 규격, 역할/권한 체계, 모임 참석 및 활동 점수를 관리하기 위한 웹 애플리케이션입니다.
 
+## Autonomous Execution & Confirmation Boundary Directive (자율 실행 및 컨펌 원칙)
+> **[상시 유지 지침] 사용자의 명시적인 변경 요청 전까지 항구적으로 유지됩니다.**
+- **기본 원칙: 사용자 추가 컨펌 없이 자율 연속 진행 (Proceed Autonomously by Default)**
+  - 에이전트는 사용자의 별도 요청이 있을 때까지, 아래 명시된 **2가지 예외 상황을 제외한 모든 작업(코드 작성 및 수정, 빌드, 로컬 검증, 문서화, 깃 커밋 및 푸시, 배포 등)을 사용자에게 일일이 확인을 구하지 않고 즉시 자율적으로 진행**합니다.
+- **사용자 사전 컨펌이 반드시 필요한 2대 예외 상황 (Strict Exceptions Requiring Explicit Confirmation):**
+  1. **현재 운영 중인 실데이터를 수정하거나 삭제하는 경우 (Modifying/Deleting Live Production Data):**
+     - Firestore의 실제 회원 문서(`members`), 실제 모임 기록(`meetings`), 결제/점수 로그(`scoreLogs`) 등 프로덕션 환경에서 실시간 운영 중인 원천 데이터를 직접 수정하거나 삭제하는 작업.
+  2. **워킹 폴더(`heal`) 또는 `.gemini` 디렉토리 외의 외부 경로 사용이 필요한 경우 (Accessing Outside Working Directory):**
+     - 현재 프로젝트 워킹 디렉토리(`C:\Users\cntok\works\heal`) 및 시스템 디렉토리(`C:\Users\cntok\.gemini`) 범위를 벗어난 로컬 파일 시스템 경로(바탕화면, 내문서, 다른 드라이브 등)를 읽기/쓰기/참조해야 하는 작업.
+- **유지 기간:** 사용자가 명시적으로 지침 변경이나 중단을 요청하기 전까지 계속 유지됩니다.
+
 ## Technology Stack
 - **Target Platforms:** PC Web, Mobile Web (PWA), Android, iOS (Single Codebase)
 - **Frontend & Build:** React 18, Vite, Vanilla CSS (Responsive & Adaptive UI)
@@ -106,8 +117,8 @@
 - **Branch Strategy (Single Main Branch):**
   - 별도의 기능 브랜치를 나누지 않고 메인 브랜치(단일 브랜치) 하나만 운영하는 **Trunk-Based Development** 방식을 따릅니다.
   - 각 커밋은 동작 가능한 단위로 작게(Atomic Commit) 유지합니다.
-- **Commit & Push Ownership (User Managed & "고고고" Shortcut):**
-  - `git commit`과 `git push`는 기본적으로 **사용자가 직접 수행**합니다 (AI 에이전트가 임의로 커밋하거나 푸시하지 않음). 단, **원격으로 접속한 환경에서 요청할 시에는 에이전트를 통한 커밋 및 푸시가 가능**합니다.
+- **Commit & Push Ownership (Autonomous with "고고고" Shortcut):**
+  - **자율 실행 원칙 적용:** 사용자의 컨펌 생략 지침에 따라, 워킹 폴더(`heal`) 내부의 개발·수정·빌드·문서화 작업 완료 시 별도의 추가 컨펌 대기 없이 즉시 `git commit` 및 `git push`, Firebase 배포를 연속으로 자율 수행합니다.
   - **원클릭 통합 실행 명령어 (`"고고고"`):** 사용자가 채팅창에 **"고고고"**(또는 **"풀배포"**, **"원샷"**)라고 입력하면 에이전트는 추가 확인 없이 **① 문서(`docs/specs/`) 동기화 확인 → ② `git add & git commit` → ③ `git push` → ④ Firebase 실서버 배포(`npm run deploy:hosting`)** 3단계(Commit · Push · Deploy)를 연속으로 즉시 수행합니다.
   - 작업 완료 후 결과 리포트를 작성할 때, 변경 사항에 맞는 **추천 Git 커밋 메시지(영문)를 별도 블록으로 함께 제시**합니다.
 - **Commit Message Rules:**
