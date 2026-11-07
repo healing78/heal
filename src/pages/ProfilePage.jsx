@@ -961,9 +961,6 @@ export default function ProfilePage({
                         </span>
                       )}
                     </div>
-                    <span className="lounge-action-label" aria-hidden="true" style={{ fontSize: '12px' }}>
-                      상세 &gt;
-                    </span>
                   </div>
                 );
               })}

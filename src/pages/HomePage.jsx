@@ -67,16 +67,10 @@ export default function HomePage({
 
   const openLoungeMeetings = (meetings || [])
     .filter((m) => {
+      // 1. 단순 일정 제외 (참석 응답 받는 벙 모임 대상)
       if (m.requestAttendance === false) return false;
-      const meetingDate =
-        m.dateOnly || (m.date ? String(m.date).slice(0, 10) : '');
 
-      const isApprovedActive =
-        m.loungeStatus === 'approved' && (!meetingDate || meetingDate >= todayStr);
-      const isToday = meetingDate === todayStr;
-      const isOpen = isApprovedActive || isToday;
-      if (!isOpen) return false;
-
+      // 2. 권한 체크 (Q3-A): 운영진은 전체, 일반 회원은 본인이 참석/주최/총무인 모임만
       if (adminUser) return true;
       const applicants = m.applicants || [];
       const confirmed = m.confirmedParticipants || [];
@@ -419,7 +413,7 @@ export default function HomePage({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-              <h2>열린 벙대기실 ({openLoungeMeetings.length})</h2>
+              <h2>벙대기실 ({openLoungeMeetings.length})</h2>
               <span className="sub-meta">최신 {displayedLoungeMeetings.length}개</span>
             </div>
             <button
@@ -476,6 +470,14 @@ export default function HomePage({
                     {formattedLine}
                   </strong>
                   <div className="open-lounge-badge-group">
+                    {m.status === 'settled' && (
+                      <span
+                        className="status-pill settled"
+                        style={{ fontSize: '11px', padding: '2px 6px' }}
+                      >
+                        마감
+                      </span>
+                    )}
                     {isAttendee && (
                       <span className="lounge-attend-badge">참석 중</span>
                     )}
