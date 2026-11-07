@@ -46,6 +46,7 @@ export default function AdminMeetingEditModal({
   const finalTreasurerUid = isSeparateTreasurer && customTreasurerUid
     ? customTreasurerUid
     : hostUid;
+  const treasurerUid = finalTreasurerUid;
 
   const [status, setStatus] = useState(() => meeting?.status || 'open');
   const [type, setType] = useState(() => meeting?.type || 'Casual');
@@ -93,16 +94,18 @@ export default function AdminMeetingEditModal({
 
   // Sorted members for dropdowns
   const sortedMembers = useMemo(() => {
-    return [...members].sort((a, b) => (a.realName || '').localeCompare(b.realName || '', 'ko'));
+    return [...(members || [])]
+      .filter((m) => m && typeof m === 'object')
+      .sort((a, b) => (a.realName || '').localeCompare(b.realName || '', 'ko'));
   }, [members]);
 
   // Selected host & treasurer objects
   const selectedHost = useMemo(() => {
-    return members.find((m) => m.uid === hostUid) || null;
+    return (members || []).find((m) => m && m.uid === hostUid) || null;
   }, [members, hostUid]);
 
   const selectedTreasurer = useMemo(() => {
-    return members.find((m) => m.uid === finalTreasurerUid) || null;
+    return (members || []).find((m) => m && m.uid === finalTreasurerUid) || null;
   }, [members, finalTreasurerUid]);
 
   // Filtered members for host search

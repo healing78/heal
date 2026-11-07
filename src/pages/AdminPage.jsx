@@ -664,26 +664,6 @@ export default function AdminPage({
               })}
             </div>
           )}
-
-          {isMeetingModalOpen && (
-            <AdminMeetingEditModal
-              isOpen={isMeetingModalOpen}
-              meeting={editingMeeting}
-              members={members}
-              onSave={async (savedData) => {
-                if (onAdminSaveMeeting) {
-                  await onAdminSaveMeeting(savedData);
-                } else if (onUpdateMeeting && savedData.id) {
-                  await onUpdateMeeting(savedData.id, savedData);
-                }
-              }}
-              onClose={() => {
-                setIsMeetingModalOpen(false);
-                setEditingMeeting(null);
-              }}
-              onDelete={onDeleteMeeting}
-            />
-          )}
         </section>
       )}
 
@@ -894,26 +874,6 @@ export default function AdminPage({
                   );
                 })}
             </div>
-          )}
-
-          {isMeetingModalOpen && (
-            <AdminMeetingEditModal
-              isOpen={isMeetingModalOpen}
-              meeting={editingMeeting}
-              members={members}
-              onSave={async (savedData) => {
-                if (onAdminSaveMeeting) {
-                  await onAdminSaveMeeting(savedData);
-                } else if (onUpdateMeeting && savedData.id) {
-                  await onUpdateMeeting(savedData.id, savedData);
-                }
-              }}
-              onClose={() => {
-                setIsMeetingModalOpen(false);
-                setEditingMeeting(null);
-              }}
-              onDelete={onDeleteMeeting}
-            />
           )}
         </section>
       )}
@@ -1373,6 +1333,26 @@ export default function AdminPage({
             </div>
           </form>
         </section>
+      )}
+
+      {isMeetingModalOpen && (
+        <AdminMeetingEditModal
+          isOpen={isMeetingModalOpen}
+          meeting={editingMeeting}
+          members={members}
+          onSave={async (savedData) => {
+            if (onAdminSaveMeeting) {
+              await onAdminSaveMeeting(savedData);
+            } else if (onUpdateMeeting && savedData.id) {
+              await onUpdateMeeting(savedData.id, savedData);
+            }
+          }}
+          onClose={() => {
+            setIsMeetingModalOpen(false);
+            setEditingMeeting(null);
+          }}
+          onDelete={onDeleteMeeting}
+        />
       )}
     </div>
   );
