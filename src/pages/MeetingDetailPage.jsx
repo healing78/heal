@@ -3567,7 +3567,7 @@ export default function MeetingDetailPage({
                   >
                     {showManagerTools
                       ? '정산 상세 설정 닫기 ▲'
-                      : '찬조금 · 끝전 · 수동조정 · 마감 열기 ▼'}
+                      : '찬조금 · 수동조정 열기 ▼'}
                   </button>
 
                   {showManagerTools && (
@@ -3793,56 +3793,6 @@ export default function MeetingDetailPage({
                           })}
                         </div>
                       )}
-
-                      {canManage && meeting.status === 'open' && (
-                        <div className="stack-gap">
-                          {!regionDetection.recognized && (
-                            <div className="participants-box stack-gap">
-                              <div className="meeting-top">
-                                <strong>권역 선택</strong>
-                                <span className="sub-meta">점수 산정용</span>
-                              </div>
-                              <div
-                                style={{
-                                  display: 'grid',
-                                  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-                                  gap: '6px'
-                                }}
-                              >
-                                {REGION_GROUPS.map((group) => {
-                                  const isSelected =
-                                    settleFallbackRegion === group.keywords[0];
-                                  return (
-                                    <button
-                                      key={group.id}
-                                      type="button"
-                                      className={`btn btn-sm ${
-                                        isSelected ? 'btn-primary' : 'btn-outline'
-                                      }`}
-                                      onClick={() =>
-                                        setSettleFallbackRegion(group.keywords[0])
-                                      }
-                                    >
-                                      {group.name}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            className="btn btn-settle"
-                            disabled={
-                              !regionDetection.recognized &&
-                              !settleFallbackRegion
-                            }
-                            onClick={handleFinalizeSettlement}
-                          >
-                            최종 마감 · 참석 점수 정산 완료
-                          </button>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -3853,7 +3803,10 @@ export default function MeetingDetailPage({
             {loungeTab === 'returns' && (
               <div className="lounge-tab-content-wrap stack-gap">
                 <div className="lounge-settle-hero">
-                  <div className="meeting-top">
+                  <div
+                    className="meeting-top"
+                    style={{ flexWrap: 'wrap', gap: '12px' }}
+                  >
                     <div>
                       <div className="preview-caption">
                         내 안심 귀가 상태
@@ -3864,18 +3817,101 @@ export default function MeetingDetailPage({
                           : mySafeReturn || '귀가 전'}
                       </div>
                     </div>
-                    {(isApplied || isConfirmedParticipant) && (
-                      <button
-                        type="button"
-                        className={`btn ${
-                          mySafeReturn ? 'btn-outline' : 'btn-primary'
-                        }`}
-                        onClick={handleToggleSafeReturn}
-                      >
-                        {mySafeReturn ? '귀가완료 해제' : '귀가완료 체크'}
-                      </button>
-                    )}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      {(isApplied || isConfirmedParticipant) && (
+                        <button
+                          type="button"
+                          className={`btn ${
+                            mySafeReturn ? 'btn-outline' : 'btn-primary'
+                          }`}
+                          style={{ minHeight: '42px', fontWeight: 600 }}
+                          onClick={handleToggleSafeReturn}
+                        >
+                          {mySafeReturn ? '귀가완료 해제' : '귀가완료 체크'}
+                        </button>
+                      )}
+
+                      {canManage && meeting.status === 'open' && (
+                        <button
+                          type="button"
+                          className="btn btn-settle-blue"
+                          disabled={
+                            !regionDetection.recognized &&
+                            !settleFallbackRegion
+                          }
+                          onClick={handleFinalizeSettlement}
+                        >
+                          최종 마감
+                        </button>
+                      )}
+
+                      {meeting.status === 'settled' && (
+                        <span
+                          className="status-pill settled"
+                          style={{
+                            padding: '8px 14px',
+                            fontSize: '13px',
+                            fontWeight: 700
+                          }}
+                        >
+                          마감 완료 ✓
+                        </span>
+                      )}
+                    </div>
                   </div>
+
+                  {canManage &&
+                    meeting.status === 'open' &&
+                    !regionDetection.recognized && (
+                      <div
+                        className="participants-box stack-gap"
+                        style={{
+                          marginTop: '12px',
+                          background: 'rgba(255, 255, 255, 0.7)'
+                        }}
+                      >
+                        <div className="meeting-top">
+                          <strong style={{ fontSize: '13px' }}>
+                            권역 선택 (필수)
+                          </strong>
+                          <span className="sub-meta">최종 마감 점수 산정용</span>
+                        </div>
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns:
+                              'repeat(4, minmax(0, 1fr))',
+                            gap: '6px'
+                          }}
+                        >
+                          {REGION_GROUPS.map((group) => {
+                            const isSelected =
+                              settleFallbackRegion === group.keywords[0];
+                            return (
+                              <button
+                                key={group.id}
+                                type="button"
+                                className={`btn btn-sm ${
+                                  isSelected ? 'btn-primary' : 'btn-outline'
+                                }`}
+                                onClick={() =>
+                                  setSettleFallbackRegion(group.keywords[0])
+                                }
+                              >
+                                {group.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                 </div>
 
                 <div className="divider-list">
