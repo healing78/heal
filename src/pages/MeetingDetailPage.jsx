@@ -2404,11 +2404,34 @@ export default function MeetingDetailPage({
                   <div className="lounge-chat-accordion">
                     <div className="lounge-chat-accordion-title">
                       <span>대기실 입장한 참석자 ({enteredAttendeeUids.length}명)</span>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {adminUser && (
+                          <button
+                            type="button"
+                            className={`btn btn-xs ${isEditingChatUsers ? 'btn-primary' : 'btn-outline'}`}
+                            style={{
+                              padding: '4px 10px',
+                              fontSize: '12px',
+                              borderRadius: '14px',
+                              fontWeight: 600,
+                              lineHeight: '1.2'
+                            }}
+                            onClick={() => setIsEditingChatUsers((prev) => !prev)}
+                          >
+                            {isEditingChatUsers ? '완료 ✓' : '편집 ✏️'}
+                          </button>
+                        )}
                         <button
                           type="button"
                           className="btn-link"
-                          style={{ fontSize: '11px' }}
+                          style={{
+                            fontSize: '12px',
+                            padding: '4px 6px',
+                            minHeight: '28px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            color: 'var(--color-text-muted)'
+                          }}
                           onClick={() => {
                             setShowChatUsersAccordion(false);
                             setIsEditingChatUsers(false);
@@ -2416,20 +2439,6 @@ export default function MeetingDetailPage({
                         >
                           닫기 ✕
                         </button>
-                        {adminUser && (
-                          <button
-                            type="button"
-                            className="btn-link"
-                            style={{
-                              fontSize: '11px',
-                              fontWeight: isEditingChatUsers ? 700 : 500,
-                              color: isEditingChatUsers ? 'var(--color-primary)' : 'inherit'
-                            }}
-                            onClick={() => setIsEditingChatUsers((prev) => !prev)}
-                          >
-                            {isEditingChatUsers ? '완료' : '편집'}
-                          </button>
-                        )}
                       </div>
                     </div>
                     <div className="lounge-chat-accordion-list">
@@ -2450,8 +2459,8 @@ export default function MeetingDetailPage({
                               className={`member-chip-btn active ${isEditingChatUsers ? 'is-editable' : ''}`}
                               onClick={isEditingChatUsers ? () => handleToggleLoungeVisitor(uid) : undefined}
                               style={{
-                                fontSize: '11px',
-                                padding: '2px 7px',
+                                fontSize: '11.5px',
+                                padding: '3px 8px',
                                 cursor: isEditingChatUsers ? 'pointer' : 'default',
                                 border: isEditingChatUsers ? '1px dashed var(--admin-edit-accent, #334155)' : undefined
                               }}
@@ -2489,9 +2498,9 @@ export default function MeetingDetailPage({
                               className={`member-chip-btn inactive ${isEditingChatUsers ? 'is-editable' : ''}`}
                               onClick={isEditingChatUsers ? () => handleToggleLoungeVisitor(uid) : undefined}
                               style={{
-                                fontSize: '11px',
-                                padding: '2px 7px',
-                                opacity: isEditingChatUsers ? 0.9 : 0.65,
+                                fontSize: '11.5px',
+                                padding: '3px 8px',
+                                opacity: isEditingChatUsers ? 0.95 : 0.65,
                                 cursor: isEditingChatUsers ? 'pointer' : 'default',
                                 border: isEditingChatUsers ? '1px dashed var(--admin-edit-accent, #334155)' : undefined
                               }}
