@@ -53,6 +53,20 @@
   - `INITIAL_MEMBERS`: 실제 활동 회원 281명 데이터만 유지하며, 가상의 계좌번호(`3333-01-1234567` 등)나 임의의 개인정보를 삽입하지 않습니다.
   - `INITIAL_SCORE_LOGS`: 실제 운영 중 발생한 점수 로그 외에 가상 데모용 로그(`log-1`, `log-2` 등)는 포함하지 않고 빈 배열(`[]`)로 시작합니다.
 
+## Sub-Phone & Multi-Account Architecture Principles
+- **Strict Single-Name Policy (동명이인 절대 불가):**
+  - 모든 회원의 활동명(`realName`)은 커뮤니티 내에서 유일해야 합니다 (한글 1~3자).
+  - 중복된 이름으로 신규 가입할 수 없으며, 기존 회원과 동일한 이름으로 접속한 경우 오직 서브폰(세컨폰) 연동 신청만 가능합니다.
+- **Sub-Phone Registration & Admin Confirmation Flow:**
+  - 동일 회원의 세컨폰/보조 카카오 계정은 본계정의 `subUids` 배열에 저장됩니다.
+  - 서브폰 등록은 보안과 데이터 신뢰성을 위해 반드시 **운영진(방장/부방장/최고관리자)의 승인(`approveSubPhoneRequest`)**을 거쳐야 합니다.
+  - 승인 완료 즉시 신청자의 임시 문서는 정리 삭제되며, 이후 해당 서브폰 기기로 로그인 시 온보딩을 건너뛰고 본계정으로 즉시 매핑됩니다 (`m.uid === uid || m.subUids.includes(uid)`).
+- **Secondary Nicknames (Aliases) & Region Preservation:**
+  - 본계정과 서브폰의 닉네임이 다른 경우(예: 카일 - 카이) `aliases` 배열에 보조 닉네임을 보존하여 벙 기록 파서 및 출석부에서 본계정으로 자동 통합 집계됩니다.
+  - 해외 거주 및 국내 임시 체류(예: 지민 멕시코 - 경광)와 같이 복수 생활권인 경우 본계정 거주지(`homeCity`)와 서브 거주지(`subCities`/`city`)를 모두 원정 점수 산정에 반영합니다.
+- **Sub-Phone Management & Disconnect:**
+  - 회원은 내 정보(`ProfilePage`)에서 본인 계정에 연동된 서브폰 목록을 상시 조회하고 언제든 안전하게 연결 해제(`disconnectSubPhone`)할 수 있습니다.
+
 ## Documentation Standards
 - **Directory Structure:** 모든 시스템 및 기능 명세서는 `docs/specs/` 디렉토리 아래에 관리합니다.
   - 시스템/아키텍처 전반: `docs/specs/system-overview.md`
