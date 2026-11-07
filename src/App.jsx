@@ -164,6 +164,7 @@ export default function App() {
   }, []);
 
   const [impersonatedUid, setImpersonatedUid] = useState(null);
+  const [profileSubTab, setProfileSubTab] = useState('profile');
   const effectiveUid = impersonatedUid || currentUserUid;
   const currentUser =
     members.find(
@@ -199,6 +200,9 @@ export default function App() {
     }
     if (nextTab === 'friends' && params.filter) {
       setFriendsFilter(params.filter);
+    }
+    if (nextTab === 'profile' && params.subTab) {
+      setProfileSubTab(params.subTab);
     }
 
     pushRouteUrl(
@@ -585,6 +589,8 @@ export default function App() {
           isMasterTabEnabled={isMasterTabEnabled}
           onToggleMasterTab={handleToggleMasterTab}
           onNavigateTab={navigateToTab}
+          initialSubTab={profileSubTab}
+          onSubTabChange={setProfileSubTab}
         />
       );
     }

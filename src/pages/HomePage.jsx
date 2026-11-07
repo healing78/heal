@@ -88,10 +88,12 @@ export default function HomePage({
       return isAttendee;
     })
     .sort((a, b) =>
-      String(a.dateOnly || a.date || '').localeCompare(
-        String(b.dateOnly || b.date || '')
+      String(b.dateOnly || b.date || '').localeCompare(
+        String(a.dateOnly || a.date || '')
       )
     );
+
+  const displayedLoungeMeetings = openLoungeMeetings.slice(0, 5);
 
   const myNickname = currentUser ? formatMemberNickname(currentUser) : '';
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
@@ -408,13 +410,37 @@ export default function HomePage({
       {/* 1.5. Open Waiting Rooms (열린 벙대기실) - Only rendered when active open rooms exist */}
       {openLoungeMeetings.length > 0 && (
         <section className="list-section open-lounge-section">
-          <div className="section-title-row">
-            <h2>열린 벙대기실 ({openLoungeMeetings.length})</h2>
-            <span className="sub-meta">당일 및 사전 오픈</span>
+          <div
+            className="section-title-row"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <h2>열린 벙대기실 ({openLoungeMeetings.length})</h2>
+              <span className="sub-meta">최신 {displayedLoungeMeetings.length}개</span>
+            </div>
+            <button
+              type="button"
+              className="btn-link"
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                padding: '4px 6px',
+                cursor: 'pointer'
+              }}
+              onClick={() =>
+                onNavigateTab && onNavigateTab('profile', { subTab: 'report' })
+              }
+            >
+              전체보기 &gt;
+            </button>
           </div>
 
           <div className="divider-list lounge-divider-list">
-            {openLoungeMeetings.map((m) => {
+            {displayedLoungeMeetings.map((m) => {
               const formattedLine = formatScheduleDetailText(m);
               const applicants = m.applicants || [];
               const confirmed = m.confirmedParticipants || [];

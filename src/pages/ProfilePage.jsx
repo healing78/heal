@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useArmedAction } from '../utils/useArmedAction';
 import RegionInput from '../components/RegionInput';
 import { isValidKoreanName } from '../nicknameUtils';
@@ -53,10 +53,25 @@ export default function ProfilePage({
   onLogout,
   isMasterTabEnabled,
   onToggleMasterTab,
-  onNavigateTab
+  onNavigateTab,
+  initialSubTab = 'profile',
+  onSubTabChange
 }) {
   const { runArmed, isArmed } = useArmedAction();
-  const [subTab, setSubTab] = useState('profile'); // 'profile' | 'report'
+  const [subTab, setSubTab] = useState(initialSubTab);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
+
+  const handleSubTabChange = (nextTab) => {
+    setSubTab(nextTab);
+    if (onSubTabChange) {
+      onSubTabChange(nextTab);
+    }
+  };
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     realName: currentUser.realName || '',
@@ -133,6 +148,65 @@ export default function ProfilePage({
       }
     }
   }
+
+  // 기본 최신순(날짜 내림차순) 정렬
+  personalMeetingRows.sort((a, b) =>
+    String(b.meeting.dateOnly || b.meeting.date || '').localeCompare(
+      String(a.meeting.dateOnly || a.meeting.date || '')
+    )
+  );
+
+  const [activitySearchQuery, setActivitySearchQuery] = useState('');
+  const [activitySortBy, setActivitySortBy] = useState('latest');
+  const [activityDisplayLimit, setActivityDisplayLimit] = useState(10);
+
+  const filteredAndSortedActivities = useMemo(() => {
+    let list = [...personalMeetingRows];
+
+    const q = activitySearchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter(({ meeting: mtg, row }) => {
+        const title = (mtg.title || '').toLowerCase();
+        const location = (mtg.location || mtg.placeDetail || '').toLowerCase();
+        const dateStr = String(mtg.dateOnly || mtg.date || '').toLowerCase();
+        const shareStr = String(row.finalShare || '');
+        return (
+          title.includes(q) ||
+          location.includes(q) ||
+          dateStr.includes(q) ||
+          shareStr.includes(q)
+        );
+      });
+    }
+
+    list.sort((a, b) => {
+      const dateA = String(a.meeting.dateOnly || a.meeting.date || '');
+      const dateB = String(b.meeting.dateOnly || b.meeting.date || '');
+      if (activitySortBy === 'latest') {
+        return dateB.localeCompare(dateA);
+      }
+      if (activitySortBy === 'oldest') {
+        return dateA.localeCompare(dateB);
+      }
+      if (activitySortBy === 'shareHigh') {
+        return (b.row.finalShare || 0) - (a.row.finalShare || 0);
+      }
+      if (activitySortBy === 'shareLow') {
+        return (a.row.finalShare || 0) - (b.row.finalShare || 0);
+      }
+      if (activitySortBy === 'title') {
+        return (a.meeting.title || '').localeCompare(b.meeting.title || '');
+      }
+      return 0;
+    });
+
+    return list;
+  }, [personalMeetingRows, activitySearchQuery, activitySortBy]);
+
+  const visibleActivities = filteredAndSortedActivities.slice(
+    0,
+    activityDisplayLimit
+  );
 
   const myHostedCount = (meetings || []).filter(
     (m) => m.hostUid === currentUser?.uid
@@ -261,14 +335,14 @@ export default function ProfilePage({
           <button
             type="button"
             className={`subtab-btn ${subTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setSubTab('profile')}
+            onClick={() => handleSubTabChange('profile')}
           >
             내 정보 수정
           </button>
           <button
             type="button"
             className={`subtab-btn ${subTab === 'report' ? 'active' : ''}`}
-            onClick={() => setSubTab('report')}
+            onClick={() => handleSubTabChange('report')}
           >
             내 활동 리포트 ({personalMeetingRows.length})
           </button>
@@ -747,12 +821,98 @@ export default function ProfilePage({
             </div>
           </div>
 
-          <h3 style={{ marginTop: '16px' }}>참여한 모임</h3>
-          {personalMeetingRows.length === 0 ? (
-            <p className="muted-text">참여한 모임 내역이 없습니다.</p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: '16px',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}
+          >
+            <h3 style={{ margin: 0 }}>
+              참여한 모임 ({filteredAndSortedActivities.length})
+            </h3>
+            {filteredAndSortedActivities.length > 0 && (
+              <span className="sub-meta">
+                {visibleActivities.length}개 표시 중 / 전체 {filteredAndSortedActivities.length}개
+              </span>
+            )}
+          </div>
+
+          {/* 검색 및 정렬 컨트롤 바 */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              marginTop: '8px'
+            }}
+          >
+            <div style={{ flex: '1 1 180px', position: 'relative' }}>
+              <input
+                type="text"
+                className="admin-edit-search-input"
+                placeholder="일정명·지역·날짜 검색"
+                value={activitySearchQuery}
+                onChange={(e) => {
+                  setActivitySearchQuery(e.target.value);
+                  setActivityDisplayLimit(10);
+                }}
+                style={{ width: '100%', padding: '8px 12px' }}
+              />
+              {activitySearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setActivitySearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--color-muted)',
+                    fontSize: '14px'
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <select
+              value={activitySortBy}
+              onChange={(e) => setActivitySortBy(e.target.value)}
+              className="btn btn-outline btn-sm"
+              style={{
+                padding: '7px 10px',
+                fontSize: '13px',
+                height: '38px',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text)'
+              }}
+            >
+              <option value="latest">최신순</option>
+              <option value="oldest">과거순</option>
+              <option value="shareHigh">회비 높은순</option>
+              <option value="shareLow">회비 낮은순</option>
+              <option value="title">일정명 가나다순</option>
+            </select>
+          </div>
+
+          {filteredAndSortedActivities.length === 0 ? (
+            <p className="muted-text" style={{ padding: '24px 0', textAlign: 'center' }}>
+              {activitySearchQuery
+                ? '검색 결과와 일치하는 모임 내역이 없습니다.'
+                : '참여한 모임 내역이 없습니다.'}
+            </p>
           ) : (
             <div className="divider-list">
-              {personalMeetingRows.map(({ meeting: mtg, row }) => {
+              {visibleActivities.map(({ meeting: mtg, row, sponsoredAmount }) => {
                 const lineText = formatMeetingReportLine(mtg, row.finalShare);
                 return (
                   <div
@@ -784,20 +944,58 @@ export default function ProfilePage({
                       <span className="schedule-bullet-square" />
                       <span className="schedule-bullet-emoji">📅</span>
                     </div>
-                    <strong
-                      style={{
-                        fontSize: '14px',
-                        color: 'var(--color-text-primary, #0f172a)',
-                        wordBreak: 'keep-all',
-                        lineHeight: 1.4,
-                        flex: 1
-                      }}
-                    >
-                      {lineText}
-                    </strong>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <strong
+                        style={{
+                          fontSize: '14px',
+                          color: 'var(--color-text-primary, #0f172a)',
+                          wordBreak: 'keep-all',
+                          lineHeight: 1.4
+                        }}
+                      >
+                        {lineText}
+                      </strong>
+                      {sponsoredAmount > 0 && (
+                        <span className="sub-meta" style={{ color: '#2563eb', fontSize: '11.5px' }}>
+                          찬조 {sponsoredAmount.toLocaleString()}원
+                        </span>
+                      )}
+                    </div>
+                    <span className="lounge-action-label" aria-hidden="true" style={{ fontSize: '12px' }}>
+                      상세 &gt;
+                    </span>
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* 점진적 로딩 페이징 컨트롤: 더보기 버튼 */}
+          {visibleActivities.length < filteredAndSortedActivities.length && (
+            <div
+              style={{
+                display: 'flex',
+                gap: '8px',
+                justifyContent: 'center',
+                marginTop: '12px'
+              }}
+            >
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ flex: 1, maxWidth: '280px', padding: '10px 16px', fontWeight: 600 }}
+                onClick={() => setActivityDisplayLimit((prev) => prev + 15)}
+              >
+                더보기 ({visibleActivities.length} / {filteredAndSortedActivities.length}개) ▼
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ padding: '10px 14px', fontSize: '12px' }}
+                onClick={() => setActivityDisplayLimit(filteredAndSortedActivities.length)}
+              >
+                전체 펼치기
+              </button>
             </div>
           )}
         </section>
