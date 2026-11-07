@@ -66,6 +66,9 @@
   - 해외 거주 및 국내 임시 체류(예: 지민 멕시코 - 경광)와 같이 복수 생활권인 경우 본계정 거주지(`homeCity`)와 서브 거주지(`subCities`/`city`)를 모두 원정 점수 산정에 반영합니다.
 - **Sub-Phone Management & Disconnect:**
   - 회원은 내 정보(`ProfilePage`)에서 본인 계정에 연동된 서브폰 목록을 상시 조회하고 언제든 안전하게 연결 해제(`disconnectSubPhone`)할 수 있습니다.
+- **Onboarding Simulator Sandbox & Safe Test Cleanup:**
+  - 최고관리자의 온보딩/서브폰 화면 디버깅을 위해 가상 사용자(`kakao:sim-*`, `isSimulation: true`) 샌드박스를 제공합니다.
+  - 시뮬레이터로 생성된 모든 테스트 데이터는 `AdminPage > 요청`에서 `[반려]` 시 즉시 영구 삭제되며, 승인된 경우에도 마스터 센터의 `[🧹 테스트 데이터 정리]`(`cleanupSimulationMembers`)를 통해 DB 및 본계정에서 원클릭으로 일괄 영구 삭제하여 실제 데이터 무결성을 엄격히 보호합니다.
 
 ## Documentation Standards
 - **Directory Structure:** 모든 시스템 및 기능 명세서는 `docs/specs/` 디렉토리 아래에 관리합니다.

@@ -174,6 +174,10 @@ Healing78 커뮤니티 관리 시스템의 전체 화면 흐름과 하위 주소
   - 개인 구글 드라이브를 모임 사진/동영상 업로드 저장소로 연동하는 Google Apps Script Web App URL 설정.
 - **최고 관리자(슈퍼 계정) 화이트리스트 관리:**
   - 등록된 슈퍼 관리자 UID 목록 열람, 신규 UID 추가 및 제거 기능 제공.
+- **신규 가입 & 서브폰 온보딩 시뮬레이터 (Sandbox) & 테스트 데이터 정리:**
+  - **시뮬레이터 즉시 실행 (`🚀 온보딩 시뮬레이터 즉시 실행`):** 관리자 세션을 유지한 채 가상의 신규 카카오 사용자(`kakao:sim-...`) 환경으로 온보딩 화면에 직행하여 중복 이름 감지, 서브폰 연동 신청, 과거 이력 승계 UI를 실시간 검증.
+  - **새 창 디버그 바로가기:** `/?debug=onboarding` 링크 지원.
+  - **테스트 데이터 일괄 정리 (`🧹 테스트 데이터 정리`):** 2단계 안전 탭(`useArmedAction`) 후 시뮬레이션 과정에서 생성된 모든 테스트 계정(`kakao:sim-*`, `isSimulation: true`) 및 본계정에 등록된 테스트 서브폰 UID를 원클릭으로 일괄 영구 삭제.
 - **전체 회원 마스터 관리 & 시점 열람(Impersonate):**
   - 회원 검색(이름, 닉네임, UID, 거주지역).
   - **사용자 시점 열람 (`👁️ 이 회원으로 보기`):** 특정 회원의 권한과 시점(참석 모임, 정산, 프로필 등)으로 화면을 즉시 전환하여 테스트 및 CS 지원(화면 최상단 플로팅 복귀 바 제공).
@@ -187,12 +191,19 @@ Healing78 커뮤니티 관리 시스템의 전체 화면 흐름과 하위 주소
 - `realName`: string (활동 닉네임 - 카카오 닉네임 기본값, 규격 닉네임 호칭 부분)
 - `legalName`?: string (실제 본명, 선택 사항)
 - `city`: string (거주 지역 - 닉네임 표시 및 7대 권역 원정 보너스 판정 기준)
+- `homeCity`?: string (본계정 원천 기본 거주지, 해외 생활권 등)
 - `maritalStatus`: `'single' | 'married' | 'divorced'` (미혼 `'미'`, 기혼 `'기'`, 돌싱 `'돌'`)
 - `gender`: `'남' | '여'`
 - `role`: `'Leader' | 'Deputy' | 'VIP' | 'Member' | 'Wanderer' | 'Withdrawn' | 'Expelled'`
 - `entryBadge`: string (가입일 `'MMDD'`)
 - `customBadge`: string (운영진 부여 커스텀 뱃지)
 - `bankAccount`: string (개인별 정산용 은행 및 계좌번호)
+- `subUids`?: string[] (연동된 세컨폰/보조기기 카카오 UID 목록)
+- `aliases`?: string[] (벙 기록 파서 및 출석부 호환 보조 닉네임/별칭 목록)
+- `subCities`?: string[] (보조 거주지 목록)
+- `isSimulation`?: boolean (디버깅/테스트용 시뮬레이션 계정 식별 플래그)
+- `linkRequestType`?: `'historical' | 'subPhone' | ''` (온보딩 시 계정 연동 신청 유형)
+- `linkRequestStatus`?: `'pending' | 'approved' | 'rejected' | ''` (운영진 승인 심사 상태)
 - `attendanceCount`: number (정산 완료된 누적 모임 참석 횟수)
 - `baseScore`: number (누적 기본 참석 점수)
 - `expeditionScore`: number (누적 원정/해외 보너스 점수)
