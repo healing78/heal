@@ -145,6 +145,43 @@ function getDdayBannerText(meeting) {
   return `일정일로부터 ${Math.abs(diffDays)}일 지났습니다.`;
 }
 
+export function parsePlaceSummary(rawText = '') {
+  const text = String(rawText || '').trim();
+  if (!text) return { placeName: '', address: '', mapUrl: '' };
+
+  // 1. Extract URL if present
+  const urlMatch = text.match(/https?:\/\/[^\s]+/i);
+  const mapUrl = urlMatch ? urlMatch[0] : '';
+  const textWithoutUrl = text.replace(/https?:\/\/[^\s]+/gi, '').trim();
+
+  // 2. Check for [네이버지도] or [카카오맵] marker
+  let placeName = '';
+  let address = '';
+
+  const markerMatch = textWithoutUrl.match(/\[(네이버지도|카카오맵)\]\s*(.+)/i);
+  if (markerMatch) {
+    const afterMarker = markerMatch[2].trim();
+    const addrPrefixRegex = /\s+(서울|경기|인천|충남|충북|전남|전북|경남|경북|강원|대전|대구|부산|울산|광주|세종|제주|[가-힣]+(?:시|군|구))\s+/;
+    const addrSplit = afterMarker.search(addrPrefixRegex);
+    if (addrSplit !== -1) {
+      placeName = afterMarker.slice(0, addrSplit).trim();
+      address = afterMarker.slice(addrSplit).trim();
+    } else {
+      const tokens = afterMarker.split(/\s+/);
+      if (tokens.length > 1) {
+        placeName = tokens[0];
+        address = tokens.slice(1).join(' ');
+      } else {
+        placeName = afterMarker;
+      }
+    }
+  } else {
+    placeName = textWithoutUrl || text;
+  }
+
+  return { placeName: placeName.trim(), address: address.trim(), mapUrl };
+}
+
 function getAvatarBg(uid) {
   const str = String(uid || '');
   let sum = 0;
@@ -699,23 +736,104 @@ export default function MeetingDetailPage({
   }
   metroStages.push({ key: 'end', label: '종료' });
 
+  // Calculate Subway active index linked to round progress buttons
   let metroActiveIdx = 0;
   if (meeting.status === 'settled') {
     metroActiveIdx = metroStages.length - 1;
   } else {
-    const today = getTodayDateString();
-    const meetingD =
-      meeting.dateOnly || (meeting.date ? String(meeting.date).slice(0, 10) : '');
-    if (meetingD && meetingD > today) {
-      metroActiveIdx = 0;
+    // Check if any round is actively in_progress
+    const activeRoundIdx = rounds.findIndex((r) => r.status === 'in_progress');
+    if (activeRoundIdx !== -1) {
+      metroActiveIdx = activeRoundIdx + 1; // 1차 is node 1, 2차 node 2, etc.
     } else {
-      metroActiveIdx = Math.min(1, metroStages.length - 2);
+      const allRoundsEnded =
+        rounds.length > 0 && rounds.every((r) => r.status === 'ended');
+      if (allRoundsEnded) {
+        metroActiveIdx = metroStages.length - 1; // [종료]
+      } else {
+        const lastEndedIdx = rounds.reduce(
+          (last, r, i) => (r.status === 'ended' ? i : last),
+          -1
+        );
+        if (lastEndedIdx !== -1) {
+          metroActiveIdx = Math.min(lastEndedIdx + 1, metroStages.length - 1);
+        } else {
+          // Initial: 시작전 (Node 0: [시작])
+          metroActiveIdx = 0;
+        }
+      }
     }
   }
   const metroFillPercent =
     metroStages.length > 1
       ? (metroActiveIdx / (metroStages.length - 1)) * 100
       : 0;
+
+  // Round progression helper: disable previous rounds when a later round is started
+  const maxActiveRoundIdx = rounds.reduce((max, r, i) => {
+    if (r.status === 'in_progress') return Math.max(max, i);
+    return max;
+  }, -1);
+
+  const isRoundButtonDisabled = (roundIdx) => {
+    if (!canManage) return true;
+    if (maxActiveRoundIdx > -1 && roundIdx < maxActiveRoundIdx) {
+      return true;
+    }
+    return false;
+  };
+
+  const getRoundButtonLabel = (roundIdx, status) => {
+    const s = status || 'ready';
+    if (roundIdx === 0) {
+      if (s === 'ready') return '시작';
+      if (s === 'in_progress') return '종료';
+      if (s === 'ended') return '시작전';
+      return '시작';
+    } else {
+      if (s === 'in_progress') return '종료';
+      return '시작';
+    }
+  };
+
+  const handleToggleRoundProgress = async (roundIdx) => {
+    if (!canManage) return;
+    const currentRound = rounds[roundIdx] || {};
+    const currentStatus = currentRound.status || 'ready';
+    let nextStatus = 'ready';
+
+    if (roundIdx === 0) {
+      // 1차 cycle: 'ready' (시작) -> 'in_progress' (종료) -> 'ended' (시작전) -> 'ready' (시작)
+      if (currentStatus === 'ready') {
+        nextStatus = 'in_progress';
+      } else if (currentStatus === 'in_progress') {
+        nextStatus = 'ended';
+      } else if (currentStatus === 'ended') {
+        nextStatus = 'ready';
+      } else {
+        nextStatus = 'ready';
+      }
+    } else {
+      // 2차+ cycle: 'ready' (시작) -> 'in_progress' (종료) -> 'ready' (시작)
+      if (currentStatus === 'ready' || currentStatus === 'ended') {
+        nextStatus = 'in_progress';
+      } else {
+        nextStatus = 'ended';
+      }
+    }
+
+    const nextRounds = rounds.map((r, i) => {
+      if (i === roundIdx) {
+        return { ...r, status: nextStatus };
+      }
+      if (nextStatus === 'in_progress' && i < roundIdx) {
+        return { ...r, status: 'ended' };
+      }
+      return r;
+    });
+
+    await onUpdateMeeting(meeting.id, { rounds: nextRounds });
+  };
 
   // Save edited basic schedule info (Host / Treasurer / Admin)
   const handleSaveBasicInfo = async (e) => {
@@ -2736,22 +2854,14 @@ export default function MeetingDetailPage({
                     const payerMember = members.find(
                       (m) => m.uid === (r.payerUid || treasurerUid)
                     );
-                    const naverSearchUrl = r.placeName
-                      ? `https://map.naver.com/p/search/${encodeURIComponent(
-                          r.placeName
-                        )}`
-                      : '';
-                    const kakaoSearchUrl = r.placeName
-                      ? `https://map.kakao.com/?q=${encodeURIComponent(
-                          r.placeName
-                        )}`
-                      : '';
+                    const placeSummary = parsePlaceSummary(r.placeName || r.mapUrl);
 
                     const myMember = members.find((mem) => mem.uid === currentUser?.uid);
                     const isMyChecked = rParticipants.includes(currentUser?.uid);
                     const otherAttendeeUids = displayAttendeeUids.filter(
                       (uid) => uid !== currentUser?.uid
                     );
+                    const isBungAttendee = isApplied || isConfirmedParticipant;
 
                     return (
                       <div key={r.id || idx} className="lounge-round-accordion-card">
@@ -2767,24 +2877,23 @@ export default function MeetingDetailPage({
                         >
                           <div className="lounge-round-header-left">
                             <span className="platform-badge">{idx + 1}차</span>
-                            {r.placeName && (
-                              <strong className="lounge-round-title">
-                                {r.placeName}
-                              </strong>
-                            )}
-                            <span className="lounge-round-header-meta">
-                              참석 {rParticipants.length}명 · 비용{' '}
-                              {(Number(r.cost) || 0).toLocaleString()}원
-                            </span>
-                            {r.isGoldenBell && (
-                              <span
-                                className="expedition-pill"
-                                style={{ fontSize: '11px', padding: '1px 6px' }}
+                            {placeSummary.mapUrl ? (
+                              <a
+                                href={placeSummary.mapUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="lounge-round-place-link"
+                                onClick={(e) => e.stopPropagation()}
+                                title={`${placeSummary.placeName || '지도 열기'} (클릭 시 지도 이동)`}
                               >
-                                골든벨 (
-                                {members.find((m) => m.uid === r.goldenBellUid)
-                                  ?.realName || '찬조'}
-                                )
+                                {placeSummary.placeName || `${idx + 1}차 장소`}
+                              </a>
+                            ) : (
+                              <span
+                                className="lounge-round-place-text"
+                                title={placeSummary.placeName}
+                              >
+                                {placeSummary.placeName || `${idx + 1}차 장소`}
                               </span>
                             )}
                           </div>
@@ -2793,21 +2902,46 @@ export default function MeetingDetailPage({
                             className="lounge-round-header-right"
                             onClick={(e) => e.stopPropagation()}
                           >
+                            {canManage && (
+                              <button
+                                type="button"
+                                disabled={isRoundButtonDisabled(idx)}
+                                className={`btn btn-xs ${
+                                  r.status === 'in_progress'
+                                    ? 'btn-rose-status'
+                                    : 'btn-outline'
+                                }`}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '11.5px',
+                                  borderRadius: '12px',
+                                  fontWeight: 700
+                                }}
+                                onClick={() => handleToggleRoundProgress(idx)}
+                                title={
+                                  isRoundButtonDisabled(idx)
+                                    ? '다음 차수 진행 중'
+                                    : undefined
+                                }
+                              >
+                                {getRoundButtonLabel(idx, r.status)}
+                              </button>
+                            )}
                             <button
                               type="button"
                               className={`btn btn-xs ${
                                 isEditingThisRound ? 'btn-primary' : 'btn-outline'
                               }`}
                               style={{
-                                padding: '4px 10px',
-                                fontSize: '12px',
-                                borderRadius: '14px',
+                                padding: '4px 8px',
+                                fontSize: '11.5px',
+                                borderRadius: '12px',
                                 fontWeight: 600
                               }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (isEditingThisRound) {
-                                  // Finish editing -> collapse round as requested ("편집버튼 누르면 1차는 접히도록 해줘")
+                                  // Finish editing -> collapse round as requested
                                   setEditingRoundIdx(null);
                                   setCollapsedRoundIndices((prev) => ({
                                     ...prev,
@@ -2823,7 +2957,7 @@ export default function MeetingDetailPage({
                                 }
                               }}
                             >
-                              {isEditingThisRound ? '완료 ✓' : '편집 ✏️'}
+                              {isEditingThisRound ? '완료' : '편집'}
                             </button>
                             <button
                               type="button"
@@ -2845,57 +2979,41 @@ export default function MeetingDetailPage({
                         {/* Collapsible Round Body */}
                         {!isCollapsed && (
                           <div className="lounge-round-accordion-body">
-                            {/* Quick Map Links & Receipt View */}
-                            {(r.placeName || r.mapUrl || r.receiptUrl) && (
-                              <div className="badge-group">
-                                {r.mapUrl && (
-                                  <a
-                                    href={r.mapUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="btn btn-primary btn-sm"
-                                    style={{ textDecoration: 'none' }}
-                                  >
-                                    지도 열기
-                                  </a>
-                                )}
-                                {r.placeName && (
-                                  <>
-                                    <a
-                                      href={naverSearchUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="btn btn-outline btn-sm"
-                                      style={{ textDecoration: 'none' }}
-                                    >
-                                      네이버 지도
-                                    </a>
-                                    <a
-                                      href={kakaoSearchUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="btn btn-outline btn-sm"
-                                      style={{ textDecoration: 'none' }}
-                                    >
-                                      카카오맵
-                                    </a>
-                                  </>
-                                )}
-                                {r.receiptUrl && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-outline btn-sm"
-                                    onClick={() =>
-                                      setPreviewReceiptUrl(
-                                        previewReceiptUrl === r.receiptUrl
-                                          ? ''
-                                          : r.receiptUrl
-                                      )
-                                    }
-                                  >
-                                    영수증 보기
-                                  </button>
-                                )}
+                            {/* Round Meta: Attendee count, cost, and golden bell (Moved from Title) */}
+                            <div className="lounge-round-body-meta">
+                              <span className="lounge-round-meta-stat">
+                                참석 <strong>{rParticipants.length}</strong>명 · 비용{' '}
+                                <strong>{(Number(r.cost) || 0).toLocaleString()}</strong>원
+                              </span>
+                              {r.isGoldenBell && (
+                                <span
+                                  className="expedition-pill"
+                                  style={{ fontSize: '11px', padding: '1px 6px' }}
+                                >
+                                  골든벨 (
+                                  {members.find((m) => m.uid === r.goldenBellUid)
+                                    ?.realName || '찬조'}
+                                  )
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Receipt View Button if receiptUrl exists */}
+                            {r.receiptUrl && (
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline btn-xs"
+                                  onClick={() =>
+                                    setPreviewReceiptUrl(
+                                      previewReceiptUrl === r.receiptUrl
+                                        ? ''
+                                        : r.receiptUrl
+                                    )
+                                  }
+                                >
+                                  영수증 보기 {previewReceiptUrl === r.receiptUrl ? '▲' : '▼'}
+                                </button>
                               </div>
                             )}
 
@@ -2944,7 +3062,7 @@ export default function MeetingDetailPage({
                                 })}
                               </div>
 
-                              {myMember && (
+                              {isBungAttendee && myMember && (
                                 <button
                                   type="button"
                                   className={`my-round-badge ${
@@ -2979,7 +3097,7 @@ export default function MeetingDetailPage({
                                   >
                                     <label>장소 상세</label>
                                     <textarea
-                                      rows={8}
+                                      rows={6}
                                       className="round-place-textarea"
                                       placeholder={`${
                                         idx + 1

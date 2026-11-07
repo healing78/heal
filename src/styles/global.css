@@ -2053,9 +2053,9 @@ h3 {
 }
 
 .lounge-metro-node.is-active .lounge-metro-circle {
-  border-color: #10b981;
-  background: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  border-color: #e11d48;
+  background: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
 }
 
 .lounge-metro-node.is-passed .lounge-metro-circle {
@@ -2070,7 +2070,7 @@ h3 {
 }
 
 .lounge-metro-node.is-active .lounge-metro-label {
-  color: #10b981;
+  color: #e11d48;
   font-weight: 700;
 }
 
@@ -2433,7 +2433,7 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 }
 
 .lounge-minimized-badge {
-  background: #10b981;
+  background: #e11d48;
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
@@ -2728,24 +2728,77 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 .lounge-round-header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
-.lounge-round-header-meta {
+.lounge-round-place-link {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.lounge-round-place-link:hover {
+  color: var(--color-primary-dark, #0284c7);
+}
+
+.lounge-round-place-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  display: inline-block;
+}
+
+.lounge-round-body-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
   font-size: 12px;
   color: var(--color-text-muted);
-  font-weight: 500;
-  white-space: nowrap;
+}
+
+.lounge-round-meta-stat strong {
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 .lounge-round-header-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-shrink: 0;
+}
+
+.btn-rose-status {
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  border: 1px solid #e11d48 !important;
+  box-shadow: 0 1px 3px rgba(225, 29, 72, 0.25);
+}
+
+.btn-rose-status:hover {
+  background: #be123c !important;
+  border-color: #be123c !important;
 }
 
 .lounge-round-accordion-arrow {
@@ -2824,10 +2877,10 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   background: #e2e8f0;
 }
 
-/* 4x Larger Place Textarea */
+/* 3x Place Textarea */
 .round-place-textarea {
   width: 100%;
-  min-height: 140px;
+  min-height: 105px;
   padding: 10px 12px;
   font-size: 14px;
   line-height: 1.5;
@@ -2836,6 +2889,16 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   background: var(--color-surface);
   box-sizing: border-box;
   resize: vertical;
+}
+
+/* Remove clashing container border around round edit box */
+.lounge-round-accordion-card .round-finance-box {
+  border: none !important;
+  border-top: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 4px 0 0 0 !important;
+  margin: 0 !important;
 }
 
 /* Add Round Button Row at the bottom of rounds */
