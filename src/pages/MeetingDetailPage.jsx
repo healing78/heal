@@ -3570,7 +3570,7 @@ export default function MeetingDetailPage({
 
                       {canManage && meeting.status === 'open' && (
                         <div className="stack-gap">
-                          {(!regionDetection.recognized || showSettleRegionPrompt) && (
+                          {!regionDetection.recognized && (
                             <div className="participants-box stack-gap">
                               <div className="meeting-top">
                                 <strong>권역 선택</strong>
@@ -3583,18 +3583,21 @@ export default function MeetingDetailPage({
                                   gap: '6px'
                                 }}
                               >
-                                {REGION_GROUPS.map((reg) => {
-                                  const isSelected = settleRegionChoice === reg;
+                                {REGION_GROUPS.map((group) => {
+                                  const isSelected =
+                                    settleFallbackRegion === group.keywords[0];
                                   return (
                                     <button
-                                      key={reg}
+                                      key={group.id}
                                       type="button"
                                       className={`btn btn-sm ${
                                         isSelected ? 'btn-primary' : 'btn-outline'
                                       }`}
-                                      onClick={() => setSettleRegionChoice(reg)}
+                                      onClick={() =>
+                                        setSettleFallbackRegion(group.keywords[0])
+                                      }
                                     >
-                                      {reg}
+                                      {group.name}
                                     </button>
                                   );
                                 })}
@@ -3604,7 +3607,10 @@ export default function MeetingDetailPage({
                           <button
                             type="button"
                             className="btn btn-settle"
-                            disabled={!regionDetection.recognized && !settleRegionChoice}
+                            disabled={
+                              !regionDetection.recognized &&
+                              !settleFallbackRegion
+                            }
                             onClick={handleFinalizeSettlement}
                           >
                             최종 마감 · 참석 점수 정산 완료
