@@ -30,6 +30,7 @@ import {
   unlockMeetingAlbumForUser
 } from '../services/communityService';
 import { getTodayDateString, isMeetingLoungeOpen } from '../core/routeMeta';
+import AdminMeetingEditModal from '../components/AdminMeetingEditModal';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_FULL_KO = [
@@ -214,6 +215,7 @@ export default function MeetingDetailPage({
   onShareMeeting,
   onToggleApplyMeeting,
   onUpdateMeeting,
+  onAdminSaveMeeting,
   onDeleteMeeting,
   onUpdateMemberProfile,
   onSettleMeeting,
@@ -276,6 +278,7 @@ export default function MeetingDetailPage({
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
   const [showManagerTools, setShowManagerTools] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
+  const [isAdminEditModalOpen, setIsAdminEditModalOpen] = useState(false);
 
   // Chat & Subway Route Progress states
   const [showChatUsersAccordion, setShowChatUsersAccordion] = useState(false);
@@ -1137,6 +1140,16 @@ export default function MeetingDetailPage({
               </button>
 
           <div className="badge-group">
+            {adminUser && (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                style={{ fontSize: '12px', padding: '4px 10px' }}
+                onClick={() => setIsAdminEditModalOpen(true)}
+              >
+                🛠️ 운영자 편집
+              </button>
+            )}
             {canManage && (
               <>
                 <button
@@ -3521,6 +3534,23 @@ export default function MeetingDetailPage({
             </div>
           </div>
         </div>
+      )}
+
+      {isAdminEditModalOpen && (
+        <AdminMeetingEditModal
+          isOpen={isAdminEditModalOpen}
+          meeting={meeting}
+          members={members}
+          onSave={async (saved) => {
+            if (onAdminSaveMeeting) {
+              await onAdminSaveMeeting(saved);
+            } else if (onUpdateMeeting) {
+              await onUpdateMeeting(saved.id, saved);
+            }
+          }}
+          onClose={() => setIsAdminEditModalOpen(false)}
+          onDelete={handleDeleteThisMeeting}
+        />
       )}
     </div>
   );

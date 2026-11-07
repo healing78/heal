@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useArmedAction } from '../utils/useArmedAction';
+import AdminMeetingEditModal from '../components/AdminMeetingEditModal';
 import {
   formatMemberNickname,
   ROLE_META
@@ -50,6 +51,7 @@ export default function AdminPage({
   onOpenMeetingDetail,
   onUpdateMeeting,
   onDeleteMeeting,
+  onAdminSaveMeeting,
   onAdminUpdateMember,
   onAdminAdjustEventScore,
   onAdminUpdateConfig,
@@ -59,6 +61,8 @@ export default function AdminPage({
 }) {
   const [subTab, setSubTab] = useState('login'); // 'login' | 'meetings' | 'requests' | 'scores' | 'config'
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
+  const [editingMeeting, setEditingMeeting] = useState(null);
+  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [newcomerFilter, setNewcomerFilter] = useState('ALL'); // 'ALL' | 'UNREGISTERED' | 'REGISTERED'
   const [newcomerSearch, setNewcomerSearch] = useState('');
   const [copiedUid, setCopiedUid] = useState('');
@@ -660,18 +664,51 @@ export default function AdminPage({
               })}
             </div>
           )}
+
+          {isMeetingModalOpen && (
+            <AdminMeetingEditModal
+              isOpen={isMeetingModalOpen}
+              meeting={editingMeeting}
+              members={members}
+              onSave={async (savedData) => {
+                if (onAdminSaveMeeting) {
+                  await onAdminSaveMeeting(savedData);
+                } else if (onUpdateMeeting && savedData.id) {
+                  await onUpdateMeeting(savedData.id, savedData);
+                }
+              }}
+              onClose={() => {
+                setIsMeetingModalOpen(false);
+                setEditingMeeting(null);
+              }}
+              onDelete={onDeleteMeeting}
+            />
+          )}
         </section>
       )}
 
       {/* Sub-tab: Meeting Management (확장형 모임 관리) */}
       {subTab === 'meetings' && (
         <section className="list-section">
-          <div className="section-title-row" style={{ marginBottom: '12px' }}>
+          <div className="section-title-row" style={{ marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
             <div>
               <h3>모임 관리</h3>
               <p className="sub-meta">최신순 전체 모임 목록 · 카드 클릭 시 모임 상세로 이동합니다.</p>
             </div>
-            <span className="platform-badge">{meetings.length}건</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                style={{ fontSize: '12px', padding: '5px 12px' }}
+                onClick={() => {
+                  setEditingMeeting(null);
+                  setIsMeetingModalOpen(true);
+                }}
+              >
+                + 신규 모임 등록
+              </button>
+              <span className="platform-badge">{meetings.length}건</span>
+            </div>
           </div>
 
           {meetings.length === 0 ? (
@@ -761,9 +798,24 @@ export default function AdminPage({
                           <div
                             className="admin-meeting-actions-slot"
                             onClick={(e) => e.stopPropagation()}
-                            style={{ display: 'inline-flex', alignItems: 'center' }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                           >
-                            <span className="sub-meta" style={{ fontSize: '12px' }}>
+                            <button
+                              type="button"
+                              className="btn btn-outline btn-xs"
+                              style={{ fontSize: '11px', padding: '3px 8px' }}
+                              onClick={() => {
+                                setEditingMeeting(m);
+                                setIsMeetingModalOpen(true);
+                              }}
+                            >
+                              수정 ✏️
+                            </button>
+                            <span
+                              className="sub-meta"
+                              style={{ fontSize: '12px', cursor: 'pointer' }}
+                              onClick={() => onOpenMeetingDetail && onOpenMeetingDetail(m.id)}
+                            >
                               상세 →
                             </span>
                           </div>
@@ -842,6 +894,26 @@ export default function AdminPage({
                   );
                 })}
             </div>
+          )}
+
+          {isMeetingModalOpen && (
+            <AdminMeetingEditModal
+              isOpen={isMeetingModalOpen}
+              meeting={editingMeeting}
+              members={members}
+              onSave={async (savedData) => {
+                if (onAdminSaveMeeting) {
+                  await onAdminSaveMeeting(savedData);
+                } else if (onUpdateMeeting && savedData.id) {
+                  await onUpdateMeeting(savedData.id, savedData);
+                }
+              }}
+              onClose={() => {
+                setIsMeetingModalOpen(false);
+                setEditingMeeting(null);
+              }}
+              onDelete={onDeleteMeeting}
+            />
           )}
         </section>
       )}

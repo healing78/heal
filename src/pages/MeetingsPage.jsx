@@ -121,6 +121,7 @@ export default function MeetingsPage({
   onToggleApplyMeeting,
   onCreateMeeting,
   onUpdateMeeting,
+  onAdminSaveMeeting,
   onDeleteMeeting,
   onUpdateMemberProfile,
   onSettleMeeting,
@@ -165,6 +166,7 @@ export default function MeetingsPage({
         onShareMeeting={onShareMeeting}
         onToggleApplyMeeting={onToggleApplyMeeting}
         onUpdateMeeting={onUpdateMeeting}
+        onAdminSaveMeeting={onAdminSaveMeeting}
         onDeleteMeeting={onDeleteMeeting}
         onUpdateMemberProfile={onUpdateMemberProfile}
         onSettleMeeting={onSettleMeeting}

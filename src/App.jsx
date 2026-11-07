@@ -22,6 +22,7 @@ import {
 import { getSavedTheme, saveAndApplyTheme } from './core/theme';
 import {
   adminAdjustEventScore,
+  adminSaveFullMeeting,
   adminUpdateMember,
   approveAccountLinkRequest,
   approveSubPhoneRequest,
@@ -362,6 +363,10 @@ export default function App() {
     await updateMeetingDetails(meetingId, patch);
   };
 
+  const handleAdminSaveMeeting = async (meetingInput) => {
+    return await adminSaveFullMeeting(meetingInput);
+  };
+
   const handleDeleteMeeting = async (meetingId) => {
     await deleteMeeting(meetingId);
     handleSelectMeetingId(null);
@@ -474,6 +479,7 @@ export default function App() {
           onToggleApplyMeeting={handleToggleApplyMeeting}
           onCreateMeeting={handleCreateMeeting}
           onUpdateMeeting={handleUpdateMeeting}
+          onAdminSaveMeeting={handleAdminSaveMeeting}
           onDeleteMeeting={handleDeleteMeeting}
           onSettleMeeting={handleSettleMeeting}
           onUpdateMemberProfile={handleUpdateProfile}
@@ -592,6 +598,7 @@ export default function App() {
           loginLogs={loginLogs}
           onOpenMeetingDetail={handleOpenMeetingDetail}
           onUpdateMeeting={handleUpdateMeeting}
+          onAdminSaveMeeting={handleAdminSaveMeeting}
           onDeleteMeeting={handleDeleteMeeting}
           onAdminUpdateMember={handleAdminUpdateMember}
           onAdminAdjustEventScore={handleAdminAdjustEventScore}

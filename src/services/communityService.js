@@ -708,6 +708,104 @@ export const deleteMeeting = async (meetingId) => {
 };
 
 /**
+ * Admin: Full creation or comprehensive edit of any meeting data.
+ * Supports title, dates, times, location, placeDetail, hostUid, treasurerUid,
+ * status, applicants, confirmedParticipants, rounds, and settlement.
+ */
+export const adminSaveFullMeeting = async (meetingInput) => {
+  const { meetings } = getLocalState();
+  const isEditing = Boolean(
+    meetingInput.id && meetings.some((m) => String(m.id) === String(meetingInput.id))
+  );
+  const dateOnly = meetingInput.dateOnly || new Date().toISOString().slice(0, 10);
+  const targetId = isEditing ? String(meetingInput.id) : generateMeetingId(dateOnly, meetings);
+  const existing = isEditing ? meetings.find((m) => String(m.id) === String(meetingInput.id)) : null;
+
+  const resolvedRounds =
+    Array.isArray(meetingInput.rounds) && meetingInput.rounds.length > 0
+      ? meetingInput.rounds.map((r, idx) => ({
+          id: r.id || `r-${idx + 1}`,
+          label: r.label || `${idx + 1}차`,
+          placeName: (r.placeName || '').trim(),
+          mapUrl: (r.mapUrl || '').trim(),
+          participants: Array.isArray(r.participants) ? r.participants : [],
+          payerUid: r.payerUid || meetingInput.treasurerUid || meetingInput.hostUid || '',
+          cost: Number(r.cost) || 0,
+          receiptUrl: r.receiptUrl || '',
+          isGoldenBell: Boolean(r.isGoldenBell),
+          goldenBellUid: r.goldenBellUid || ''
+        }))
+      : existing?.rounds || [
+          {
+            id: 'r-1',
+            label: '1차',
+            placeName: (meetingInput.placeDetail || '').trim(),
+            mapUrl: '',
+            participants: meetingInput.applicants || [],
+            payerUid: meetingInput.treasurerUid || meetingInput.hostUid || '',
+            cost: 0,
+            receiptUrl: '',
+            isGoldenBell: false,
+            goldenBellUid: ''
+          }
+        ];
+
+  const sanitized = {
+    ...(existing || {}),
+    id: targetId,
+    title: sanitizeBungText((meetingInput.title || '벙 모임').trim()),
+    dateOnly,
+    endDateOnly: meetingInput.endDateOnly || dateOnly,
+    startTime: meetingInput.startTime || '19:00',
+    endTime: meetingInput.endTime || '23:00',
+    allDay: Boolean(meetingInput.allDay),
+    date: `${dateOnly} ${meetingInput.allDay ? '00:00' : meetingInput.startTime || '19:00'}`,
+    location: (meetingInput.location || '서울').trim(),
+    placeDetail: (meetingInput.placeDetail || '').trim(),
+    hostUid: meetingInput.hostUid || existing?.hostUid || '',
+    treasurerUid:
+      meetingInput.treasurerUid !== undefined
+        ? meetingInput.treasurerUid
+        : existing?.treasurerUid || '',
+    status: meetingInput.status || existing?.status || 'open',
+    type: meetingInput.type || existing?.type || 'Casual',
+    description: (
+      meetingInput.description !== undefined
+        ? meetingInput.description
+        : existing?.description || ''
+    ).trim(),
+    applicants: Array.isArray(meetingInput.applicants)
+      ? meetingInput.applicants
+      : existing?.applicants || [],
+    confirmedParticipants: Array.isArray(meetingInput.confirmedParticipants)
+      ? meetingInput.confirmedParticipants
+      : existing?.confirmedParticipants || (meetingInput.status === 'settled' ? meetingInput.applicants : []),
+    rounds: resolvedRounds,
+    settlement: meetingInput.settlement || existing?.settlement || null,
+    likes: existing?.likes || [],
+    comments: existing?.comments || [],
+    album: existing?.album || []
+  };
+
+  const nextMeetings = isEditing
+    ? meetings.map((m) => (String(m.id) === String(targetId) ? sanitized : m))
+    : [sanitized, ...meetings];
+
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, 'meetings', String(targetId)), sanitized, { merge: true });
+    } catch (err) {
+      console.warn('Firestore write fallback (adminSaveFullMeeting):', err.code);
+    }
+  }
+
+  return sanitized;
+};
+
+/**
  * Settles an open meeting: updates meeting status to 'settled', awards points (+1 base, +2 expedition),
  * increments attendanceCount, and records score logs atomically.
  */
