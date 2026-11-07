@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import {
   calculateMeetingScoreForMember,
+  cleanScheduleLocation,
   detectMeetingRegion,
   generateMeetingId,
   REGION_GROUPS
@@ -59,8 +60,18 @@ const sanitizeBungText = (str) =>
         .replace(/벙 규칙/g, '모임 규칙')
     : str;
 
-const sanitizeMeetingItem = (mtg) =>
-  mtg ? { ...mtg, title: sanitizeBungText(mtg.title) } : mtg;
+const sanitizeMeetingItem = (mtg) => {
+  if (!mtg) return mtg;
+  const r1Place = (mtg.rounds && mtg.rounds[0]?.placeName) || '';
+  const cleanLoc = cleanScheduleLocation(mtg.location, r1Place);
+  const cleanPlace = cleanScheduleLocation(mtg.placeDetail, r1Place);
+  return {
+    ...mtg,
+    title: sanitizeBungText(mtg.title),
+    location: cleanLoc || (mtg.location === r1Place ? '' : mtg.location) || '',
+    placeDetail: cleanPlace || (mtg.placeDetail === r1Place ? '' : mtg.placeDetail) || ''
+  };
+};
 
 const sanitizeMember = (m) => {
   if (!m) return m;

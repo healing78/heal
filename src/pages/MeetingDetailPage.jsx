@@ -3,6 +3,7 @@ import {
   calculateMeetingScoreForMember,
   calculateMeetingSettlement,
   canManageMeeting,
+  cleanScheduleLocation,
   detectMeetingRegion,
   formatMemberNickname,
   isAdminUser,
@@ -398,10 +399,8 @@ export default function MeetingDetailPage({
     endTime: meeting.endTime || '13:00',
     allDay: Boolean(meeting.allDay),
     placeDetail:
-      meeting.location ||
-      (meeting.placeDetail !== (meeting.rounds?.[0]?.placeName)
-        ? meeting.placeDetail
-        : '') ||
+      cleanScheduleLocation(meeting.location, meeting.rounds?.[0]?.placeName) ||
+      cleanScheduleLocation(meeting.placeDetail, meeting.rounds?.[0]?.placeName) ||
       '',
     reminder: meeting.reminder || '15분 전',
     requestAttendance: meeting.requestAttendance !== false,
@@ -539,11 +538,11 @@ export default function MeetingDetailPage({
     (r) => r.uid === currentUser?.uid
   );
 
-  // Detail card displays basic location input ('location'); 1차·2차 placeName is shown strictly inside 벙대기실 [장소] tab
+  // Detail card displays strictly the basic location input; 1차·2차 placeName is shown inside 벙대기실 [장소] tab
   const r1Place = (rounds && rounds[0]?.placeName) || '';
-  let cleanLocation = (meeting.location || '').trim();
-  if (!cleanLocation && meeting.placeDetail && meeting.placeDetail !== r1Place) {
-    cleanLocation = (meeting.placeDetail || '').trim();
+  let cleanLocation = cleanScheduleLocation(meeting.location, r1Place);
+  if (!cleanLocation && meeting.placeDetail) {
+    cleanLocation = cleanScheduleLocation(meeting.placeDetail, r1Place);
   }
   const primaryPlaceText = cleanLocation;
   const regionDetection = detectMeetingRegion(meeting);
@@ -727,7 +726,7 @@ export default function MeetingDetailPage({
     });
   };
 
-  // Subway Route Map Stages
+  // Subway Route Map Stages & Unified Single Driver Button Cycle
   const metroStages = [{ key: 'start', label: '시작' }];
   if (rounds.length > 0) {
     rounds.forEach((r, idx) => {
@@ -741,103 +740,76 @@ export default function MeetingDetailPage({
   }
   metroStages.push({ key: 'end', label: '종료' });
 
-  // Calculate Subway active index linked to round progress buttons
-  let metroActiveIdx = 0;
-  if (meeting.status === 'settled') {
-    metroActiveIdx = metroStages.length - 1;
+  const numRounds = Math.max(1, rounds.length);
+  const maxMetroStep = numRounds + 1; // 0 (시작), 1..numRounds (각 차수), numRounds+1 (종료)
+
+  // Current metroStep from meeting.metroStep or fallback from round statuses
+  let currentMetroStep = 0;
+  if (meeting.metroStep !== undefined && meeting.metroStep !== null) {
+    currentMetroStep = Number(meeting.metroStep) % (maxMetroStep + 1);
+  } else if (meeting.status === 'settled') {
+    currentMetroStep = maxMetroStep;
   } else {
-    // Check if any round is actively in_progress
     const activeRoundIdx = rounds.findIndex((r) => r.status === 'in_progress');
     if (activeRoundIdx !== -1) {
-      metroActiveIdx = activeRoundIdx + 1; // 1차 is node 1, 2차 node 2, etc.
+      currentMetroStep = activeRoundIdx + 1;
+    } else if (rounds.length > 0 && rounds.every((r) => r.status === 'ended')) {
+      currentMetroStep = maxMetroStep;
     } else {
-      const allRoundsEnded =
-        rounds.length > 0 && rounds.every((r) => r.status === 'ended');
-      if (allRoundsEnded) {
-        metroActiveIdx = metroStages.length - 1; // [종료]
-      } else {
-        const lastEndedIdx = rounds.reduce(
-          (last, r, i) => (r.status === 'ended' ? i : last),
-          -1
-        );
-        if (lastEndedIdx !== -1) {
-          metroActiveIdx = Math.min(lastEndedIdx + 1, metroStages.length - 1);
-        } else {
-          // Initial: 시작전 (Node 0: [시작])
-          metroActiveIdx = 0;
-        }
-      }
+      currentMetroStep = 0;
     }
   }
+
+  // Active subway node and line fill
+  const metroActiveIdx = Math.min(currentMetroStep, metroStages.length - 1);
   const metroFillPercent =
     metroStages.length > 1
       ? (metroActiveIdx / (metroStages.length - 1)) * 100
       : 0;
 
-  // Round progression helper: disable previous rounds when a later round is started
-  const maxActiveRoundIdx = rounds.reduce((max, r, i) => {
-    if (r.status === 'in_progress') return Math.max(max, i);
-    return max;
-  }, -1);
+  // Single Driver Button Presentation:
+  // Step 0: 녹색 '시작'
+  // Step 1..N: 로즈색 '1차', '2차', ...
+  // Step N+1: 다크 '종료'
+  let metroBtnLabel = '시작';
+  let metroBtnClass = 'is-green';
+  if (currentMetroStep === 0) {
+    metroBtnLabel = '시작';
+    metroBtnClass = 'is-green';
+  } else if (currentMetroStep >= 1 && currentMetroStep <= numRounds) {
+    metroBtnLabel = `${currentMetroStep}차`;
+    metroBtnClass = 'is-rose';
+  } else {
+    metroBtnLabel = '종료';
+    metroBtnClass = 'is-dark';
+  }
 
-  const isRoundButtonDisabled = (roundIdx) => {
-    if (!canManage) return true;
-    if (maxActiveRoundIdx > -1 && roundIdx < maxActiveRoundIdx) {
-      return true;
-    }
-    return false;
-  };
-
-  const getRoundButtonLabel = (roundIdx, status) => {
-    const s = status || 'ready';
-    if (roundIdx === 0) {
-      if (s === 'ready') return '시작';
-      if (s === 'in_progress') return '종료';
-      if (s === 'ended') return '시작전';
-      return '시작';
-    } else {
-      if (s === 'in_progress') return '종료';
-      return '시작';
-    }
-  };
-
-  const handleToggleRoundProgress = async (roundIdx) => {
+  const handleCycleMetroProgress = async () => {
     if (!canManage) return;
-    const currentRound = rounds[roundIdx] || {};
-    const currentStatus = currentRound.status || 'ready';
-    let nextStatus = 'ready';
+    const nextStep = (currentMetroStep + 1) % (maxMetroStep + 1);
 
-    if (roundIdx === 0) {
-      // 1차 cycle: 'ready' (시작) -> 'in_progress' (종료) -> 'ended' (시작전) -> 'ready' (시작)
-      if (currentStatus === 'ready') {
-        nextStatus = 'in_progress';
-      } else if (currentStatus === 'in_progress') {
-        nextStatus = 'ended';
-      } else if (currentStatus === 'ended') {
-        nextStatus = 'ready';
-      } else {
-        nextStatus = 'ready';
+    const nextRounds = rounds.map((r, idx) => {
+      if (nextStep === 0) {
+        return { ...r, status: 'ready' };
       }
-    } else {
-      // 2차+ cycle: 'ready' (시작) -> 'in_progress' (종료) -> 'ready' (시작)
-      if (currentStatus === 'ready' || currentStatus === 'ended') {
-        nextStatus = 'in_progress';
-      } else {
-        nextStatus = 'ended';
+      if (nextStep >= 1 && nextStep <= numRounds) {
+        const roundNum = idx + 1;
+        if (roundNum === nextStep) {
+          return { ...r, status: 'in_progress' };
+        } else if (roundNum < nextStep) {
+          return { ...r, status: 'ended' };
+        } else {
+          return { ...r, status: 'ready' };
+        }
       }
-    }
-
-    const nextRounds = rounds.map((r, i) => {
-      if (i === roundIdx) {
-        return { ...r, status: nextStatus };
-      }
-      if (nextStatus === 'in_progress' && i < roundIdx) {
-        return { ...r, status: 'ended' };
-      }
-      return r;
+      // nextStep === maxMetroStep (종료)
+      return { ...r, status: 'ended' };
     });
 
-    await onUpdateMeeting(meeting.id, { rounds: nextRounds });
+    await onUpdateMeeting(meeting.id, {
+      metroStep: nextStep,
+      rounds: nextRounds
+    });
   };
 
   // Save edited basic schedule info (Host / Treasurer / Admin)
@@ -1438,6 +1410,14 @@ export default function MeetingDetailPage({
       ].filter(Boolean)
     )
   );
+
+  // Attendees list strictly for round payer & golden bell selects
+  const attendeeMembers = useMemo(() => {
+    const list = displayAttendeeUids
+      .map((uid) => sortedMembers.find((m) => m.uid === uid))
+      .filter(Boolean);
+    return list.length > 0 ? list : sortedMembers;
+  }, [displayAttendeeUids, sortedMembers]);
 
   const filteredAttendeeCandidates = useMemo(() => {
     const q = attendeeSearchQuery.trim().toLowerCase();
@@ -2405,8 +2385,11 @@ export default function MeetingDetailPage({
                 </button>
               </div>
 
-              {/* Subway Route Map Progress Bar */}
-              <div className="lounge-metro-progress">
+              {/* Subway Route Map Progress Bar & Driver Button */}
+              <div
+                className="lounge-metro-row"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="lounge-metro-track">
                   <div className="lounge-metro-line">
                     <div
@@ -2432,6 +2415,20 @@ export default function MeetingDetailPage({
                     );
                   })}
                 </div>
+
+                {/* Single Progress Driver Button */}
+                <button
+                  type="button"
+                  className={`lounge-metro-btn ${metroBtnClass}`}
+                  disabled={!canManage}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCycleMetroProgress();
+                  }}
+                  title={canManage ? '진행 상태 변경' : '진행 상태 (호스트/운영진)'}
+                >
+                  {metroBtnLabel}
+                </button>
               </div>
             </div>
           )}
@@ -2894,31 +2891,6 @@ export default function MeetingDetailPage({
                             className="lounge-round-header-right"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            {canManage && (
-                              <button
-                                type="button"
-                                disabled={isRoundButtonDisabled(idx)}
-                                className={`btn btn-xs ${
-                                  r.status === 'in_progress'
-                                    ? 'btn-rose-status'
-                                    : 'btn-outline'
-                                }`}
-                                style={{
-                                  padding: '4px 8px',
-                                  fontSize: '11.5px',
-                                  borderRadius: '12px',
-                                  fontWeight: 700
-                                }}
-                                onClick={() => handleToggleRoundProgress(idx)}
-                                title={
-                                  isRoundButtonDisabled(idx)
-                                    ? '다음 차수 진행 중'
-                                    : undefined
-                                }
-                              >
-                                {getRoundButtonLabel(idx, r.status)}
-                              </button>
-                            )}
                             <button
                               type="button"
                               className={`btn btn-xs ${
@@ -3137,7 +3109,7 @@ export default function MeetingDetailPage({
                                         })
                                       }
                                     >
-                                      {members.map((m) => (
+                                      {attendeeMembers.map((m) => (
                                         <option key={m.uid} value={m.uid}>
                                           {formatMemberNickname(m)}
                                         </option>
@@ -3191,7 +3163,7 @@ export default function MeetingDetailPage({
                                           })
                                         }
                                       >
-                                        {members.map((m) => (
+                                        {attendeeMembers.map((m) => (
                                           <option key={m.uid} value={m.uid}>
                                             {formatMemberNickname(m)}
                                           </option>

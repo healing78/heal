@@ -141,6 +141,34 @@ export const detectMeetingRegion = (meeting) => {
   return { recognized: false, group: null, matchedKeyword: '' };
 };
 
+/**
+ * Strips out 1차/2차 round detailed markers ([네이버지도], [카카오맵], URLs, addresses)
+ * and returns only the clean, original schedule location input.
+ */
+export const cleanScheduleLocation = (rawText = '', r1Place = '') => {
+  let text = String(rawText || '').trim();
+  if (!text) return '';
+
+  if (r1Place && text === String(r1Place).trim()) {
+    return '';
+  }
+
+  // If text contains 1차 map details or markers like [네이버지도], [카카오맵], or http url
+  if (/\[(?:네이버|카카오)지도\]/i.test(text) || /https?:\/\//i.test(text)) {
+    const match = text.match(/^(.*?)(?:\[(?:네이버|카카오)지도\]|https?:\/\/)/i);
+    const prefix = match ? match[1].trim() : '';
+    if (prefix) return prefix;
+    return '';
+  }
+
+  // Multi-line text: take only first line
+  if (text.includes('\n')) {
+    text = text.split('\n')[0].trim();
+  }
+
+  return text;
+};
+
 export const MASTER_ADMIN_SECRET =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_MASTER_ADMIN_KEY) ||
   'heal78master!';

@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { canCreateMeeting, REGION_GROUPS } from '../core/communityRules';
+import {
+  canCreateMeeting,
+  REGION_GROUPS,
+  isAdminUser,
+  cleanScheduleLocation
+} from '../core/communityRules';
 import MeetingDetailPage from './MeetingDetailPage';
 import BungRecordsTab from '../components/BungRecordsTab';
 
@@ -71,11 +76,11 @@ function buildScheduleMeta(mtg) {
     timeRangeText = `${formatKoreanAmPm(startTime)} - ${formatKoreanAmPm(endTime)}`;
   }
 
-  // Display only the registered schedule location ('location'); exclude 1차 round details
+  // Display strictly the clean schedule location input; exclude 1차/2차 round details
   const r1Place = (mtg.rounds && mtg.rounds[0]?.placeName) || '';
-  let locationText = (mtg.location || '').trim();
-  if (!locationText && mtg.placeDetail && mtg.placeDetail !== r1Place) {
-    locationText = mtg.placeDetail.trim();
+  let locationText = cleanScheduleLocation(mtg.location, r1Place);
+  if (!locationText && mtg.placeDetail) {
+    locationText = cleanScheduleLocation(mtg.placeDetail, r1Place);
   }
 
   return {
@@ -125,9 +130,12 @@ export default function MeetingsPage({
   onSettleMeeting,
   onNavigateTab
 }) {
-  const [subTab, setSubTab] = useState('open'); // 'open' | 'past' | 'mine'
+  const [subTab, setSubTab] = useState('open'); // 'open' | 'past' | 'mine' | 'records'
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createWarning, setCreateWarning] = useState('');
+
+  const adminUser = isAdminUser(currentUser, communityConfig);
+  const activeSubTab = !adminUser && subTab === 'records' ? 'open' : subTab;
 
   const defaultDate = getTodayDateString();
 
@@ -247,9 +255,9 @@ export default function MeetingsPage({
 
   const filteredMeetings = meetings.filter((m) => {
     const isPast = isPastMeeting(m, todayStr);
-    if (subTab === 'open') return !isPast;
-    if (subTab === 'past' || subTab === 'settled') return isPast;
-    if (subTab === 'mine') {
+    if (activeSubTab === 'open') return !isPast;
+    if (activeSubTab === 'past' || activeSubTab === 'settled') return isPast;
+    if (activeSubTab === 'mine') {
       if (!currentUser) return false;
       return (
         m.hostUid === currentUser.uid ||
@@ -320,14 +328,14 @@ export default function MeetingsPage({
         <div className="subtab-bar">
           <button
             type="button"
-            className={`subtab-btn ${subTab === 'open' ? 'active' : ''}`}
+            className={`subtab-btn ${activeSubTab === 'open' ? 'active' : ''}`}
             onClick={() => setSubTab('open')}
           >
             진행 예정 ({meetings.filter((m) => !isPastMeeting(m, todayStr)).length})
           </button>
           <button
             type="button"
-            className={`subtab-btn ${subTab === 'past' || subTab === 'settled' ? 'active' : ''}`}
+            className={`subtab-btn ${activeSubTab === 'past' || activeSubTab === 'settled' ? 'active' : ''}`}
             onClick={() => setSubTab('past')}
           >
             지나간 일정 ({meetings.filter((m) => isPastMeeting(m, todayStr)).length})
@@ -335,19 +343,21 @@ export default function MeetingsPage({
           {currentUser && (
             <button
               type="button"
-              className={`subtab-btn ${subTab === 'mine' ? 'active' : ''}`}
+              className={`subtab-btn ${activeSubTab === 'mine' ? 'active' : ''}`}
               onClick={() => setSubTab('mine')}
             >
               내 일정
             </button>
           )}
-          <button
-            type="button"
-            className={`subtab-btn ${subTab === 'records' ? 'active' : ''}`}
-            onClick={() => setSubTab('records')}
-          >
-            벙기록 ({meetings.length})
-          </button>
+          {adminUser && (
+            <button
+              type="button"
+              className={`subtab-btn ${activeSubTab === 'records' ? 'active' : ''}`}
+              onClick={() => setSubTab('records')}
+            >
+              벙기록 ({meetings.length})
+            </button>
+          )}
         </div>
       </section>
 
@@ -627,8 +637,8 @@ export default function MeetingsPage({
         </section>
       )}
 
-      {/* Bung Records Sub-tab View */}
-      {subTab === 'records' ? (
+      {/* Bung Records Sub-tab View (Admin Only) */}
+      {adminUser && activeSubTab === 'records' ? (
         <BungRecordsTab
           meetings={meetings}
           members={members}
