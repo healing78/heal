@@ -253,16 +253,22 @@ export default function MeetingDetailPage({
   };
 
   // Auto-record lounge visitor when in lounge view
+  const hasAutoRecordedLoungeRef = useRef(false);
   useEffect(() => {
     if (viewMode === 'lounge' && currentUser?.uid && onUpdateMeeting && meeting?.id) {
-      const currentVisitors = meeting.loungeVisitors || [];
-      if (!currentVisitors.includes(currentUser.uid)) {
-        onUpdateMeeting(meeting.id, {
-          loungeVisitors: [...currentVisitors, currentUser.uid]
-        });
+      if (!hasAutoRecordedLoungeRef.current) {
+        hasAutoRecordedLoungeRef.current = true;
+        const currentVisitors = meeting.loungeVisitors || [];
+        if (!currentVisitors.includes(currentUser.uid)) {
+          onUpdateMeeting(meeting.id, {
+            loungeVisitors: [...currentVisitors, currentUser.uid]
+          });
+        }
       }
+    } else if (viewMode !== 'lounge') {
+      hasAutoRecordedLoungeRef.current = false;
     }
-  }, [viewMode, currentUser?.uid, meeting?.id, meeting?.loungeVisitors]);
+  }, [viewMode, currentUser?.uid, meeting?.id]);
 
   const handleDeleteThisMeeting = async () => {
     if (!onDeleteMeeting) return;
@@ -292,6 +298,7 @@ export default function MeetingDetailPage({
 
   // Chat & Subway Route Progress states
   const [showChatUsersAccordion, setShowChatUsersAccordion] = useState(false);
+  const [isEditingChatUsers, setIsEditingChatUsers] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const chatTextInputRef = useRef(null);
   const chatPhotoInputRef = useRef(null);
@@ -639,15 +646,26 @@ export default function MeetingDetailPage({
   );
   const loungeVisitorUids = meeting.loungeVisitors || [];
   // 1. 참석자 중 벙대기실을 누른 사람 (대기실 입장한 참석자)
-  const enteredAttendeeUids = allMeetingAttendeeUids.filter(
-    (uid) =>
-      loungeVisitorUids.includes(uid) ||
-      (currentUser?.uid === uid && viewMode === 'lounge')
+  const enteredAttendeeUids = allMeetingAttendeeUids.filter((uid) =>
+    loungeVisitorUids.includes(uid)
   );
   // 2. 참석자 중 벙대기실을 아직 누르지 않은 사람 (대기실 미입장 참석자)
   const notEnteredAttendeeUids = allMeetingAttendeeUids.filter(
     (uid) => !enteredAttendeeUids.includes(uid)
   );
+
+  // Admin: Toggle 벙대기실 입장 / 미입장 for an attendee
+  const handleToggleLoungeVisitor = async (targetUid) => {
+    if (!adminUser || !onUpdateMeeting || !meeting?.id || !targetUid) return;
+    const currentVisitors = meeting.loungeVisitors || [];
+    const isEntered = currentVisitors.includes(targetUid);
+    const nextVisitors = isEntered
+      ? currentVisitors.filter((id) => id !== targetUid)
+      : [...currentVisitors, targetUid];
+    await onUpdateMeeting(meeting.id, {
+      loungeVisitors: nextVisitors
+    });
+  };
 
   // Subway Route Map Stages
   const metroStages = [{ key: 'start', label: '시작' }];
@@ -2293,6 +2311,7 @@ export default function MeetingDetailPage({
                   onClick={() => {
                     if (loungeTab === 'chat') {
                       setShowChatUsersAccordion((prev) => !prev);
+                      setIsEditingChatUsers(false);
                     } else {
                       setLoungeTab('chat');
                     }
@@ -2385,14 +2404,33 @@ export default function MeetingDetailPage({
                   <div className="lounge-chat-accordion">
                     <div className="lounge-chat-accordion-title">
                       <span>대기실 입장한 참석자 ({enteredAttendeeUids.length}명)</span>
-                      <button
-                        type="button"
-                        className="btn-link"
-                        style={{ fontSize: '11px' }}
-                        onClick={() => setShowChatUsersAccordion(false)}
-                      >
-                        닫기 ✕
-                      </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                        <button
+                          type="button"
+                          className="btn-link"
+                          style={{ fontSize: '11px' }}
+                          onClick={() => {
+                            setShowChatUsersAccordion(false);
+                            setIsEditingChatUsers(false);
+                          }}
+                        >
+                          닫기 ✕
+                        </button>
+                        {adminUser && (
+                          <button
+                            type="button"
+                            className="btn-link"
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: isEditingChatUsers ? 700 : 500,
+                              color: isEditingChatUsers ? 'var(--color-primary)' : 'inherit'
+                            }}
+                            onClick={() => setIsEditingChatUsers((prev) => !prev)}
+                          >
+                            {isEditingChatUsers ? '완료' : '편집'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="lounge-chat-accordion-list">
                       {enteredAttendeeUids.length === 0 ? (
@@ -2405,14 +2443,24 @@ export default function MeetingDetailPage({
                           if (!m) return null;
                           const isHost = uid === meeting.hostUid;
                           return (
-                            <span
+                            <button
+                              type="button"
                               key={uid}
-                              className="member-chip-btn active"
-                              style={{ fontSize: '11px', padding: '2px 7px' }}
+                              disabled={!isEditingChatUsers}
+                              className={`member-chip-btn active ${isEditingChatUsers ? 'is-editable' : ''}`}
+                              onClick={isEditingChatUsers ? () => handleToggleLoungeVisitor(uid) : undefined}
+                              style={{
+                                fontSize: '11px',
+                                padding: '2px 7px',
+                                cursor: isEditingChatUsers ? 'pointer' : 'default',
+                                border: isEditingChatUsers ? '1px dashed var(--admin-edit-accent, #334155)' : undefined
+                              }}
+                              title={isEditingChatUsers ? '클릭 시 미입장으로 변경' : undefined}
                             >
                               {isHost ? '👑 ' : ''}
                               {m.realName}
-                            </span>
+                              {isEditingChatUsers && <span style={{ marginLeft: '4px', opacity: 0.6 }}>✕</span>}
+                            </button>
                           );
                         })
                       )}
@@ -2434,17 +2482,24 @@ export default function MeetingDetailPage({
                           const m = members.find((mem) => mem.uid === uid);
                           if (!m) return null;
                           return (
-                            <span
+                            <button
+                              type="button"
                               key={uid}
-                              className="member-chip-btn inactive"
+                              disabled={!isEditingChatUsers}
+                              className={`member-chip-btn inactive ${isEditingChatUsers ? 'is-editable' : ''}`}
+                              onClick={isEditingChatUsers ? () => handleToggleLoungeVisitor(uid) : undefined}
                               style={{
                                 fontSize: '11px',
                                 padding: '2px 7px',
-                                opacity: 0.65
+                                opacity: isEditingChatUsers ? 0.9 : 0.65,
+                                cursor: isEditingChatUsers ? 'pointer' : 'default',
+                                border: isEditingChatUsers ? '1px dashed var(--admin-edit-accent, #334155)' : undefined
                               }}
+                              title={isEditingChatUsers ? '클릭 시 입장 완료로 변경' : undefined}
                             >
                               {m.realName}
-                            </span>
+                              {isEditingChatUsers && <span style={{ marginLeft: '4px', opacity: 0.6 }}>+</span>}
+                            </button>
                           );
                         })
                       )}

@@ -2903,6 +2903,16 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   opacity: 0.85;
 }
 
+.member-chip-btn.is-editable {
+  cursor: pointer !important;
+  opacity: 1 !important;
+  user-select: none;
+}
+
+.member-chip-btn.is-editable:active {
+  transform: scale(0.96);
+}
+
 /* Round Finance & Receipt Box */
 .round-finance-box {
   margin-top: 8px;
