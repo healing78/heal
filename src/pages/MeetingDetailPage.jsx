@@ -2465,8 +2465,21 @@ export default function MeetingDetailPage({
                 loungeTab === 'rounds' ? 'active' : ''
               }`}
               onClick={() => {
-                setLoungeTab('rounds');
-                setShowChatUsersAccordion(false);
+                if (loungeTab === 'rounds') {
+                  // Toggle collapse / expand all round cards
+                  const allCollapsed =
+                    rounds.length > 0 &&
+                    rounds.every((_, idx) => Boolean(collapsedRoundIndices[idx]));
+                  const nextCollapsed = !allCollapsed;
+                  const nextMap = {};
+                  rounds.forEach((_, idx) => {
+                    nextMap[idx] = nextCollapsed;
+                  });
+                  setCollapsedRoundIndices(nextMap);
+                } else {
+                  setLoungeTab('rounds');
+                  setShowChatUsersAccordion(false);
+                }
               }}
             >
               장소

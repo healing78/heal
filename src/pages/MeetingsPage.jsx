@@ -355,7 +355,7 @@ export default function MeetingsPage({
               className={`subtab-btn ${activeSubTab === 'records' ? 'active' : ''}`}
               onClick={() => setSubTab('records')}
             >
-              벙기록 ({meetings.length})
+              🔒 벙기록 ({meetings.length})
             </button>
           )}
         </div>
