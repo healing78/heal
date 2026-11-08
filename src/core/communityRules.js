@@ -1,4 +1,4 @@
-import { generateNickname } from '../nicknameUtils';
+import { generateNickname } from '../nicknameUtils.js';
 
 export const ROLE_META = {
   Leader: { label: '방장', badgeColor: 'var(--role-leader, #1e293b)', isAdmin: true },

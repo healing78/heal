@@ -116,6 +116,19 @@ const sanitizeMember = (m) => {
       gender: '남'
     };
   }
+  // '모찌' 회원의 경우 프로필(은평 / 돌 / 남) 자동 보정
+  if (
+    (m.uid === 'kakao:2000' || m.realName === '모찌') &&
+    (m.city !== '은평' || m.maritalStatus !== 'divorced' || m.gender !== '남')
+  ) {
+    return {
+      ...m,
+      city: '은평',
+      homeCity: '은평',
+      maritalStatus: 'divorced',
+      gender: '남'
+    };
+  }
   // 벙 참석 0회 회원의 role이 Member로 오분류되어 있는 경우 커뮤니티 규칙에 따라 Rookie(신입)로 자동 보정
   const isSpecial = [
     'Leader',
