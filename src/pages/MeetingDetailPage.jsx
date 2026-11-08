@@ -3619,25 +3619,28 @@ export default function MeetingDetailPage({
                           <table className="settle-data-table">
                             <thead>
                               <tr>
-                                <th>항목</th>
-                                <th>금액</th>
-                                <th>내용</th>
-                                <th>상태</th>
+                                <th style={{ width: '45%' }}>내역</th>
+                                <th style={{ width: '30%', textAlign: 'right' }}>금액</th>
+                                <th style={{ width: '25%', textAlign: 'center' }}>상태</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {/* 선입금 행 */}
-                              <tr style={{ background: '#f8fafc' }}>
-                                <td><strong>선입금</strong></td>
-                                <td style={{ color: '#0284c7', fontWeight: 600 }}>
-                                  {mySettlementRow.depositAmount > 0
-                                    ? `-${mySettlementRow.depositAmount.toLocaleString()}원`
-                                    : '0원'}
-                                </td>
-                                <td>모임 참가 선입금</td>
-                                <td>
-                                  {mySettlementRow.depositAmount > 0 ? (
-                                    mySettlementRow.depositConfirmed ? (
+                              {/* 선입금 행 (선입금이 있는 모임/인원만 조건부 렌더링) */}
+                              {((mySettlementRow.depositAmount || 0) > 0 || (Number(meeting.advanceDeposit) || 0) > 0) && (
+                                <tr style={{ background: '#f8fafc' }}>
+                                  <td>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                      <span className="platform-badge" style={{ fontSize: '10px', padding: '1px 5px', background: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' }}>
+                                        선입금
+                                      </span>
+                                      <span style={{ fontWeight: 600, color: '#0369a1' }}>모임 선입금</span>
+                                    </div>
+                                  </td>
+                                  <td style={{ color: '#0284c7', fontWeight: 700, textAlign: 'right' }}>
+                                    -{(mySettlementRow.depositAmount || 0).toLocaleString()}원
+                                  </td>
+                                  <td style={{ textAlign: 'center' }}>
+                                    {mySettlementRow.depositConfirmed ? (
                                       <span className="deposit-tag confirmed">컨펌완료 ✓</span>
                                     ) : mySettlementRow.depositPaid ? (
                                       <span className="deposit-tag paid">입금확인중</span>
@@ -3645,62 +3648,86 @@ export default function MeetingDetailPage({
                                       <button
                                         type="button"
                                         className="btn btn-xs btn-outline"
+                                        style={{ padding: '2px 8px', fontSize: '11px', height: '24px' }}
                                         onClick={() => handleToggleDepositPaid(currentUser.uid)}
                                       >
                                         입금완료
                                       </button>
-                                    )
-                                  ) : (
-                                    <span className="sub-meta">해당없음</span>
-                                  )}
-                                </td>
-                              </tr>
-
-                              {/* 차수별 참석 행 */}
-                              {(mySettlementRow.roundBreakdown || []).map((rb) => (
-                                <tr key={rb.roundNumber}>
-                                  <td>{rb.roundNumber}차</td>
-                                  <td>{(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원</td>
-                                  <td>{rb.title || rb.placeName || `${rb.roundNumber}차 모임`}</td>
-                                  <td>
-                                    <span className="deposit-tag confirmed">참석</span>
+                                    )}
                                   </td>
                                 </tr>
-                              ))}
+                              )}
+
+                              {/* 차수별 참석 행 (순수 상호명만 추출) */}
+                              {(mySettlementRow.roundBreakdown || []).map((rb) => {
+                                const pSummary = parsePlaceSummary(rb.placeName || rb.title);
+                                const cleanPlaceName = pSummary.placeName || rb.title || `${rb.roundNumber}차 장소`;
+                                return (
+                                  <tr key={rb.roundNumber}>
+                                    <td>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span className="platform-badge" style={{ fontSize: '10px', padding: '1px 5px' }}>
+                                          {rb.roundNumber}차
+                                        </span>
+                                        <span style={{ fontWeight: 600, color: '#1e293b' }} title={pSummary.address || ''}>
+                                          {cleanPlaceName}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td style={{ textAlign: 'right', fontWeight: 600 }}>
+                                      {(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                      <span className="deposit-tag confirmed" style={{ fontSize: '10.5px' }}>참석</span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
 
                               {/* 찬조/스폰서 할인 */}
                               {(mySettlementRow.sponsorDiscount || 0) > 0 && (
-                                <tr>
-                                  <td>찬조/골든벨</td>
-                                  <td style={{ color: '#16a34a' }}>
+                                <tr style={{ background: '#f0fdf4' }}>
+                                  <td>
+                                    <span style={{ color: '#16a34a', fontWeight: 600 }}>찬조/골든벨 할인</span>
+                                  </td>
+                                  <td style={{ color: '#16a34a', fontWeight: 700, textAlign: 'right' }}>
                                     -{(mySettlementRow.sponsorDiscount || 0).toLocaleString()}원
                                   </td>
-                                  <td>찬조 할인 적용</td>
-                                  <td>적용됨</td>
+                                  <td style={{ textAlign: 'center' }}>
+                                    <span className="sub-meta">적용됨</span>
+                                  </td>
                                 </tr>
                               )}
 
                               {/* 수동 조정 */}
                               {(mySettlementRow.manualAdjustment || 0) !== 0 && (
                                 <tr>
-                                  <td>수동 조정</td>
-                                  <td style={{ color: (mySettlementRow.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a' }}>
+                                  <td>
+                                    <span style={{ color: (mySettlementRow.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a', fontWeight: 600 }}>
+                                      수동 조정
+                                    </span>
+                                  </td>
+                                  <td style={{ color: (mySettlementRow.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a', fontWeight: 700, textAlign: 'right' }}>
                                     {(mySettlementRow.manualAdjustment || 0) > 0 ? '+' : ''}
                                     {(mySettlementRow.manualAdjustment || 0).toLocaleString()}원
                                   </td>
-                                  <td>총무/벙주 수동조정</td>
-                                  <td>반영됨</td>
+                                  <td style={{ textAlign: 'center' }}>
+                                    <span className="sub-meta">반영됨</span>
+                                  </td>
                                 </tr>
                               )}
 
                               {/* 총합계 행 */}
                               <tr style={{ background: '#f1f5f9', fontWeight: 700 }}>
-                                <td>총합계</td>
-                                <td style={{ color: '#1e293b', fontSize: '14px' }}>
+                                <td>
+                                  <strong style={{ color: '#0f172a' }}>
+                                    {(mySettlementRow.netToPay || 0) >= 0 ? '최종 보낼 회비' : '총무에게 환급받을 금액'}
+                                  </strong>
+                                </td>
+                                <td style={{ color: '#0f172a', fontSize: '14px', fontWeight: 800, textAlign: 'right' }}>
                                   {Math.abs(mySettlementRow.netToPay || 0).toLocaleString()}원
                                 </td>
-                                <td>{(mySettlementRow.netToPay || 0) >= 0 ? '최종 보낼 회비' : '총무에게 환급받을 금액'}</td>
-                                <td>
+                                <td style={{ textAlign: 'center' }}>
                                   {mySettlementRow.confirmed ? (
                                     <span className="deposit-tag confirmed">정산 완료 ✓</span>
                                   ) : mySettlementRow.paid ? (
@@ -3709,6 +3736,7 @@ export default function MeetingDetailPage({
                                     <button
                                       type="button"
                                       className="btn btn-xs btn-primary"
+                                      style={{ padding: '2px 8px', fontSize: '11px', height: '24px' }}
                                       onClick={() => handleTogglePaid(currentUser.uid)}
                                     >
                                       입금 완료
@@ -4193,109 +4221,137 @@ export default function MeetingDetailPage({
                                   <table className="settle-data-table">
                                     <thead>
                                       <tr>
-                                        <th>항목</th>
-                                        <th>금액</th>
-                                        <th>내용</th>
-                                        <th>컨펌</th>
+                                        <th style={{ width: '45%' }}>내역</th>
+                                        <th style={{ width: '30%', textAlign: 'right' }}>금액</th>
+                                        <th style={{ width: '25%', textAlign: 'center' }}>상태/컨펌</th>
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {/* 맨 위 라인: 선입금 금액과 컨펌 */}
-                                      <tr style={{ background: '#f8fafc' }}>
-                                        <td><strong>선입금</strong></td>
-                                        <td style={{ color: '#0284c7', fontWeight: 600 }}>
-                                          {row.depositAmount > 0
-                                            ? `-${row.depositAmount.toLocaleString()}원`
-                                            : '0원'}
-                                        </td>
-                                        <td>
-                                          {row.depositAmount > 0
-                                            ? row.depositPaid ? '선입금 완료 제출됨' : '선입금 미입금'
-                                            : '선입금 없음'}
-                                        </td>
-                                        <td>
-                                          {row.depositAmount > 0 ? (
-                                            canManage ? (
-                                              <button
-                                                type="button"
-                                                className={`btn btn-xs ${
-                                                  row.depositConfirmed ? 'btn-outline' : 'btn-primary'
-                                                }`}
-                                                onClick={() => handleToggleDepositConfirm(row.uid)}
-                                              >
-                                                {row.depositConfirmed ? '선입금컨펌 해제' : '선입금 컨펌'}
-                                              </button>
-                                            ) : (
-                                              <span className={`deposit-tag ${row.depositConfirmed ? 'confirmed' : 'paid'}`}>
-                                                {row.depositConfirmed ? '컨펌완료 ✓' : '확인중'}
-                                              </span>
-                                            )
-                                          ) : (
-                                            <span className="sub-meta">-</span>
-                                          )}
-                                        </td>
-                                      </tr>
-
-                                      {/* 차수별 참석 금액 */}
-                                      {(row.roundBreakdown || []).map((rb) => (
-                                        <tr key={rb.roundNumber}>
-                                          <td>{rb.roundNumber}차</td>
-                                          <td>{(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원</td>
-                                          <td>{rb.title || rb.placeName || `${rb.roundNumber}차`}</td>
+                                      {/* 선입금 행 (선입금이 있는 모임/인원만 조건부 렌더링) */}
+                                      {((row.depositAmount || 0) > 0 || (Number(meeting.advanceDeposit) || 0) > 0) && (
+                                        <tr style={{ background: '#f8fafc' }}>
                                           <td>
-                                            <span className="sub-meta">참석</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                              <span className="platform-badge" style={{ fontSize: '10px', padding: '1px 5px', background: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' }}>
+                                                선입금
+                                              </span>
+                                              <span style={{ fontWeight: 600, color: '#0369a1' }}>모임 선입금</span>
+                                            </div>
+                                          </td>
+                                          <td style={{ color: '#0284c7', fontWeight: 700, textAlign: 'right' }}>
+                                            {row.depositAmount > 0
+                                              ? `-${row.depositAmount.toLocaleString()}원`
+                                              : '0원'}
+                                          </td>
+                                          <td style={{ textAlign: 'center' }}>
+                                            {row.depositAmount > 0 ? (
+                                              canManage ? (
+                                                <button
+                                                  type="button"
+                                                  className={`btn btn-xs ${
+                                                    row.depositConfirmed ? 'btn-outline' : 'btn-primary'
+                                                  }`}
+                                                  style={{ padding: '2px 8px', fontSize: '11px', height: '24px' }}
+                                                  onClick={() => handleToggleDepositConfirm(row.uid)}
+                                                >
+                                                  {row.depositConfirmed ? '선입금 해제' : '선입금 컨펌'}
+                                                </button>
+                                              ) : (
+                                                <span className={`deposit-tag ${row.depositConfirmed ? 'confirmed' : 'paid'}`}>
+                                                  {row.depositConfirmed ? '컨펌완료 ✓' : row.depositPaid ? '입금확인중' : '미입금'}
+                                                </span>
+                                              )
+                                            ) : (
+                                              <span className="sub-meta">-</span>
+                                            )}
                                           </td>
                                         </tr>
-                                      ))}
+                                      )}
+
+                                      {/* 차수별 참석 금액 (순수 상호명만 추출) */}
+                                      {(row.roundBreakdown || []).map((rb) => {
+                                        const pSummary = parsePlaceSummary(rb.placeName || rb.title);
+                                        const cleanPlaceName = pSummary.placeName || rb.title || `${rb.roundNumber}차 장소`;
+                                        return (
+                                          <tr key={rb.roundNumber}>
+                                            <td>
+                                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <span className="platform-badge" style={{ fontSize: '10px', padding: '1px 5px' }}>
+                                                  {rb.roundNumber}차
+                                                </span>
+                                                <span style={{ fontWeight: 600, color: '#1e293b' }} title={pSummary.address || ''}>
+                                                  {cleanPlaceName}
+                                                </span>
+                                              </div>
+                                            </td>
+                                            <td style={{ textAlign: 'right', fontWeight: 600 }}>
+                                              {(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                              <span className="deposit-tag confirmed" style={{ fontSize: '10.5px' }}>참석</span>
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
 
                                       {/* 찬조 할인 */}
                                       {(row.sponsorDiscount || 0) > 0 && (
-                                        <tr>
-                                          <td>찬조 할인</td>
-                                          <td style={{ color: '#16a34a' }}>
+                                        <tr style={{ background: '#f0fdf4' }}>
+                                          <td>
+                                            <span style={{ color: '#16a34a', fontWeight: 600 }}>찬조/골든벨 할인</span>
+                                          </td>
+                                          <td style={{ color: '#16a34a', fontWeight: 700, textAlign: 'right' }}>
                                             -{(row.sponsorDiscount || 0).toLocaleString()}원
                                           </td>
-                                          <td>찬조/골든벨 반영</td>
-                                          <td><span className="sub-meta">적용</span></td>
+                                          <td style={{ textAlign: 'center' }}>
+                                            <span className="sub-meta">적용됨</span>
+                                          </td>
                                         </tr>
                                       )}
 
                                       {/* 수동 조정 */}
                                       {(row.manualAdjustment || 0) !== 0 && (
                                         <tr>
-                                          <td>수동 조정</td>
-                                          <td style={{ color: (row.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a' }}>
+                                          <td>
+                                            <span style={{ color: (row.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a', fontWeight: 600 }}>
+                                              수동 조정
+                                            </span>
+                                          </td>
+                                          <td style={{ color: (row.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a', fontWeight: 700, textAlign: 'right' }}>
                                             {(row.manualAdjustment || 0) > 0 ? '+' : ''}
                                             {(row.manualAdjustment || 0).toLocaleString()}원
                                           </td>
-                                          <td>조정 반영</td>
-                                          <td><span className="sub-meta">반영됨</span></td>
+                                          <td style={{ textAlign: 'center' }}>
+                                            <span className="sub-meta">반영됨</span>
+                                          </td>
                                         </tr>
                                       )}
 
                                       {/* 총합계 라인: 금액과 컨펌 */}
                                       <tr style={{ background: '#f1f5f9', fontWeight: 700 }}>
-                                        <td>총합계</td>
-                                        <td style={{ color: '#0f172a', fontSize: '13px' }}>
+                                        <td>
+                                          <strong style={{ color: '#0f172a' }}>
+                                            {(row.netToPay || 0) >= 0 ? '최종 보낼 회비' : '총무에게 환급받을 금액'}
+                                          </strong>
+                                        </td>
+                                        <td style={{ color: '#0f172a', fontSize: '13px', fontWeight: 800, textAlign: 'right' }}>
                                           {Math.abs(row.netToPay || 0).toLocaleString()}원
                                         </td>
-                                        <td>
-                                          {row.paid ? '회비 입금 완료됨' : '입금 대기중'}
-                                        </td>
-                                        <td>
+                                        <td style={{ textAlign: 'center' }}>
                                           {canManage ? (
                                             <button
                                               type="button"
                                               className={`btn btn-xs ${
                                                 row.confirmed ? 'btn-outline' : 'btn-primary'
                                               }`}
+                                              style={{ padding: '2px 8px', fontSize: '11px', height: '24px' }}
                                               onClick={() => handleToggleConfirm(row.uid)}
                                             >
                                               {row.confirmed ? '컨펌 해제' : '컨펌'}
                                             </button>
                                           ) : (
                                             <span className={`deposit-tag ${row.confirmed ? 'confirmed' : 'paid'}`}>
-                                              {row.confirmed ? '컨펌완료 ✓' : '대기'}
+                                              {row.confirmed ? '컨펌완료 ✓' : row.paid ? '입금확인중' : '대기'}
                                             </span>
                                           )}
                                         </td>
