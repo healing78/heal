@@ -140,6 +140,7 @@ export const detectMeetingRegion = (meeting) => {
   const candidates = [
     meeting.region,
     meeting.regionGroup,
+    meeting.title,
     meeting.placeDetail,
     meeting.location,
     ...(Array.isArray(meeting.rounds)

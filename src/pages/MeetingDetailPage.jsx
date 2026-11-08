@@ -241,6 +241,16 @@ export function getOptimizedMediaUrl(item) {
   return item.url || item.thumbUrl || '';
 }
 
+const resolveMeetingRegionLocation = (meeting, regionDetection, settleFallbackRegion) => {
+  if (regionDetection?.recognized) {
+    return regionDetection.matchedKeyword || regionDetection.group?.name || meeting?.location || '';
+  }
+  if (settleFallbackRegion) {
+    return settleFallbackRegion;
+  }
+  return meeting?.region || meeting?.location || '';
+};
+
 const getMeetingDateTimeSortKey = (m) => {
   if (!m) return '';
   const d = m.dateOnly || (m.date ? m.date.slice(0, 10) : '') || '';
@@ -291,7 +301,9 @@ export const getHistoricalScoreInfo = (member, currentMeeting, allMeetings, loca
 
       const otherKey = getMeetingDateTimeSortKey(otherM);
       if (otherKey < currentKey) {
-        const otherScoreInfo = calculateMeetingScoreForMember(member, otherM.location);
+        const otherDet = detectMeetingRegion(otherM);
+        const otherLoc = resolveMeetingRegionLocation(otherM, otherDet);
+        const otherScoreInfo = calculateMeetingScoreForMember(member, otherLoc);
         priorScore += Number(otherScoreInfo.total || otherScoreInfo.score || 1);
         priorCount++;
       }
@@ -1387,9 +1399,7 @@ export default function MeetingDetailPage({
         ].filter(Boolean)
       )
     );
-    const resolvedLoc = regionDetection.recognized
-      ? regionDetection.matchedKeyword
-      : settleFallbackRegion;
+    const resolvedLoc = resolveMeetingRegionLocation(meeting, regionDetection, settleFallbackRegion);
     await onSettleMeeting(meeting.id, finalUids, resolvedLoc);
   };
 
@@ -1784,7 +1794,7 @@ export default function MeetingDetailPage({
     displayAttendeeUids.forEach((uid) => {
       const m = members.find((mem) => mem.uid === uid);
       if (!m) return;
-      const resolvedLoc = regionDetection.region || meeting.location;
+      const resolvedLoc = resolveMeetingRegionLocation(meeting, regionDetection, settleFallbackRegion);
       const hist = getHistoricalScoreInfo(m, meeting, allMeetings, resolvedLoc);
       if (!hist) return;
 
@@ -1806,7 +1816,8 @@ export default function MeetingDetailPage({
   }, [
     displayAttendeeUids,
     members,
-    regionDetection.region,
+    regionDetection,
+    settleFallbackRegion,
     meeting,
     allMeetings
   ]);
@@ -5595,7 +5606,7 @@ export default function MeetingDetailPage({
                     const m = members.find((mem) => mem.uid === uid);
                     if (!m) return null;
                     const returnTime = safeReturns[uid];
-                    const resolvedLoc = regionDetection.region || meeting.location;
+                    const resolvedLoc = resolveMeetingRegionLocation(meeting, regionDetection, settleFallbackRegion);
                     const hist = getHistoricalScoreInfo(m, meeting, allMeetings, resolvedLoc);
                     if (!hist) return null;
                     const { beforeScore, afterScore, isRookiePromotion, isBadgePromoted, afterBadge, scoreInfo } = hist;
