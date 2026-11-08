@@ -103,6 +103,22 @@ const sanitizeMember = (m) => {
       gender: '여'
     };
   }
+  // 벙 참석 0회 회원의 role이 Member로 오분류되어 있는 경우 커뮤니티 규칙에 따라 Rookie(신입)로 자동 보정
+  const isSpecial = [
+    'Leader',
+    'Deputy',
+    'VIP',
+    'OnLeave',
+    'Withdrawn',
+    'Wanderer',
+    'Expelled'
+  ].includes(m.role);
+  if (!isSpecial && (m.attendanceCount === 0 || !m.attendanceCount) && m.role === 'Member') {
+    return {
+      ...m,
+      role: 'Rookie'
+    };
+  }
   return m;
 };
 
@@ -914,7 +930,19 @@ export const settleMeetingWithScores = async (
       date: todayStr
     });
 
-    const nextRole = member.role === 'Rookie' ? 'Member' : member.role;
+    const isSpecialRole = [
+      'Leader',
+      'Deputy',
+      'VIP',
+      'OnLeave',
+      'Withdrawn',
+      'Wanderer',
+      'Expelled'
+    ].includes(member.role);
+    const isRookie =
+      !isSpecialRole &&
+      (member.role === 'Rookie' || (member.attendanceCount || 0) === 0);
+    const nextRole = isRookie ? 'Member' : member.role;
     return {
       ...member,
       role: nextRole,
@@ -926,12 +954,47 @@ export const settleMeetingWithScores = async (
     };
   });
 
+  const memberScoreSnapshots = {};
+  for (const uid of confirmedUids) {
+    const mem = currentMembers.find((m) => m.uid === uid);
+    if (!mem) continue;
+    const calc = calculateMeetingScoreForMember(mem, resolvedLocation);
+    const earned = Number(calc.total || calc.score || 1);
+    const beforeScore = getMemberTotalScore(mem);
+    const afterScore = beforeScore + earned;
+    const isSpecial = ['Leader', 'Deputy', 'VIP', 'OnLeave', 'Withdrawn', 'Wanderer', 'Expelled'].includes(mem.role);
+    const isRookie = !isSpecial && (mem.role === 'Rookie' || (mem.attendanceCount || 0) === 0);
+    memberScoreSnapshots[uid] = {
+      beforeScore,
+      afterScore,
+      earned,
+      isRookiePromotion: isRookie
+    };
+  }
+
+  const rookiePromotedUids = confirmedUids.filter((uid) => {
+    const mem = currentMembers.find((m) => m.uid === uid);
+    if (!mem) return false;
+    const isSpecial = [
+      'Leader',
+      'Deputy',
+      'VIP',
+      'OnLeave',
+      'Withdrawn',
+      'Wanderer',
+      'Expelled'
+    ].includes(mem.role);
+    return !isSpecial && (mem.role === 'Rookie' || (mem.attendanceCount || 0) === 0);
+  });
+
   const nextMeetings = currentMeetings.map((m) =>
     m.id === meetingId
       ? {
           ...m,
           status: 'settled',
           confirmedParticipants: confirmedUids,
+          rookiePromotedUids,
+          memberScoreSnapshots,
           safeReturns: nextSafeReturns,
           paymentStatuses: nextPaymentStatuses,
           depositStatuses: nextDepositStatuses,

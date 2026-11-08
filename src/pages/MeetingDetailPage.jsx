@@ -241,6 +241,129 @@ export function getOptimizedMediaUrl(item) {
   return item.url || item.thumbUrl || '';
 }
 
+const getMeetingDateTimeSortKey = (m) => {
+  if (!m) return '';
+  const d = m.dateOnly || (m.date ? m.date.slice(0, 10) : '') || '';
+  const t = m.startTime || (m.date && m.date.length > 11 ? m.date.slice(11, 16) : '') || '00:00';
+  return `${d} ${t} ${String(m.id || '')}`;
+};
+
+export const getHistoricalScoreInfo = (member, currentMeeting, allMeetings, location) => {
+  if (!member) return null;
+  const isSettled = currentMeeting?.status === 'settled';
+  const scoreInfo = calculateMeetingScoreForMember(member, location || currentMeeting?.location);
+  const earned = Number(scoreInfo.total || scoreInfo.score || 1);
+
+  // 1. Saved Snapshot in meeting record (highest priority if previously stored)
+  if (currentMeeting?.memberScoreSnapshots?.[member.uid]) {
+    const snap = currentMeeting.memberScoreSnapshots[member.uid];
+    const beforeBadge = getTierBadgeByScore(snap.beforeScore);
+    const afterBadge = getTierBadgeByScore(snap.afterScore);
+    const isBadgePromoted = Boolean(
+      beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
+    );
+    const isRookiePromotion = Boolean(
+      snap.isRookiePromotion ?? (snap.beforeScore === 0 && snap.afterScore >= 1)
+    );
+    return {
+      beforeScore: snap.beforeScore,
+      afterScore: snap.afterScore,
+      earned: snap.earned || earned,
+      beforeBadge,
+      afterBadge,
+      isBadgePromoted,
+      isRookiePromotion,
+      scoreInfo
+    };
+  }
+
+  // 2. Timeline Historical Reconstruction for all existing past settled meetings
+  if (isSettled && Array.isArray(allMeetings) && allMeetings.length > 0) {
+    const currentKey = getMeetingDateTimeSortKey(currentMeeting);
+    const currentId = String(currentMeeting?.id || '');
+    let priorScore = 0;
+    let priorCount = 0;
+
+    for (const otherM of allMeetings) {
+      if (!otherM || otherM.status !== 'settled' || String(otherM.id) === currentId) continue;
+      const participants = otherM.confirmedParticipants || [];
+      if (!participants.includes(member.uid)) continue;
+
+      const otherKey = getMeetingDateTimeSortKey(otherM);
+      if (otherKey < currentKey) {
+        const otherScoreInfo = calculateMeetingScoreForMember(member, otherM.location);
+        priorScore += Number(otherScoreInfo.total || otherScoreInfo.score || 1);
+        priorCount++;
+      }
+    }
+
+    const beforeScore = priorScore;
+    const afterScore = beforeScore + earned;
+    const beforeBadge = getTierBadgeByScore(beforeScore);
+    const afterBadge = getTierBadgeByScore(afterScore);
+    const isBadgePromoted = Boolean(
+      beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
+    );
+
+    const isSpecialRole = [
+      'Leader',
+      'Deputy',
+      'VIP',
+      'OnLeave',
+      'Withdrawn',
+      'Wanderer',
+      'Expelled'
+    ].includes(member.role);
+    const isSavedRookie = Array.isArray(currentMeeting?.rookiePromotedUids) && currentMeeting.rookiePromotedUids.includes(member.uid);
+    const isRookiePromotion = isSavedRookie || (!isSpecialRole && priorCount === 0);
+
+    return {
+      beforeScore,
+      afterScore,
+      earned,
+      beforeBadge,
+      afterBadge,
+      isBadgePromoted,
+      isRookiePromotion,
+      scoreInfo
+    };
+  }
+
+  // 3. Fallback for unsettled (preview) or missing meetings array
+  const currentTotal = getMemberTotalScore(member);
+  const beforeScore = isSettled ? Math.max(0, currentTotal - earned) : currentTotal;
+  const afterScore = beforeScore + earned;
+  const beforeBadge = getTierBadgeByScore(beforeScore);
+  const afterBadge = getTierBadgeByScore(afterScore);
+  const isBadgePromoted = Boolean(
+    beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
+  );
+
+  const isSpecialRole = [
+    'Leader',
+    'Deputy',
+    'VIP',
+    'OnLeave',
+    'Withdrawn',
+    'Wanderer',
+    'Expelled'
+  ].includes(member.role);
+  const currentAtt = Number(member.attendanceCount || 0);
+  const beforeAtt = isSettled ? Math.max(0, currentAtt - 1) : currentAtt;
+  const isRookiePromotion = !isSpecialRole && (member.role === 'Rookie' || beforeAtt === 0);
+
+  return {
+    beforeScore,
+    afterScore,
+    earned,
+    beforeBadge,
+    afterBadge,
+    isBadgePromoted,
+    isRookiePromotion,
+    scoreInfo
+  };
+};
+
 export default function MeetingDetailPage({
   meeting,
   allMeetings = [],
@@ -1661,36 +1784,21 @@ export default function MeetingDetailPage({
     displayAttendeeUids.forEach((uid) => {
       const m = members.find((mem) => mem.uid === uid);
       if (!m) return;
-      const scoreInfo = calculateMeetingScoreForMember(
-        m,
-        regionDetection.region || meeting.location
-      );
-      const earned = Number(scoreInfo.score || 1);
-      const isSettled = meeting.status === 'settled';
-      const currentScore = getMemberTotalScore(m);
-      const beforeScore = isSettled
-        ? Math.max(0, currentScore - earned)
-        : currentScore;
-      const afterScore = beforeScore + earned;
+      const resolvedLoc = regionDetection.region || meeting.location;
+      const hist = getHistoricalScoreInfo(m, meeting, allMeetings, resolvedLoc);
+      if (!hist) return;
 
-      const beforeBadge = getTierBadgeByScore(beforeScore);
-      const afterBadge = getTierBadgeByScore(afterScore);
-      const isBadgePromoted = Boolean(
-        beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
-      );
-      const isRookiePromotion = Boolean(m.role === 'Rookie' && afterScore >= 1);
-
-      if (isRookiePromotion || isBadgePromoted) {
+      if (hist.isRookiePromotion || hist.isBadgePromoted) {
         list.push({
           uid: m.uid,
           name: m.realName,
-          nickname: m.nickname,
-          isRookiePromotion,
-          isBadgePromoted,
-          beforeBadge,
-          afterBadge,
-          beforeScore,
-          afterScore
+          formattedNickname: formatMemberNickname(m),
+          isRookiePromotion: hist.isRookiePromotion,
+          isBadgePromoted: hist.isBadgePromoted,
+          beforeBadge: hist.beforeBadge,
+          afterBadge: hist.afterBadge,
+          beforeScore: hist.beforeScore,
+          afterScore: hist.afterScore
         });
       }
     });
@@ -1699,10 +1807,9 @@ export default function MeetingDetailPage({
     displayAttendeeUids,
     members,
     regionDetection.region,
-    meeting.location,
-    meeting.status
+    meeting,
+    allMeetings
   ]);
-
   // Attendees list strictly for round payer & golden bell selects
   const attendeeMembers = useMemo(() => {
     const list = displayAttendeeUids
@@ -5442,7 +5549,7 @@ export default function MeetingDetailPage({
                           }}
                         >
                           <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b' }}>
-                            {c.name} {c.nickname ? `(${c.nickname})` : ''}
+                            {c.formattedNickname || c.name}
                           </span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {c.isRookiePromotion && (
@@ -5488,17 +5595,10 @@ export default function MeetingDetailPage({
                     const m = members.find((mem) => mem.uid === uid);
                     if (!m) return null;
                     const returnTime = safeReturns[uid];
-                    const scoreInfo = calculateMeetingScoreForMember(
-                      m,
-                      regionDetection.region || meeting.location
-                    );
-                    const earned = Number(scoreInfo.score || 1);
-                    const isSettled = meeting.status === 'settled';
-                    const currentScore = getMemberTotalScore(m);
-                    const beforeScore = isSettled
-                      ? Math.max(0, currentScore - earned)
-                      : currentScore;
-                    const afterScore = beforeScore + earned;
+                    const resolvedLoc = regionDetection.region || meeting.location;
+                    const hist = getHistoricalScoreInfo(m, meeting, allMeetings, resolvedLoc);
+                    if (!hist) return null;
+                    const { beforeScore, afterScore, isRookiePromotion, isBadgePromoted, afterBadge, scoreInfo } = hist;
                     const isMe = uid === currentUser?.uid;
                     const isOp =
                       m.role === 'Leader' ||
@@ -5572,6 +5672,36 @@ export default function MeetingDetailPage({
                               style={{ fontSize: '10.5px', whiteSpace: 'nowrap' }}
                             >
                               {scoreInfo.label}
+                            </span>
+                          )}
+                          {isRookiePromotion && (
+                            <span
+                              className="platform-badge"
+                              style={{
+                                fontSize: '10px',
+                                padding: '1px 5px',
+                                background: '#dcfce7',
+                                color: '#15803d',
+                                borderColor: '#86efac',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              정회원 승급 🎊
+                            </span>
+                          )}
+                          {isBadgePromoted && (
+                            <span
+                              className="platform-badge"
+                              style={{
+                                fontSize: '10px',
+                                padding: '1px 5px',
+                                background: '#fef3c7',
+                                color: '#b45309',
+                                borderColor: '#fde047',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {afterBadge?.label || afterBadge?.name} ⭐
                             </span>
                           )}
                         </div>

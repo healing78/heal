@@ -5889,7 +5889,7 @@ export const INITIAL_MEMBERS = [
     "realName": "해븐",
     "expeditionScore": 0,
     "uid": "kakao:2136",
-    "role": "Member",
+    "role": "Rookie",
     "customBadge": "",
     "eventScore": 0,
     "maritalStatus": "divorced",
