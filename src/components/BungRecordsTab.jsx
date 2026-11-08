@@ -805,7 +805,7 @@ export default function BungRecordsTab({
                 type="button"
                 className="btn btn-outline"
                 onClick={() => setDisplayLimit((prev) => prev + 50)}
-                style={{ fontSize: '13px', padding: '8px 24px', borderRadius: '20px' }}
+                style={{ fontSize: '13px', padding: '8px 24px', borderRadius: 'var(--radius-base)' }}
               >
                 더보기 ({filteredMeetings.length - visibleMeetings.length}건 남음) ▼
               </button>

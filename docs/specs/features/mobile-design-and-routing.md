@@ -59,6 +59,22 @@ Healing78 커뮤니티 관리 시스템의 **3종 멀티 테마 시스템(① �
 - 카카오톡 미리보기 스크래퍼 봇은 JavaScript를 실행하지 않고 정적 HTML의 `<meta property="og:*">` 태그를 읽습니다.
 - 이를 위해 `npm run build` 시점에 `scripts/generate-route-meta.mjs`가 실행되어 `dist/meetings/index.html`, `dist/ranking/index.html`, `dist/nickname/index.html`, `dist/profile/index.html`, `dist/login/index.html`, `dist/admin/index.html` 파일을 각각 생성하고 하위 주소별 맞춤 `<title>`, `og:title`, `og:description`, `og:image`를 주입합니다.
 
+### 5. 뱃지·칩 컴포넌트 디자인 표준화 규격 (알약형 금지 및 라운드형 사각형 통일)
+* **알약형(Pill, `border-radius: 9999px / 999px`) 사용 전면 금지:**
+  * 모든 테마(`mono`, `excel`, `rose`)에서 완전한 타원형/알약 모양의 뱃지는 시각적 부조화를 방지하기 위해 사용하지 않습니다.
+  * 로즈 테마(`[data-theme='rose']`)의 `--radius-pill` 토큰을 기존 `999px`에서 **무채색 테마와 동일한 `6px` 라운드형 사각형**으로 전면 교체하였습니다.
+* **테마별 뱃지 반경 토큰 규칙:**
+  * `mono` (오피스 모노): `--radius-pill: 6px;`, `--radius-base: 6px;` (표준 라운드형 사각형)
+  * `excel` (엑셀 스텔스): `--radius-pill: 2px;`, `--radius-base: 2px;` (정갈한 직각 셀 사각형)
+  * `rose` (로즈 테마): `--radius-pill: 6px;`, `--radius-base: 6px;` (통일된 라운드형 사각형)
+* **적용 대상 컴포넌트:**
+  * 모임 상태 뱃지 (`.status-pill`), 지역/분류 뱃지 (`.location-pill`, `.type-pill`)
+  * 벙대기실 참석/대기/D-day 뱃지 (`.lounge-attend-badge`, `.lounge-waiting-badge`, `.lounge-dday-badge`)
+  * 플랫폼/차수 뱃지 (`.platform-badge`)
+  * 정산 참석자 이름 뱃지 (`.settle-name-badge`), 마이크로 칩 (`.settle-person-micro-chip`)
+  * 참석 액션 버튼 및 서브탭 버튼 (`.detail-attend-pill`, `.subtab-btn`)
+  * 모든 신규 뱃지/칩 컴포넌트 작성 시 하드코딩된 `999px`/`9999px` 대신 반드시 `var(--radius-pill)` 또는 `var(--radius-base)`를 사용해야 합니다.
+
 ## Data Schema & API
 
 ### Route Meta Helper Interface (`src/core/routeMeta.js`)

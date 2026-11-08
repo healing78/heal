@@ -2905,7 +2905,7 @@ export default function MeetingDetailPage({
                             style={{
                               padding: '4px 10px',
                               fontSize: '12px',
-                              borderRadius: '14px',
+                              borderRadius: 'var(--radius-base)',
                               fontWeight: 600,
                               lineHeight: '1.2'
                             }}
@@ -3238,7 +3238,7 @@ export default function MeetingDetailPage({
                               style={{
                                 padding: '4px 8px',
                                 fontSize: '11.5px',
-                                borderRadius: '12px',
+                                borderRadius: 'var(--radius-base)',
                                 fontWeight: 600
                               }}
                               onClick={(e) => {
