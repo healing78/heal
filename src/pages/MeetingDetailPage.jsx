@@ -425,6 +425,9 @@ export default function MeetingDetailPage({
   const [personalSearchQuery, setPersonalSearchQuery] = useState('');
   const [personalSortMode, setPersonalSortMode] = useState('default');
 
+  // 정산 내역 참석자 팝오버 열림 상태 (차수번호 또는 사전지출ID 등)
+  const [openAttendeePopoverRound, setOpenAttendeePopoverRound] = useState(null);
+
   // 찬조 추가 인라인 폼 & 검색
   const [showSponsorInlineForm, setShowSponsorInlineForm] = useState(false);
   const [inlineSponsorUid, setInlineSponsorUid] = useState('');
@@ -3924,48 +3927,63 @@ export default function MeetingDetailPage({
 
                   {isSettleOverviewAccordionOpen && (
                     <div className="settle-accordion-body lounge-unified-stack">
-                      {/* [산출식 시각화] 방안 A: 인포그래픽 수식 바 */}
-                      <div className="settle-formula-bar">
-                        <div className="settle-formula-card is-rounds">
-                          <span className="settle-formula-label">차수 합산</span>
-                          <span className="settle-formula-val">
-                            {(settlement.totalRoundCost || settlement.totalGrossCost || 0).toLocaleString()}원
-                          </span>
-                        </div>
-                        <span className="settle-formula-op">+</span>
-                        <div className="settle-formula-card is-pre">
-                          <span className="settle-formula-label">사전 지출</span>
-                          <span className="settle-formula-val">
-                            {(settlement.totalPreExpense || 0).toLocaleString()}원
-                          </span>
-                        </div>
-                        <span className="settle-formula-op">-</span>
-                        <div className="settle-formula-card is-sponsor">
-                          <span className="settle-formula-label">찬조금</span>
-                          <span className="settle-formula-val" style={{ color: '#15803d' }}>
-                            -{(settlement.totalSponsorship || 0).toLocaleString()}원
-                          </span>
-                        </div>
-                        <span className="settle-formula-op">-</span>
-                        <div className="settle-formula-card is-deposit">
-                          <span className="settle-formula-label">선입금 총액</span>
-                          <span className="settle-formula-val" style={{ color: '#0369a1' }}>
-                            -{(settlement.totalDepositAmount || 0).toLocaleString()}원
-                          </span>
-                        </div>
-                        <span className="settle-formula-op">=</span>
-                        <div className="settle-formula-card is-result">
-                          <span className="settle-formula-label">1/N 정산액</span>
-                          <span className="settle-formula-val">
-                            {Math.max(
-                              0,
-                              settlement.totalSharedCost -
-                                settlement.totalSponsorship -
-                                (settlement.totalDepositAmount || 0)
-                            ).toLocaleString()}원
-                          </span>
-                        </div>
-                      </div>
+                      {/* [산출식 시각화] 0원 항목 스마트 숨김 & 가로 스크롤 없는 반응형 컴팩트 수식 바 */}
+                      {(() => {
+                        const roundCost = settlement.totalRoundCost || settlement.totalGrossCost || 0;
+                        const preExp = settlement.totalPreExpense || 0;
+                        const sponsor = settlement.totalSponsorship || 0;
+                        const deposit = settlement.totalDepositAmount || 0;
+                        const netTotal = Math.max(0, settlement.totalSharedCost - sponsor - deposit);
+
+                        return (
+                          <div className="settle-formula-bar">
+                            <div className="settle-formula-card is-rounds">
+                              <span className="settle-formula-label">차수 합산</span>
+                              <span className="settle-formula-val">{roundCost.toLocaleString()}원</span>
+                            </div>
+
+                            {preExp > 0 && (
+                              <>
+                                <span className="settle-formula-op">+</span>
+                                <div className="settle-formula-card is-pre">
+                                  <span className="settle-formula-label">사전 지출</span>
+                                  <span className="settle-formula-val">{preExp.toLocaleString()}원</span>
+                                </div>
+                              </>
+                            )}
+
+                            {sponsor > 0 && (
+                              <>
+                                <span className="settle-formula-op">-</span>
+                                <div className="settle-formula-card is-sponsor">
+                                  <span className="settle-formula-label">찬조금</span>
+                                  <span className="settle-formula-val" style={{ color: '#15803d' }}>
+                                    -{sponsor.toLocaleString()}원
+                                  </span>
+                                </div>
+                              </>
+                            )}
+
+                            {deposit > 0 && (
+                              <>
+                                <span className="settle-formula-op">-</span>
+                                <div className="settle-formula-card is-deposit">
+                                  <span className="settle-formula-label">선입금</span>
+                                  <span className="settle-formula-val" style={{ color: '#0369a1' }}>
+                                    -{deposit.toLocaleString()}원
+                                  </span>
+                                </div>
+                              </>
+                            )}
+
+                            <span className="settle-formula-op">=</span>
+                            <div className="settle-formula-card is-result">
+                              <span className="settle-formula-label">1/N 정산액</span>
+                              <span className="settle-formula-val">{netTotal.toLocaleString()}원</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* 테이블 정렬 툴바 */}
                       <div className="settle-table-toolbar">
@@ -3997,18 +4015,18 @@ export default function MeetingDetailPage({
                         </div>
                       </div>
 
-                      {/* 모임 전체 정산표 (1행: 항목/장소, 금액, 비고 / 2행: 참석자 명단) */}
+                      {/* 모임 전체 정산표 (상호명 1줄 고정 & 방안 1: 참석자 1줄 요약 + 원터치 팝오버) */}
                       <div className="settle-table-wrap">
                         <table className="settle-data-table">
                           <thead>
                             <tr>
-                              <th style={{ width: '48%' }}>항목 / 장소</th>
-                              <th style={{ width: '26%', textAlign: 'right' }}>금액</th>
-                              <th style={{ width: '26%', textAlign: 'center' }}>비고</th>
+                              <th style={{ width: '56%' }}>항목 / 장소</th>
+                              <th style={{ width: '30%', textAlign: 'right' }}>금액</th>
+                              <th style={{ width: '14%', textAlign: 'center' }}>비고</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {/* 차수별 2행 구조 (1행: 차수/장소+금액+비고, 2행: 참석자 목록) */}
+                            {/* 차수별 2행 구조 (1행: 상호명 1줄 고정 / 2행: 방안 1 참석자 1줄 요약 팝오버) */}
                             {(() => {
                               const baseList = (rounds || []).map((round, idx) => ({
                                 round,
@@ -4029,22 +4047,43 @@ export default function MeetingDetailPage({
                                 const noteKey = `round_${roundNum}`;
                                 const pSummary = parsePlaceSummary(round.placeName || round.title);
                                 const cleanPlaceName = pSummary.placeName || round.title || `${roundNum}차 장소`;
+                                const isPopoverOpen = openAttendeePopoverRound === `round_${roundNum}`;
 
                                 return (
                                   <React.Fragment key={`round-frag-${roundNum}`}>
-                                    {/* 1행: 차수, 장소, 금액, 비고 */}
+                                    {/* 1행: 차수, 장소(1줄 고정), 금액, 비고 */}
                                     <tr className="settle-row-main" style={{ background: '#ffffff' }}>
-                                      <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                          <span className="platform-badge" style={{ fontSize: '10px', padding: '1px 6px' }}>
+                                      <td style={{ minWidth: 0, overflow: 'hidden' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, overflow: 'hidden' }}>
+                                          <span
+                                            className="platform-badge"
+                                            style={{
+                                              fontSize: '10px',
+                                              padding: '1px 6px',
+                                              whiteSpace: 'nowrap',
+                                              flexShrink: 0,
+                                              minWidth: '32px'
+                                            }}
+                                          >
                                             {roundNum}차
                                           </span>
-                                          <span style={{ fontWeight: 700, color: '#1e293b' }} title={pSummary.address || ''}>
+                                          <span
+                                            style={{
+                                              fontWeight: 700,
+                                              color: '#1e293b',
+                                              fontSize: '13px',
+                                              whiteSpace: 'nowrap',
+                                              overflow: 'hidden',
+                                              textOverflow: 'ellipsis',
+                                              wordBreak: 'keep-all'
+                                            }}
+                                            title={pSummary.address || cleanPlaceName}
+                                          >
                                             {cleanPlaceName}
                                           </span>
                                         </div>
                                       </td>
-                                      <td style={{ textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>
+                                      <td style={{ textAlign: 'right', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
                                         {roundCost.toLocaleString()}원
                                       </td>
                                       <td style={{ textAlign: 'center' }}>
@@ -4052,38 +4091,74 @@ export default function MeetingDetailPage({
                                           <input
                                             type="text"
                                             className="settle-note-input"
-                                            placeholder="비고 입력"
+                                            placeholder="비고"
                                             defaultValue={meeting.settlementNotes?.[noteKey] || ''}
                                             onBlur={(e) => handleUpdateSettlementNote(noteKey, e.target.value)}
-                                            style={{ width: '100%', fontSize: '11px', height: '26px' }}
+                                            style={{ width: '100%', fontSize: '10.5px', height: '24px', padding: '1px 4px', textAlign: 'center' }}
                                           />
                                         ) : (
-                                          <span className="sub-meta" style={{ fontSize: '11px' }}>
+                                          <span className="sub-meta" style={{ fontSize: '10.5px' }}>
                                             {meeting.settlementNotes?.[noteKey] || '-'}
                                           </span>
                                         )}
                                       </td>
                                     </tr>
 
-                                    {/* 2행: 참석자 목록 */}
+                                    {/* 2행: 방안 1 적용 (1줄 요약 칩 + 클릭 시 전체 명단 팝오버) */}
                                     <tr className="settle-row-sub" style={{ background: '#ffffff' }}>
-                                      <td colSpan={3}>
-                                        <div className="settle-attendee-list-inline">
-                                          <span className="settle-attendee-count-chip">
-                                            참석 {attendees.length}명
-                                          </span>
-                                          {attendees.length > 0 ? (
-                                            attendees.map((att) => (
-                                              <span
-                                                key={att.uid}
-                                                className="settle-name-badge"
-                                                style={{ fontSize: '10.5px', padding: '1px 6px' }}
-                                              >
-                                                {att.realName}
-                                              </span>
-                                            ))
-                                          ) : (
-                                            <span className="sub-meta" style={{ fontSize: '10.5px' }}>참석자 없음</span>
+                                      <td colSpan={3} style={{ padding: '3px 10px 8px 10px' }}>
+                                        <div style={{ position: 'relative' }}>
+                                          <div
+                                            className="settle-attendee-trigger"
+                                            onClick={() => {
+                                              if (attendees.length > 0) {
+                                                setOpenAttendeePopoverRound(isPopoverOpen ? null : `round_${roundNum}`);
+                                              }
+                                            }}
+                                          >
+                                            <span className="settle-attendee-count-chip">
+                                              참석 {attendees.length}명
+                                            </span>
+                                            <span className="settle-attendee-summary-text">
+                                              {attendees.length === 0
+                                                ? '참석자 없음'
+                                                : attendees.length <= 3
+                                                ? attendees.map((a) => a.realName).join(', ')
+                                                : `${attendees.slice(0, 3).map((a) => a.realName).join(', ')} 외 ${attendees.length - 3}명 ▸`}
+                                            </span>
+                                          </div>
+
+                                          {/* 참석자 전체 명단 팝오버 */}
+                                          {isPopoverOpen && attendees.length > 0 && (
+                                            <div className="settle-attendee-popover">
+                                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                <strong style={{ fontSize: '12px', color: '#1e293b' }}>
+                                                  {roundNum}차 참석자 명단 ({attendees.length}명)
+                                                </strong>
+                                                <button
+                                                  type="button"
+                                                  className="btn btn-xs btn-outline"
+                                                  style={{ height: '20px', padding: '0 6px', fontSize: '10px' }}
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setOpenAttendeePopoverRound(null);
+                                                  }}
+                                                >
+                                                  닫기 ✕
+                                                </button>
+                                              </div>
+                                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '180px', overflowY: 'auto' }}>
+                                                {attendees.map((att) => (
+                                                  <span
+                                                    key={att.uid}
+                                                    className="settle-name-badge"
+                                                    style={{ fontSize: '11px', padding: '2px 8px' }}
+                                                  >
+                                                    {att.realName}
+                                                  </span>
+                                                ))}
+                                              </div>
+                                            </div>
                                           )}
                                         </div>
                                       </td>
