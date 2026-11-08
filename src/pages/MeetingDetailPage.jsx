@@ -3792,7 +3792,7 @@ export default function MeetingDetailPage({
                   )}
 
                   {isSettleOverviewAccordionOpen && (
-                    <div className="settle-accordion-body stack-gap">
+                    <div className="settle-accordion-body lounge-unified-stack">
                       {/* 기존 3개 요약 카드 (총 지출, 골든벨/찬조, 1/N 대상액) */}
                       <div className="preview-metrics">
                         <div className="metric-box">
@@ -4124,7 +4124,7 @@ export default function MeetingDetailPage({
                   </div>
 
                   {isPersonalListAccordionOpen && (
-                    <div className="settle-accordion-body stack-gap" style={{ padding: '12px' }}>
+                    <div className="settle-accordion-body lounge-unified-stack" style={{ padding: '12px' }}>
                       {settlement.participantRows.map((row) => {
                         const m = members.find((mem) => mem.uid === row.uid);
                         if (!m) return null;
@@ -4573,7 +4573,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 4: 📸 앨범 (미디어 갤러리 & 랜덤 박스 잠금 해제) */}
             {loungeTab === 'album' && (
-              <div className="lounge-tab-content-wrap stack-gap">
+              <div className="lounge-tab-content-wrap lounge-unified-stack">
                 {canViewAlbum ? (
                   <>
                     <div className="album-header-bar">
