@@ -103,6 +103,19 @@ const sanitizeMember = (m) => {
       gender: '여'
     };
   }
+  // '써니' 회원의 경우 원천 데이터 매핑 오차로 인한 프로필(목포 / 돌 / 남) 자동 보정
+  if (
+    (m.uid === 'kakao:1050' || m.realName === '써니') &&
+    (m.city !== '목포' || m.maritalStatus !== 'divorced' || m.gender !== '남')
+  ) {
+    return {
+      ...m,
+      city: '목포',
+      homeCity: '목포',
+      maritalStatus: 'divorced',
+      gender: '남'
+    };
+  }
   // 벙 참석 0회 회원의 role이 Member로 오분류되어 있는 경우 커뮤니티 규칙에 따라 Rookie(신입)로 자동 보정
   const isSpecial = [
     'Leader',
