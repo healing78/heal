@@ -3110,7 +3110,7 @@ export default function MeetingDetailPage({
             {/* TAB 1: 장소 (Accordion Cards on Chat Room #AFC1CF Background) */}
             {loungeTab === 'rounds' && (
               <div className="lounge-tab-content-wrap lounge-rounds-wrap lounge-unified-stack">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {rounds.map((r, idx) => {
                     const rSummary = settlement.roundSummaries[idx] || {};
                     const rParticipants = Array.isArray(r.participants)
