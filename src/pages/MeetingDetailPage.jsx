@@ -7,6 +7,7 @@ import {
   detectMeetingRegion,
   detectRegionFromText,
   formatMemberNickname,
+  getTierBadgeByScore,
   isAdminUser,
   REGION_GROUPS
 } from '../core/communityRules';
@@ -255,6 +256,7 @@ export default function MeetingDetailPage({
   onDeleteMeeting,
   onUpdateMemberProfile,
   onSettleMeeting,
+  onRollbackMeeting,
   onNavigateTab
 }) {
   const isBungMeeting = meeting.requestAttendance !== false;
@@ -484,7 +486,28 @@ export default function MeetingDetailPage({
   };
 
   const adminUser = isAdminUser(currentUser, communityConfig);
-  const canManage = canManageMeeting(currentUser, meeting, communityConfig);
+  // 방장만 일정 삭제 권한 소유 (부방장은 삭제 불가, 수정만 가능)
+  const isLeader = Boolean(
+    currentUser && (currentUser.role === 'Leader' || currentUser.uid === communityConfig?.leaderUid)
+  );
+  const isMeetingSettled = meeting.status === 'settled';
+  // 마감(settled) 시 벙주는 수정/삭제 불가 및 버튼 제거, 오직 운영진(adminUser)만 관리 가능
+  const canManage = isMeetingSettled
+    ? adminUser
+    : canManageMeeting(currentUser, meeting, communityConfig);
+
+  // 마감된 벙대기실에서 운영진이 [운영진 수정]을 눌렀을 때 마감 롤백 후 재마감 가능 상태로 전환 (A2 결정 사항)
+  const handleAdminReopenForEdit = async () => {
+    if (!adminUser || !isMeetingSettled || !onRollbackMeeting) return;
+    if (
+      !window.confirm(
+        '마감된 벙을 다시 오픈하여 수정하시겠습니까?\n\n(참석자들에게 이미 지급된 점수가 회수/롤백되며, 운영진이 수정한 후 다시 최종 마감할 수 있습니다.)'
+      )
+    ) {
+      return;
+    }
+    await onRollbackMeeting(meeting.id);
+  };
   const applicants = meeting.applicants || [];
   const confirmedList = meeting.confirmedParticipants || [];
   const isApplied = applicants.includes(currentUser?.uid);
@@ -1608,6 +1631,77 @@ export default function MeetingDetailPage({
     )
   );
 
+  // 마감탭 전용 정렬: 1순위 본인, 2순위 운영진, 3순위 가나다순
+  const sortedClosingAttendeeUids = useMemo(() => {
+    return [...displayAttendeeUids].sort((a, b) => {
+      if (a === currentUser?.uid) return -1;
+      if (b === currentUser?.uid) return 1;
+      const ma = members.find((m) => m.uid === a);
+      const mb = members.find((m) => m.uid === b);
+      const isOpA =
+        ma?.role === 'Leader' ||
+        ma?.role === 'Deputy' ||
+        ma?.uid === communityConfig?.leaderUid;
+      const isOpB =
+        mb?.role === 'Leader' ||
+        mb?.role === 'Deputy' ||
+        mb?.uid === communityConfig?.leaderUid;
+      if (isOpA && !isOpB) return -1;
+      if (!isOpA && isOpB) return 1;
+      const nameA = ma?.realName || '';
+      const nameB = mb?.realName || '';
+      return nameA.localeCompare(nameB, 'ko');
+    });
+  }, [displayAttendeeUids, currentUser?.uid, members, communityConfig]);
+
+  // 마감탭 승급 및 뱃지 변경 감지 (신입 -> 정회원 승급 또는 마일스톤 티어 뱃지 획득 시에만 축하 섹션 노출)
+  const closingCelebrations = useMemo(() => {
+    const list = [];
+    displayAttendeeUids.forEach((uid) => {
+      const m = members.find((mem) => mem.uid === uid);
+      if (!m) return;
+      const scoreInfo = calculateMeetingScoreForMember(
+        m,
+        regionDetection.region || meeting.location
+      );
+      const earned = Number(scoreInfo.score || 1);
+      const isSettled = meeting.status === 'settled';
+      const currentScore = Number(m.activityScore || m.score || 0);
+      const beforeScore = isSettled
+        ? Math.max(0, currentScore - earned)
+        : currentScore;
+      const afterScore = beforeScore + earned;
+
+      const beforeBadge = getTierBadgeByScore(beforeScore);
+      const afterBadge = getTierBadgeByScore(afterScore);
+      const isBadgePromoted = Boolean(
+        beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
+      );
+      const isRookiePromotion = Boolean(m.role === 'Rookie' && afterScore >= 1);
+
+      if (isRookiePromotion || isBadgePromoted) {
+        list.push({
+          uid: m.uid,
+          name: m.realName,
+          nickname: m.nickname,
+          isRookiePromotion,
+          isBadgePromoted,
+          beforeBadge,
+          afterBadge,
+          beforeScore,
+          afterScore
+        });
+      }
+    });
+    return list;
+  }, [
+    displayAttendeeUids,
+    members,
+    regionDetection.region,
+    meeting.location,
+    meeting.status
+  ]);
+
   // Attendees list strictly for round payer & golden bell selects
   const attendeeMembers = useMemo(() => {
     const list = displayAttendeeUids
@@ -1715,18 +1809,24 @@ export default function MeetingDetailPage({
                   className="btn btn-outline btn-sm"
                   onClick={() => setEditingInfo((prev) => !prev)}
                 >
-                  {editingInfo ? '수정 닫기' : '일정 수정'}
+                  {editingInfo
+                    ? '수정 닫기'
+                    : adminUser
+                    ? '운영진 일정 수정'
+                    : '일정 수정'}
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  style={{ color: '#ef4444', borderColor: '#ef4444' }}
-                  onClick={() =>
-                    runArmed('delete-meeting-top', handleDeleteThisMeeting)
-                  }
-                >
-                  {isArmed('delete-meeting-top') ? '삭제 확인' : '삭제'}
-                </button>
+                {isLeader && (
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                    onClick={() =>
+                      runArmed('delete-meeting-top', handleDeleteThisMeeting)
+                    }
+                  >
+                    {isArmed('delete-meeting-top') ? '삭제 확인' : '삭제'}
+                  </button>
+                )}
               </>
             )}
             <button
@@ -2212,16 +2312,20 @@ export default function MeetingDetailPage({
                 justifyContent: 'space-between'
               }}
             >
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                style={{ color: '#ef4444', borderColor: '#ef4444' }}
-                onClick={() =>
-                  runArmed('delete-meeting-form', handleDeleteThisMeeting)
-                }
-              >
-                {isArmed('delete-meeting-form') ? '삭제 확인' : '일정 삭제'}
-              </button>
+              {isLeader ? (
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                  onClick={() =>
+                    runArmed('delete-meeting-form', handleDeleteThisMeeting)
+                  }
+                >
+                  {isArmed('delete-meeting-form') ? '삭제 확인' : '일정 삭제'}
+                </button>
+              ) : (
+                <div />
+              )}
 
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
@@ -2611,8 +2715,8 @@ export default function MeetingDetailPage({
               title="클릭 시 벙제목 펼치기"
             >
               <div className="lounge-minimized-left">
-                <span className="lounge-minimized-badge">
-                  {metroStages[metroActiveIdx]?.label || '진행'}
+                <span className={`lounge-minimized-badge ${isMeetingSettled ? 'is-settled' : ''}`}>
+                  {isMeetingSettled ? '종료' : (metroStages[metroActiveIdx]?.label || '진행')}
                 </span>
                 <span className="lounge-minimized-title">
                   {Number(meeting.advanceDeposit) > 0 && (
@@ -2732,18 +2836,43 @@ export default function MeetingDetailPage({
                 </div>
 
                 {/* Single Progress Driver Button */}
-                <button
-                  type="button"
-                  className={`lounge-metro-btn ${metroBtnClass}`}
-                  disabled={!canManage}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCycleMetroProgress();
-                  }}
-                  title={canManage ? '진행 상태 변경' : '진행 상태 (호스트/운영진)'}
-                >
-                  {metroBtnLabel}
-                </button>
+                {isMeetingSettled ? (
+                  adminUser ? (
+                    <button
+                      type="button"
+                      className="lounge-metro-btn is-rose"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAdminReopenForEdit();
+                      }}
+                      title="클릭 시 마감을 롤백하고 모임을 다시 오픈하여 수정합니다"
+                    >
+                      운영진 수정
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="lounge-metro-btn is-dark"
+                      disabled
+                      title="마감된 모임입니다"
+                    >
+                      종료
+                    </button>
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    className={`lounge-metro-btn ${metroBtnClass}`}
+                    disabled={!canManage}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCycleMetroProgress();
+                    }}
+                    title={canManage ? '진행 상태 변경' : '진행 상태 (호스트/운영진)'}
+                  >
+                    {metroBtnLabel}
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -2836,7 +2965,7 @@ export default function MeetingDetailPage({
                 setShowChatUsersAccordion(false);
               }}
             >
-              귀가
+              마감
             </button>
             <button
               type="button"
@@ -3120,17 +3249,21 @@ export default function MeetingDetailPage({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (!chatInput.trim()) return;
+                    if (isMeetingSettled || !chatInput.trim()) return;
                     handleSendChatMessage(chatInput);
                     chatTextInputRef.current?.focus();
                   }}
                   className="lounge-chat-input-bar"
+                  style={{ opacity: isMeetingSettled ? 0.65 : 1 }}
                 >
                   <button
                     type="button"
                     className="lounge-chat-photo-btn"
-                    title="사진 첨부 (앨범 자동 등록)"
-                    onClick={() => chatPhotoInputRef.current?.click()}
+                    disabled={isMeetingSettled}
+                    title={isMeetingSettled ? '마감된 모임입니다' : '사진 첨부 (앨범 자동 등록)'}
+                    onClick={() => {
+                      if (!isMeetingSettled) chatPhotoInputRef.current?.click();
+                    }}
                   >
                     📷
                   </button>
@@ -3139,6 +3272,7 @@ export default function MeetingDetailPage({
                     ref={chatPhotoInputRef}
                     accept="image/*"
                     style={{ display: 'none' }}
+                    disabled={isMeetingSettled}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleChatPhotoUpload(file);
@@ -3149,7 +3283,8 @@ export default function MeetingDetailPage({
                   <input
                     ref={chatTextInputRef}
                     type="text"
-                    placeholder="메시지 입력..."
+                    disabled={isMeetingSettled}
+                    placeholder={isMeetingSettled ? '마감된 모임입니다. (대화 비활성화)' : '메시지 입력...'}
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onFocus={() => {
@@ -3165,10 +3300,10 @@ export default function MeetingDetailPage({
                   <button
                     type="submit"
                     className="btn btn-primary btn-sm"
-                    disabled={!chatInput.trim()}
+                    disabled={isMeetingSettled || !chatInput.trim()}
                     onMouseDown={(e) => e.preventDefault()}
                     onTouchEnd={(e) => {
-                      if (chatInput.trim()) {
+                      if (!isMeetingSettled && chatInput.trim()) {
                         e.preventDefault();
                         handleSendChatMessage(chatInput);
                         chatTextInputRef.current?.focus();
@@ -3230,38 +3365,40 @@ export default function MeetingDetailPage({
                             className="lounge-round-header-right"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <button
-                              type="button"
-                              className={`btn btn-xs ${
-                                isEditingThisRound ? 'btn-primary' : 'btn-outline'
-                              }`}
-                              style={{
-                                padding: '4px 8px',
-                                fontSize: '11.5px',
-                                borderRadius: 'var(--radius-base)',
-                                fontWeight: 600
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (isEditingThisRound) {
-                                  // Finish editing -> collapse round as requested
-                                  setEditingRoundIdx(null);
-                                  setCollapsedRoundIndices((prev) => ({
-                                    ...prev,
-                                    [idx]: true
-                                  }));
-                                } else {
-                                  // Open editing -> unfold round
-                                  setEditingRoundIdx(idx);
-                                  setCollapsedRoundIndices((prev) => ({
-                                    ...prev,
-                                    [idx]: false
-                                  }));
-                                }
-                              }}
-                            >
-                              {isEditingThisRound ? '완료' : '편집'}
-                            </button>
+                            {canManage && !isMeetingSettled && (
+                              <button
+                                type="button"
+                                className={`btn btn-xs ${
+                                  isEditingThisRound ? 'btn-primary' : 'btn-outline'
+                                }`}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '11.5px',
+                                  borderRadius: 'var(--radius-base)',
+                                  fontWeight: 600
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isEditingThisRound) {
+                                    // Finish editing -> collapse round as requested
+                                    setEditingRoundIdx(null);
+                                    setCollapsedRoundIndices((prev) => ({
+                                      ...prev,
+                                      [idx]: true
+                                    }));
+                                  } else {
+                                    // Open editing -> unfold round
+                                    setEditingRoundIdx(idx);
+                                    setCollapsedRoundIndices((prev) => ({
+                                      ...prev,
+                                      [idx]: false
+                                    }));
+                                  }
+                                }}
+                              >
+                                {isEditingThisRound ? '완료' : '편집'}
+                              </button>
+                            )}
                             <button
                               type="button"
                               className="btn-link lounge-round-accordion-arrow"
@@ -3357,7 +3494,7 @@ export default function MeetingDetailPage({
                                   const m = members.find((mem) => mem.uid === uid);
                                   if (!m) return null;
                                   const checked = rParticipants.includes(uid);
-                                  const canClick = canManage;
+                                  const canClick = canManage && !isMeetingSettled;
                                   const isHost = uid === meeting.hostUid;
                                   return (
                                     <button
@@ -3388,16 +3525,20 @@ export default function MeetingDetailPage({
                               {isBungAttendee && myMember && (
                                 <button
                                   type="button"
+                                  disabled={isMeetingSettled}
                                   className={`my-round-badge ${
                                     isMyChecked ? 'is-active' : 'is-inactive'
                                   }`}
-                                  onClick={() =>
-                                    handleToggleRoundParticipant(
-                                      idx,
-                                      currentUser.uid
-                                    )
+                                  onClick={
+                                    !isMeetingSettled
+                                      ? () =>
+                                          handleToggleRoundParticipant(
+                                            idx,
+                                            currentUser.uid
+                                          )
+                                      : undefined
                                   }
-                                  title="내 참석 여부 변경"
+                                  title={isMeetingSettled ? '마감된 모임입니다' : '내 참석 여부 변경'}
                                 >
                                   <span>
                                     {myMember.uid === meeting.hostUid ? '👑 ' : ''}
@@ -3577,7 +3718,7 @@ export default function MeetingDetailPage({
                                         }
                                       />
                                     </label>
-                                    {rounds.length > 1 && canManage && (
+                                    {rounds.length > 1 && canManage && !isMeetingSettled && (
                                       <button
                                         type="button"
                                         className="btn btn-outline btn-sm"
@@ -3598,15 +3739,17 @@ export default function MeetingDetailPage({
                 </div>
 
                 {/* + N차 추가 button below rounds section */}
-                <div className="lounge-add-round-row">
-                  <button
-                    type="button"
-                    className="btn btn-sm lounge-add-round-btn"
-                    onClick={handleAddRound}
-                  >
-                    + {rounds.length + 1}차 추가
-                  </button>
-                </div>
+                {!isMeetingSettled && canManage && (
+                  <div className="lounge-add-round-row">
+                    <button
+                      type="button"
+                      className="btn btn-sm lounge-add-round-btn"
+                      onClick={handleAddRound}
+                    >
+                      + {rounds.length + 1}차 추가
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -3647,10 +3790,11 @@ export default function MeetingDetailPage({
                                 <button
                                   type="button"
                                   className="btn btn-xs btn-outline"
-                                  style={{ marginLeft: '4px', padding: '0 6px', height: '26px', fontSize: '11px' }}
+                                  disabled={isMeetingSettled}
+                                  style={{ marginLeft: '4px', padding: '0 6px', height: '26px', fontSize: '11px', opacity: isMeetingSettled ? 0.6 : 1 }}
                                   onClick={() => handleToggleDepositPaid(currentUser.uid)}
                                 >
-                                  선입금완료
+                                  {isMeetingSettled ? '마감됨' : '선입금완료'}
                                 </button>
                               )}
                             </span>
@@ -3663,6 +3807,7 @@ export default function MeetingDetailPage({
 
                           <button
                             type="button"
+                            disabled={isMeetingSettled}
                             className={`btn btn-xs ${
                               mySettlementRow.confirmed
                                 ? 'btn-outline'
@@ -3670,10 +3815,12 @@ export default function MeetingDetailPage({
                                 ? 'btn-outline'
                                 : 'btn-primary'
                             }`}
-                            style={{ height: '28px', minHeight: '28px', padding: '0 8px', fontSize: '11.5px', fontWeight: 600 }}
+                            style={{ height: '28px', minHeight: '28px', padding: '0 8px', fontSize: '11.5px', fontWeight: 600, opacity: isMeetingSettled ? 0.8 : 1 }}
                             onClick={() => handleTogglePaid(currentUser.uid)}
                           >
-                            {mySettlementRow.confirmed
+                            {isMeetingSettled
+                              ? '정산 마감 ✓'
+                              : mySettlementRow.confirmed
                               ? '컨펌됨 ✓'
                               : mySettlementRow.paid
                               ? '입금완료 해제'
@@ -3743,14 +3890,14 @@ export default function MeetingDetailPage({
                                 </tr>
                               )}
 
-                              {/* 차수별 참석 행 (순수 상호명만 추출 & 개행 방지) */}
+                              {/* 차수별 참석 행 (순수 상호명만 추출 & 한 줄 고정 & 뱃지 찌그러짐 방지) */}
                               {(mySettlementRow.roundBreakdown || []).map((rb) => {
                                 const pSummary = parsePlaceSummary(rb.placeName || rb.title);
                                 const cleanPlaceName = pSummary.placeName || rb.title || `${rb.roundNumber}차 장소`;
                                 return (
                                   <tr key={rb.roundNumber}>
-                                    <td>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <td style={{ minWidth: 0, overflow: 'hidden' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, overflow: 'hidden' }}>
                                         <span
                                           className="platform-badge"
                                           style={{
@@ -3759,6 +3906,8 @@ export default function MeetingDetailPage({
                                             whiteSpace: 'nowrap',
                                             flexShrink: 0,
                                             minWidth: '34px',
+                                            height: '22px',
+                                            boxSizing: 'border-box',
                                             display: 'inline-flex',
                                             alignItems: 'center',
                                             justifyContent: 'center'
@@ -3771,19 +3920,22 @@ export default function MeetingDetailPage({
                                             fontWeight: 600,
                                             color: '#1e293b',
                                             fontSize: '12.5px',
-                                            wordBreak: 'keep-all',
-                                            lineHeight: 1.35
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            flex: 1,
+                                            minWidth: 0
                                           }}
-                                          title={pSummary.address || ''}
+                                          title={pSummary.address || cleanPlaceName}
                                         >
                                           {cleanPlaceName}
                                         </span>
                                       </div>
                                     </td>
-                                    <td style={{ textAlign: 'right', fontWeight: 600 }}>
+                                    <td style={{ textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                       {(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원
                                     </td>
-                                    <td style={{ textAlign: 'center' }}>
+                                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                                       <span className="deposit-tag confirmed" style={{ fontSize: '10.5px' }}>참석</span>
                                     </td>
                                   </tr>
@@ -4192,7 +4344,7 @@ export default function MeetingDetailPage({
                                         <span style={{ fontWeight: 700, color: '#581c87' }}>
                                           {pe.title}
                                         </span>
-                                        {canManage && (
+                                        {canManage && !isMeetingSettled && (
                                           <button
                                             type="button"
                                             className="btn btn-xs"
@@ -4283,7 +4435,7 @@ export default function MeetingDetailPage({
                                         <span style={{ fontWeight: 700, color: '#166534' }}>
                                           {spMember?.realName || '찬조자'}
                                         </span>
-                                        {canManage && (
+                                        {canManage && !isMeetingSettled && (
                                           <button
                                             type="button"
                                             className="btn btn-xs"
@@ -4413,7 +4565,7 @@ export default function MeetingDetailPage({
 
                       {/* 하단 제어 버튼: 찬조 추가, 사전지출 추가, 정산서 복사 */}
                       <div className="settle-btn-group">
-                        {canManage && (
+                        {canManage && !isMeetingSettled && (
                           <>
                             <button
                               type="button"
@@ -4447,7 +4599,7 @@ export default function MeetingDetailPage({
                       </div>
 
                       {/* 찬조 추가 인라인 폼 (회원 검색 컴포넌트 탑재) */}
-                      {showSponsorInlineForm && canManage && (
+                      {showSponsorInlineForm && canManage && !isMeetingSettled && (
                         <div className="settle-inline-form stack-gap" style={{ padding: '10px', background: '#f0fdf4', borderColor: '#bbf7d0' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                             {/* 찬조자 선택 (검색 토글) */}
@@ -4550,7 +4702,7 @@ export default function MeetingDetailPage({
                       )}
 
                       {/* 사전 지출 추가 인라인 폼 (퀵 태그 & 결제자 검색) */}
-                      {showPreExpenseForm && canManage && (
+                      {showPreExpenseForm && canManage && !isMeetingSettled && (
                         <div className="settle-inline-form stack-gap" style={{ padding: '10px', background: '#faf5ff', borderColor: '#e9d5ff' }}>
                           {/* 퀵 태그 버튼 */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
@@ -4930,7 +5082,7 @@ export default function MeetingDetailPage({
                                             </td>
                                             <td style={{ textAlign: 'center' }}>
                                               {row.depositAmount > 0 ? (
-                                                canManage ? (
+                                                canManage && !isMeetingSettled ? (
                                                   <button
                                                     type="button"
                                                     className={`btn btn-xs ${
@@ -4953,14 +5105,14 @@ export default function MeetingDetailPage({
                                           </tr>
                                         )}
 
-                                        {/* 차수별 참석 금액 (순수 상호명 추출 & 개행 방지) */}
+                                        {/* 차수별 참석 금액 (순수 상호명 추출 & 한 줄 고정 & 뱃지 찌그러짐 방지) */}
                                         {(row.roundBreakdown || []).map((rb) => {
                                           const pSummary = parsePlaceSummary(rb.placeName || rb.title);
                                           const cleanPlaceName = pSummary.placeName || rb.title || `${rb.roundNumber}차 장소`;
                                           return (
                                             <tr key={rb.roundNumber}>
-                                              <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                              <td style={{ minWidth: 0, overflow: 'hidden' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, overflow: 'hidden' }}>
                                                   <span
                                                     className="platform-badge"
                                                     style={{
@@ -4969,6 +5121,8 @@ export default function MeetingDetailPage({
                                                       whiteSpace: 'nowrap',
                                                       flexShrink: 0,
                                                       minWidth: '34px',
+                                                      height: '22px',
+                                                      boxSizing: 'border-box',
                                                       display: 'inline-flex',
                                                       alignItems: 'center',
                                                       justifyContent: 'center'
@@ -4981,10 +5135,13 @@ export default function MeetingDetailPage({
                                                       fontWeight: 600,
                                                       color: '#1e293b',
                                                       fontSize: '12.5px',
-                                                      wordBreak: 'keep-all',
-                                                      lineHeight: 1.35
+                                                      whiteSpace: 'nowrap',
+                                                      overflow: 'hidden',
+                                                      textOverflow: 'ellipsis',
+                                                      flex: 1,
+                                                      minWidth: 0
                                                     }}
-                                                    title={pSummary.address || ''}
+                                                    title={pSummary.address || cleanPlaceName}
                                                   >
                                                     {cleanPlaceName}
                                                   </span>
@@ -5058,7 +5215,7 @@ export default function MeetingDetailPage({
                                             {Math.abs(row.netToPay || 0).toLocaleString()}원
                                           </td>
                                           <td style={{ textAlign: 'center' }}>
-                                            {canManage ? (
+                                            {canManage && !isMeetingSettled ? (
                                               <button
                                                 type="button"
                                                 className={`btn btn-xs ${
@@ -5081,7 +5238,7 @@ export default function MeetingDetailPage({
                                   </div>
 
                                   {/* 수동조정 패널 (3행 구조: 1행 산출식&대상자 / 2행 일괄적용체크 / 3행 금액&적용) */}
-                                  {canManage && (
+                                  {canManage && !isMeetingSettled && (
                                     <div style={{ marginTop: '6px' }}>
                                       <button
                                         type="button"
@@ -5219,13 +5376,22 @@ export default function MeetingDetailPage({
                       {(isApplied || isConfirmedParticipant) && (
                         <button
                           type="button"
+                          disabled={isMeetingSettled}
                           className={`btn ${
-                            mySafeReturn ? 'btn-outline' : 'btn-primary'
+                            mySafeReturn || isMeetingSettled ? 'btn-outline' : 'btn-primary'
                           }`}
-                          style={{ minHeight: '42px', fontWeight: 600 }}
-                          onClick={handleToggleSafeReturn}
+                          style={{
+                            minHeight: '42px',
+                            fontWeight: 600,
+                            opacity: isMeetingSettled ? 0.75 : 1
+                          }}
+                          onClick={!isMeetingSettled ? handleToggleSafeReturn : undefined}
                         >
-                          {mySafeReturn ? '귀가완료 해제' : '귀가완료 체크'}
+                          {isMeetingSettled
+                            ? '귀가완료 ✓'
+                            : mySafeReturn
+                            ? '귀가완료 해제'
+                            : '귀가완료 체크'}
                         </button>
                       )}
 
@@ -5305,8 +5471,82 @@ export default function MeetingDetailPage({
                     )}
                 </div>
 
+                {/* [동적 생성 섹션] 신입 승급 & 마일스톤 뱃지 변경 축하 섹션 (내 안심 귀가 상태 섹션 바로 아래) */}
+                {closingCelebrations.length > 0 && (
+                  <div
+                    className="closing-celebration-card"
+                    style={{
+                      padding: '12px 14px',
+                      background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                      border: '1px solid #fde68a',
+                      borderRadius: '8px',
+                      boxShadow: '0 2px 6px rgba(217, 119, 6, 0.08)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '16px' }}>🎉</span>
+                      <strong style={{ fontSize: '13px', color: '#92400e' }}>
+                        축하합니다! 승급 & 뱃지 획득 안내 ({closingCelebrations.length}명)
+                      </strong>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {closingCelebrations.map((c) => (
+                        <div
+                          key={c.uid}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '6px 10px',
+                            background: '#ffffff',
+                            borderRadius: '6px',
+                            border: '1px solid #fef08a'
+                          }}
+                        >
+                          <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b' }}>
+                            {c.name} {c.nickname ? `(${c.nickname})` : ''}
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {c.isRookiePromotion && (
+                              <span
+                                className="platform-badge"
+                                style={{
+                                  fontSize: '10.5px',
+                                  padding: '1px 6px',
+                                  background: '#dcfce7',
+                                  color: '#15803d',
+                                  borderColor: '#86efac',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                정회원 승급 🎊
+                              </span>
+                            )}
+                            {c.isBadgePromoted && (
+                              <span
+                                className="platform-badge"
+                                style={{
+                                  fontSize: '10.5px',
+                                  padding: '1px 6px',
+                                  background: '#fef3c7',
+                                  color: '#b45309',
+                                  borderColor: '#fde047',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                {c.afterBadge?.label || c.afterBadge?.name} 달성 ⭐
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 마감 친구 리스트 (1순위 본인, 2순위 운영진, 3순위 가나다순 & 현재점수 -> 바뀐점수 시작위치 고정 수직 정렬) */}
                 <div className="divider-list">
-                  {displayAttendeeUids.map((uid) => {
+                  {sortedClosingAttendeeUids.map((uid) => {
                     const m = members.find((mem) => mem.uid === uid);
                     if (!m) return null;
                     const returnTime = safeReturns[uid];
@@ -5314,22 +5554,144 @@ export default function MeetingDetailPage({
                       m,
                       regionDetection.region || meeting.location
                     );
+                    const earned = Number(scoreInfo.score || 1);
+                    const isSettled = meeting.status === 'settled';
+                    const currentScore = Number(m.activityScore || m.score || 0);
+                    const beforeScore = isSettled
+                      ? Math.max(0, currentScore - earned)
+                      : currentScore;
+                    const afterScore = beforeScore + earned;
+                    const isMe = uid === currentUser?.uid;
+                    const isOp =
+                      m.role === 'Leader' ||
+                      m.role === 'Deputy' ||
+                      m.uid === communityConfig?.leaderUid;
+
                     return (
-                      <div key={uid} className="ranking-row">
-                        <div className="rank-left">
-                          <strong>{formatMemberNickname(m)}</strong>
+                      <div
+                        key={uid}
+                        className="ranking-row"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '10px 12px',
+                          background: isMe ? '#f8fafc' : '#ffffff'
+                        }}
+                      >
+                        <div
+                          className="rank-left"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            minWidth: 0,
+                            flex: 1
+                          }}
+                        >
+                          <strong
+                            style={{
+                              fontSize: '13.5px',
+                              color: '#1e293b',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {formatMemberNickname(m)}
+                          </strong>
+                          {isMe && (
+                            <span
+                              className="platform-badge"
+                              style={{
+                                fontSize: '10px',
+                                padding: '1px 5px',
+                                background: '#dbeafe',
+                                color: '#1d4ed8',
+                                borderColor: '#bfdbfe',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              나
+                            </span>
+                          )}
+                          {isOp && (
+                            <span
+                              className="platform-badge"
+                              style={{
+                                fontSize: '10px',
+                                padding: '1px 5px',
+                                background: '#fef3c7',
+                                color: '#b45309',
+                                borderColor: '#fde047',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              운영진
+                            </span>
+                          )}
                           {scoreInfo.isExpedition && (
-                            <span className="expedition-pill">
+                            <span
+                              className="expedition-pill"
+                              style={{ fontSize: '10.5px', whiteSpace: 'nowrap' }}
+                            >
                               {scoreInfo.label}
                             </span>
                           )}
                         </div>
+
+                        {/* 점수 변화: 현재점수 -> 바뀐점수 (숫자만, 시작/끝 위치 완벽 일치) */}
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '80px',
+                            fontVariantNumeric: 'tabular-nums',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#334155',
+                            flexShrink: 0,
+                            margin: '0 8px'
+                          }}
+                          title={`기존 점수 ${beforeScore}점 → 마감 반영 점수 ${afterScore}점`}
+                        >
+                          <span style={{ width: '30px', textAlign: 'right' }}>
+                            {beforeScore}
+                          </span>
+                          <span
+                            style={{
+                              margin: '0 3px',
+                              color: '#94a3b8',
+                              fontSize: '11px'
+                            }}
+                          >
+                            →
+                          </span>
+                          <span
+                            style={{
+                              width: '30px',
+                              textAlign: 'left',
+                              color: '#0284c7',
+                              fontWeight: 700
+                            }}
+                          >
+                            {afterScore}
+                          </span>
+                        </div>
+
+                        {/* 귀가 상태 뱃지 */}
                         <span
                           className={`status-pill ${
-                            returnTime ? 'open' : 'settled'
+                            returnTime || isSettled ? 'open' : 'settled'
                           }`}
+                          style={{
+                            flexShrink: 0,
+                            minWidth: '60px',
+                            textAlign: 'center',
+                            fontSize: '11.5px',
+                            padding: '3px 8px'
+                          }}
                         >
-                          {returnTime || '귀가 전'}
+                          {returnTime || (isSettled ? '귀가완료' : '귀가 전')}
                         </span>
                       </div>
                     );
@@ -5914,8 +6276,9 @@ export default function MeetingDetailPage({
                   드라이브 원본
                 </a>
               )}
-              {(currentUser?.uid === activeLightboxItem.uploaderUid ||
-                adminUser) && (
+              {!isMeetingSettled &&
+                (currentUser?.uid === activeLightboxItem.uploaderUid ||
+                  adminUser) && (
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"

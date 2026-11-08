@@ -37,6 +37,7 @@ import {
   registerOnboardingMember,
   rejectAccountLinkRequest,
   resetToInitialDemoData,
+  rollbackMeetingSettlement,
   saveCurrentUserUid,
   settleMeetingWithScores,
   subscribeCommunityData,
@@ -364,6 +365,14 @@ export default function App() {
     );
   };
 
+  const handleRollbackMeeting = async (meetingId) => {
+    await rollbackMeetingSettlement(
+      meetingId,
+      members,
+      meetings
+    );
+  };
+
   const handleUpdateMeeting = async (meetingId, patch) => {
     await updateMeetingDetails(meetingId, patch);
   };
@@ -487,6 +496,7 @@ export default function App() {
           onAdminSaveMeeting={handleAdminSaveMeeting}
           onDeleteMeeting={handleDeleteMeeting}
           onSettleMeeting={handleSettleMeeting}
+          onRollbackMeeting={handleRollbackMeeting}
           onUpdateMemberProfile={handleUpdateProfile}
           onNavigateTab={navigateToTab}
         />

@@ -4295,22 +4295,22 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 .settle-formula-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 3px;
-  padding: 6px 8px;
+  padding: 6px 4px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .settle-formula-card {
-  flex: 1;
-  min-width: 0;
-  padding: 5px 3px;
+  flex: 1 1 auto;
+  min-width: 58px;
+  max-width: 110px;
+  padding: 4px 2px;
   border-radius: 6px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -4318,7 +4318,7 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   flex-direction: column;
   gap: 1px;
   text-align: center;
-  flex-shrink: 1;
+  box-sizing: border-box;
 }
 
 .settle-formula-card.is-rounds {
