@@ -1319,7 +1319,12 @@ export const reassignMemberUid = async (oldUid, newUid) => {
     profileImageUrl: destination?.profileImageUrl || target.profileImageUrl || '',
     linkRequestRealName: '',
     linkRequestSourceUid: '',
-    linkRequestStatus: ''
+    linkRequestStatus: '',
+    subUids: Array.from(new Set([
+      ...(target.subUids || []),
+      ...(destination?.subUids || []),
+      cleanOldUid
+    ]))
   };
 
   const nextMembers = members
@@ -1386,6 +1391,13 @@ export const reassignMemberUid = async (oldUid, newUid) => {
       nextPaymentStatuses[cleanNewUid] = nextPaymentStatuses[cleanOldUid];
       delete nextPaymentStatuses[cleanOldUid];
       nextMtg.paymentStatuses = nextPaymentStatuses;
+      changed = true;
+    }
+    if (nextMtg.memberScoreSnapshots && cleanOldUid in nextMtg.memberScoreSnapshots) {
+      const nextSnapshots = { ...nextMtg.memberScoreSnapshots };
+      nextSnapshots[cleanNewUid] = nextSnapshots[cleanOldUid];
+      delete nextSnapshots[cleanOldUid];
+      nextMtg.memberScoreSnapshots = nextSnapshots;
       changed = true;
     }
     if (changed) {

@@ -1,27 +1,6 @@
 // Auto-generated & enriched community data
 export const INITIAL_MEMBERS = [
   {
-    "uid": "kakao:1001",
-    "bankAccount": "",
-    "customBadge": "",
-    "totalScore": 0,
-    "attendanceCount": 0,
-    "gender": "여",
-    "joinedAt": "2024-01-26",
-    "maritalStatus": "married",
-    "monthlyScore": 0,
-    "role": "Leader",
-    "city": "영등포",
-    "unlockedAlbums": [],
-    "homeCity": "영등포",
-    "entryBadge": "0126",
-    "realName": "쭈",
-    "hostCount": 0,
-    "expeditionScore": 0,
-    "eventScore": 0,
-    "baseScore": 0
-  },
-  {
     "uid": "kakao:1002",
     "hostCount": 12,
     "monthlyScore": 4,
@@ -5953,7 +5932,9 @@ export const INITIAL_MEMBERS = [
     "monthlyScore": 4,
     "linkRequestSubName": "",
     "linkRequestRealName": "",
-    "subUids": [],
+    "subUids": [
+      "kakao:1001"
+    ],
     "expeditionScore": 48,
     "aliases": [],
     "realName": "쭈",
