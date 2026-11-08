@@ -7,6 +7,7 @@ import {
   detectMeetingRegion,
   detectRegionFromText,
   formatMemberNickname,
+  getMemberTotalScore,
   getTierBadgeByScore,
   isAdminUser,
   REGION_GROUPS
@@ -1666,7 +1667,7 @@ export default function MeetingDetailPage({
       );
       const earned = Number(scoreInfo.score || 1);
       const isSettled = meeting.status === 'settled';
-      const currentScore = Number(m.activityScore || m.score || 0);
+      const currentScore = getMemberTotalScore(m);
       const beforeScore = isSettled
         ? Math.max(0, currentScore - earned)
         : currentScore;
@@ -5556,7 +5557,7 @@ export default function MeetingDetailPage({
                     );
                     const earned = Number(scoreInfo.score || 1);
                     const isSettled = meeting.status === 'settled';
-                    const currentScore = Number(m.activityScore || m.score || 0);
+                    const currentScore = getMemberTotalScore(m);
                     const beforeScore = isSettled
                       ? Math.max(0, currentScore - earned)
                       : currentScore;

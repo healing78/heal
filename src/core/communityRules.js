@@ -647,6 +647,20 @@ export const getTierBadgeByScore = (score = 0) => {
 };
 
 /**
+ * Calculates member cumulative total score reliably from totalScore or base+expedition+event
+ */
+export const getMemberTotalScore = (member) => {
+  if (!member) return 0;
+  if (typeof member.totalScore === 'number' && !isNaN(member.totalScore) && member.totalScore > 0) {
+    return member.totalScore;
+  }
+  const base = Number(member.baseScore || 0);
+  const expedition = Number(member.expeditionScore || 0);
+  const event = Number(member.eventScore || 0);
+  return base + expedition + event;
+};
+
+/**
  * Computes automatic badge based on score milestones unless a custom override is set.
  * 신입(Rookie) 또는 벙참석 0회인 경우에만 가입일 날짜 뱃지(entryBadge, MMDD)를 붙이고,
  * 1회 이상 벙에 참석한 일반 멤버는 가입일 날짜를 떼고 표시합니다.
@@ -656,7 +670,8 @@ export const resolveMemberBadge = (member) => {
   if (member.customBadge) {
     return member.customBadge;
   }
-  const tierBadge = getTierBadgeByScore(member.totalScore);
+  const score = getMemberTotalScore(member);
+  const tierBadge = getTierBadgeByScore(score);
   if (tierBadge) {
     return tierBadge;
   }

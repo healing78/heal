@@ -328,6 +328,7 @@ export const INITIAL_MEMBERS = [
     "bankAccount": "",
     "linkRequestSourceUid": "",
     "baseScore": 103,
+    "totalScore": 107,
     "role": "Leader",
     "linkRequestRealName": "",
     "uid": "kakao:5166442426",
