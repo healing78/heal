@@ -76,6 +76,7 @@
 - **Headless Business Layer:** 닉네임 생성/검증(`src/nicknameUtils.js`) 및 점수 계산 로직은 UI 프레임워크나 플랫폼에 종속되지 않는 순수 모듈로 분리합니다.
 - 상세 설계는 `docs/specs/features/multi-platform-architecture.md` 문서를 참조합니다.
 - 대용량 데이터 및 리스트 성능 최적화(점진적 페이징, 검색/정렬 가이드)는 `docs/specs/features/large-list-optimization.md` 문서를 참조합니다.
+- 벙대기실 정산탭 구조(3대 아코디언), 선입금 관리, 정산표 및 비고 실시간 저장, 수동조정 일괄 적용 상세 설계는 `docs/specs/features/settlement-and-advance-deposit.md` 문서를 참조합니다.
 
 ## Roadmap & Implementation Phases
 
