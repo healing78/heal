@@ -3560,7 +3560,7 @@ export default function MeetingDetailPage({
                       onClick={(e) => e.stopPropagation()}
                     >
                       {mySettlementRow ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'nowrap' }}>
                           {/* 선입금 정보 */}
                           {mySettlementRow.depositAmount > 0 && (
                             <span className="settle-title-deposit">
@@ -3573,7 +3573,7 @@ export default function MeetingDetailPage({
                                 <button
                                   type="button"
                                   className="btn btn-xs btn-outline"
-                                  style={{ marginLeft: '4px', padding: '2px 6px', fontSize: '11px' }}
+                                  style={{ marginLeft: '4px', padding: '0 6px', height: '26px', fontSize: '11px' }}
                                   onClick={() => handleToggleDepositPaid(currentUser.uid)}
                                 >
                                   선입금완료
@@ -3596,7 +3596,7 @@ export default function MeetingDetailPage({
                                 ? 'btn-outline'
                                 : 'btn-primary'
                             }`}
-                            style={{ minHeight: '30px', padding: '4px 10px', fontSize: '12px', fontWeight: 600 }}
+                            style={{ height: '28px', minHeight: '28px', padding: '0 8px', fontSize: '11.5px', fontWeight: 600 }}
                             onClick={() => handleTogglePaid(currentUser.uid)}
                           >
                             {mySettlementRow.confirmed
