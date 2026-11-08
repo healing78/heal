@@ -125,3 +125,27 @@ settlementNotes: {
   * 현재 선택된 참석자와 `netToPay`가 동일한 모든 참석자들의 UID를 추출하여 동일한 조정액을 일괄 적용합니다.
 * 적용 버튼 클릭 시:
   * 브라우저 `window.confirm` 대화상자로 확인 후 Firestore에 일괄 업데이트합니다.
+
+---
+
+## 6. 카드 헤더 48px 표준화 및 6px 간격 단일화 사양
+
+### (1) 헤더 외형 높이 48px 단일화
+* **대상 컴포넌트**: 장소 탭 차수 카드(`.lounge-round-accordion-header`), 정산 탭 3대 아코디언 카드(`.settle-accordion-header`).
+* **규격**:
+  * `height: 48px !important; min-height: 48px !important; max-height: 48px !important;`
+  * `padding: 0 14px !important; box-sizing: border-box !important;`
+  * `display: flex !important; align-items: center !important; justify-content: space-between !important;`
+* **우측 제어 버튼 통일**:
+  * `height: 28px !important; min-height: 28px !important; line-height: 26px !important; font-size: 11.5px !important;`
+  * `white-space: nowrap !important; flex-wrap: nowrap !important;` (1줄 고정으로 내용물에 의한 상하 팽창 방지)
+* **결과**: 장소 탭(`1차`, `2차`...)과 정산 탭(`나의 회비`, `정산 내역`, `개인별 내역`)의 모든 카드가 접힌 상태에서 **1px의 오차도 없이 동일한 48px 높이**를 유지합니다.
+
+### (2) 상하 간격 6px 통일 규격 (Standard Gap = 6px)
+* 벙대기실 5개 전체 탭(대화, 장소, 정산, 귀가, 앨범)의 상하 간격을 **제목 ↔ 서브탭 사이 간격(6px)**으로 단일화:
+  1. `상단 캔버스` ↔ `제목 카드`: **6px**
+  2. `제목 카드` ↔ `서브탭 바`: **6px** (기준 간격)
+  3. `서브탭 바` ↔ `첫 번째 섹션`: **6px**
+  4. `섹션` ↔ `섹션` 사이 간격: **6px** (`.lounge-unified-stack { gap: 6px !important; }`)
+  5. `마지막 섹션` ↔ `+ 추가 버튼`: **6px**
+
