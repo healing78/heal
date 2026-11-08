@@ -2810,8 +2810,20 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-base);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  padding: 8px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 0 !important;
+}
+
+.bung-lounge-section .album-empty-box {
+  margin: 0 !important;
 }
 
 /* Accordion Round Card on Chat Background */
@@ -4186,10 +4198,11 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 
 /* ========================================================
    Standardized Accordion Card Header (48px Fixed Height)
-   Unifying: Rounds Tab Cards & Settlement Tab 3 Sections
+   Unifying: Rounds Cards, Settlement Accordions & Album Header
    ======================================================== */
 .lounge-round-accordion-header,
-.settle-accordion-header {
+.settle-accordion-header,
+.bung-lounge-section .album-header-bar {
   height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
@@ -4200,15 +4213,19 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   justify-content: space-between !important;
   background: #ffffff !important;
   overflow: hidden !important;
+  margin-bottom: 0 !important;
 }
 
 .lounge-round-header-left,
-.settle-accordion-header-left {
+.settle-accordion-header-left,
+.album-header-bar .album-count-text {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
   min-width: 0;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
 }
 
 .lounge-round-header-right,
@@ -4222,12 +4239,13 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 }
 
 .settle-accordion-header-right .btn,
-.lounge-round-header-right .btn {
+.lounge-round-header-right .btn,
+.bung-lounge-section .album-header-bar .btn {
   height: 28px !important;
   min-height: 28px !important;
   max-height: 28px !important;
   line-height: 26px !important;
-  padding: 0 8px !important;
+  padding: 0 9px !important;
   font-size: 11.5px !important;
   display: inline-flex !important;
   align-items: center !important;
