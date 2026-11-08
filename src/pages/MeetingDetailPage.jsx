@@ -267,10 +267,10 @@ export const getHistoricalScoreInfo = (member, currentMeeting, allMeetings, loca
   // 1. Saved Snapshot in meeting record (highest priority if previously stored)
   if (currentMeeting?.memberScoreSnapshots?.[member.uid]) {
     const snap = currentMeeting.memberScoreSnapshots[member.uid];
-    const beforeBadge = getTierBadgeByScore(snap.beforeScore);
-    const afterBadge = getTierBadgeByScore(snap.afterScore);
+    const beforeBadge = snap.beforeBadge !== undefined ? snap.beforeBadge : getTierBadgeByScore(snap.beforeScore);
+    const afterBadge = snap.afterBadge !== undefined ? snap.afterBadge : getTierBadgeByScore(snap.afterScore);
     const isBadgePromoted = Boolean(
-      beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
+      snap.isBadgePromoted ?? (beforeBadge !== afterBadge && Boolean(afterBadge))
     );
     const isRookiePromotion = Boolean(
       snap.isRookiePromotion ?? (snap.beforeScore === 0 && snap.afterScore >= 1)
@@ -314,7 +314,7 @@ export const getHistoricalScoreInfo = (member, currentMeeting, allMeetings, loca
     const beforeBadge = getTierBadgeByScore(beforeScore);
     const afterBadge = getTierBadgeByScore(afterScore);
     const isBadgePromoted = Boolean(
-      beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
+      beforeBadge !== afterBadge && Boolean(afterBadge)
     );
 
     const isSpecialRole = [
@@ -327,7 +327,7 @@ export const getHistoricalScoreInfo = (member, currentMeeting, allMeetings, loca
       'Expelled'
     ].includes(member.role);
     const isSavedRookie = Array.isArray(currentMeeting?.rookiePromotedUids) && currentMeeting.rookiePromotedUids.includes(member.uid);
-    const isRookiePromotion = isSavedRookie || (!isSpecialRole && priorCount === 0);
+    const isRookiePromotion = isSavedRookie || priorCount === 0 || (!isSpecialRole && member.role === 'Rookie');
 
     return {
       beforeScore,
@@ -1802,7 +1802,7 @@ export default function MeetingDetailPage({
         list.push({
           uid: m.uid,
           name: m.realName,
-          formattedNickname: formatMemberNickname(m),
+          formattedNickname: formatMemberNickname(m, hist.afterBadge),
           isRookiePromotion: hist.isRookiePromotion,
           isBadgePromoted: hist.isBadgePromoted,
           beforeBadge: hist.beforeBadge,
@@ -5590,7 +5590,7 @@ export default function MeetingDetailPage({
                                   whiteSpace: 'nowrap'
                                 }}
                               >
-                                {c.afterBadge?.label || c.afterBadge?.name || (typeof c.afterBadge === 'string' ? c.afterBadge : '')} 달성 ⭐
+                                {(typeof c.afterBadge === 'string' ? c.afterBadge : (c.afterBadge?.label || c.afterBadge?.name || ''))} 달성 ⭐
                               </span>
                             )}
                           </div>
@@ -5646,7 +5646,7 @@ export default function MeetingDetailPage({
                               whiteSpace: 'nowrap'
                             }}
                           >
-                            {formatMemberNickname(m)}
+                            {formatMemberNickname(m, isSettled ? hist.afterBadge : undefined)}
                           </strong>
                           {isMe && (
                             <span
@@ -5713,7 +5713,7 @@ export default function MeetingDetailPage({
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              {afterBadge?.label || afterBadge?.name || (typeof afterBadge === 'string' ? afterBadge : '')} ⭐
+                              {(typeof afterBadge === 'string' ? afterBadge : (afterBadge?.label || afterBadge?.name || ''))} ⭐
                             </span>
                           )}
                         </div>

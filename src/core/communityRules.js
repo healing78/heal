@@ -688,9 +688,9 @@ export const resolveMemberBadge = (member) => {
 /**
  * Builds the formatted community nickname for a member object.
  */
-export const formatMemberNickname = (member) => {
+export const formatMemberNickname = (member, overrideBadge = undefined) => {
   if (!member) return '';
-  const badge = resolveMemberBadge(member);
+  const badge = overrideBadge !== undefined ? overrideBadge : resolveMemberBadge(member);
   return generateNickname({
     name: member.realName,
     city: member.city,
