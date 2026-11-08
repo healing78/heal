@@ -48,7 +48,9 @@ export default function SuperAdminPage({
   onResetInitialData,
   onDeleteMember,
   onReassignMemberUid,
-  onStartOnboardingSimulation
+  onStartOnboardingSimulation,
+  onAuditBungScores,
+  onRecalculateBungScores
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [newSuperUid, setNewSuperUid] = useState('');
@@ -68,6 +70,13 @@ export default function SuperAdminPage({
   const [reassignNewUid, setReassignNewUid] = useState('');
   const [isReassigning, setIsReassigning] = useState(false);
   const [manualUidMode, setManualUidMode] = useState(false);
+
+  // 벙점수 무결성 검증 & 원천 데이터 동기화 센터 States
+  const [auditResult, setAuditResult] = useState(null);
+  const [isAuditing, setIsAuditing] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [showAnomalies, setShowAnomalies] = useState(false);
+  const [driftFilter, setDriftFilter] = useState('all');
 
   const duplicateCandidates = useMemo(() => {
     const q = duplicateQuery.trim().toLowerCase();
@@ -105,6 +114,46 @@ export default function SuperAdminPage({
       setTimeout(() => setActionFeedback(''), 3000);
     } catch (err) {
       setActionFeedback(`❌ 정리 실패: ${err.message || err}`);
+    }
+  };
+
+  // 벙점수 무결성 검증 (Dry-Run Audit)
+  const handleRunAudit = () => {
+    if (!onAuditBungScores) return;
+    setIsAuditing(true);
+    try {
+      const res = onAuditBungScores({ meetings, members });
+      setAuditResult(res);
+      setActionFeedback(
+        `🔍 분석 완료: 마감 벙 ${res.totalSettledMeetings}건 검사 완료. (불일치 ${res.drifts.length}명 감지)`
+      );
+      setTimeout(() => setActionFeedback(''), 4000);
+    } catch (err) {
+      console.error(err);
+      setActionFeedback(`❌ 분석 실패: ${err.message || err}`);
+    } finally {
+      setIsAuditing(false);
+    }
+  };
+
+  // 원천 데이터 기준 전체 벙점수 일괄 재계산 및 영구 동기화
+  const handleExecuteRecalculation = async () => {
+    if (!onRecalculateBungScores) return;
+    setIsRecalculating(true);
+    try {
+      const res = await onRecalculateBungScores();
+      setActionFeedback(
+        `✅ 원천 데이터 기준 전체 벙점수 재동기화 완료: 총 ${res.updatedMembersCount}명 회원 점수/출석/호스트/뱃지가 성공적으로 갱신되었습니다!`
+      );
+      if (onAuditBungScores) {
+        setAuditResult(onAuditBungScores({ meetings, members }));
+      }
+      setTimeout(() => setActionFeedback(''), 6000);
+    } catch (err) {
+      console.error(err);
+      setActionFeedback(`❌ 재계산 동기화 실패: ${err.message || err}`);
+    } finally {
+      setIsRecalculating(false);
     }
   };
 
@@ -489,6 +538,166 @@ export default function SuperAdminPage({
             {isArmed('cleanup-simulations') ? '확인: 테스트 데이터 일괄 정리' : '🧹 테스트 데이터 정리'}
           </button>
         </div>
+      </section>
+
+      {/* Section 0-2: 🛡️ 벙점수 무결성 검증 & 원천 데이터 동기화 센터 */}
+      <section className="list-section" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+        <div className="section-title-row">
+          <h3 style={{ margin: 0, color: '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>🛡️ 벙점수 무결성 검증 & 원천 데이터 동기화 센터</span>
+          </h3>
+          <span className="platform-badge" style={{ background: '#15803d', color: '#fff' }}>
+            SSOT Engine
+          </span>
+        </div>
+        <p className="sub-meta" style={{ marginTop: '6px', marginBottom: '12px', lineHeight: 1.5, color: '#14532d' }}>
+          850회 이상의 전체 마감 벙(모임) 원천 기록을 기반으로 모든 참가자의 <strong>벙점수(기본 점수 + 권역별 원정 점수)</strong>와 <strong>출석/호스트 횟수</strong>를 멱등(Idempotent)하게 재계산하여 현재 저장된 값과의 불일치를 분석하고, 원천 데이터 오류 수정 시 언제든 안전하게 일괄 보정합니다.
+        </p>
+
+        {/* 1. 요약 메트릭 카드 3개 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+          <div style={{ padding: '10px', background: '#ffffff', border: '1px solid #dcfce7', borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: '#64748b' }}>마감 벙 기록</div>
+            <strong style={{ fontSize: '16px', color: '#0f172a' }}>
+              {meetings.filter((m) => m.status === 'settled').length}건
+            </strong>
+          </div>
+          <div style={{ padding: '10px', background: '#ffffff', border: '1px solid #dcfce7', borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: '#64748b' }}>등록 회원 수</div>
+            <strong style={{ fontSize: '16px', color: '#0f172a' }}>
+              {members.length}명
+            </strong>
+          </div>
+          <div style={{ padding: '10px', background: '#ffffff', border: '1px solid #dcfce7', borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: '#64748b' }}>탐지된 불일치(Drift)</div>
+            <strong style={{ fontSize: '16px', color: auditResult ? (auditResult.drifts.length > 0 ? '#ef4444' : '#16a34a') : '#64748b' }}>
+              {auditResult ? `${auditResult.drifts.length}명` : '검사 전'}
+            </strong>
+          </div>
+        </div>
+
+        {/* 2. 컨트롤 버튼 그룹 */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            style={{ background: '#0284c7', borderColor: '#0369a1' }}
+            disabled={isAuditing}
+            onClick={handleRunAudit}
+          >
+            {isAuditing ? '분석 중...' : '🔍 실시간 불일치 분석 (Dry-Run)'}
+          </button>
+
+          {auditResult && (
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              style={{ fontSize: '12px', background: '#ffffff' }}
+              onClick={() => setShowAnomalies((prev) => !prev)}
+            >
+              {showAnomalies ? '⚠️ 원천 이상치 닫기' : `⚠️ 원천 이상치 보기 (${auditResult.anomalies.unrecognizedRegionMeetings.length + auditResult.anomalies.emptyAttendeeMeetings.length + auditResult.anomalies.missingHomeCityMembers.length}건)`}
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            style={{ color: '#dc2626', borderColor: '#fca5a5', background: '#ffffff', fontWeight: 600 }}
+            disabled={isRecalculating}
+            onClick={() =>
+              runArmed('recalculate-all-scores', handleExecuteRecalculation)
+            }
+          >
+            {isRecalculating
+              ? '동기화 반영 중...'
+              : isArmed('recalculate-all-scores')
+              ? '확인: 전체 벙점수 일괄 재동기화 실행'
+              : '⚡ 원천 기준 전체 재동기화'}
+          </button>
+        </div>
+
+        {/* 3. 원천 데이터 이상치(Anomaly) 세부 리포트 (토글) */}
+        {showAnomalies && auditResult && (
+          <div style={{ padding: '12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', marginBottom: '12px', fontSize: '12px' }}>
+            <strong style={{ color: '#b45309' }}>⚠️ 원천 데이터 이상치 검사 결과</strong>
+            <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px', color: '#78350f' }}>
+              <div>· 권역 미감지 마감 벙: {auditResult.anomalies.unrecognizedRegionMeetings.length}건 {auditResult.anomalies.unrecognizedRegionMeetings.map(m => `[#${m.id} ${m.title}]`).join(', ')}</div>
+              <div>· 참석자 0명 마감 벙: {auditResult.anomalies.emptyAttendeeMeetings.length}건 {auditResult.anomalies.emptyAttendeeMeetings.map(m => `[#${m.id} ${m.title}]`).join(', ')}</div>
+              <div>· 거주지(시/군/구) 미기재 회원: {auditResult.anomalies.missingHomeCityMembers.length}명 {auditResult.anomalies.missingHomeCityMembers.map(m => `${m.name}`).slice(0, 10).join(', ')}</div>
+            </div>
+          </div>
+        )}
+
+        {/* 4. 불일치(Drift) 분석 결과 리포트 테이블 */}
+        {auditResult && (
+          <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ padding: '10px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b' }}>
+                {auditResult.drifts.length === 0
+                  ? '🎉 완벽합니다! 모든 참가자의 벙점수가 원천 벙기록과 100% 일치합니다.'
+                  : `⚠️ 불일치 감지 회원 (${auditResult.drifts.length}명)`}
+              </span>
+              {auditResult.drifts.length > 0 && (
+                <span className="sub-meta" style={{ fontSize: '11px' }}>
+                  재동기화 시 아래 계산값으로 자동 보정됩니다
+                </span>
+              )}
+            </div>
+
+            {auditResult.drifts.length > 0 && (
+              <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                <table className="settle-data-table" style={{ margin: 0, fontSize: '12px' }}>
+                  <thead>
+                    <tr style={{ background: '#f1f5f9' }}>
+                      <th style={{ width: '25%' }}>회원명</th>
+                      <th style={{ width: '25%', textAlign: 'center' }}>현재 벙점수</th>
+                      <th style={{ width: '25%', textAlign: 'center' }}>원천 재계산</th>
+                      <th style={{ width: '25%', textAlign: 'right' }}>변동 차액</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditResult.drifts.map((d) => (
+                      <tr key={d.uid} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td>
+                          <strong>{d.realName}</strong> {d.nickname ? `(${d.nickname})` : ''}
+                          <div className="sub-meta" style={{ fontSize: '10.5px' }}>
+                            출석 {d.current.attendance}회 → {d.calculated.attendance}회
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center', color: '#64748b' }}>
+                          {d.current.total}점
+                          <div style={{ fontSize: '10px', color: '#94a3b8' }}>
+                            (기본 {d.current.base} / 원정 {d.current.expedition})
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>
+                          {d.calculated.total}점
+                          <div style={{ fontSize: '10px', color: '#0284c7' }}>
+                            (기본 {d.calculated.base} / 원정 {d.calculated.expedition})
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <span
+                            className="platform-badge"
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              background: d.diffTotal > 0 ? '#dcfce7' : d.diffTotal < 0 ? '#fee2e2' : '#f1f5f9',
+                              color: d.diffTotal > 0 ? '#15803d' : d.diffTotal < 0 ? '#b91c1c' : '#475569',
+                              borderColor: d.diffTotal > 0 ? '#86efac' : d.diffTotal < 0 ? '#fca5a5' : '#cbd5e1'
+                            }}
+                          >
+                            {d.diffTotal > 0 ? `+${d.diffTotal}점` : `${d.diffTotal}점`}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Section 1: Master Account & DB Backup */}

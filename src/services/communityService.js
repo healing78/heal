@@ -13,7 +13,9 @@ import {
   cleanScheduleLocation,
   detectMeetingRegion,
   generateMeetingId,
-  REGION_GROUPS
+  getMemberTotalScore,
+  REGION_GROUPS,
+  resolveMemberBadge
 } from '../core/communityRules';
 import {
   INITIAL_COMMUNITY_CONFIG,
@@ -1693,4 +1695,213 @@ export const batchSyncCommunityData = async (
  */
 export const resetToInitialDemoData = async () => {
   await batchSyncCommunityData(INITIAL_MEMBERS, INITIAL_MEETINGS, INITIAL_COMMUNITY_CONFIG);
+};
+
+/**
+ * 벙점수 무결성 검증 및 시뮬레이션 분석 (Dry-Run Audit)
+ * 모든 마감된 모임(meetings) 원천 데이터를 기반으로 회원의 참석/원정/출석을 재계산하고,
+ * 현재 회원 데이터와의 차이(Drift) 및 원천 데이터의 이상치(Anomaly)를 분석합니다.
+ */
+export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
+  const settledMeetings = meetings.filter((m) => m.status === 'settled');
+
+  // 1. 원천 데이터 이상치(Anomaly) 검출
+  const unrecognizedRegionMeetings = [];
+  const emptyAttendeeMeetings = [];
+  settledMeetings.forEach((mtg) => {
+    const regionInfo = detectMeetingRegion(mtg);
+    if (!regionInfo.recognized && !mtg.region) {
+      unrecognizedRegionMeetings.push({
+        id: mtg.id,
+        title: mtg.title,
+        date: mtg.date,
+        location: mtg.location
+      });
+    }
+    const attendees =
+      mtg.confirmedParticipants && mtg.confirmedParticipants.length > 0
+        ? mtg.confirmedParticipants
+        : mtg.applicants || [];
+    if (!attendees || attendees.length === 0) {
+      emptyAttendeeMeetings.push({
+        id: mtg.id,
+        title: mtg.title,
+        date: mtg.date
+      });
+    }
+  });
+
+  const missingHomeCityMembers = members
+    .filter(
+      (m) =>
+        !m.homeCity && !m.city && m.role !== 'Withdrawn' && m.role !== 'Expelled'
+    )
+    .map((m) => ({ uid: m.uid, name: m.realName, role: m.role }));
+
+  // 2. 멱등 누적 재계산 시뮬레이션
+  const statsMap = {};
+  members.forEach((m) => {
+    statsMap[m.uid] = {
+      baseScore: 0,
+      expeditionScore: 0,
+      attendanceCount: 0,
+      hostCount: 0,
+      attendedMeetings: []
+    };
+  });
+
+  settledMeetings.forEach((mtg) => {
+    if (mtg.hostUid && statsMap[mtg.hostUid]) {
+      statsMap[mtg.hostUid].hostCount += 1;
+    }
+    const attendees =
+      mtg.confirmedParticipants && mtg.confirmedParticipants.length > 0
+        ? mtg.confirmedParticipants
+        : mtg.applicants || [];
+
+    const uniqueUids = Array.from(new Set(attendees));
+    uniqueUids.forEach((uid) => {
+      const m = members.find((mem) => mem.uid === uid);
+      if (!m || !statsMap[uid]) return;
+      const scoreCalc = calculateMeetingScoreForMember(
+        m,
+        mtg.region || mtg.location
+      );
+      statsMap[uid].baseScore += scoreCalc.base || 1;
+      statsMap[uid].expeditionScore += scoreCalc.expedition || 0;
+      statsMap[uid].attendanceCount += 1;
+      statsMap[uid].attendedMeetings.push({
+        id: mtg.id,
+        title: mtg.title,
+        date: mtg.date,
+        scoreEarned: scoreCalc.total || 1,
+        isExpedition: scoreCalc.isExpedition
+      });
+    });
+  });
+
+  // 3. 현재 점수와의 불일치(Drift) 분석
+  const drifts = [];
+  members.forEach((m) => {
+    const stats = statsMap[m.uid] || {
+      baseScore: 0,
+      expeditionScore: 0,
+      attendanceCount: 0,
+      hostCount: 0
+    };
+    const eventScore = Number(m.eventScore || 0);
+    const calculatedTotal = stats.baseScore + stats.expeditionScore + eventScore;
+    const currentTotal = getMemberTotalScore(m);
+    const currentAtt = Number(m.attendanceCount || 0);
+    const currentHost = Number(m.hostCount || 0);
+    const currentBase = Number(m.baseScore || 0);
+    const currentExp = Number(m.expeditionScore || 0);
+
+    const hasScoreDiff = calculatedTotal !== currentTotal;
+    const hasAttDiff = stats.attendanceCount !== currentAtt;
+    const hasHostDiff = stats.hostCount !== currentHost;
+
+    if (hasScoreDiff || hasAttDiff || hasHostDiff) {
+      drifts.push({
+        uid: m.uid,
+        realName: m.realName,
+        nickname: m.nickname,
+        role: m.role,
+        current: {
+          total: currentTotal,
+          base: currentBase,
+          expedition: currentExp,
+          attendance: currentAtt,
+          host: currentHost,
+          event: eventScore
+        },
+        calculated: {
+          total: calculatedTotal,
+          base: stats.baseScore,
+          expedition: stats.expeditionScore,
+          attendance: stats.attendanceCount,
+          host: stats.hostCount,
+          event: eventScore
+        },
+        diffTotal: calculatedTotal - currentTotal,
+        diffAtt: stats.attendanceCount - currentAtt,
+        diffHost: stats.hostCount - currentHost,
+        attendedMeetingsCount: stats.attendedMeetings.length
+      });
+    }
+  });
+
+  return {
+    anomalies: {
+      unrecognizedRegionMeetings,
+      emptyAttendeeMeetings,
+      missingHomeCityMembers
+    },
+    drifts,
+    totalSettledMeetings: settledMeetings.length,
+    totalMembers: members.length,
+    statsMap
+  };
+};
+
+/**
+ * 원천 모임 기록 기준 모든 회원의 벙점수 일괄 재계산 및 영구 동기화 실행
+ */
+export const recalculateAndApplyAllBungScores = async () => {
+  const { meetings, members } = getLocalState();
+  const auditResult = validateAndAuditBungScores({ meetings, members });
+  const { statsMap } = auditResult;
+
+  const updatedMembers = members.map((m) => {
+    const stats = statsMap[m.uid] || {
+      baseScore: 0,
+      expeditionScore: 0,
+      attendanceCount: 0,
+      hostCount: 0
+    };
+    const eventScore = Number(m.eventScore || 0);
+    const newTotalScore = stats.baseScore + stats.expeditionScore + eventScore;
+
+    const nextMember = {
+      ...m,
+      baseScore: stats.baseScore,
+      expeditionScore: stats.expeditionScore,
+      attendanceCount: stats.attendanceCount,
+      hostCount: stats.hostCount,
+      totalScore: newTotalScore
+    };
+
+    nextMember.customBadge = m.customBadge || '';
+    return nextMember;
+  });
+
+  // LocalStorage에 반영
+  writeLocalJson(STORAGE_KEYS.members, updatedMembers);
+  notifyLocalListeners();
+
+  // Firestore 일괄 반영 (배치)
+  if (isFirebaseConfigured && db) {
+    try {
+      const CHUNK_SIZE = 350;
+      for (let i = 0; i < updatedMembers.length; i += CHUNK_SIZE) {
+        const chunk = updatedMembers.slice(i, i + CHUNK_SIZE);
+        const batch = writeBatch(db);
+        chunk.forEach((mem) => {
+          batch.set(doc(db, 'members', mem.uid), mem, { merge: true });
+        });
+        await batch.commit();
+      }
+    } catch (err) {
+      console.warn(
+        'Firestore write fallback (recalculateAndApplyAllBungScores):',
+        err
+      );
+    }
+  }
+
+  return {
+    updatedMembersCount: updatedMembers.length,
+    driftsCount: auditResult.drifts.length,
+    auditResult
+  };
 };

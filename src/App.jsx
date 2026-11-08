@@ -33,6 +33,7 @@ import {
   disconnectSubPhone,
   getSavedCurrentUserUid,
   reassignMemberUid,
+  recalculateAndApplyAllBungScores,
   recordKakaoLogin,
   registerOnboardingMember,
   rejectAccountLinkRequest,
@@ -44,7 +45,8 @@ import {
   toggleMeetingApplicant,
   updateCommunityConfig,
   updateMeetingDetails,
-  updateMemberProfile
+  updateMemberProfile,
+  validateAndAuditBungScores
 } from './services/communityService';
 import { logoutFromKakao } from './services/kakaoAuthService';
 import LoginOnboardingPage from './pages/LoginOnboardingPage';
@@ -644,6 +646,8 @@ export default function App() {
           onBatchSyncData={batchSyncCommunityData}
           onResetInitialData={handleResetDemoData}
           onStartOnboardingSimulation={() => setIsOnboardingSimulation(true)}
+          onAuditBungScores={validateAndAuditBungScores}
+          onRecalculateBungScores={recalculateAndApplyAllBungScores}
           onImpersonateUser={(uid) => {
             setImpersonatedUid(uid);
             navigateToTab('home');
