@@ -3109,7 +3109,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 1: 장소 (Accordion Cards on Chat Room #AFC1CF Background) */}
             {loungeTab === 'rounds' && (
-              <div className="lounge-tab-content-wrap lounge-rounds-wrap">
+              <div className="lounge-tab-content-wrap lounge-rounds-wrap lounge-unified-stack">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {rounds.map((r, idx) => {
                     const rSummary = settlement.roundSummaries[idx] || {};
@@ -3539,7 +3539,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 2: 정산·회비 (3대 아코디언 카드: 나의 회비 / 정산 내역 / 개인별 내역) */}
             {loungeTab === 'settlement' && (
-              <div className="lounge-tab-content-wrap stack-gap">
+              <div className="lounge-tab-content-wrap lounge-unified-stack">
                 {/* ========================================================
                     [섹션 1] 나의 회비 아코디언 카드
                    ======================================================== */}
@@ -4425,7 +4425,7 @@ export default function MeetingDetailPage({
 
             {/* TAB 3: 귀가현황 (One-Click Safe Return Check & Member Status List) */}
             {loungeTab === 'returns' && (
-              <div className="lounge-tab-content-wrap stack-gap">
+              <div className="lounge-tab-content-wrap lounge-unified-stack">
                 <div className="lounge-settle-hero">
                   <div
                     className="meeting-top"

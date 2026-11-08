@@ -2759,11 +2759,17 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   font-weight: 700;
 }
 
+/* Unified Section Stack across Rounds, Settlement, and Returns tabs */
+.lounge-unified-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px !important;
+}
+
 /* Rounds Tab Container - Seamless on #AFC1CF Canvas */
 .lounge-rounds-wrap {
   background: transparent;
   border: none;
-  padding: 0 0 18px 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -2780,6 +2786,8 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-base);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 12px 14px;
+  box-sizing: border-box;
 }
 
 .bung-lounge-section .stat-box {
@@ -2794,7 +2802,8 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-base);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  padding: 4px 12px;
+  padding: 6px 14px;
+  box-sizing: border-box;
 }
 
 .bung-lounge-section .album-header-bar {
@@ -2817,7 +2826,9 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 }
 
 .lounge-round-accordion-header {
-  padding: 10px 12px;
+  padding: 11px 14px;
+  min-height: 48px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -4004,17 +4015,19 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 }
 
 .settle-accordion-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-base);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .settle-accordion-header {
   width: 100%;
-  padding: 14px 16px;
-  background: var(--color-surface);
+  padding: 11px 14px;
+  min-height: 48px;
+  box-sizing: border-box;
+  background: #ffffff;
   border: none;
   cursor: pointer;
   display: flex;
