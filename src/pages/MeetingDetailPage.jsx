@@ -5579,7 +5579,7 @@ export default function MeetingDetailPage({
                                   whiteSpace: 'nowrap'
                                 }}
                               >
-                                {c.afterBadge?.label || c.afterBadge?.name} 달성 ⭐
+                                {c.afterBadge?.label || c.afterBadge?.name || (typeof c.afterBadge === 'string' ? c.afterBadge : '')} 달성 ⭐
                               </span>
                             )}
                           </div>
@@ -5604,6 +5604,7 @@ export default function MeetingDetailPage({
                       m.role === 'Leader' ||
                       m.role === 'Deputy' ||
                       m.uid === communityConfig?.leaderUid;
+                    const isSettled = isMeetingSettled;
 
                     return (
                       <div
@@ -5666,12 +5667,12 @@ export default function MeetingDetailPage({
                               운영진
                             </span>
                           )}
-                          {scoreInfo.isExpedition && (
+                          {scoreInfo?.isExpedition && (
                             <span
                               className="expedition-pill"
                               style={{ fontSize: '10.5px', whiteSpace: 'nowrap' }}
                             >
-                              {scoreInfo.label}
+                              {scoreInfo?.label}
                             </span>
                           )}
                           {isRookiePromotion && (
@@ -5701,7 +5702,7 @@ export default function MeetingDetailPage({
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              {afterBadge?.label || afterBadge?.name} ⭐
+                              {afterBadge?.label || afterBadge?.name || (typeof afterBadge === 'string' ? afterBadge : '')} ⭐
                             </span>
                           )}
                         </div>
