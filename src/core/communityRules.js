@@ -398,6 +398,9 @@ export const calculateMeetingSettlement = (meeting) => {
   const sponsorships = Array.isArray(meeting.sponsorships)
     ? meeting.sponsorships
     : [];
+  const preExpenses = Array.isArray(meeting.preExpenses)
+    ? meeting.preExpenses
+    : [];
   const manualOverrides = meeting.manualAmounts || {};
   const paymentStatuses = meeting.paymentStatuses || {};
   const depositStatuses = meeting.depositStatuses || {};
@@ -417,6 +420,11 @@ export const calculateMeetingSettlement = (meeting) => {
 
   const totalSponsorship = sponsorships.reduce(
     (sum, s) => sum + (Number(s.amount) || 0),
+    0
+  );
+
+  const totalPreExpense = preExpenses.reduce(
+    (sum, p) => sum + (Number(p.amount) || 0),
     0
   );
 
@@ -449,12 +457,20 @@ export const calculateMeetingSettlement = (meeting) => {
     };
   });
 
-  const totalSharedCost = Math.max(0, totalGrossCost - totalGoldenBellCost);
+  // Total shared cost includes rounds + pre-expenses minus golden bell
+  const totalRoundSharedCost = Math.max(0, totalGrossCost - totalGoldenBellCost);
+  const totalSharedCost = totalRoundSharedCost + totalPreExpense;
 
   // Sponsorship discount per participant (if any sponsorships exist)
   const sponsorshipPerPerson =
     allParticipantUids.length > 0
       ? totalSponsorship / allParticipantUids.length
+      : 0;
+
+  // Pre-expense per participant
+  const preExpensePerPerson =
+    allParticipantUids.length > 0
+      ? totalPreExpense / allParticipantUids.length
       : 0;
 
   // Build per-participant row
@@ -484,6 +500,18 @@ export const calculateMeetingSettlement = (meeting) => {
       // If this member paid the bill for this round (and it's not their own Golden Bell)
       if (rs.payerUid === uid && !rs.isGoldenBell) {
         paidOutOfPocket += rs.cost;
+      }
+    }
+
+    // Add pre-expense share for this participant
+    if (preExpensePerPerson > 0) {
+      rawRoundSum += preExpensePerPerson;
+    }
+
+    // If this member paid any pre-expenses out of pocket
+    for (const pe of preExpenses) {
+      if (pe.payerUid === uid) {
+        paidOutOfPocket += (Number(pe.amount) || 0);
       }
     }
 
@@ -551,6 +579,10 @@ export const calculateMeetingSettlement = (meeting) => {
   return {
     totalGrossCost,
     totalGoldenBellCost,
+    totalRoundCost: totalGrossCost,
+    totalRoundSharedCost,
+    totalPreExpense,
+    preExpenses,
     totalSponsorship,
     totalSharedCost,
     totalDepositAmount,
