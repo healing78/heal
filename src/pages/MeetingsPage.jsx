@@ -20,14 +20,6 @@ const WEEKDAY_FULL_KO = [
   '토요일'
 ];
 
-const REMINDER_OPTIONS = [
-  '15분 전',
-  '30분 전',
-  '1시간 전',
-  '1일 전',
-  '정각',
-  '알림 없음'
-];
 
 function formatKoreanFullDate(dateStr) {
   const clean = String(dateStr || '2026-11-04').slice(0, 10);
@@ -149,7 +141,7 @@ export default function MeetingsPage({
     allDay: false,
     placeDetail: '',
     region: '',
-    reminder: '15분 전',
+    advanceDeposit: '',
     requestAttendance: true
   });
 
@@ -237,7 +229,7 @@ export default function MeetingsPage({
       location: placeInput,
       placeDetail: placeInput,
       region: resolvedRegion,
-      reminder: newSchedule.reminder,
+      advanceDeposit: Number(newSchedule.advanceDeposit) || 0,
       requestAttendance: newSchedule.requestAttendance,
       treasurerUid: currentUser.uid,
       type: 'Casual',
@@ -254,7 +246,7 @@ export default function MeetingsPage({
       allDay: false,
       placeDetail: '',
       region: '',
-      reminder: '15분 전',
+      advanceDeposit: '',
       requestAttendance: true
     });
     setSubTab('open');
@@ -593,40 +585,27 @@ export default function MeetingsPage({
                 </div>
               </div>
 
-              {/* Row 6: Reminder Select */}
+              {/* Row 6: Advance Deposit Input (선입금 입력) */}
               <div className="calendar-field-row">
                 <div className="calendar-icon-col" aria-hidden="true">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="calendar-line-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
+                  <span style={{ fontSize: '15px' }}>💰</span>
                 </div>
                 <div className="calendar-body-col has-divider">
-                  <select
-                    aria-label="알림 시간"
-                    className="calendar-plain-select"
-                    value={newSchedule.reminder}
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    className="calendar-plain-input"
+                    placeholder="선입금 금액(원, 선택)"
+                    aria-label="선입금 금액"
+                    value={newSchedule.advanceDeposit || ''}
                     onChange={(e) =>
                       setNewSchedule({
                         ...newSchedule,
-                        reminder: e.target.value
+                        advanceDeposit: e.target.value
                       })
                     }
-                  >
-                    {REMINDER_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -755,6 +734,19 @@ export default function MeetingsPage({
                                 isPast ? 'is-settled' : ''
                               }`}
                             >
+                              {Number(mtg.advanceDeposit) > 0 && (
+                                <span
+                                  className="status-pill open"
+                                  style={{
+                                    marginRight: '6px',
+                                    fontSize: '11px',
+                                    padding: '2px 6px',
+                                    fontWeight: 700
+                                  }}
+                                >
+                                  선입금 {Number(mtg.advanceDeposit).toLocaleString()}원
+                                </span>
+                              )}
                               {mtg.title}
                             </h3>
                             <div className="schedule-time">

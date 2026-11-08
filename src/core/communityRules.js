@@ -400,6 +400,9 @@ export const calculateMeetingSettlement = (meeting) => {
     : [];
   const manualOverrides = meeting.manualAmounts || {};
   const paymentStatuses = meeting.paymentStatuses || {};
+  const depositStatuses = meeting.depositStatuses || {};
+  const personalDeposits = meeting.deposits || {};
+  const baseAdvanceDeposit = Number(meeting.advanceDeposit) || 0;
   const safeReturns = meeting.safeReturns || {};
   const roundingRule = meeting.roundingRule || 'floor100';
 
@@ -457,12 +460,20 @@ export const calculateMeetingSettlement = (meeting) => {
   // Build per-participant row
   const participantRows = allParticipantUids.map((uid) => {
     const attendedRounds = [];
+    const roundBreakdown = [];
     let rawRoundSum = 0;
     let paidOutOfPocket = 0;
 
     for (const rs of roundSummaries) {
       if ((rs.participants || []).includes(uid)) {
         attendedRounds.push(`${rs.roundNumber}차`);
+        roundBreakdown.push({
+          roundNumber: rs.roundNumber,
+          placeName: rs.placeName || `${rs.roundNumber}차`,
+          cost: rs.cost,
+          perPerson: rs.perPersonRounded,
+          isGoldenBell: rs.isGoldenBell
+        });
         if (!rs.isGoldenBell) {
           rawRoundSum += rs.perPersonRaw;
         }
@@ -487,8 +498,19 @@ export const calculateMeetingSettlement = (meeting) => {
       ? Number(manualOverrides[uid]) || 0
       : calculatedShare;
 
-    // Net amount to send to Treasurer (if negative, Treasurer owes this payer money!)
-    const netToPay = finalShare - paidOutOfPocket;
+    // 선입금 금액 (개인별 지정액 우선, 없으면 모임 기본 선입금)
+    const depositAmount =
+      personalDeposits[uid] !== undefined
+        ? Number(personalDeposits[uid]) || 0
+        : baseAdvanceDeposit;
+
+    const depositStatusObj = depositStatuses[uid] || {
+      paid: false,
+      confirmed: false
+    };
+
+    // Net amount to send to Treasurer (Q1-A 공식: 최종 회비 - 본인 선결제액 - 선입금)
+    const netToPay = finalShare - paidOutOfPocket - depositAmount;
 
     const statusObj = paymentStatuses[uid] || {
       paid: false,
@@ -498,10 +520,14 @@ export const calculateMeetingSettlement = (meeting) => {
     return {
       uid,
       attendedRounds,
+      roundBreakdown,
       calculatedShare,
       hasManualOverride,
       finalShare,
       paidOutOfPocket,
+      depositAmount,
+      depositPaid: Boolean(depositStatusObj.paid),
+      depositConfirmed: Boolean(depositStatusObj.confirmed),
       netToPay,
       paid: Boolean(statusObj.paid),
       confirmed: Boolean(statusObj.confirmed),
@@ -509,11 +535,22 @@ export const calculateMeetingSettlement = (meeting) => {
     };
   });
 
+  const totalDepositAmount = participantRows.reduce(
+    (sum, r) => sum + (r.depositAmount || 0),
+    0
+  );
+  const totalDepositConfirmedCount = participantRows.filter(
+    (r) => r.depositConfirmed
+  ).length;
+
   return {
     totalGrossCost,
     totalGoldenBellCost,
     totalSponsorship,
     totalSharedCost,
+    totalDepositAmount,
+    totalDepositConfirmedCount,
+    baseAdvanceDeposit,
     roundSummaries,
     participantRows
   };

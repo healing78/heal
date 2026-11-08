@@ -45,14 +45,6 @@ const WEEKDAY_FULL_KO = [
   '토요일'
 ];
 
-const REMINDER_OPTIONS = [
-  '15분 전',
-  '30분 전',
-  '1시간 전',
-  '1일 전',
-  '정각',
-  '알림 없음'
-];
 
 function formatKoreanFullDate(dateStr) {
   const clean = String(dateStr || '2026-11-04').slice(0, 10);
@@ -404,7 +396,7 @@ export default function MeetingDetailPage({
       cleanScheduleLocation(meeting.placeDetail, meeting.rounds?.[0]?.placeName) ||
       '',
     region: meeting.region || '',
-    reminder: meeting.reminder || '15분 전',
+    advanceDeposit: meeting.advanceDeposit !== undefined ? meeting.advanceDeposit : '',
     requestAttendance: meeting.requestAttendance !== false,
     treasurerUid: meeting.treasurerUid || meeting.hostUid,
     type: meeting.type || 'Casual',
@@ -412,6 +404,32 @@ export default function MeetingDetailPage({
   });
 
   const editRegionDetected = detectRegionFromText(infoForm.placeDetail);
+
+  // Settlement Tab 3대 아코디언 카드 상태 (기본값: 모두 접힌 상태)
+  const [isMyCostAccordionOpen, setIsMyCostAccordionOpen] = useState(false);
+  const [isSettleOverviewAccordionOpen, setIsSettleOverviewAccordionOpen] = useState(false);
+  const [isPersonalListAccordionOpen, setIsPersonalListAccordionOpen] = useState(false);
+
+  // 개인별 내역의 개인별 개별 아코디언 카드 열림 상태 (기본: 모두 접힘)
+  const [openPersonalUids, setOpenPersonalUids] = useState({});
+
+  // 수동 조정 상태 (Q4-A)
+  const [adjustingUid, setAdjustingUid] = useState(null);
+  const [manualAdjInput, setManualAdjInput] = useState('');
+  const [applySameAmountToAll, setApplySameAmountToAll] = useState(true);
+  const [previewAdjustedShare, setPreviewAdjustedShare] = useState(null);
+
+  // 선입금 설정 모달 / 인라인 폼
+  const [showAdvanceDepositModal, setShowAdvanceDepositModal] = useState(false);
+  const [advanceDepositInput, setAdvanceDepositInput] = useState(
+    meeting.advanceDeposit !== undefined ? String(meeting.advanceDeposit) : ''
+  );
+
+  // 간소화된 찬조 추가 1줄 폼
+  const [showSponsorInlineForm, setShowSponsorInlineForm] = useState(false);
+  const [inlineSponsorUid, setInlineSponsorUid] = useState('');
+  const [inlineSponsorAmount, setInlineSponsorAmount] = useState('');
+  const [inlineSponsorMemo, setInlineSponsorMemo] = useState('');
 
   const [myBankInput, setMyBankInput] = useState(
     currentUser?.bankAccount || ''
@@ -839,7 +857,7 @@ export default function MeetingDetailPage({
       region: editRegionDetected.recognized
         ? editRegionDetected.group.name
         : (infoForm.region || meeting.region || ''),
-      reminder: infoForm.reminder || '15분 전',
+      advanceDeposit: Number(infoForm.advanceDeposit) || 0,
       requestAttendance: infoForm.requestAttendance,
       treasurerUid: infoForm.treasurerUid,
       type: adminUser ? infoForm.type : meeting.type,
@@ -1034,6 +1052,126 @@ export default function MeetingDetailPage({
       }
     };
     await onUpdateMeeting(meeting.id, { paymentStatuses: nextStatuses });
+  };
+
+  // Attendee/Host toggles [선입금 입금 완료]
+  const handleToggleDepositPaid = async (uid) => {
+    const currentStatuses = meeting.depositStatuses || {};
+    const prev = currentStatuses[uid] || { paid: false, confirmed: false };
+    const nextPaid = !prev.paid;
+    const nextStatuses = {
+      ...currentStatuses,
+      [uid]: {
+        paid: nextPaid,
+        confirmed: nextPaid ? prev.confirmed : false
+      }
+    };
+    await onUpdateMeeting(meeting.id, { depositStatuses: nextStatuses });
+  };
+
+  // Host/Treasurer toggles [선입금 컨펌] (Q2-A 독립 컨펌)
+  const handleToggleDepositConfirm = async (uid) => {
+    if (!canManage) return;
+    const currentStatuses = meeting.depositStatuses || {};
+    const prev = currentStatuses[uid] || { paid: false, confirmed: false };
+    const nextConfirmed = !prev.confirmed;
+    const nextStatuses = {
+      ...currentStatuses,
+      [uid]: {
+        paid: nextConfirmed ? true : prev.paid,
+        confirmed: nextConfirmed
+      }
+    };
+    await onUpdateMeeting(meeting.id, { depositStatuses: nextStatuses });
+  };
+
+  // Update settlement note/remark in real-time (Q3-A)
+  const handleUpdateSettlementNote = async (key, noteText) => {
+    if (!canManage) return;
+    const currentNotes = meeting.settlementNotes || {};
+    await onUpdateMeeting(meeting.id, {
+      settlementNotes: {
+        ...currentNotes,
+        [key]: noteText
+      }
+    });
+  };
+
+  // Save/Update Advance Deposit amount
+  const handleSaveAdvanceDeposit = async (newAmount) => {
+    if (!canManage) return;
+    const numeric = Number(newAmount);
+    if (isNaN(numeric) || numeric < 0) return;
+    await onUpdateMeeting(meeting.id, {
+      advanceDeposit: numeric
+    });
+    setShowAdvanceDepositModal(false);
+  };
+
+  // Apply Manual Adjustment (Q4-A: 동일 금액 대상자 일괄 적용 옵션)
+  const handleApplyManualAdjustment = async (targetUid) => {
+    if (!canManage) return;
+    const adj = Number(manualAdjInput);
+    if (isNaN(adj) || adj === 0) {
+      alert('유효한 조정 금액을 입력해 주세요.');
+      return;
+    }
+
+    const targetRow = settlement.participantRows.find((r) => r.uid === targetUid);
+    if (!targetRow) return;
+
+    const curBase = targetRow.calculatedShare;
+    const newBase = Math.max(0, curBase - adj);
+
+    let uidsToApply = [targetUid];
+    if (applySameAmountToAll) {
+      // Q4-A: 현재 회비(calculatedShare)가 같은 모든 참가자에게 일괄 적용
+      uidsToApply = settlement.participantRows
+        .filter((r) => r.calculatedShare === curBase)
+        .map((r) => r.uid);
+    }
+
+    const isDiscount = adj > 0;
+    const confirmMsg =
+      applySameAmountToAll && uidsToApply.length > 1
+        ? `현재 금액(${curBase.toLocaleString()}원)이 같은 참석자 ${uidsToApply.length}명에게 일괄로 ${
+            isDiscount ? `${adj.toLocaleString()}원 할인` : `${Math.abs(adj).toLocaleString()}원 추가`
+          }을 적용하시겠습니까?\n\n(적용 후 부담금: ${newBase.toLocaleString()}원)`
+        : `조정 금액(${isDiscount ? `-${adj.toLocaleString()}원` : `+${Math.abs(adj).toLocaleString()}원`})을 적용하시겠습니까?\n\n(적용 후 부담금: ${newBase.toLocaleString()}원)`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    const nextManuals = { ...(meeting.manualAmounts || {}) };
+    uidsToApply.forEach((u) => {
+      nextManuals[u] = newBase;
+    });
+
+    await onUpdateMeeting(meeting.id, { manualAmounts: nextManuals });
+    setAdjustingUid(null);
+    setManualAdjInput('');
+    setPreviewAdjustedShare(null);
+  };
+
+  // Add 1-line compact sponsorship
+  const handleAddInlineSponsorship = async () => {
+    const numeric = Number(inlineSponsorAmount);
+    if (!inlineSponsorUid || !numeric || numeric <= 0) {
+      alert('찬조자와 찬조 금액을 올바르게 입력해 주세요.');
+      return;
+    }
+    const entry = {
+      id: `sp-${Date.now()}`,
+      uid: inlineSponsorUid,
+      amount: numeric,
+      memo: inlineSponsorMemo.trim() || '찬조금'
+    };
+    await onUpdateMeeting(meeting.id, {
+      sponsorships: [...sponsorships, entry]
+    });
+    setInlineSponsorUid('');
+    setInlineSponsorAmount('');
+    setInlineSponsorMemo('');
+    setShowSponsorInlineForm(false);
   };
 
   // Finalize meeting & grant attendance/expedition scores
@@ -1547,7 +1685,23 @@ export default function MeetingDetailPage({
           </div>
 
           <div className="detail-card-body">
-            <h2 className="detail-card-title">{meeting.title}</h2>
+            <h2 className="detail-card-title">
+              {Number(meeting.advanceDeposit) > 0 && (
+                <span
+                  className="status-pill open"
+                  style={{
+                    marginRight: '6px',
+                    fontSize: '12px',
+                    padding: '2px 8px',
+                    fontWeight: 700,
+                    verticalAlign: 'middle'
+                  }}
+                >
+                  선입금 {Number(meeting.advanceDeposit).toLocaleString()}원
+                </span>
+              )}
+              {meeting.title}
+            </h2>
             <div className="detail-card-datetime">
               {formatDetailDateTime(meeting)}
             </div>
@@ -1876,40 +2030,27 @@ export default function MeetingDetailPage({
                 </div>
               </div>
 
-              {/* Row 6: Reminder Select */}
+              {/* Row 6: Advance Deposit Input (선입금 입력) */}
               <div className="calendar-field-row">
                 <div className="calendar-icon-col" aria-hidden="true">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="calendar-line-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
+                  <span style={{ fontSize: '15px' }}>💰</span>
                 </div>
                 <div className="calendar-body-col has-divider">
-                  <select
-                    aria-label="알림 시간"
-                    className="calendar-plain-select"
-                    value={infoForm.reminder}
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    className="calendar-plain-input"
+                    placeholder="선입금 금액(원, 선택)"
+                    aria-label="선입금 금액"
+                    value={infoForm.advanceDeposit || ''}
                     onChange={(e) =>
                       setInfoForm({
                         ...infoForm,
-                        reminder: e.target.value
+                        advanceDeposit: e.target.value
                       })
                     }
-                  >
-                    {REMINDER_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -2399,7 +2540,22 @@ export default function MeetingDetailPage({
                 <span className="lounge-minimized-badge">
                   {metroStages[metroActiveIdx]?.label || '진행'}
                 </span>
-                <span className="lounge-minimized-title">{meeting.title}</span>
+                <span className="lounge-minimized-title">
+                  {Number(meeting.advanceDeposit) > 0 && (
+                    <span
+                      className="status-pill open"
+                      style={{
+                        marginRight: '6px',
+                        fontSize: '11px',
+                        padding: '1px 5px',
+                        fontWeight: 700
+                      }}
+                    >
+                      선입금 {Number(meeting.advanceDeposit).toLocaleString()}원
+                    </span>
+                  )}
+                  {meeting.title}
+                </span>
               </div>
               <button
                 type="button"
@@ -2427,7 +2583,22 @@ export default function MeetingDetailPage({
             >
               <div className="lounge-summary-header-row">
                 <div>
-                  <div className="lounge-summary-title">{meeting.title}</div>
+                  <div className="lounge-summary-title">
+                    {Number(meeting.advanceDeposit) > 0 && (
+                      <span
+                        className="status-pill open"
+                        style={{
+                          marginRight: '6px',
+                          fontSize: '12px',
+                          padding: '2px 6px',
+                          fontWeight: 700
+                        }}
+                      >
+                        선입금 {Number(meeting.advanceDeposit).toLocaleString()}원
+                      </span>
+                    )}
+                    {meeting.title}
+                  </div>
                   <div className="lounge-summary-meta">
                     <span>{meeting.date}</span>
                     {meeting.location && <span> · {meeting.location}</span>}
@@ -2562,8 +2733,19 @@ export default function MeetingDetailPage({
                 loungeTab === 'settlement' ? 'active' : ''
               }`}
               onClick={() => {
-                setLoungeTab('settlement');
-                setShowChatUsersAccordion(false);
+                if (loungeTab === 'settlement') {
+                  const allOpen =
+                    isMyCostAccordionOpen &&
+                    isSettleOverviewAccordionOpen &&
+                    isPersonalListAccordionOpen;
+                  const nextState = !allOpen;
+                  setIsMyCostAccordionOpen(nextState);
+                  setIsSettleOverviewAccordionOpen(nextState);
+                  setIsPersonalListAccordionOpen(nextState);
+                } else {
+                  setLoungeTab('settlement');
+                  setShowChatUsersAccordion(false);
+                }
               }}
             >
               정산
@@ -3355,85 +3537,241 @@ export default function MeetingDetailPage({
             )}
 
 
-            {/* TAB 2: 정산·회비 (Clean My Amount Hero + Member Status List + Collapsible Manager Drawer) */}
+            {/* TAB 2: 정산·회비 (3대 아코디언 카드: 나의 회비 / 정산 내역 / 개인별 내역) */}
             {loungeTab === 'settlement' && (
               <div className="lounge-tab-content-wrap stack-gap">
-                {/* My Settlement Summary Hero Box */}
-                <div className="lounge-settle-hero">
-                  <div className="meeting-top">
-                    <div>
-                      <div className="preview-caption">
-                        {mySettlementRow
-                          ? mySettlementRow.netToPay >= 0
-                            ? '내가 보낼 회비'
-                            : '총무에게 환급받을 정산금'
-                          : '1/N 정산 대상 총액'}
-                      </div>
-                      <div className="preview-value">
-                        {mySettlementRow
-                          ? `${Math.abs(
-                              mySettlementRow.netToPay
-                            ).toLocaleString()}원`
-                          : `${Math.max(
-                              0,
-                              settlement.totalSharedCost -
-                                settlement.totalSponsorship
-                            ).toLocaleString()}원`}
-                      </div>
+                {/* ========================================================
+                    [섹션 1] 나의 회비 아코디언 카드
+                   ======================================================== */}
+                <div className="settle-accordion-card">
+                  <div
+                    className="settle-accordion-header"
+                    onClick={() => setIsMyCostAccordionOpen(!isMyCostAccordionOpen)}
+                  >
+                    <div className="settle-accordion-header-left">
+                      <span className="settle-chevron">
+                        {isMyCostAccordionOpen ? '▼' : '▶'}
+                      </span>
+                      <strong style={{ fontSize: '15px' }}>나의 회비</strong>
                     </div>
 
-                    <div className="btn-row">
-                      {mySettlementRow && (
-                        <button
-                          type="button"
-                          className={`btn btn-sm ${
-                            mySettlementRow.paid ? 'btn-outline' : 'btn-primary'
-                          }`}
-                          onClick={() => handleTogglePaid(currentUser.uid)}
-                        >
-                          {mySettlementRow.confirmed
-                            ? '입금 컨펌됨 ✓'
-                            : mySettlementRow.paid
+                    <div
+                      className="settle-accordion-header-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {mySettlementRow ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          {/* 선입금 정보 */}
+                          {mySettlementRow.depositAmount > 0 && (
+                            <span className="settle-title-deposit">
+                              선입금 {mySettlementRow.depositAmount.toLocaleString()}원
+                              {mySettlementRow.depositConfirmed ? (
+                                <span className="deposit-tag confirmed">컨펌완료</span>
+                              ) : mySettlementRow.depositPaid ? (
+                                <span className="deposit-tag paid">입금완료</span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="btn btn-xs btn-outline"
+                                  style={{ marginLeft: '4px', padding: '2px 6px', fontSize: '11px' }}
+                                  onClick={() => handleToggleDepositPaid(currentUser.uid)}
+                                >
+                                  선입금완료
+                                </button>
+                              )}
+                            </span>
+                          )}
+
+                          {/* 최종 회비 & 입금 완료 버튼 */}
+                          <span className="settle-title-share">
+                            회비 {Math.abs(mySettlementRow.netToPay).toLocaleString()}원
+                          </span>
+
+                          <button
+                            type="button"
+                            className={`btn btn-xs ${
+                              mySettlementRow.confirmed
+                                ? 'btn-outline'
+                                : mySettlementRow.paid
+                                ? 'btn-outline'
+                                : 'btn-primary'
+                            }`}
+                            style={{ minHeight: '30px', padding: '4px 10px', fontSize: '12px', fontWeight: 600 }}
+                            onClick={() => handleTogglePaid(currentUser.uid)}
+                          >
+                            {mySettlementRow.confirmed
+                              ? '컨펌됨 ✓'
+                              : mySettlementRow.paid
                               ? '입금완료 해제'
                               : '입금 완료'}
-                        </button>
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="sub-meta">참석자 미등록</span>
                       )}
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={handleCopySettlementReport}
-                      >
-                        {copiedReport ? '복사됨' : '정산서 복사'}
-                      </button>
                     </div>
                   </div>
 
-                  <div className="lounge-bank-bar">
-                    <div className="sub-meta">
-                      입금 계좌 ({treasurerMember?.realName || '총무'}):{' '}
-                      <strong>
-                        {treasurerMember?.bankAccount || '계좌 미등록'}
-                      </strong>
+                  {isMyCostAccordionOpen && (
+                    <div className="settle-accordion-body">
+                      {mySettlementRow ? (
+                        <div className="settle-table-wrap">
+                          <table className="settle-data-table">
+                            <thead>
+                              <tr>
+                                <th>항목</th>
+                                <th>금액</th>
+                                <th>내용</th>
+                                <th>상태</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {/* 선입금 행 */}
+                              <tr style={{ background: '#f8fafc' }}>
+                                <td><strong>선입금</strong></td>
+                                <td style={{ color: '#0284c7', fontWeight: 600 }}>
+                                  {mySettlementRow.depositAmount > 0
+                                    ? `-${mySettlementRow.depositAmount.toLocaleString()}원`
+                                    : '0원'}
+                                </td>
+                                <td>모임 참가 선입금</td>
+                                <td>
+                                  {mySettlementRow.depositAmount > 0 ? (
+                                    mySettlementRow.depositConfirmed ? (
+                                      <span className="deposit-tag confirmed">컨펌완료 ✓</span>
+                                    ) : mySettlementRow.depositPaid ? (
+                                      <span className="deposit-tag paid">입금확인중</span>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        className="btn btn-xs btn-outline"
+                                        onClick={() => handleToggleDepositPaid(currentUser.uid)}
+                                      >
+                                        입금완료
+                                      </button>
+                                    )
+                                  ) : (
+                                    <span className="sub-meta">해당없음</span>
+                                  )}
+                                </td>
+                              </tr>
+
+                              {/* 차수별 참석 행 */}
+                              {mySettlementRow.roundBreakdown.map((rb) => {
+                                if (!rb.attended) return null;
+                                return (
+                                  <tr key={rb.roundNumber}>
+                                    <td>{rb.roundNumber}차</td>
+                                    <td>{rb.share.toLocaleString()}원</td>
+                                    <td>{rb.title || `${rb.roundNumber}차 모임`}</td>
+                                    <td>
+                                      <span className="deposit-tag confirmed">참석</span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+
+                              {/* 찬조/스폰서 할인 */}
+                              {mySettlementRow.sponsorDiscount > 0 && (
+                                <tr>
+                                  <td>찬조/골든벨</td>
+                                  <td style={{ color: '#16a34a' }}>
+                                    -{mySettlementRow.sponsorDiscount.toLocaleString()}원
+                                  </td>
+                                  <td>찬조 할인 적용</td>
+                                  <td>적용됨</td>
+                                </tr>
+                              )}
+
+                              {/* 수동 조정 */}
+                              {mySettlementRow.manualAdjustment !== 0 && (
+                                <tr>
+                                  <td>수동 조정</td>
+                                  <td style={{ color: mySettlementRow.manualAdjustment > 0 ? '#ef4444' : '#16a34a' }}>
+                                    {mySettlementRow.manualAdjustment > 0 ? '+' : ''}
+                                    {mySettlementRow.manualAdjustment.toLocaleString()}원
+                                  </td>
+                                  <td>총무/벙주 수동조정</td>
+                                  <td>반영됨</td>
+                                </tr>
+                              )}
+
+                              {/* 총합계 행 */}
+                              <tr style={{ background: '#f1f5f9', fontWeight: 700 }}>
+                                <td>총합계</td>
+                                <td style={{ color: '#1e293b', fontSize: '14px' }}>
+                                  {Math.abs(mySettlementRow.netToPay).toLocaleString()}원
+                                </td>
+                                <td>{mySettlementRow.netToPay >= 0 ? '최종 보낼 회비' : '총무에게 환급받을 금액'}</td>
+                                <td>
+                                  {mySettlementRow.confirmed ? (
+                                    <span className="deposit-tag confirmed">정산 완료 ✓</span>
+                                  ) : mySettlementRow.paid ? (
+                                    <span className="deposit-tag paid">확인 대기중</span>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className="btn btn-xs btn-primary"
+                                      onClick={() => handleTogglePaid(currentUser.uid)}
+                                    >
+                                      입금 완료
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="empty-helper-text" style={{ padding: '16px' }}>
+                          현재 모임의 참석자 목록에 포함되어 있지 않습니다.
+                        </div>
+                      )}
                     </div>
-                    <div className="btn-row">
-                      {treasurerMember?.bankAccount && (
+                  )}
+                </div>
+
+                {/* ========================================================
+                    [섹션 2] 정산 내역 아코디언 카드
+                   ======================================================== */}
+                <div className="settle-accordion-card">
+                  <div
+                    className="settle-accordion-header"
+                    onClick={() => setIsSettleOverviewAccordionOpen(!isSettleOverviewAccordionOpen)}
+                  >
+                    <div className="settle-accordion-header-left">
+                      <span className="settle-chevron">
+                        {isSettleOverviewAccordionOpen ? '▼' : '▶'}
+                      </span>
+                      <strong style={{ fontSize: '15px' }}>정산 내역</strong>
+                    </div>
+
+                    <div
+                      className="settle-accordion-header-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="settle-bank-wrap">
+                        <span className="settle-bank-label">입금계좌:</span>
+                        <span className="settle-bank-val">
+                          {treasurerMember?.bankAccount || '총무 계좌 미등록'}
+                        </span>
+                        {treasurerMember?.bankAccount && (
+                          <button
+                            type="button"
+                            className="btn btn-xs btn-outline"
+                            onClick={() => handleCopyAccount(treasurerMember.bankAccount)}
+                          >
+                            {copiedAccount ? '복사됨' : '계좌 복사'}
+                          </button>
+                        )}
                         <button
                           type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() =>
-                            handleCopyAccount(treasurerMember.bankAccount)
-                          }
+                          className="btn btn-xs btn-outline"
+                          onClick={() => setEditingBank((prev) => !prev)}
                         >
-                          {copiedAccount ? '복사됨' : '계좌 복사'}
+                          {editingBank ? '닫기' : '내 계좌'}
                         </button>
-                      )}
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => setEditingBank((prev) => !prev)}
-                      >
-                        {editingBank ? '닫기' : '내 계좌'}
-                      </button>
+                      </div>
                     </div>
                   </div>
 
@@ -3441,358 +3779,645 @@ export default function MeetingDetailPage({
                     <form
                       onSubmit={handleSaveMyBank}
                       className="inline-input-row"
-                      style={{ marginTop: '6px' }}
+                      style={{ padding: '8px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}
                     >
                       <input
                         type="text"
                         placeholder="은행명 계좌번호 (예금주)"
                         value={myBankInput}
                         onChange={(e) => setMyBankInput(e.target.value)}
+                        style={{ height: '36px' }}
                       />
-                      <button type="submit" className="btn btn-primary btn-sm">
+                      <button type="submit" className="btn btn-primary btn-sm" style={{ height: '36px' }}>
                         저장
                       </button>
                     </form>
                   )}
-                </div>
 
-                {/* Compact 3-Column Total Cost Summary */}
-                <div className="stats-grid">
-                  <div className="stat-box">
-                    <span className="stat-label">총 지출</span>
-                    <strong className="stat-value">
-                      {settlement.totalGrossCost.toLocaleString()}원
-                    </strong>
-                  </div>
-                  <div className="stat-box">
-                    <span className="stat-label">찬조·골든벨</span>
-                    <strong className="stat-value">
-                      {(
-                        settlement.totalGoldenBellCost +
-                        settlement.totalSponsorship
-                      ).toLocaleString()}
-                      원
-                    </strong>
-                  </div>
-                  <div className="stat-box">
-                    <span className="stat-label">1/N 대상액</span>
-                    <strong className="stat-value">
-                      {Math.max(
-                        0,
-                        settlement.totalSharedCost - settlement.totalSponsorship
-                      ).toLocaleString()}
-                      원
-                    </strong>
-                  </div>
-                </div>
-
-                {/* Per-Participant Clean Payment Status List */}
-                <div className="divider-list">
-                  {settlement.participantRows.map((row) => {
-                    const m = members.find((mem) => mem.uid === row.uid);
-                    if (!m) return null;
-                    const isMe = row.uid === currentUser?.uid;
-
-                    return (
-                      <div key={row.uid} className="ranking-row">
-                        <div className="rank-left">
-                          <strong>{m.realName}</strong>
-                          <span className="location-pill">
-                            {row.attendedRounds.join(',') || '미참석'}
-                          </span>
-                          <span
-                            className={`status-pill ${
-                              row.confirmed ? 'open' : 'settled'
-                            }`}
-                          >
-                            {row.confirmed
-                              ? '컨펌완료'
-                              : row.paid
-                                ? '입금완료'
-                                : '미입금'}
+                  {isSettleOverviewAccordionOpen && (
+                    <div className="settle-accordion-body stack-gap">
+                      {/* 기존 3개 요약 카드 (총 지출, 골든벨/찬조, 1/N 대상액) */}
+                      <div className="preview-metrics">
+                        <div className="metric-box">
+                          <span className="metric-label">총 지출 금액</span>
+                          <strong className="metric-value">
+                            {settlement.totalSharedCost.toLocaleString()}원
+                          </strong>
+                          <span className="sub-meta">영수증 합산</span>
+                        </div>
+                        <div className="metric-box">
+                          <span className="metric-label">골든벨 · 찬조</span>
+                          <strong className="metric-value" style={{ color: '#16a34a' }}>
+                            -{settlement.totalSponsorship.toLocaleString()}원
+                          </strong>
+                          <span className="sub-meta">
+                            {settlement.sponsors.length}건 찬조
                           </span>
                         </div>
+                        <div className="metric-box highlight">
+                          <span className="metric-label">1/N 정산 대상액</span>
+                          <strong className="metric-value">
+                            {Math.max(
+                              0,
+                              settlement.totalSharedCost - settlement.totalSponsorship
+                            ).toLocaleString()}원
+                          </strong>
+                          <span className="sub-meta">회비 배분 총액</span>
+                        </div>
+                      </div>
 
-                        <div className="badge-group">
-                          <div style={{ textAlign: 'right' }}>
-                            <strong className="score-highlight">
-                              {row.netToPay >= 0
-                                ? `${row.netToPay.toLocaleString()}원`
-                                : `환급 +${Math.abs(
-                                    row.netToPay
-                                  ).toLocaleString()}원`}
-                            </strong>
-                            {row.paidOutOfPocket > 0 && (
-                              <div className="sub-meta">
-                                선결제 {row.paidOutOfPocket.toLocaleString()}원
+                      {/* 모임 전체 정산표 (항목, 금액, 내용, 비고) */}
+                      <div className="settle-table-wrap">
+                        <table className="settle-data-table">
+                          <thead>
+                            <tr>
+                              <th style={{ width: '80px' }}>항목</th>
+                              <th style={{ width: '100px' }}>금액</th>
+                              <th>내용</th>
+                              <th style={{ width: '140px' }}>비고</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* 차수별 행 */}
+                            {rounds.map((round) => {
+                              const attendees = members.filter((m) =>
+                                (round.attendeeUids || []).includes(m.uid)
+                              );
+                              const noteKey = `round_${round.roundNumber}`;
+                              return (
+                                <tr key={round.roundNumber}>
+                                  <td><strong>{round.roundNumber}차</strong></td>
+                                  <td>{(round.amount || 0).toLocaleString()}원</td>
+                                  <td>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
+                                      {attendees.length > 0 ? (
+                                        attendees.map((att) => (
+                                          <span key={att.uid} className="settle-name-badge">
+                                            {att.realName}
+                                          </span>
+                                        ))
+                                      ) : (
+                                        <span className="sub-meta">참석자 없음</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    {canManage ? (
+                                      <input
+                                        type="text"
+                                        className="settle-note-input"
+                                        placeholder="비고 입력"
+                                        defaultValue={meeting.settlementNotes?.[noteKey] || ''}
+                                        onBlur={(e) => handleUpdateSettlementNote(noteKey, e.target.value)}
+                                      />
+                                    ) : (
+                                      <span className="sub-meta">
+                                        {meeting.settlementNotes?.[noteKey] || '-'}
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+
+                            {/* 찬조금 행 */}
+                            {settlement.sponsors.map((sp, idx) => {
+                              const spMember = members.find((m) => m.uid === sp.sponsorUid);
+                              const noteKey = `sponsor_${idx}`;
+                              return (
+                                <tr key={noteKey} style={{ background: '#f0fdf4' }}>
+                                  <td><strong>찬조금</strong></td>
+                                  <td style={{ color: '#16a34a' }}>
+                                    -{(sp.amount || 0).toLocaleString()}원
+                                  </td>
+                                  <td>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                      <span className="settle-name-badge" style={{ borderColor: '#86efac', background: '#dcfce7' }}>
+                                        {spMember?.realName || '찬조자'}
+                                      </span>
+                                      {sp.memo && <span className="sub-meta">({sp.memo})</span>}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    {canManage ? (
+                                      <input
+                                        type="text"
+                                        className="settle-note-input"
+                                        placeholder="비고 입력"
+                                        defaultValue={meeting.settlementNotes?.[noteKey] || sp.memo || ''}
+                                        onBlur={(e) => handleUpdateSettlementNote(noteKey, e.target.value)}
+                                      />
+                                    ) : (
+                                      <span className="sub-meta">
+                                        {meeting.settlementNotes?.[noteKey] || sp.memo || '-'}
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+
+                            {/* 선입금 행 */}
+                            {settlement.totalDepositAmount > 0 && (
+                              <tr style={{ background: '#f0f9ff' }}>
+                                <td><strong>선입금</strong></td>
+                                <td style={{ color: '#0284c7' }}>
+                                  {(settlement.totalDepositAmount || 0).toLocaleString()}원
+                                </td>
+                                <td>
+                                  선입금 총합 ({settlement.totalDepositConfirmedCount}명 컨펌 / 총 {settlement.participantRows.filter(r => r.depositAmount > 0).length}명)
+                                </td>
+                                <td>
+                                  {canManage ? (
+                                    <input
+                                      type="text"
+                                      className="settle-note-input"
+                                      placeholder="비고 입력"
+                                      defaultValue={meeting.settlementNotes?.['deposit'] || ''}
+                                      onBlur={(e) => handleUpdateSettlementNote('deposit', e.target.value)}
+                                    />
+                                  ) : (
+                                    <span className="sub-meta">
+                                      {meeting.settlementNotes?.['deposit'] || '-'}
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            )}
+
+                            {/* 정산표 총합 행 */}
+                            <tr style={{ background: '#f1f5f9', fontWeight: 700 }}>
+                              <td>총합</td>
+                              <td style={{ fontSize: '14px', color: '#0f172a' }}>
+                                {settlement.totalSharedCost.toLocaleString()}원
+                              </td>
+                              <td>
+                                실 배분액: {Math.max(0, settlement.totalSharedCost - settlement.totalSponsorship).toLocaleString()}원
+                              </td>
+                              <td>
+                                {canManage ? (
+                                  <input
+                                    type="text"
+                                    className="settle-note-input"
+                                    placeholder="총합 비고"
+                                    defaultValue={meeting.settlementNotes?.['total'] || ''}
+                                    onBlur={(e) => handleUpdateSettlementNote('total', e.target.value)}
+                                  />
+                                ) : (
+                                  <span className="sub-meta">
+                                    {meeting.settlementNotes?.['total'] || '-'}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* 정산표 아래 3개 버튼: 찬조 추가, 선입금 추가, 정산서 복사 */}
+                      <div className="settle-btn-group">
+                        {canManage && (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-outline btn-sm"
+                              onClick={() => setShowSponsorInlineForm(!showSponsorInlineForm)}
+                            >
+                              + 찬조 추가
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-outline btn-sm"
+                              onClick={() => {
+                                setAdvanceDepositInput(meeting.advanceDeposit || '');
+                                setShowAdvanceDepositModal(true);
+                              }}
+                            >
+                              + 선입금 추가
+                            </button>
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={handleCopySettlementReport}
+                        >
+                          {copiedReport ? '복사됨 ✓' : '정산서 복사'}
+                        </button>
+                      </div>
+
+                      {/* 찬조 추가 한 줄 폼 (기존 디자인 대체, 한 라인 배치, 입력창 높이 확대) */}
+                      {showSponsorInlineForm && canManage && (
+                        <div className="settle-inline-form">
+                          <select
+                            className="settle-input-tall"
+                            style={{ flex: 1, minWidth: '110px' }}
+                            value={inlineSponsorUid}
+                            onChange={(e) => setInlineSponsorUid(e.target.value)}
+                          >
+                            <option value="">찬조자 선택</option>
+                            {members.map((m) => (
+                              <option key={m.uid} value={m.uid}>
+                                {m.realName}
+                              </option>
+                            ))}
+                          </select>
+
+                          <input
+                            type="number"
+                            step="1000"
+                            placeholder="찬조 금액"
+                            className="settle-input-tall"
+                            style={{ flex: 1, minWidth: '95px' }}
+                            value={inlineSponsorAmount}
+                            onChange={(e) => setInlineSponsorAmount(e.target.value)}
+                          />
+
+                          <input
+                            type="text"
+                            placeholder="내용 (선택)"
+                            className="settle-input-tall"
+                            style={{ flex: 1.5, minWidth: '110px' }}
+                            value={inlineSponsorMemo}
+                            onChange={(e) => setInlineSponsorMemo(e.target.value)}
+                          />
+
+                          <button
+                            type="button"
+                            className="btn btn-primary settle-input-tall"
+                            style={{ padding: '0 14px', whiteSpace: 'nowrap' }}
+                            onClick={handleAddInlineSponsorship}
+                          >
+                            추가
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline settle-input-tall"
+                            style={{ padding: '0 10px', whiteSpace: 'nowrap' }}
+                            onClick={() => setShowSponsorInlineForm(false)}
+                          >
+                            취소
+                          </button>
+                        </div>
+                      )}
+
+                      {/* 선입금 추가 / 수정 인라인 모달 */}
+                      {showAdvanceDepositModal && canManage && (
+                        <div className="settle-inline-form" style={{ background: '#f0f9ff', borderColor: '#bae6fd' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#0369a1', alignSelf: 'center' }}>
+                            기본 선입금:
+                          </span>
+                          <input
+                            type="number"
+                            step="1000"
+                            placeholder="선입금 금액 (원)"
+                            className="settle-input-tall"
+                            style={{ flex: 1, minWidth: '120px' }}
+                            value={advanceDepositInput}
+                            onChange={(e) => setAdvanceDepositInput(e.target.value)}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-primary settle-input-tall"
+                            style={{ padding: '0 14px', whiteSpace: 'nowrap' }}
+                            onClick={handleSaveAdvanceDeposit}
+                          >
+                            저장
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline settle-input-tall"
+                            style={{ padding: '0 10px', whiteSpace: 'nowrap' }}
+                            onClick={() => setShowAdvanceDepositModal(false)}
+                          >
+                            취소
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* ========================================================
+                    [섹션 3] 개인별 내역 아코디언 카드 (각 참석자별 개별 아코디언)
+                   ======================================================== */}
+                <div className="settle-accordion-card">
+                  <div
+                    className="settle-accordion-header"
+                    onClick={() => setIsPersonalListAccordionOpen(!isPersonalListAccordionOpen)}
+                  >
+                    <div className="settle-accordion-header-left">
+                      <span className="settle-chevron">
+                        {isPersonalListAccordionOpen ? '▼' : '▶'}
+                      </span>
+                      <strong style={{ fontSize: '15px' }}>개인별 내역</strong>
+                      <span className="sub-meta">({settlement.participantRows.length}명)</span>
+                    </div>
+
+                    <div className="settle-accordion-header-right">
+                      <span className="sub-meta">
+                        {settlement.participantRows.filter(r => r.confirmed).length} / {settlement.participantRows.length}명 컨펌
+                      </span>
+                    </div>
+                  </div>
+
+                  {isPersonalListAccordionOpen && (
+                    <div className="settle-accordion-body stack-gap" style={{ padding: '12px' }}>
+                      {settlement.participantRows.map((row) => {
+                        const m = members.find((mem) => mem.uid === row.uid);
+                        if (!m) return null;
+                        const isPersonOpen = openPersonalUids.has(row.uid);
+                        const isAdjustingThis = adjustingUid === row.uid;
+
+                        return (
+                          <div
+                            key={row.uid}
+                            className="settle-person-card"
+                            style={{
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              background: '#fff'
+                            }}
+                          >
+                            {/* 개인 카드 Header: 이름과 총금액만 표시 */}
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '10px 14px',
+                                background: isPersonOpen ? '#f8fafc' : '#ffffff',
+                                cursor: 'pointer',
+                                borderBottom: isPersonOpen ? '1px solid #e2e8f0' : 'none'
+                              }}
+                              onClick={() => {
+                                setOpenPersonalUids((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(row.uid)) {
+                                    next.delete(row.uid);
+                                  } else {
+                                    next.add(row.uid);
+                                  }
+                                  return next;
+                                });
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span className="settle-chevron" style={{ fontSize: '11px', color: '#64748b' }}>
+                                  {isPersonOpen ? '▼' : '▶'}
+                                </span>
+                                <span className="settle-name-badge" style={{ fontWeight: 600 }}>
+                                  {m.realName}
+                                </span>
+                                {row.confirmed && (
+                                  <span className="deposit-tag confirmed" style={{ fontSize: '10px' }}>
+                                    컨펌완료
+                                  </span>
+                                )}
+                              </div>
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <strong style={{ fontSize: '14px', color: '#1e293b' }}>
+                                  {Math.abs(row.netToPay).toLocaleString()}원
+                                </strong>
+                              </div>
+                            </div>
+
+                            {/* 개인 카드 Body: 개인 정산표 형식 */}
+                            {isPersonOpen && (
+                              <div style={{ padding: '12px' }} className="stack-gap">
+                                <div className="settle-table-wrap">
+                                  <table className="settle-data-table">
+                                    <thead>
+                                      <tr>
+                                        <th>항목</th>
+                                        <th>금액</th>
+                                        <th>내용</th>
+                                        <th>컨펌</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {/* 맨 위 라인: 선입금 금액과 컨펌 */}
+                                      <tr style={{ background: '#f8fafc' }}>
+                                        <td><strong>선입금</strong></td>
+                                        <td style={{ color: '#0284c7', fontWeight: 600 }}>
+                                          {row.depositAmount > 0
+                                            ? `-${row.depositAmount.toLocaleString()}원`
+                                            : '0원'}
+                                        </td>
+                                        <td>
+                                          {row.depositAmount > 0
+                                            ? row.depositPaid ? '선입금 완료 제출됨' : '선입금 미입금'
+                                            : '선입금 없음'}
+                                        </td>
+                                        <td>
+                                          {row.depositAmount > 0 ? (
+                                            canManage ? (
+                                              <button
+                                                type="button"
+                                                className={`btn btn-xs ${
+                                                  row.depositConfirmed ? 'btn-outline' : 'btn-primary'
+                                                }`}
+                                                onClick={() => handleToggleDepositConfirm(row.uid)}
+                                              >
+                                                {row.depositConfirmed ? '선입금컨펌 해제' : '선입금 컨펌'}
+                                              </button>
+                                            ) : (
+                                              <span className={`deposit-tag ${row.depositConfirmed ? 'confirmed' : 'paid'}`}>
+                                                {row.depositConfirmed ? '컨펌완료 ✓' : '확인중'}
+                                              </span>
+                                            )
+                                          ) : (
+                                            <span className="sub-meta">-</span>
+                                          )}
+                                        </td>
+                                      </tr>
+
+                                      {/* 차수별 참석 금액 */}
+                                      {row.roundBreakdown.map((rb) => {
+                                        if (!rb.attended) return null;
+                                        return (
+                                          <tr key={rb.roundNumber}>
+                                            <td>{rb.roundNumber}차</td>
+                                            <td>{rb.share.toLocaleString()}원</td>
+                                            <td>{rb.title || `${rb.roundNumber}차`}</td>
+                                            <td>
+                                              <span className="sub-meta">참석</span>
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
+
+                                      {/* 찬조 할인 */}
+                                      {row.sponsorDiscount > 0 && (
+                                        <tr>
+                                          <td>찬조 할인</td>
+                                          <td style={{ color: '#16a34a' }}>
+                                            -{row.sponsorDiscount.toLocaleString()}원
+                                          </td>
+                                          <td>찬조/골든벨 반영</td>
+                                          <td><span className="sub-meta">적용</span></td>
+                                        </tr>
+                                      )}
+
+                                      {/* 수동 조정 */}
+                                      {row.manualAdjustment !== 0 && (
+                                        <tr>
+                                          <td>수동 조정</td>
+                                          <td style={{ color: row.manualAdjustment > 0 ? '#ef4444' : '#16a34a' }}>
+                                            {row.manualAdjustment > 0 ? '+' : ''}
+                                            {row.manualAdjustment.toLocaleString()}원
+                                          </td>
+                                          <td>조정 반영</td>
+                                          <td><span className="sub-meta">반영됨</span></td>
+                                        </tr>
+                                      )}
+
+                                      {/* 총합계 라인: 금액과 컨펌 */}
+                                      <tr style={{ background: '#f1f5f9', fontWeight: 700 }}>
+                                        <td>총합계</td>
+                                        <td style={{ color: '#0f172a', fontSize: '13px' }}>
+                                          {Math.abs(row.netToPay).toLocaleString()}원
+                                        </td>
+                                        <td>
+                                          {row.paid ? '회비 입금 완료됨' : '입금 대기중'}
+                                        </td>
+                                        <td>
+                                          {canManage ? (
+                                            <button
+                                              type="button"
+                                              className={`btn btn-xs ${
+                                                row.confirmed ? 'btn-outline' : 'btn-primary'
+                                              }`}
+                                              onClick={() => handleToggleConfirm(row.uid)}
+                                            >
+                                              {row.confirmed ? '컨펌 해제' : '컨펌'}
+                                            </button>
+                                          ) : (
+                                            <span className={`deposit-tag ${row.confirmed ? 'confirmed' : 'paid'}`}>
+                                              {row.confirmed ? '컨펌완료 ✓' : '대기'}
+                                            </span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+
+                                {/* 수동조정 버튼 & 섹션 */}
+                                {canManage && (
+                                  <div>
+                                    <button
+                                      type="button"
+                                      className="btn btn-xs btn-outline"
+                                      style={{ marginTop: '4px' }}
+                                      onClick={() => {
+                                        if (isAdjustingThis) {
+                                          setAdjustingUid(null);
+                                          setPreviewAdjustedShare(null);
+                                        } else {
+                                          setAdjustingUid(row.uid);
+                                          setManualAdjInput('');
+                                          setPreviewAdjustedShare(null);
+                                        }
+                                      }}
+                                    >
+                                      {isAdjustingThis ? '수동조정 닫기' : '수동조정'}
+                                    </button>
+
+                                    {isAdjustingThis && (
+                                      <div
+                                        className="stack-gap"
+                                        style={{
+                                          marginTop: '8px',
+                                          padding: '12px',
+                                          background: '#f8fafc',
+                                          border: '1px solid #cbd5e1',
+                                          borderRadius: '6px'
+                                        }}
+                                      >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                          <input
+                                            type="number"
+                                            step="100"
+                                            placeholder="조정 금액 입력 (예: 1000 또는 -1000)"
+                                            className="settle-input-tall"
+                                            style={{ flex: 1, minWidth: '150px' }}
+                                            value={manualAdjInput}
+                                            onChange={(e) => {
+                                              setManualAdjInput(e.target.value);
+                                              const diff = parseInt(e.target.value, 10);
+                                              if (!isNaN(diff)) {
+                                                setPreviewAdjustedShare(row.netToPay - diff);
+                                              } else {
+                                                setPreviewAdjustedShare(null);
+                                              }
+                                            }}
+                                          />
+
+                                          <label
+                                            style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: '4px',
+                                              fontSize: '12px',
+                                              cursor: 'pointer'
+                                            }}
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={applySameAmountToAll}
+                                              onChange={(e) => setApplySameAmountToAll(e.target.checked)}
+                                            />
+                                            같은 금액에 일괄 적용
+                                          </label>
+
+                                          <button
+                                            type="button"
+                                            className="btn btn-xs btn-outline"
+                                            onClick={() => {
+                                              const diff = parseInt(manualAdjInput, 10);
+                                              if (!isNaN(diff)) {
+                                                setPreviewAdjustedShare(row.netToPay - diff);
+                                              }
+                                            }}
+                                          >
+                                            미리보기
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            className="btn btn-xs btn-primary"
+                                            onClick={() => handleApplyManualAdjustment(row)}
+                                          >
+                                            적용
+                                          </button>
+                                        </div>
+
+                                        {/* 하단 계산되는 식 명시: 현재 금액 - 조정 금액 = 적용 금액 */}
+                                        <div className="settle-calc-box">
+                                          현재 금액 ({row.netToPay.toLocaleString()}원) - 조정 금액 (
+                                          {parseInt(manualAdjInput, 10)
+                                            ? `${parseInt(manualAdjInput, 10).toLocaleString()}원`
+                                            : '0원'}
+                                          ) = 적용 금액 (
+                                          <strong>
+                                            {previewAdjustedShare !== null
+                                              ? `${previewAdjustedShare.toLocaleString()}원`
+                                              : `${(row.netToPay - (parseInt(manualAdjInput, 10) || 0)).toLocaleString()}원`}
+                                          </strong>
+                                          )
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
-
-                          {(isMe || canManage) && !row.confirmed && (
-                            <button
-                              type="button"
-                              className={`btn btn-sm ${
-                                row.paid ? 'btn-outline' : 'btn-primary'
-                              }`}
-                              onClick={() => handleTogglePaid(row.uid)}
-                            >
-                              {row.paid ? '입금됨' : '입금'}
-                            </button>
-                          )}
-
-                          {canManage && (
-                            <button
-                              type="button"
-                              className={`btn btn-sm ${
-                                row.confirmed ? 'btn-primary' : 'btn-outline'
-                              }`}
-                              onClick={() => handleToggleConfirmPayment(row.uid)}
-                            >
-                              {row.confirmed ? '컨펌✓' : '컨펌'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Collapsible Manager Tools (찬조금 / 끝전 / 수동조정 / 마감) */}
-                <div className="round-finance-box">
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() => setShowManagerTools((prev) => !prev)}
-                  >
-                    {showManagerTools
-                      ? '정산 상세 설정 닫기 ▲'
-                      : '찬조금 · 수동조정 열기 ▼'}
-                  </button>
-
-                  {showManagerTools && (
-                    <div className="stack-gap" style={{ marginTop: '8px' }}>
-                      {/* Sponsorships */}
-                      <div className="participants-box stack-gap">
-                        <strong>찬조금 내역</strong>
-                        {sponsorships.map((sp) => {
-                          const spMember = members.find(
-                            (m) => m.uid === sp.uid
-                          );
-                          return (
-                            <div key={sp.id} className="ranking-row">
-                              <span>
-                                {spMember ? spMember.realName : sp.uid} (
-                                {sp.memo})
-                              </span>
-                              <div className="badge-group">
-                                <strong>{sp.amount.toLocaleString()}원</strong>
-                                {canManage && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-outline btn-sm"
-                                    onClick={() =>
-                                      handleDeleteSponsorship(sp.id)
-                                    }
-                                  >
-                                    삭제
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        {/* 찬조 추가 폼 (검색형 찬조자 선택) */}
-                        <form
-                          onSubmit={handleAddSponsorship}
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px',
-                            marginTop: '8px'
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: '6px',
-                              alignItems: 'center'
-                            }}
-                          >
-                            <button
-                              type="button"
-                              className="btn btn-outline btn-sm"
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                flex: '1 1 140px',
-                                justifyContent: 'space-between'
-                              }}
-                              onClick={() =>
-                                setIsSponsorSearchOpen((prev) => !prev)
-                              }
-                            >
-                              <span>
-                                찬조자:{' '}
-                                <strong>
-                                  {(() => {
-                                    const spM = members.find(
-                                      (m) => m.uid === sponsorForm.uid
-                                    );
-                                    return spM
-                                      ? formatMemberNickname(spM)
-                                      : '선택';
-                                  })()}
-                                </strong>
-                              </span>
-                              <span style={{ fontSize: '10px', opacity: 0.7 }}>
-                                {isSponsorSearchOpen ? '▲' : '▼'}
-                              </span>
-                            </button>
-
-                            <input
-                              type="number"
-                              min="1000"
-                              step="1000"
-                              placeholder="찬조 금액"
-                              style={{ flex: '1 1 110px' }}
-                              value={sponsorForm.amount}
-                              onChange={(e) =>
-                                setSponsorForm({
-                                  ...sponsorForm,
-                                  amount: e.target.value
-                                })
-                              }
-                            />
-
-                            <input
-                              type="text"
-                              placeholder="내용(선택)"
-                              style={{ flex: '1 1 100px' }}
-                              value={sponsorForm.memo}
-                              onChange={(e) =>
-                                setSponsorForm({
-                                  ...sponsorForm,
-                                  memo: e.target.value
-                                })
-                              }
-                            />
-
-                            <button
-                              type="submit"
-                              className="btn btn-outline btn-sm"
-                              disabled={
-                                !sponsorForm.uid ||
-                                !sponsorForm.amount ||
-                                Number(sponsorForm.amount) <= 0
-                              }
-                            >
-                              찬조 추가
-                            </button>
-                          </div>
-
-                          {isSponsorSearchOpen && (
-                            <div className="admin-edit-search-box">
-                              <input
-                                type="text"
-                                className="admin-edit-search-input"
-                                placeholder="찬조자 검색 (이름·닉네임·지역)"
-                                value={sponsorSearchQuery}
-                                onChange={(e) =>
-                                  setSponsorSearchQuery(e.target.value)
-                                }
-                                autoFocus
-                              />
-                              <div className="admin-edit-search-list">
-                                {filteredSponsorCandidates.length === 0 ? (
-                                  <div
-                                    className="muted-text"
-                                    style={{
-                                      padding: '8px',
-                                      fontSize: '12px',
-                                      textAlign: 'center'
-                                    }}
-                                  >
-                                    일치하는 회원이 없습니다.
-                                  </div>
-                                ) : (
-                                  filteredSponsorCandidates.map((m) => {
-                                    const isSelected =
-                                      m.uid === sponsorForm.uid;
-                                    const isAttendee =
-                                      displayAttendeeUids.includes(m.uid);
-                                    return (
-                                      <button
-                                        key={m.uid}
-                                        type="button"
-                                        className={`admin-edit-search-item ${
-                                          isSelected ? 'is-selected' : ''
-                                        }`}
-                                        onClick={() => {
-                                          setSponsorForm((prev) => ({
-                                            ...prev,
-                                            uid: m.uid
-                                          }));
-                                          setIsSponsorSearchOpen(false);
-                                          setSponsorSearchQuery('');
-                                        }}
-                                      >
-                                        <span>{formatMemberNickname(m)}</span>
-                                        <span className="sub-meta">
-                                          {isAttendee ? '참석자' : m.city || ''}
-                                        </span>
-                                      </button>
-                                    );
-                                  })
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </form>
-                      </div>
-
-                      {/* Manual Override for Host/Treasurer */}
-                      {canManage && (
-                        <div className="participants-box stack-gap">
-                          <div className="meeting-top">
-                            <strong>수동 금액 조정</strong>
-                          </div>
-
-                          {settlement.participantRows.map((row) => {
-                            const m = members.find(
-                              (mem) => mem.uid === row.uid
-                            );
-                            if (!m) return null;
-                            return (
-                              <div key={row.uid} className="inline-input-row">
-                                <span style={{ minWidth: '70px' }}>
-                                  {m.realName}
-                                </span>
-                                <input
-                                  type="number"
-                                  step="100"
-                                  placeholder={`자동 (${row.calculatedShare.toLocaleString()}원)`}
-                                  value={
-                                    meeting.manualAmounts?.[row.uid] !==
-                                    undefined
-                                      ? meeting.manualAmounts[row.uid]
-                                      : ''
-                                  }
-                                  onChange={(e) =>
-                                    handleManualOverrideChange(
-                                      row.uid,
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

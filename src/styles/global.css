@@ -3992,3 +3992,181 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ==========================================================================
+   Settlement Tab Redesign (3 Accordion Cards & Settlement Tables)
+   ========================================================================== */
+
+.settle-accordion-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settle-accordion-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.settle-accordion-header {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.settle-accordion-header:hover {
+  background: var(--color-subtle-bg);
+}
+
+.settle-accordion-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary, #0f172a);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settle-accordion-body {
+  padding: 14px 16px;
+  border-top: 1px solid var(--color-divider);
+  background: var(--color-surface);
+}
+
+/* Settlement Data Table */
+.settle-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  margin-top: 10px;
+}
+
+.settle-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.settle-data-table th {
+  background: var(--color-subtle-bg);
+  padding: 10px 12px;
+  font-weight: 700;
+  color: var(--color-text-primary, #0f172a);
+  border-bottom: 1px solid var(--color-divider);
+  white-space: nowrap;
+}
+
+.settle-data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-divider);
+  vertical-align: middle;
+  color: var(--color-text);
+}
+
+.settle-data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.settle-data-table tr.total-row {
+  background: var(--color-subtle-bg);
+  font-weight: 700;
+}
+
+.settle-data-table tr.total-row td {
+  color: var(--color-primary);
+  font-size: 13.5px;
+}
+
+/* Name Badge */
+.settle-name-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  margin: 2px 3px 2px 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-subtle-bg);
+  border: 1px solid var(--color-border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary, #0f172a);
+  white-space: nowrap;
+}
+
+.settle-name-badge.is-host {
+  background: #fef3c7;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.settle-name-badge.is-treasurer {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* Note inline input */
+.settle-note-input {
+  width: 100%;
+  min-width: 100px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-base);
+  background: transparent;
+  color: var(--color-text);
+  transition: all 0.15s ease;
+}
+
+.settle-note-input:hover,
+.settle-note-input:focus {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+/* 1-Line Compact Form */
+.settle-inline-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 10px;
+  background: var(--color-subtle-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  margin-top: 10px;
+}
+
+.settle-input-tall {
+  height: 40px;
+  padding: 8px 10px;
+  font-size: 13.5px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Calculation preview box */
+.settle-calc-box {
+  background: var(--color-subtle-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-base);
+  padding: 10px 14px;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
