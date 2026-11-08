@@ -3896,43 +3896,20 @@ export default function MeetingDetailPage({
                                 const pSummary = parsePlaceSummary(rb.placeName || rb.title);
                                 const cleanPlaceName = pSummary.placeName || rb.title || `${rb.roundNumber}차 장소`;
                                 return (
-                                  <tr key={rb.roundNumber}>
-                                    <td style={{ minWidth: 0, overflow: 'hidden' }}>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, overflow: 'hidden' }}>
-                                        <span
-                                          className="platform-badge"
-                                          style={{
-                                            fontSize: '10px',
-                                            padding: '1px 6px',
-                                            whiteSpace: 'nowrap',
-                                            flexShrink: 0,
-                                            minWidth: '34px',
-                                            height: '22px',
-                                            boxSizing: 'border-box',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                          }}
-                                        >
-                                          {rb.roundNumber}차
-                                        </span>
-                                        <span
-                                          style={{
-                                            fontWeight: 600,
-                                            color: '#1e293b',
-                                            fontSize: '12.5px',
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            flex: 1,
-                                            minWidth: 0
-                                          }}
-                                          title={pSummary.address || cleanPlaceName}
-                                        >
-                                          {cleanPlaceName}
-                                        </span>
-                                      </div>
-                                    </td>
+                                    <tr key={rb.roundNumber}>
+                                      <td style={{ minWidth: 0, overflow: 'hidden' }}>
+                                        <div className="settle-place-cell">
+                                          <span className="settle-round-badge">
+                                            {rb.roundNumber}차
+                                          </span>
+                                          <span
+                                            className="settle-place-text"
+                                            title={pSummary.address || cleanPlaceName}
+                                          >
+                                            {cleanPlaceName}
+                                          </span>
+                                        </div>
+                                      </td>
                                     <td style={{ textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                       {(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원
                                     </td>
@@ -4207,29 +4184,12 @@ export default function MeetingDetailPage({
                                     {/* 1행: 차수, 장소(1줄 고정), 금액, 비고 */}
                                     <tr className="settle-row-main" style={{ background: '#ffffff' }}>
                                       <td style={{ minWidth: 0, overflow: 'hidden' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, overflow: 'hidden' }}>
-                                          <span
-                                            className="platform-badge"
-                                            style={{
-                                              fontSize: '10px',
-                                              padding: '1px 6px',
-                                              whiteSpace: 'nowrap',
-                                              flexShrink: 0,
-                                              minWidth: '32px'
-                                            }}
-                                          >
+                                        <div className="settle-place-cell">
+                                          <span className="settle-round-badge">
                                             {roundNum}차
                                           </span>
                                           <span
-                                            style={{
-                                              fontWeight: 700,
-                                              color: '#1e293b',
-                                              fontSize: '13px',
-                                              whiteSpace: 'nowrap',
-                                              overflow: 'hidden',
-                                              textOverflow: 'ellipsis',
-                                              wordBreak: 'keep-all'
-                                            }}
+                                            className="settle-place-text"
                                             title={pSummary.address || cleanPlaceName}
                                           >
                                             {cleanPlaceName}
@@ -5112,42 +5072,19 @@ export default function MeetingDetailPage({
                                           const cleanPlaceName = pSummary.placeName || rb.title || `${rb.roundNumber}차 장소`;
                                           return (
                                             <tr key={rb.roundNumber}>
-                                              <td style={{ minWidth: 0, overflow: 'hidden' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, overflow: 'hidden' }}>
-                                                  <span
-                                                    className="platform-badge"
-                                                    style={{
-                                                      fontSize: '10px',
-                                                      padding: '1px 6px',
-                                                      whiteSpace: 'nowrap',
-                                                      flexShrink: 0,
-                                                      minWidth: '34px',
-                                                      height: '22px',
-                                                      boxSizing: 'border-box',
-                                                      display: 'inline-flex',
-                                                      alignItems: 'center',
-                                                      justifyContent: 'center'
-                                                    }}
-                                                  >
-                                                    {rb.roundNumber}차
-                                                  </span>
-                                                  <span
-                                                    style={{
-                                                      fontWeight: 600,
-                                                      color: '#1e293b',
-                                                      fontSize: '12.5px',
-                                                      whiteSpace: 'nowrap',
-                                                      overflow: 'hidden',
-                                                      textOverflow: 'ellipsis',
-                                                      flex: 1,
-                                                      minWidth: 0
-                                                    }}
-                                                    title={pSummary.address || cleanPlaceName}
-                                                  >
-                                                    {cleanPlaceName}
-                                                  </span>
-                                                </div>
-                                              </td>
+                                      <td style={{ minWidth: 0, overflow: 'hidden' }}>
+                                        <div className="settle-place-cell">
+                                          <span className="settle-round-badge">
+                                            {rb.roundNumber}차
+                                          </span>
+                                          <span
+                                            className="settle-place-text"
+                                            title={pSummary.address || cleanPlaceName}
+                                          >
+                                            {cleanPlaceName}
+                                          </span>
+                                        </div>
+                                      </td>
                                               <td style={{ textAlign: 'right', fontWeight: 600 }}>
                                                 {(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원
                                               </td>

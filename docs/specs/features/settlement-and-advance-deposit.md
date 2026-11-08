@@ -166,9 +166,13 @@ settlementNotes: {
 | **금액** | 28% | 우측 정렬 | 차수별 분담액, 선입금 차감액(-), 찬조 할인액(-), 수동 조정액(±), 최종 실납부 총액 (볼드 강조) |
 | **상태/컨펌** | 20% | 중앙 정렬 | **나의 회비**: `참석` / `컨펌완료 ✓` / `입금완료` 버튼<br>**개인별 내역**: `참석` / `컨펌완료 ✓` / 총무 전용 `[컨펌]` / `[선입금 컨펌]` 원터치 버튼 |
 
-### (3) 순수 상호명 추출 (`parsePlaceSummary`) 연동 및 개행 방지
+### (3) 순수 상호명 추출 (`parsePlaceSummary`) 연동 및 1줄 고정 & 뱃지 찌그러짐 방지
 * 카카오 지도나 네이버 플레이스에서 복사해 온 복잡한 주소 및 전화번호 텍스트가 장소명 필드에 포함되어 있더라도, `parsePlaceSummary(placeName)` 함수를 통해 **순수 식당/상호명(예: `대물조개전골등갈비`, `야키토리잔잔`)**만 깔끔하게 추출하여 1열 내역에 뱃지와 함께 렌더링합니다.
-* **개행 방지 최적화**: `.platform-badge`에 `white-space: nowrap !important; flex-shrink: 0 !important; min-width: 34px !important;`를 부여하여 '1차' 뱃지가 세로로 쪼개지는 현상을 방지하였으며, 상호명에 `word-break: keep-all !important; font-size: 12.5px;`를 적용하여 단어 단위로 자연스럽게 정돈됩니다.
+* **뱃지 줄바꿈 및 상호명 2줄 개행 방지 CSS**:
+  - 테이블에 `table-layout: fixed; width: 100%;`를 적용하여 모바일 폭에서도 컬럼 너비(52%, 28%, 20%)가 깨지지 않도록 강제.
+  - `.settle-place-cell`: `display: flex; align-items: center; gap: 6px; min-width: 0; width: 100%; overflow: hidden;`
+  - `.settle-round-badge`: `font-size: 10.5px; font-weight: 700; padding: 1px 6px; white-space: nowrap !important; flex-shrink: 0 !important; min-width: 34px; height: 22px; line-height: 20px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px;` (세로 꺾임 '1 / 차' 완벽 차단)
+  - `.settle-place-text`: `font-weight: 600; color: var(--color-text); font-size: 12.5px; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; flex: 1; min-width: 0; display: block;` (상호명이 길어도 2줄로 꺾이지 않고 한 줄 고정 후 말줄임표 `...` 처리)
 
 ### (4) 적용 대상
 * `[섹션 1] 나의 회비` 아코디언 내부 정산표
