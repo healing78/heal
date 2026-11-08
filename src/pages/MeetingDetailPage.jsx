@@ -411,7 +411,7 @@ export default function MeetingDetailPage({
   const [isPersonalListAccordionOpen, setIsPersonalListAccordionOpen] = useState(false);
 
   // 개인별 내역의 개인별 개별 아코디언 카드 열림 상태 (기본: 모두 접힘)
-  const [openPersonalUids, setOpenPersonalUids] = useState({});
+  const [openPersonalUids, setOpenPersonalUids] = useState(() => new Set());
 
   // 수동 조정 상태 (Q4-A)
   const [adjustingUid, setAdjustingUid] = useState(null);
@@ -4128,7 +4128,7 @@ export default function MeetingDetailPage({
                       {settlement.participantRows.map((row) => {
                         const m = members.find((mem) => mem.uid === row.uid);
                         if (!m) return null;
-                        const isPersonOpen = openPersonalUids.has(row.uid);
+                        const isPersonOpen = openPersonalUids instanceof Set ? openPersonalUids.has(row.uid) : false;
                         const isAdjustingThis = adjustingUid === row.uid;
 
                         return (
@@ -4155,7 +4155,7 @@ export default function MeetingDetailPage({
                               }}
                               onClick={() => {
                                 setOpenPersonalUids((prev) => {
-                                  const next = new Set(prev);
+                                  const next = prev instanceof Set ? new Set(prev) : new Set();
                                   if (next.has(row.uid)) {
                                     next.delete(row.uid);
                                   } else {
