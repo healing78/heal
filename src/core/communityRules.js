@@ -470,8 +470,11 @@ export const calculateMeetingSettlement = (meeting) => {
         roundBreakdown.push({
           roundNumber: rs.roundNumber,
           placeName: rs.placeName || `${rs.roundNumber}차`,
+          title: rs.placeName || `${rs.roundNumber}차`,
           cost: rs.cost,
           perPerson: rs.perPersonRounded,
+          share: rs.perPersonRounded,
+          attended: true,
           isGoldenBell: rs.isGoldenBell
         });
         if (!rs.isGoldenBell) {
@@ -523,6 +526,8 @@ export const calculateMeetingSettlement = (meeting) => {
       roundBreakdown,
       calculatedShare,
       hasManualOverride,
+      manualAdjustment: hasManualOverride ? (finalShare - calculatedShare) : 0,
+      sponsorDiscount: sponsorshipPerPerson,
       finalShare,
       paidOutOfPocket,
       depositAmount,
@@ -552,7 +557,8 @@ export const calculateMeetingSettlement = (meeting) => {
     totalDepositConfirmedCount,
     baseAdvanceDeposit,
     roundSummaries,
-    participantRows
+    participantRows,
+    sponsors: sponsorships
   };
 };
 

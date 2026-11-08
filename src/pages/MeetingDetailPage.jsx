@@ -3657,26 +3657,23 @@ export default function MeetingDetailPage({
                               </tr>
 
                               {/* 차수별 참석 행 */}
-                              {mySettlementRow.roundBreakdown.map((rb) => {
-                                if (!rb.attended) return null;
-                                return (
-                                  <tr key={rb.roundNumber}>
-                                    <td>{rb.roundNumber}차</td>
-                                    <td>{rb.share.toLocaleString()}원</td>
-                                    <td>{rb.title || `${rb.roundNumber}차 모임`}</td>
-                                    <td>
-                                      <span className="deposit-tag confirmed">참석</span>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
+                              {(mySettlementRow.roundBreakdown || []).map((rb) => (
+                                <tr key={rb.roundNumber}>
+                                  <td>{rb.roundNumber}차</td>
+                                  <td>{(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원</td>
+                                  <td>{rb.title || rb.placeName || `${rb.roundNumber}차 모임`}</td>
+                                  <td>
+                                    <span className="deposit-tag confirmed">참석</span>
+                                  </td>
+                                </tr>
+                              ))}
 
                               {/* 찬조/스폰서 할인 */}
-                              {mySettlementRow.sponsorDiscount > 0 && (
+                              {(mySettlementRow.sponsorDiscount || 0) > 0 && (
                                 <tr>
                                   <td>찬조/골든벨</td>
                                   <td style={{ color: '#16a34a' }}>
-                                    -{mySettlementRow.sponsorDiscount.toLocaleString()}원
+                                    -{(mySettlementRow.sponsorDiscount || 0).toLocaleString()}원
                                   </td>
                                   <td>찬조 할인 적용</td>
                                   <td>적용됨</td>
@@ -3684,12 +3681,12 @@ export default function MeetingDetailPage({
                               )}
 
                               {/* 수동 조정 */}
-                              {mySettlementRow.manualAdjustment !== 0 && (
+                              {(mySettlementRow.manualAdjustment || 0) !== 0 && (
                                 <tr>
                                   <td>수동 조정</td>
-                                  <td style={{ color: mySettlementRow.manualAdjustment > 0 ? '#ef4444' : '#16a34a' }}>
-                                    {mySettlementRow.manualAdjustment > 0 ? '+' : ''}
-                                    {mySettlementRow.manualAdjustment.toLocaleString()}원
+                                  <td style={{ color: (mySettlementRow.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a' }}>
+                                    {(mySettlementRow.manualAdjustment || 0) > 0 ? '+' : ''}
+                                    {(mySettlementRow.manualAdjustment || 0).toLocaleString()}원
                                   </td>
                                   <td>총무/벙주 수동조정</td>
                                   <td>반영됨</td>
@@ -3700,9 +3697,9 @@ export default function MeetingDetailPage({
                               <tr style={{ background: '#f1f5f9', fontWeight: 700 }}>
                                 <td>총합계</td>
                                 <td style={{ color: '#1e293b', fontSize: '14px' }}>
-                                  {Math.abs(mySettlementRow.netToPay).toLocaleString()}원
+                                  {Math.abs(mySettlementRow.netToPay || 0).toLocaleString()}원
                                 </td>
-                                <td>{mySettlementRow.netToPay >= 0 ? '최종 보낼 회비' : '총무에게 환급받을 금액'}</td>
+                                <td>{(mySettlementRow.netToPay || 0) >= 0 ? '최종 보낼 회비' : '총무에게 환급받을 금액'}</td>
                                 <td>
                                   {mySettlementRow.confirmed ? (
                                     <span className="deposit-tag confirmed">정산 완료 ✓</span>
@@ -3811,7 +3808,7 @@ export default function MeetingDetailPage({
                             -{settlement.totalSponsorship.toLocaleString()}원
                           </strong>
                           <span className="sub-meta">
-                            {settlement.sponsors.length}건 찬조
+                            {(settlement.sponsors || sponsorships || []).length}건 찬조
                           </span>
                         </div>
                         <div className="metric-box highlight">
@@ -3839,15 +3836,18 @@ export default function MeetingDetailPage({
                           </thead>
                           <tbody>
                             {/* 차수별 행 */}
-                            {rounds.map((round) => {
+                            {(rounds || []).map((round, idx) => {
+                              const roundNum = round.roundNumber || idx + 1;
+                              const attendeeUids = round.participants || round.attendeeUids || [];
                               const attendees = members.filter((m) =>
-                                (round.attendeeUids || []).includes(m.uid)
+                                attendeeUids.includes(m.uid)
                               );
-                              const noteKey = `round_${round.roundNumber}`;
+                              const noteKey = `round_${roundNum}`;
+                              const roundCost = Number(round.cost ?? round.amount ?? 0);
                               return (
-                                <tr key={round.roundNumber}>
-                                  <td><strong>{round.roundNumber}차</strong></td>
-                                  <td>{(round.amount || 0).toLocaleString()}원</td>
+                                <tr key={roundNum}>
+                                  <td><strong>{roundNum}차</strong></td>
+                                  <td>{roundCost.toLocaleString()}원</td>
                                   <td>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
                                       {attendees.length > 0 ? (
@@ -3881,14 +3881,16 @@ export default function MeetingDetailPage({
                             })}
 
                             {/* 찬조금 행 */}
-                            {settlement.sponsors.map((sp, idx) => {
-                              const spMember = members.find((m) => m.uid === sp.sponsorUid);
+                            {(settlement.sponsors || sponsorships || []).map((sp, idx) => {
+                              const spUid = sp.sponsorUid || sp.uid;
+                              const spMember = members.find((m) => m.uid === spUid);
                               const noteKey = `sponsor_${idx}`;
+                              const spAmount = Number(sp.amount || 0);
                               return (
                                 <tr key={noteKey} style={{ background: '#f0fdf4' }}>
                                   <td><strong>찬조금</strong></td>
                                   <td style={{ color: '#16a34a' }}>
-                                    -{(sp.amount || 0).toLocaleString()}원
+                                    -{spAmount.toLocaleString()}원
                                   </td>
                                   <td>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
@@ -3925,7 +3927,7 @@ export default function MeetingDetailPage({
                                   {(settlement.totalDepositAmount || 0).toLocaleString()}원
                                 </td>
                                 <td>
-                                  선입금 총합 ({settlement.totalDepositConfirmedCount}명 컨펌 / 총 {settlement.participantRows.filter(r => r.depositAmount > 0).length}명)
+                                  선입금 총합 ({settlement.totalDepositConfirmedCount || 0}명 컨펌 / 총 {(settlement.participantRows || []).filter(r => (r.depositAmount || 0) > 0).length}명)
                                 </td>
                                 <td>
                                   {canManage ? (
@@ -4235,26 +4237,23 @@ export default function MeetingDetailPage({
                                       </tr>
 
                                       {/* 차수별 참석 금액 */}
-                                      {row.roundBreakdown.map((rb) => {
-                                        if (!rb.attended) return null;
-                                        return (
-                                          <tr key={rb.roundNumber}>
-                                            <td>{rb.roundNumber}차</td>
-                                            <td>{rb.share.toLocaleString()}원</td>
-                                            <td>{rb.title || `${rb.roundNumber}차`}</td>
-                                            <td>
-                                              <span className="sub-meta">참석</span>
-                                            </td>
-                                          </tr>
-                                        );
-                                      })}
+                                      {(row.roundBreakdown || []).map((rb) => (
+                                        <tr key={rb.roundNumber}>
+                                          <td>{rb.roundNumber}차</td>
+                                          <td>{(rb.share ?? rb.perPerson ?? 0).toLocaleString()}원</td>
+                                          <td>{rb.title || rb.placeName || `${rb.roundNumber}차`}</td>
+                                          <td>
+                                            <span className="sub-meta">참석</span>
+                                          </td>
+                                        </tr>
+                                      ))}
 
                                       {/* 찬조 할인 */}
-                                      {row.sponsorDiscount > 0 && (
+                                      {(row.sponsorDiscount || 0) > 0 && (
                                         <tr>
                                           <td>찬조 할인</td>
                                           <td style={{ color: '#16a34a' }}>
-                                            -{row.sponsorDiscount.toLocaleString()}원
+                                            -{(row.sponsorDiscount || 0).toLocaleString()}원
                                           </td>
                                           <td>찬조/골든벨 반영</td>
                                           <td><span className="sub-meta">적용</span></td>
@@ -4262,12 +4261,12 @@ export default function MeetingDetailPage({
                                       )}
 
                                       {/* 수동 조정 */}
-                                      {row.manualAdjustment !== 0 && (
+                                      {(row.manualAdjustment || 0) !== 0 && (
                                         <tr>
                                           <td>수동 조정</td>
-                                          <td style={{ color: row.manualAdjustment > 0 ? '#ef4444' : '#16a34a' }}>
-                                            {row.manualAdjustment > 0 ? '+' : ''}
-                                            {row.manualAdjustment.toLocaleString()}원
+                                          <td style={{ color: (row.manualAdjustment || 0) > 0 ? '#ef4444' : '#16a34a' }}>
+                                            {(row.manualAdjustment || 0) > 0 ? '+' : ''}
+                                            {(row.manualAdjustment || 0).toLocaleString()}원
                                           </td>
                                           <td>조정 반영</td>
                                           <td><span className="sub-meta">반영됨</span></td>
@@ -4278,7 +4277,7 @@ export default function MeetingDetailPage({
                                       <tr style={{ background: '#f1f5f9', fontWeight: 700 }}>
                                         <td>총합계</td>
                                         <td style={{ color: '#0f172a', fontSize: '13px' }}>
-                                          {Math.abs(row.netToPay).toLocaleString()}원
+                                          {Math.abs(row.netToPay || 0).toLocaleString()}원
                                         </td>
                                         <td>
                                           {row.paid ? '회비 입금 완료됨' : '입금 대기중'}
@@ -4397,7 +4396,7 @@ export default function MeetingDetailPage({
 
                                         {/* 하단 계산되는 식 명시: 현재 금액 - 조정 금액 = 적용 금액 */}
                                         <div className="settle-calc-box">
-                                          현재 금액 ({row.netToPay.toLocaleString()}원) - 조정 금액 (
+                                          현재 금액 ({(row.netToPay || 0).toLocaleString()}원) - 조정 금액 (
                                           {parseInt(manualAdjInput, 10)
                                             ? `${parseInt(manualAdjInput, 10).toLocaleString()}원`
                                             : '0원'}
@@ -4405,7 +4404,7 @@ export default function MeetingDetailPage({
                                           <strong>
                                             {previewAdjustedShare !== null
                                               ? `${previewAdjustedShare.toLocaleString()}원`
-                                              : `${(row.netToPay - (parseInt(manualAdjInput, 10) || 0)).toLocaleString()}원`}
+                                              : `${((row.netToPay || 0) - (parseInt(manualAdjInput, 10) || 0)).toLocaleString()}원`}
                                           </strong>
                                           )
                                         </div>
