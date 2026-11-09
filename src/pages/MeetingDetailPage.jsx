@@ -942,10 +942,10 @@ export default function MeetingDetailPage({
 
   // Current metroStep from meeting.metroStep or fallback from round statuses
   let currentMetroStep = 0;
-  if (meeting.metroStep !== undefined && meeting.metroStep !== null) {
-    currentMetroStep = Number(meeting.metroStep) % (maxMetroStep + 1);
-  } else if (meeting.status === 'settled') {
+  if (meeting.status === 'settled') {
     currentMetroStep = maxMetroStep;
+  } else if (meeting.metroStep !== undefined && meeting.metroStep !== null) {
+    currentMetroStep = Number(meeting.metroStep) % (maxMetroStep + 1);
   } else {
     const activeRoundIdx = rounds.findIndex((r) => r.status === 'in_progress');
     if (activeRoundIdx !== -1) {

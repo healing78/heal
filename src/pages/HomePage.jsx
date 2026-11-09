@@ -478,7 +478,7 @@ export default function HomePage({
                         마감
                       </span>
                     )}
-                    {isAttendee && (
+                    {m.status !== 'settled' && isAttendee && (
                       <span className="lounge-attend-badge">참석 중</span>
                     )}
                     <span className="lounge-action-label" aria-hidden="true">

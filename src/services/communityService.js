@@ -917,15 +917,12 @@ export const settleMeetingWithScores = async (
 
   const newLogs = [];
 
-  // 1. 미입금자 및 미귀가자 일괄 완료 처리 (A1 결정 사항)
+  // 1. 미입금자 일괄 완료 처리 (귀가완료 시간은 본인이 직접 입력한 기록만 보존)
   const nextSafeReturns = { ...(targetMeeting.safeReturns || {}) };
   const nextPaymentStatuses = { ...(targetMeeting.paymentStatuses || {}) };
   const nextDepositStatuses = { ...(targetMeeting.depositStatuses || {}) };
 
   confirmedUids.forEach((uid) => {
-    if (!nextSafeReturns[uid]) {
-      nextSafeReturns[uid] = returnTimeStr;
-    }
     nextPaymentStatuses[uid] = { paid: true, confirmed: true };
     nextDepositStatuses[uid] = { paid: true, confirmed: true };
   });
@@ -1013,11 +1010,20 @@ export const settleMeetingWithScores = async (
     return !isSpecial && (mem.role === 'Rookie' || (mem.attendanceCount || 0) === 0);
   });
 
+  const numRounds = Math.max(1, (targetMeeting.rounds || []).length);
+  const endMetroStep = numRounds + 1;
+  const endedRounds = (targetMeeting.rounds || []).map((r) => ({
+    ...r,
+    status: 'ended'
+  }));
+
   const nextMeetings = currentMeetings.map((m) =>
     m.id === meetingId
       ? {
           ...m,
           status: 'settled',
+          metroStep: endMetroStep,
+          rounds: endedRounds,
           confirmedParticipants: confirmedUids,
           rookiePromotedUids,
           memberScoreSnapshots,
@@ -1040,7 +1046,11 @@ export const settleMeetingWithScores = async (
       const batch = writeBatch(db);
       batch.update(doc(db, 'meetings', meetingId), {
         status: 'settled',
+        metroStep: endMetroStep,
+        rounds: endedRounds,
         confirmedParticipants: confirmedUids,
+        rookiePromotedUids,
+        memberScoreSnapshots,
         safeReturns: nextSafeReturns,
         paymentStatuses: nextPaymentStatuses,
         depositStatuses: nextDepositStatuses,
