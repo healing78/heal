@@ -296,15 +296,20 @@ export default function App() {
     }
   };
 
-  const handleShareSpecificMeeting = async (meeting) => {
+  const handleShareSpecificMeeting = async (meeting, subView = null) => {
     if (!meeting) return;
     setActiveTab('meetings');
     setSelectedMeetingId(meeting.id);
-    pushRouteUrl('meetings', { id: meeting.id });
+    setSelectedMeetingSubView(subView);
+    pushRouteUrl('meetings', {
+      id: meeting.id,
+      ...(subView ? { subView } : {})
+    });
 
     const mtgMeta = buildRouteMeta({
       tab: 'meetings',
       meetingId: meeting.id,
+      subView,
       meetings,
       members,
       communityConfig,
@@ -314,7 +319,7 @@ export default function App() {
 
     const result = await shareRouteInfo(mtgMeta);
     if (result.copied) {
-      showShareFeedback('일정 공유 문구 및 링크가 복사되었습니다.');
+      showShareFeedback('공유 문구 및 링크가 복사되었습니다.');
     }
   };
 

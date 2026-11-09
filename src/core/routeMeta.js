@@ -1,4 +1,4 @@
-import { formatMemberNickname } from './communityRules';
+import { formatMemberNickname } from './communityRules.js';
 
 export const SITE_ORIGIN = 'https://healing78.web.app';
 export const HERO_IMAGE_PATH = '/healing78-logo.jpg';
@@ -301,18 +301,57 @@ export function buildRouteMeta({
   if (tab === 'meetings') {
     if (selectedMeeting) {
       const isBung = selectedMeeting.requestAttendance !== false;
+      const isLounge = isBung && subView === 'lounge';
       const time = selectedMeeting.startTime || (selectedMeeting.date ? selectedMeeting.date.slice(11, 16) : '');
-      const meetingShareText = `힐링78 ${selectedMeeting.title}${time ? ` ${time}` : ''}`.trim();
       const sharePath =
-        isBung && subView === 'lounge'
+        isLounge
           ? `/meetings/${encodeURIComponent(selectedMeeting.id)}/lounge`
           : `/meetings/${encodeURIComponent(selectedMeeting.id)}`;
+
+      let meetingShareText = '';
+      if (isLounge) {
+        // 벙대기실: 대기실 미입장 참석자 명단 리스트업 ("힐링78\n카일 수원 기 남\n루크 인천 기 남\nURL")
+        const allMeetingAttendeeUids = Array.from(
+          new Set(
+            [
+              selectedMeeting.hostUid,
+              selectedMeeting.treasurerUid,
+              ...(selectedMeeting.confirmedParticipants || []),
+              ...(selectedMeeting.applicants || []),
+              ...(selectedMeeting.rounds?.flatMap((r) => r.participants || []) || [])
+            ].filter(Boolean)
+          )
+        );
+        const loungeVisitorUids = selectedMeeting.loungeVisitors || [];
+        const notEnteredAttendeeUids = allMeetingAttendeeUids.filter(
+          (uid) => !loungeVisitorUids.includes(uid)
+        );
+
+        const notEnteredNicknames = notEnteredAttendeeUids
+          .map((uid) => {
+            const m = members.find((mem) => mem.uid === uid);
+            return m ? formatMemberNickname(m) : uid;
+          })
+          .filter(Boolean);
+
+        const lines = ['힐링78'];
+        if (notEnteredNicknames.length > 0) {
+          lines.push(...notEnteredNicknames);
+        } else {
+          lines.push('참석자 전원 대기실 입장 완료! 🎉');
+        }
+        meetingShareText = lines.join('\n');
+      } else {
+        meetingShareText = `힐링78 ${selectedMeeting.title}${time ? ` ${time}` : ''}`.trim();
+      }
 
       return {
         headerSummary: '힐링78 - 일정',
         pageTitle: '힐링78 - 일정',
         shareText: meetingShareText,
-        description: `${selectedMeeting.title} 일정 상세`,
+        description: isLounge
+          ? `${selectedMeeting.title} 벙대기실 미입장 명단`
+          : `${selectedMeeting.title} 일정 상세`,
         sharePath
       };
     }

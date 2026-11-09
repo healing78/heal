@@ -34,7 +34,11 @@ import {
   deleteMeetingMediaItem,
   unlockMeetingAlbumForUser
 } from '../services/communityService';
-import { getTodayDateString, isMeetingLoungeOpen } from '../core/routeMeta';
+import {
+  getTodayDateString,
+  isMeetingLoungeOpen,
+  shareRouteInfo
+} from '../core/routeMeta';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_FULL_KO = [
@@ -622,6 +626,7 @@ export default function MeetingDetailPage({
   const [commentInput, setCommentInput] = useState('');
 
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedLounge, setCopiedLounge] = useState(false);
   const [loungeRequestPending, setLoungeRequestPending] = useState(false);
 
   const handleCopyDirectLink = async () => {
@@ -934,6 +939,37 @@ export default function MeetingDetailPage({
   const notEnteredAttendeeUids = allMeetingAttendeeUids.filter(
     (uid) => !enteredAttendeeUids.includes(uid)
   );
+
+  // 벙대기실 미입장 참석자 명단 복사 및 공유 ("힐링78\n카일 수원 기 남\n루크 인천 기 남\nURL")
+  const handleShareLoungeAttendees = async (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    const notEnteredNicknames = notEnteredAttendeeUids
+      .map((uid) => {
+        const m = members.find((mem) => mem.uid === uid);
+        return m ? formatMemberNickname(m) : uid;
+      })
+      .filter(Boolean);
+
+    const lines = ['힐링78'];
+    if (notEnteredNicknames.length > 0) {
+      lines.push(...notEnteredNicknames);
+    } else {
+      lines.push('참석자 전원 대기실 입장 완료! 🎉');
+    }
+    const loungeShareText = lines.join('\n');
+    const loungePath = `/meetings/${encodeURIComponent(meeting.id)}/lounge`;
+
+    const result = await shareRouteInfo({
+      shareText: loungeShareText,
+      headerSummary: '힐링78 - 일정',
+      sharePath: loungePath
+    });
+
+    if (result.copied) {
+      setCopiedLounge(true);
+      setTimeout(() => setCopiedLounge(false), 2500);
+    }
+  };
 
   // Admin: Toggle 벙대기실 입장 / 미입장 for an attendee
   const handleToggleLoungeVisitor = async (targetUid) => {
@@ -2885,18 +2921,36 @@ export default function MeetingDetailPage({
                   {meeting.title}
                 </span>
               </div>
-              <button
-                type="button"
-                className="lounge-collapse-btn minimized"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsLoungeHeaderCollapsed(false);
-                }}
-                title="벙제목 펼치기"
-              >
-                <span>펼치기</span>
-                <span className="collapse-arrow">▼</span>
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <button
+                  type="button"
+                  className="btn btn-xs btn-outline lounge-share-btn"
+                  style={{
+                    padding: '3px 7px',
+                    fontSize: '11px',
+                    borderRadius: 'var(--radius-base)',
+                    fontWeight: 600,
+                    lineHeight: '1.2',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onClick={handleShareLoungeAttendees}
+                  title="대기실 미입장 참석자 명단 및 링크 공유"
+                >
+                  {copiedLounge ? '복사됨 ✓' : '공유 📤'}
+                </button>
+                <button
+                  type="button"
+                  className="lounge-collapse-btn minimized"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsLoungeHeaderCollapsed(false);
+                  }}
+                  title="벙제목 펼치기"
+                >
+                  <span>펼치기</span>
+                  <span className="collapse-arrow">▼</span>
+                </button>
+              </div>
             </div>
           ) : (
             <div
@@ -2940,18 +2994,36 @@ export default function MeetingDetailPage({
                     </span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  className="lounge-collapse-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsLoungeHeaderCollapsed(true);
-                  }}
-                  title="벙제목 최소화 (접기)"
-                >
-                  <span>접기</span>
-                  <span className="collapse-arrow">▲</span>
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-outline lounge-share-btn"
+                    style={{
+                      padding: '4px 8px',
+                      fontSize: '11.5px',
+                      borderRadius: 'var(--radius-base)',
+                      fontWeight: 600,
+                      lineHeight: '1.2',
+                      whiteSpace: 'nowrap'
+                    }}
+                    onClick={handleShareLoungeAttendees}
+                    title="대기실 미입장 참석자 명단 및 링크 공유"
+                  >
+                    {copiedLounge ? '복사됨 ✓' : '공유 📤'}
+                  </button>
+                  <button
+                    type="button"
+                    className="lounge-collapse-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsLoungeHeaderCollapsed(true);
+                    }}
+                    title="벙제목 최소화 (접기)"
+                  >
+                    <span>접기</span>
+                    <span className="collapse-arrow">▲</span>
+                  </button>
+                </div>
               </div>
 
               {/* Subway Route Map Progress Bar & Driver Button */}
@@ -3256,7 +3328,12 @@ export default function MeetingDetailPage({
 
                     <div
                       className="lounge-chat-accordion-title"
-                      style={{ marginTop: '8px' }}
+                      style={{
+                        marginTop: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }}
                       onClick={() => {
                         if (isEditingChatUsers) {
                           setShowChatUsersAccordion(false);
@@ -3265,6 +3342,22 @@ export default function MeetingDetailPage({
                       }}
                     >
                       <span>대기실 미입장 참석자 ({notEnteredAttendeeUids.length}명)</span>
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-outline"
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '11px',
+                          borderRadius: 'var(--radius-base)',
+                          fontWeight: 600,
+                          lineHeight: '1.2',
+                          whiteSpace: 'nowrap'
+                        }}
+                        onClick={handleShareLoungeAttendees}
+                        title="대기실 미입장 참석자 명단 및 링크 복사/공유"
+                      >
+                        {copiedLounge ? '복사됨 ✓' : '명단 공유 📤'}
+                      </button>
                     </div>
                     <div className="lounge-chat-accordion-list">
                       {notEnteredAttendeeUids.length === 0 ? (

@@ -53,7 +53,16 @@ Healing78 커뮤니티 관리 시스템의 **3종 멀티 테마 시스템(① �
   - **로그인 후 (`currentUser` 존재):**
     - 각 하위 주소의 전체 상세 본문(`HomePage`, `MeetingsPage`, `RankingPage`, `NicknamePage`, `ProfilePage`, `AdminPage`)을 표시합니다.
 - **원클릭 카톡 공유 포맷 (`shareRouteInfo`):**
-  - 모바일 상단 헤더의 `[🔗 공유]` 버튼 또는 개별 모임의 `[🔗 이 벙 카톡 공유]` 버튼을 누르면 **`[Healing78] <20자 핵심 요약>\n<상세 설명>\n<하위 주소 URL>`** 문구가 클립보드에 복사되고 모바일 네이티브 공유 시트(`navigator.share`)가 호출됩니다.
+  - 모바일 상단 헤더의 `[공유]` 버튼 또는 개별 모임의 `[공유]` 버튼을 누르면 화면별 맞춤 공유 문구와 링크가 클립보드에 복사되고 모바일 네이티브 공유 시트(`navigator.share`)가 호출됩니다.
+  - **일반 모임 상세 (`/meetings/:id`):** `힐링78 <모임제목> <시간>\n<URL>`
+  - **벙대기실 (`/meetings/:id/lounge`):** 참석 신청자 중 아직 대기실에 미입장한 회원들의 규격 닉네임 리스트를 나열하여 카카오톡 단톡방에 바로 독려·공지할 수 있는 포맷으로 생성됩니다:
+    ```text
+    힐링78
+    카일 수원 기 남
+    루크 인천 기 남
+    https://healing78.web.app/meetings/26110701/lounge
+    ```
+    (참석자 전원 입장 완료 시: `힐링78\n참석자 전원 대기실 입장 완료! 🎉\n<URL>`)
 
 ### 4. Build-Time Sub-Route Open Graph Generation (`scripts/generate-route-meta.mjs`)
 - 카카오톡 미리보기 스크래퍼 봇은 JavaScript를 실행하지 않고 정적 HTML의 `<meta property="og:*">` 태그를 읽습니다.
