@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import RegionInput from '../components/RegionInput';
 import {
   formatMemberNickname,
   isAdminUser,
@@ -76,6 +77,7 @@ export default function MemberProfilePage({
   const [editForm, setEditForm] = useState(() => ({
     realName: member?.realName || '',
     city: member?.city || '',
+    homeCity: member?.homeCity || member?.city || '',
     maritalStatus: member?.maritalStatus || 'single',
     gender: member?.gender || '남',
     role: member?.role || 'Member',
@@ -83,6 +85,13 @@ export default function MemberProfilePage({
     entryBadge: member?.entryBadge || '',
     customBadge: member?.customBadge || ''
   }));
+  const [hasCustomHomeCity, setHasCustomHomeCity] = useState(
+    Boolean(
+      member?.homeCity &&
+      member?.city &&
+      member.homeCity.trim() !== member.city.trim()
+    )
+  );
 
   // Sync form when member changes
   React.useEffect(() => {
@@ -90,6 +99,7 @@ export default function MemberProfilePage({
       setEditForm({
         realName: member.realName || '',
         city: member.city || '',
+        homeCity: member.homeCity || member.city || '',
         maritalStatus: member.maritalStatus || 'single',
         gender: member.gender || '남',
         role: member.role || 'Member',
@@ -97,6 +107,13 @@ export default function MemberProfilePage({
         entryBadge: member.entryBadge || '',
         customBadge: member.customBadge || ''
       });
+      setHasCustomHomeCity(
+        Boolean(
+          member.homeCity &&
+          member.city &&
+          member.homeCity.trim() !== member.city.trim()
+        )
+      );
       setIsEditing(false);
       setShowReassignBox(false);
     }
@@ -157,10 +174,14 @@ export default function MemberProfilePage({
     e.preventDefault();
     if (!member || !onAdminUpdateMember) return;
     try {
+      const finalHomeCity = hasCustomHomeCity && editForm.homeCity?.trim()
+        ? editForm.homeCity.trim()
+        : editForm.city.trim();
+
       await onAdminUpdateMember(member.uid, {
         realName: editForm.realName.trim(),
         city: editForm.city.trim(),
-        homeCity: editForm.city.trim(),
+        homeCity: finalHomeCity,
         maritalStatus: editForm.maritalStatus,
         gender: editForm.gender,
         role: editForm.role,
@@ -397,7 +418,14 @@ export default function MemberProfilePage({
                 flexWrap: 'wrap'
               }}
             >
-              <span>지역: <strong>{member.city || '미설정'}</strong></span>
+              <span>
+                지역: <strong>{member.city || '미설정'}</strong>
+                {member.homeCity && member.homeCity !== member.city && (
+                  <span style={{ fontSize: '11px', color: '#0284c7', marginLeft: '4px', fontWeight: 600 }}>
+                    (벙점수 기준: {member.homeCity})
+                  </span>
+                )}
+              </span>
               <span>가입일: <strong>{member.joinedAt || member.entryBadge || '미등록'}</strong></span>
               <span>성별: <strong>{member.gender || '남'}</strong></span>
               <span>결혼: <strong>{member.maritalStatus === 'married' ? '기혼' : member.maritalStatus === 'divorced' ? '돌싱' : '미혼'}</strong></span>
@@ -467,12 +495,47 @@ export default function MemberProfilePage({
 
             <div>
               <label style={{ fontSize: '11px', color: '#64748b' }}>거주 지역</label>
-              <input
-                type="text"
+              <RegionInput
                 value={editForm.city}
-                onChange={(e) => setEditForm((p) => ({ ...p, city: e.target.value }))}
-                style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                onChange={(val) =>
+                  setEditForm((p) => ({
+                    ...p,
+                    city: val,
+                    ...(!hasCustomHomeCity ? { homeCity: val } : {})
+                  }))
+                }
               />
+              <div style={{ marginTop: '6px' }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}>
+                  <input
+                    type="checkbox"
+                    checked={hasCustomHomeCity}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setHasCustomHomeCity(checked);
+                      if (!checked) {
+                        setEditForm((p) => ({ ...p, homeCity: p.city }));
+                      }
+                    }}
+                  />
+                  <span>활동 지역과 벙점수 기준 지역이 다릅니다</span>
+                </label>
+              </div>
+
+              {hasCustomHomeCity && (
+                <div style={{ marginTop: '8px', padding: '8px 10px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px' }}>
+                  <label style={{ fontSize: '11px', color: '#1e293b', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
+                    🏠 벙점수 기준 지역 (홈시티)
+                  </label>
+                  <RegionInput
+                    value={editForm.homeCity || editForm.city}
+                    onChange={(val) => setEditForm((p) => ({ ...p, homeCity: val }))}
+                  />
+                  <div style={{ fontSize: '11px', color: '#0284c7', marginTop: '3px' }}>
+                    ℹ️ 닉네임: <strong>{editForm.city || '미입력'}</strong> / 벙점수 판정 기준: <strong>{editForm.homeCity || editForm.city}</strong>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

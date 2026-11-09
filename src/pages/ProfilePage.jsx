@@ -77,10 +77,18 @@ export default function ProfilePage({
     realName: currentUser.realName || '',
     legalName: currentUser.legalName || '',
     city: currentUser.city || '',
+    homeCity: currentUser.homeCity || currentUser.city || '',
     maritalStatus: currentUser.maritalStatus || 'single',
     gender: currentUser.gender || '남',
     bankAccount: currentUser.bankAccount || ''
   });
+  const [hasCustomHomeCity, setHasCustomHomeCity] = useState(
+    Boolean(
+      currentUser.homeCity &&
+      currentUser.city &&
+      currentUser.homeCity.trim() !== currentUser.city.trim()
+    )
+  );
   const [savedBanner, setSavedBanner] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedUid, setCopiedUid] = useState(false);
@@ -95,10 +103,18 @@ export default function ProfilePage({
       realName: currentUser.realName || '',
       legalName: currentUser.legalName || '',
       city: currentUser.city || '',
+      homeCity: currentUser.homeCity || currentUser.city || '',
       maritalStatus: currentUser.maritalStatus || 'single',
       gender: currentUser.gender || '남',
       bankAccount: currentUser.bankAccount || ''
     });
+    setHasCustomHomeCity(
+      Boolean(
+        currentUser.homeCity &&
+        currentUser.city &&
+        currentUser.homeCity.trim() !== currentUser.city.trim()
+      )
+    );
   }, [currentUser]);
 
   const previewMember = {
@@ -234,11 +250,16 @@ export default function ProfilePage({
       return;
     }
     setNameError('');
+    const finalHomeCity = hasCustomHomeCity && form.homeCity?.trim()
+      ? form.homeCity.trim()
+      : form.city.trim();
+
     onUpdateProfile({
       ...form,
       realName: trimmedName,
       legalName: (form.legalName || '').trim(),
-      homeCity: form.city
+      city: form.city.trim(),
+      homeCity: finalHomeCity
     });
     setIsEditing(false);
     setSavedBanner(true);
@@ -381,6 +402,14 @@ export default function ProfilePage({
                 <div>
                   <strong>실명:</strong>{' '}
                   {currentUser.legalName || '미등록'}
+                </div>
+                <div>
+                  <strong>거주 지역:</strong> {currentUser.city || '미등록'}
+                  {currentUser.homeCity && currentUser.homeCity !== currentUser.city && (
+                    <span style={{ fontSize: '12px', color: '#0284c7', marginLeft: '6px', fontWeight: 600 }}>
+                      (벙점수 기준: {currentUser.homeCity})
+                    </span>
+                  )}
                 </div>
                 <div>
                   <strong>정산 계좌:</strong>{' '}
@@ -540,8 +569,50 @@ export default function ProfilePage({
                     id="prof-city"
                     required
                     value={form.city}
-                    onChange={(val) => setForm({ ...form, city: val })}
+                    onChange={(val) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        city: val,
+                        ...(!hasCustomHomeCity ? { homeCity: val } : {})
+                      }));
+                    }}
                   />
+                  <div style={{ marginTop: '8px' }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={hasCustomHomeCity}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setHasCustomHomeCity(checked);
+                          if (!checked) {
+                            setForm((p) => ({ ...p, homeCity: p.city }));
+                          }
+                        }}
+                      />
+                      <span>활동 지역과 벙점수 기준 지역이 다릅니다</span>
+                    </label>
+                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px', marginLeft: '22px', lineHeight: 1.4 }}>
+                      체크하지 않으면 닉네임의 거주 지역을 기준으로 벙점수가 자동 계산됩니다. 본가나 실제 거주지가 달라 벙점수 기준 지역을 따로 적용해야 할 때만 체크해 주세요.
+                    </div>
+                  </div>
+
+                  {hasCustomHomeCity && (
+                    <div style={{ marginTop: '10px', padding: '10px 12px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px' }}>
+                      <label htmlFor="prof-homecity" style={{ fontWeight: 700, fontSize: '12px', color: '#1e293b', display: 'block', marginBottom: '4px' }}>
+                        🏠 벙점수 기준 지역 (홈시티)
+                      </label>
+                      <RegionInput
+                        id="prof-homecity"
+                        required={hasCustomHomeCity}
+                        value={form.homeCity || form.city}
+                        onChange={(val) => setForm((p) => ({ ...p, homeCity: val }))}
+                      />
+                      <div style={{ fontSize: '11px', color: '#0284c7', marginTop: '4px' }}>
+                        ℹ️ 닉네임에는 <strong>{form.city || '활동지역'}</strong>(으)로 표시되지만, 벙 참석 시 <strong>{form.homeCity || form.city}</strong> 거주자 기준으로 벙점수가 계산됩니다.
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="form-field">
                   <label htmlFor="prof-bank">정산 계좌번호</label>
