@@ -217,90 +217,10 @@ export const saveCurrentUserUid = (uid) => {
 };
 
 /**
- * Seeds initial demo data into Firestore if the 'members' collection is completely empty,
- * or migrates legacy 'mtg-*' demo meetings to the v2 YYMMDD01 schema.
+ * Deprecated: ensureFirestoreSeeded is disabled in production to protect live Firestore data.
  */
 const ensureFirestoreSeeded = async () => {
-  if (!isFirebaseConfigured || !db) return;
-  try {
-    const existingMeetings = await getDocs(collection(db, 'meetings'));
-    const hasV2Meeting = existingMeetings.docs.some((d) =>
-      /^\d{8}$/.test(String(d.id))
-    );
-
-    if (existingMeetings.empty || !hasV2Meeting) {
-      const ops = [];
-      for (const m of INITIAL_MEMBERS) {
-        ops.push({ col: 'members', id: m.uid, data: m });
-      }
-      for (const oldDoc of existingMeetings.docs) {
-        if (String(oldDoc.id).startsWith('mtg-')) {
-          ops.push({ col: 'meetings', id: oldDoc.id, isDelete: true });
-        }
-      }
-      for (const mtg of INITIAL_MEETINGS) {
-        ops.push({ col: 'meetings', id: mtg.id, data: mtg });
-      }
-      for (const log of INITIAL_SCORE_LOGS) {
-        ops.push({ col: 'scoreLogs', id: log.id, data: log });
-      }
-      ops.push({ col: 'settings', id: 'community', data: INITIAL_COMMUNITY_CONFIG });
-
-      const CHUNK_SIZE = 350;
-      for (let i = 0; i < ops.length; i += CHUNK_SIZE) {
-        const chunk = ops.slice(i, i + CHUNK_SIZE);
-        const batch = writeBatch(db);
-        for (const op of chunk) {
-          if (op.isDelete) {
-            batch.delete(doc(db, op.col, op.id));
-          } else {
-            batch.set(doc(db, op.col, op.id), op.data, { merge: true });
-          }
-        }
-        await batch.commit();
-      }
-    }
-
-    // Auto-patch Janchi & Daon in Firestore if needed
-    try {
-      const janchiDoc = doc(db, 'members', 'kakao:1121');
-      await setDoc(
-        janchiDoc,
-        {
-          attendanceCount: 1,
-          baseScore: 1,
-          expeditionScore: 1,
-          totalScore: 2
-        },
-        { merge: true }
-      );
-      const daonDoc = doc(db, 'members', 'kakao:1013');
-      await setDoc(
-        daonDoc,
-        {
-          city: '전주',
-          homeCity: '전주',
-          maritalStatus: 'divorced',
-          gender: '여'
-        },
-        { merge: true }
-      );
-      const maeulDoc = doc(db, 'members', 'kakao:1003');
-      await setDoc(
-        maeulDoc,
-        {
-          city: '용인',
-          homeCity: '용인',
-          role: 'Member'
-        },
-        { merge: true }
-      );
-    } catch {
-      // ignore
-    }
-  } catch (err) {
-    console.warn('Firestore initial seed skipped:', err);
-  }
+  // no-op: live Firestore is the SSOT
 };
 
 /**
@@ -329,7 +249,7 @@ export const subscribeCommunityData = (onUpdate) => {
 
   let currentData = getLocalState();
 
-  ensureFirestoreSeeded();
+  // ensureFirestoreSeeded is completely disabled in production: live Firestore is the SSOT
 
   const handleSnapshotError = (err) => {
     console.warn('Firestore snapshot fallback to LocalStorage:', err.code);

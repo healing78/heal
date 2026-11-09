@@ -24,25 +24,26 @@ export const INITIAL_COMMUNITY_CONFIG = {
 
 export const INITIAL_MEMBERS = [
   {
-    "uid": "kakao:1001",
+    "uid": "kakao:5173773611",
     "realName": "쭈",
-    "city": "서울",
-    "homeCity": "서울",
+    "city": "영등포",
+    "homeCity": "영등포",
     "maritalStatus": "married",
-    "gender": "남",
+    "gender": "여",
     "role": "Leader",
-    "entryBadge": "0101",
+    "entryBadge": "0126",
     "customBadge": "",
     "bankAccount": "",
-    "attendanceCount": 311,
-    "baseScore": 311,
+    "attendanceCount": 314,
+    "baseScore": 314,
     "expeditionScore": 49,
     "eventScore": 0,
-    "totalScore": 360,
-    "monthlyScore": 0,
-    "hostCount": 115,
-    "joinedAt": "2024-01-01",
-    "unlockedAlbums": []
+    "totalScore": 363,
+    "monthlyScore": 3,
+    "hostCount": 121,
+    "joinedAt": "2024-01-26",
+    "unlockedAlbums": [],
+    "subUids": ["kakao:1001"]
   },
   {
     "uid": "kakao:1002",
