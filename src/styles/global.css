@@ -4315,11 +4315,12 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
 }
 
 .settle-bank-val {
-  max-width: 120px;
+  max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 600;
+  color: var(--color-text-secondary, #475569);
 }
 
 .settle-title-deposit {

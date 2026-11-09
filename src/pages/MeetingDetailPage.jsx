@@ -4126,6 +4126,7 @@ export default function MeetingDetailPage({
                   <div
                     className="settle-accordion-header"
                     onClick={() => setIsSettleOverviewAccordionOpen(!isSettleOverviewAccordionOpen)}
+                    style={{ cursor: 'pointer' }}
                   >
                     <div className="settle-accordion-header-left">
                       <span className="settle-chevron">
@@ -4134,32 +4135,45 @@ export default function MeetingDetailPage({
                       <strong style={{ fontSize: '15px' }}>정산 내역</strong>
                     </div>
 
-                    <div
-                      className="settle-accordion-header-right"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="settle-bank-wrap">
-                        <span className="settle-bank-label">입금계좌:</span>
-                        <span className="settle-bank-val">
-                          {treasurerMember?.bankAccount || '총무 계좌 미등록'}
-                        </span>
-                        {treasurerMember?.bankAccount && (
+                    <div className="settle-accordion-header-right">
+                      {treasurerMember?.bankAccount ? (
+                        <div className="settle-bank-wrap">
+                          <span
+                            className="settle-bank-val"
+                            title={treasurerMember.bankAccount}
+                          >
+                            {treasurerMember.bankAccount}
+                          </span>
                           <button
                             type="button"
                             className="btn btn-xs btn-outline"
-                            onClick={() => handleCopyAccount(treasurerMember.bankAccount)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyAccount(treasurerMember.bankAccount);
+                            }}
                           >
-                            {copiedAccount ? '복사됨' : '계좌 복사'}
+                            {copiedAccount ? '복사됨 ✓' : '복사'}
                           </button>
-                        )}
-                        <button
-                          type="button"
-                          className="btn btn-xs btn-outline"
-                          onClick={() => setEditingBank((prev) => !prev)}
-                        >
-                          {editingBank ? '닫기' : '내 계좌'}
-                        </button>
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="settle-bank-wrap">
+                          <span className="settle-bank-val" style={{ color: '#94a3b8', fontSize: '11.5px' }}>
+                            총무 계좌 미등록
+                          </span>
+                          {(canManage || currentUser?.uid === treasurerUid || currentUser?.uid === meeting.hostUid) && (
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-primary"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingBank((prev) => !prev);
+                              }}
+                            >
+                              {editingBank ? '닫기' : '+ 계좌 등록'}
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -4184,6 +4198,53 @@ export default function MeetingDetailPage({
 
                   {isSettleOverviewAccordionOpen && (
                     <div className="settle-accordion-body lounge-unified-stack">
+                      {/* 펼쳤을 때 총무 입금 계좌 상세 카드 & 변경 버튼 */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '10px 14px',
+                          background: 'var(--color-surface, #ffffff)',
+                          border: '1px solid var(--color-border, #e2e8f0)',
+                          borderRadius: '8px',
+                          marginBottom: '8px',
+                          gap: '8px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                          <span style={{ fontSize: '15px' }}>🏦</span>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '11px', color: 'var(--color-text-muted, #64748b)', fontWeight: 600 }}>
+                              총무 입금 계좌 {treasurerMember?.realName ? `(${treasurerMember.realName})` : ''}
+                            </div>
+                            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary, #0f172a)', wordBreak: 'break-all' }}>
+                              {treasurerMember?.bankAccount || '등록된 계좌가 없습니다.'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                          {treasurerMember?.bankAccount && (
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-outline"
+                              onClick={() => handleCopyAccount(treasurerMember.bankAccount)}
+                            >
+                              {copiedAccount ? '복사됨 ✓' : '계좌 복사'}
+                            </button>
+                          )}
+                          {(canManage || currentUser?.uid === treasurerUid || currentUser?.uid === meeting.hostUid) && (
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-outline"
+                              onClick={() => setEditingBank((prev) => !prev)}
+                            >
+                              {editingBank ? '닫기' : '계좌 변경'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
                       {/* [산출식 시각화] 0원 항목 스마트 숨김 & 가로 스크롤 없는 반응형 컴팩트 수식 바 */}
                       {(() => {
                         const roundCost = settlement.totalRoundCost || settlement.totalGrossCost || 0;
