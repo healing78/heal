@@ -143,7 +143,7 @@ function getDdayBannerText(meeting) {
 
 export function parsePlaceSummary(rawText = '') {
   const text = String(rawText || '').trim();
-  if (!text) return { placeName: '', address: '', mapUrl: '' };
+  if (!text) return { placeName: '', address: '', mapUrl: '', notice: '', rawText: '' };
 
   // 1. Extract URL if present
   const urlMatch = text.match(/https?:\/\/[^\s]+/i);
@@ -153,33 +153,54 @@ export function parsePlaceSummary(rawText = '') {
   // 2. Check for [네이버지도] or [카카오맵] marker
   let placeName = '';
   let address = '';
+  let notice = '';
 
-  const markerMatch = textWithoutUrl.match(/\[(네이버지도|카카오맵)\]\s*(.+)/i);
+  const markerMatch = textWithoutUrl.match(/\[(네이버지도|카카오맵)\]\s*([\s\S]+)/i);
   if (markerMatch) {
     const afterMarker = markerMatch[2].trim();
+    // Split lines to detect announcements / notices on subsequent lines
+    const lines = afterMarker.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const firstLine = lines[0] || '';
+    if (lines.length > 1) {
+      notice = lines.slice(1).join('\n');
+    }
+
     const addrPrefixRegex = /\s+(서울|경기|인천|충남|충북|전남|전북|경남|경북|강원|대전|대구|부산|울산|광주|세종|제주|[가-힣]+(?:시|군|구))\s+/;
-    const addrSplit = afterMarker.search(addrPrefixRegex);
+    const addrSplit = firstLine.search(addrPrefixRegex);
     if (addrSplit !== -1) {
-      placeName = afterMarker.slice(0, addrSplit).trim();
-      address = afterMarker.slice(addrSplit).trim();
+      placeName = firstLine.slice(0, addrSplit).trim();
+      address = firstLine.slice(addrSplit).trim();
     } else {
-      const tokens = afterMarker.split(/\s+/);
+      const tokens = firstLine.split(/\s+/);
       if (tokens.length > 1) {
         placeName = tokens[0];
         address = tokens.slice(1).join(' ');
       } else {
-        placeName = afterMarker;
+        placeName = firstLine;
       }
     }
   } else {
-    placeName = textWithoutUrl || text;
+    const lines = textWithoutUrl.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    placeName = lines[0] || textWithoutUrl || text;
+    if (lines.length > 1) {
+      notice = lines.slice(1).join('\n');
+    }
+  }
+
+  // Address line-break notice check
+  if (!notice && address.includes('\n')) {
+    const parts = address.split('\n');
+    address = parts[0].trim();
+    notice = parts.slice(1).join('\n').trim();
   }
 
   return {
     placeName: placeName.trim(),
     address: address.trim(),
     mapUrl,
-    textWithoutUrl
+    notice: notice.trim(),
+    textWithoutUrl,
+    rawText: text
   };
 }
 
@@ -457,6 +478,7 @@ export default function MeetingDetailPage({
   const [showAttendeeDrawer, setShowAttendeeDrawer] = useState(false);
   const [editingRoundIdx, setEditingRoundIdx] = useState(null);
   const [collapsedRoundIndices, setCollapsedRoundIndices] = useState({});
+  const [showRawPlaceIndices, setShowRawPlaceIndices] = useState({});
   const [showManagerTools, setShowManagerTools] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
 
@@ -3547,23 +3569,105 @@ export default function MeetingDetailPage({
                         {/* Collapsible Round Body */}
                         {!isCollapsed && (
                           <div className="lounge-round-accordion-body">
-                            {/* 장소 상세 내용 (Title 아래, 참석자 수 위) */}
+                            {/* 장소 상세 내용 (상호명, 주소, 지도 링크) */}
                             {(placeSummary.address || placeSummary.mapUrl || (r.placeName && r.placeName !== placeSummary.placeName)) && (
                               <div className="lounge-round-detail-row">
                                 <div className="lounge-round-detail-text">
                                   {placeSummary.address || placeSummary.textWithoutUrl || r.placeName}
                                 </div>
-                                {placeSummary.mapUrl && (
-                                  <a
-                                    href={placeSummary.mapUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="btn btn-xs btn-outline lounge-round-map-btn"
-                                    title="지도 새 탭 열기"
+                                <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                                  {placeSummary.mapUrl && (
+                                    <a
+                                      href={placeSummary.mapUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="btn btn-xs btn-outline lounge-round-map-btn"
+                                      title="지도 새 탭 열기"
+                                    >
+                                      지도 바로가기 ↗
+                                    </a>
+                                  )}
+                                  <button
+                                    type="button"
+                                    className="btn btn-xs btn-outline"
+                                    style={{ fontSize: '11px', padding: '0 6px' }}
+                                    onClick={() =>
+                                      setShowRawPlaceIndices((prev) => ({
+                                        ...prev,
+                                        [idx]: !prev[idx]
+                                      }))
+                                    }
+                                    title="작성된 장소 원문 및 공지사항 보기"
                                   >
-                                    지도 바로가기 ↗
-                                  </a>
-                                )}
+                                    {showRawPlaceIndices[idx] ? '원문 닫기' : '원문 보기'}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 장소 공지·안내 메모 박스 (장소에 함께 기재된 안내사항) */}
+                            {placeSummary.notice && (
+                              <div className="lounge-round-notice-box">
+                                <div className="lounge-round-notice-title">
+                                  <span>📌 장소 공지·안내</span>
+                                </div>
+                                <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                  {placeSummary.notice}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 원문 전체보기 (토글 시 원본 텍스트 전체 표시 및 복사 버튼) */}
+                            {showRawPlaceIndices[idx] && (
+                              <div
+                                style={{
+                                  background: '#f8fafc',
+                                  border: '1px solid #e2e8f0',
+                                  borderRadius: '6px',
+                                  padding: '10px 12px',
+                                  marginTop: '8px',
+                                  fontSize: '12px'
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '6px'
+                                  }}
+                                >
+                                  <strong style={{ fontSize: '11.5px', color: '#475569' }}>
+                                    📄 장소 입력 원문 전체
+                                  </strong>
+                                  <button
+                                    type="button"
+                                    className="btn btn-xs btn-outline"
+                                    style={{ fontSize: '11px', padding: '2px 6px' }}
+                                    onClick={async () => {
+                                      try {
+                                        await navigator.clipboard.writeText(r.placeName || r.mapUrl || '');
+                                        alert('장소 원문이 복사되었습니다.');
+                                      } catch {
+                                        // ignore
+                                      }
+                                    }}
+                                  >
+                                    원문 복사
+                                  </button>
+                                </div>
+                                <div
+                                  style={{
+                                    whiteSpace: 'pre-wrap',
+                                    wordBreak: 'break-word',
+                                    color: '#334155',
+                                    lineHeight: '1.5',
+                                    fontFamily: 'monospace',
+                                    fontSize: '11.5px'
+                                  }}
+                                >
+                                  {r.placeName || r.mapUrl || '등록된 장소 원문이 없습니다.'}
+                                </div>
                               </div>
                             )}
 
@@ -4245,59 +4349,149 @@ export default function MeetingDetailPage({
                           )}
                         </div>
                       </div>
-                      {/* [산출식 시각화] 0원 항목 스마트 숨김 & 가로 스크롤 없는 반응형 컴팩트 수식 바 */}
+                      {/* [산출식 시각화] 세로형 인포그래픽 정산 수식 (1차 00원÷N + 2차 00원÷M - 선입금 = 1/N 정산액) */}
                       {(() => {
-                        const roundCost = settlement.totalRoundCost || settlement.totalGrossCost || 0;
                         const preExp = settlement.totalPreExpense || 0;
                         const sponsor = settlement.totalSponsorship || 0;
                         const deposit = settlement.totalDepositAmount || 0;
                         const netTotal = Math.max(0, settlement.totalSharedCost - sponsor - deposit);
+                        const attendeeTotalCount = settlement.participantRows.length || displayAttendeeUids.length || 1;
 
                         return (
-                          <div className="settle-formula-bar">
-                            <div className="settle-formula-card is-rounds">
-                              <span className="settle-formula-label">차수 합산</span>
-                              <span className="settle-formula-val">{roundCost.toLocaleString()}원</span>
+                          <div className="settle-vertical-formula-card">
+                            <div className="settle-formula-header">
+                              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary, #0f172a)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <span>🧾</span>
+                                <span>1/N 정산 산출식</span>
+                              </span>
+                              <span style={{ fontSize: '11.5px', color: 'var(--color-text-muted, #64748b)' }}>
+                                {settlement.roundSummaries.length > 0 ? `${settlement.roundSummaries.length}개 차수 합산` : '차수 정보 없음'}
+                              </span>
                             </div>
 
-                            {preExp > 0 && (
-                              <>
-                                <span className="settle-formula-op">+</span>
-                                <div className="settle-formula-card is-pre">
-                                  <span className="settle-formula-label">사전 지출</span>
-                                  <span className="settle-formula-val">{preExp.toLocaleString()}원</span>
-                                </div>
-                              </>
-                            )}
+                            <div className="settle-formula-rows">
+                              {/* 1) 차수별 분담식 전개 */}
+                              {settlement.roundSummaries.map((r, idx) => {
+                                const isFirst = idx === 0;
+                                const count = r.participantCount || (Array.isArray(r.participants) ? r.participants.length : 0);
+                                const cost = Number(r.cost) || 0;
+                                const perPerson = r.perPersonRounded || (!r.isGoldenBell && count > 0 ? Math.round(cost / count) : 0);
 
-                            {sponsor > 0 && (
-                              <>
-                                <span className="settle-formula-op">-</span>
-                                <div className="settle-formula-card is-sponsor">
-                                  <span className="settle-formula-label">찬조금</span>
-                                  <span className="settle-formula-val" style={{ color: '#15803d' }}>
-                                    -{sponsor.toLocaleString()}원
+                                return (
+                                  <div key={r.id || idx} className="settle-formula-row">
+                                    <div className="settle-formula-row-left">
+                                      <span className="settle-row-op">{isFirst ? ' ' : '+'}</span>
+                                      <span className="platform-badge" style={{ fontSize: '11px', padding: '1px 6px' }}>
+                                        {r.label || `${idx + 1}차`}
+                                      </span>
+                                      <span className="settle-row-name" title={r.placeName}>
+                                        {r.placeName ? r.placeName.split('\n')[0].slice(0, 12) : `${idx + 1}차`}
+                                      </span>
+                                    </div>
+
+                                    <div className="settle-formula-row-calc">
+                                      {r.isGoldenBell ? (
+                                        <span className="expedition-pill" style={{ fontSize: '11px', padding: '1px 6px' }}>
+                                          🔔 골든벨
+                                        </span>
+                                      ) : count > 0 ? (
+                                        <span className="settle-row-fraction">
+                                          {cost.toLocaleString()}원 ÷ {count}명
+                                        </span>
+                                      ) : (
+                                        <span className="sub-meta">참석자 0명</span>
+                                      )}
+                                    </div>
+
+                                    <div className="settle-formula-row-val">
+                                      <strong>{r.isGoldenBell ? '0원' : `${perPerson.toLocaleString()}원`}</strong>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+
+                              {/* 2) 사전 지출이 있는 경우 (+) */}
+                              {preExp > 0 && (
+                                <div className="settle-formula-row">
+                                  <div className="settle-formula-row-left">
+                                    <span className="settle-row-op">+</span>
+                                    <span className="status-pill open" style={{ fontSize: '11px', padding: '1px 6px' }}>
+                                      사전지출
+                                    </span>
+                                    <span className="settle-row-name">공통 경비</span>
+                                  </div>
+                                  <div className="settle-formula-row-calc">
+                                    <span className="settle-row-fraction">
+                                      {preExp.toLocaleString()}원 ÷ {attendeeTotalCount}명
+                                    </span>
+                                  </div>
+                                  <div className="settle-formula-row-val">
+                                    <strong>
+                                      {Math.round(preExp / attendeeTotalCount).toLocaleString()}원
+                                    </strong>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* 3) 찬조금이 있는 경우 (-) */}
+                              {sponsor > 0 && (
+                                <div className="settle-formula-row is-deduction">
+                                  <div className="settle-formula-row-left">
+                                    <span className="settle-row-op" style={{ color: '#16a34a' }}>-</span>
+                                    <span className="status-pill" style={{ background: '#dcfce7', color: '#15803d', borderColor: '#bbf7d0', fontSize: '11px', padding: '1px 6px' }}>
+                                      찬조금
+                                    </span>
+                                    <span className="settle-row-name">찬조 차감</span>
+                                  </div>
+                                  <div className="settle-formula-row-calc">
+                                    <span className="settle-row-fraction" style={{ color: '#16a34a' }}>
+                                      총 {sponsor.toLocaleString()}원 차감
+                                    </span>
+                                  </div>
+                                  <div className="settle-formula-row-val" style={{ color: '#16a34a' }}>
+                                    <strong>-{Math.round(sponsor / attendeeTotalCount).toLocaleString()}원</strong>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* 4) 선입금이 있는 경우 (-) */}
+                              {deposit > 0 && (
+                                <div className="settle-formula-row is-deduction">
+                                  <div className="settle-formula-row-left">
+                                    <span className="settle-row-op" style={{ color: '#0284c7' }}>-</span>
+                                    <span className="status-pill" style={{ background: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd', fontSize: '11px', padding: '1px 6px' }}>
+                                      선입금
+                                    </span>
+                                    <span className="settle-row-name">선입금 차감</span>
+                                  </div>
+                                  <div className="settle-formula-row-calc">
+                                    <span className="settle-row-fraction" style={{ color: '#0284c7' }}>
+                                      1인당 선입금
+                                    </span>
+                                  </div>
+                                  <div className="settle-formula-row-val" style={{ color: '#0284c7' }}>
+                                    <strong>-{Number(meeting.advanceDeposit || Math.round(deposit / attendeeTotalCount)).toLocaleString()}원</strong>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* 5) 구분선 및 최종 1/N 정산액 산출 */}
+                              <div className="settle-formula-divider" />
+
+                              <div className="settle-formula-total-row">
+                                <div className="settle-total-label">
+                                  <span className="settle-row-op" style={{ fontSize: '16px', color: 'var(--color-primary, #e11d48)' }}>=</span>
+                                  <strong>1/N 정산액</strong>
+                                  <span style={{ fontSize: '11px', color: 'var(--color-text-muted, #64748b)', fontWeight: 500 }}>
+                                    (전차수 참석 기준)
                                   </span>
                                 </div>
-                              </>
-                            )}
-
-                            {deposit > 0 && (
-                              <>
-                                <span className="settle-formula-op">-</span>
-                                <div className="settle-formula-card is-deposit">
-                                  <span className="settle-formula-label">선입금</span>
-                                  <span className="settle-formula-val" style={{ color: '#0369a1' }}>
-                                    -{deposit.toLocaleString()}원
+                                <div className="settle-total-val">
+                                  <span className="settle-total-price">
+                                    {netTotal.toLocaleString()}원
                                   </span>
                                 </div>
-                              </>
-                            )}
-
-                            <span className="settle-formula-op">=</span>
-                            <div className="settle-formula-card is-result">
-                              <span className="settle-formula-label">1/N 정산액</span>
-                              <span className="settle-formula-val">{netTotal.toLocaleString()}원</span>
+                              </div>
                             </div>
                           </div>
                         );

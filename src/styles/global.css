@@ -5315,6 +5315,132 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   user-select: none;
 }
 
+/* ========================================================
+   [신규] 세로형 인포그래픽 정산 수식 카드 & 장소 공지·안내
+   ======================================================== */
+.settle-vertical-formula-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 10px;
+  padding: 13px 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.settle-formula-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--color-divider, #e2e8f0);
+}
+
+.settle-formula-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.settle-formula-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  gap: 8px;
+}
+
+.settle-formula-row-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.settle-row-op {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-text-muted, #64748b);
+  width: 12px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.settle-row-name {
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--color-text-primary, #1e293b);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settle-formula-row-calc {
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.settle-formula-row-val {
+  font-size: 13px;
+  text-align: right;
+  min-width: 65px;
+  flex-shrink: 0;
+  color: var(--color-text-primary, #0f172a);
+}
+
+.settle-formula-divider {
+  height: 1px;
+  background: var(--color-border, #cbd5e1);
+  margin: 4px 0;
+}
+
+.settle-formula-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+.settle-total-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13.5px;
+  color: var(--color-text-primary, #0f172a);
+}
+
+.settle-total-val .settle-total-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-primary, #e11d48);
+}
+
+/* 장소 공지·안내 박스 */
+.lounge-round-notice-box {
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+  border-left: 3px solid var(--color-primary, #e11d48);
+  border-radius: 6px;
+  padding: 8px 11px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #831843;
+}
+
+.lounge-round-notice-title {
+  font-weight: 700;
+  font-size: 11.5px;
+  color: var(--color-primary, #e11d48);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+
 
 
 
