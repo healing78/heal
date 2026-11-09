@@ -101,18 +101,26 @@ export default function LoginOnboardingPage({
   // Apply historical link
   const handleApplyLinkAccount = (target) => {
     if (!target) return;
-    setOnboardingForm((prev) => ({
-      ...prev,
-      realName: target.realName,
-      city: target.city || prev.city || '수원',
-      homeCity: target.homeCity || target.city || prev.homeCity || '수원',
-      maritalStatus: target.maritalStatus || prev.maritalStatus || 'single',
-      gender: target.gender || prev.gender || '남',
-      linkSourceUid: target.uid,
-      linkRequestRealName: target.realName,
-      linkRequestType: 'historical',
-      linkRequestSubName: ''
-    }));
+    setOnboardingForm((prev) => {
+      const cityVal =
+        prev.city && prev.city !== '수원' && prev.city !== '경기'
+          ? prev.city
+          : target.city && target.city !== '경기'
+          ? target.city
+          : prev.city || target.city || '수원';
+      return {
+        ...prev,
+        realName: target.realName,
+        city: cityVal,
+        homeCity: target.homeCity && target.homeCity !== '경기' ? target.homeCity : cityVal,
+        maritalStatus: target.maritalStatus || prev.maritalStatus || 'single',
+        gender: target.gender || prev.gender || '남',
+        linkSourceUid: target.uid,
+        linkRequestRealName: target.realName,
+        linkRequestType: 'historical',
+        linkRequestSubName: ''
+      };
+    });
   };
 
   // Apply sub-phone link

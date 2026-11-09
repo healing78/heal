@@ -285,6 +285,16 @@ const ensureFirestoreSeeded = async () => {
         },
         { merge: true }
       );
+      const maeulDoc = doc(db, 'members', 'kakao:1003');
+      await setDoc(
+        maeulDoc,
+        {
+          city: '용인',
+          homeCity: '용인',
+          role: 'Member'
+        },
+        { merge: true }
+      );
     } catch {
       // ignore
     }
@@ -1330,8 +1340,8 @@ export const reassignMemberUid = async (oldUid, newUid) => {
     joinedAt: resolvedJoinedAt,
     entryBadge: target.entryBadge || destination?.entryBadge || '',
     customBadge: destination?.customBadge || target.customBadge || '',
-    homeCity: destination?.homeCity || target.homeCity || '수원',
-    city: destination?.city || target.city || '수원',
+    homeCity: (destination?.homeCity && destination.homeCity !== '경기') ? destination.homeCity : (target.homeCity || destination?.homeCity || '수원'),
+    city: (destination?.city && destination.city !== '경기') ? destination.city : (target.city || destination?.city || '수원'),
     gender: destination?.gender || target.gender || '남',
     maritalStatus: destination?.maritalStatus || target.maritalStatus || 'single',
     legalName: destination?.legalName || target.legalName || '',
