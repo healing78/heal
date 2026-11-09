@@ -1,7 +1,14 @@
-export const THEME_STORAGE_KEY = 'healing78_ui_theme_v1';
-export const DEFAULT_THEME = 'mono';
+export const THEME_STORAGE_KEY = 'healing78_ui_theme_v2';
+export const DEFAULT_THEME = 'rose';
 
 export const THEME_OPTIONS = [
+  {
+    id: 'rose',
+    shortLabel: '로즈',
+    label: '힐링 로즈 (화사함)',
+    themeColor: '#e11d48',
+    showDecorations: true
+  },
   {
     id: 'mono',
     shortLabel: '무채색',
@@ -15,13 +22,6 @@ export const THEME_OPTIONS = [
     label: '엑셀 시트 (업무모드)',
     themeColor: '#107c41',
     showDecorations: false
-  },
-  {
-    id: 'rose',
-    shortLabel: '로즈',
-    label: '힐링 로즈 (화사함)',
-    themeColor: '#e11d48',
-    showDecorations: true
   }
 ];
 
