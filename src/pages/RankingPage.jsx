@@ -62,10 +62,45 @@ export default function RankingPage({
     );
   }, [members]);
 
+  // 이번 달(현재 연월) 실제 정산된 모임 기준 동적 벙점수 매핑 (SSOT)
+  const currentMonthScores = useMemo(() => {
+    const map = new Map();
+    const now = new Date();
+    const ymDash = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const ymShort = `${String(now.getFullYear()).slice(2)}${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const currentMonthMeetings = meetings.filter((m) => {
+      if (m.status !== 'settled') return false;
+      const d = String(m.dateOnly || m.date || '');
+      return d.startsWith(ymDash) || d.startsWith(ymShort);
+    });
+
+    currentMonthMeetings.forEach((mtg) => {
+      const attendees = mtg.confirmedParticipants || mtg.applicants || [];
+      attendees.forEach((uid) => {
+        const mem = members.find((m) => m.uid === uid);
+        if (!mem) return;
+        const calc = calculateMeetingScoreForMember(mem, mtg.location);
+        const earned = mtg.memberScoreSnapshots?.[uid]?.earned || calc.total;
+        map.set(uid, (map.get(uid) || 0) + earned);
+      });
+    });
+
+    return map;
+  }, [meetings, members]);
+
+  const getMonthlyScore = (m) => {
+    if (!m) return 0;
+    if (meetings && meetings.length > 0) {
+      return currentMonthScores.get(m.uid) || 0;
+    }
+    return m.monthlyScore || 0;
+  };
+
   // 이번 달 벙점수 1점 이상 획득한 활동 회원
   const monthlyActiveCount = useMemo(() => {
-    return activeMembers.filter((m) => (m.monthlyScore || 0) > 0).length;
-  }, [activeMembers]);
+    return activeMembers.filter((m) => getMonthlyScore(m) > 0).length;
+  }, [activeMembers, currentMonthScores]);
 
   const cities = useMemo(() => {
     return ['ALL', ...new Set(activeMembers.map((m) => m.city).filter(Boolean))];
@@ -81,7 +116,7 @@ export default function RankingPage({
     return activeMembers
       .filter((m) => {
         // 이번 달 랭킹 탭에서는 이번 달 벙점수가 0점인 회원 제외
-        if (subTab === 'monthly' && (m.monthlyScore || 0) <= 0) {
+        if (subTab === 'monthly' && getMonthlyScore(m) <= 0) {
           return false;
         }
 
@@ -95,12 +130,12 @@ export default function RankingPage({
       })
       .sort((a, b) => {
         if (subTab === 'monthly') {
-          const diff = (b.monthlyScore || 0) - (a.monthlyScore || 0);
+          const diff = getMonthlyScore(b) - getMonthlyScore(a);
           return diff !== 0 ? diff : getMemberTotalScore(b) - getMemberTotalScore(a);
         }
         return getMemberTotalScore(b) - getMemberTotalScore(a);
       });
-  }, [activeMembers, subTab, searchQuery, cityFilter]);
+  }, [activeMembers, subTab, searchQuery, cityFilter, currentMonthScores]);
 
   // Slice displayed items for infinite scroll
   const displayedMembers = useMemo(() => {
@@ -329,7 +364,7 @@ export default function RankingPage({
                   / 총 {filteredMembers.length}명
                 </span>
                 <span className="my-rank-score">
-                  ({subTab === 'monthly' ? `${currentUser.monthlyScore || 0}점` : `${myTotalScore}점`})
+                  ({subTab === 'monthly' ? `${getMonthlyScore(currentUser)}점` : `${myTotalScore}점`})
                 </span>
               </div>
             </div>
@@ -360,7 +395,7 @@ export default function RankingPage({
             </div>
             <div className="score-dash-card">
               <span className="dash-label">이번 달 벙점수</span>
-              <span className="dash-value">{currentUser.monthlyScore || 0}점</span>
+              <span className="dash-value">{getMonthlyScore(currentUser)}점</span>
             </div>
             <div className="score-dash-card">
               <span className="dash-label">점수 구성</span>
@@ -489,7 +524,7 @@ export default function RankingPage({
               {displayedMembers.map((member, index) => {
                 const displayScore =
                   subTab === 'monthly'
-                    ? member.monthlyScore || 0
+                    ? getMonthlyScore(member)
                     : getMemberTotalScore(member);
 
                 const isMe = currentUser && member.uid === currentUser.uid;
