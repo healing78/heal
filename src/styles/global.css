@@ -4619,3 +4619,200 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   border: 1px solid #c7d2fe;
 }
 
+/* ==========================================================================
+   Swipe Toggle & Card Transition (Theme Adaptive)
+   ========================================================================== */
+.btn-swipe-toggle {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill, 6px);
+  border: 1px solid var(--color-border, #cbd5e1);
+  background: var(--color-subtle-bg, #f8fafc);
+  color: var(--color-text-muted, #64748b);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.btn-swipe-toggle:hover {
+  background: var(--color-primary-light, #f1f5f9);
+}
+
+.btn-swipe-toggle.is-active {
+  background: var(--color-primary, #1e293b);
+  border-color: var(--color-primary, #1e293b);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.swipe-card-wrapper {
+  width: 100%;
+  touch-action: pan-y;
+  will-change: transform, opacity;
+}
+
+.swipe-card-wrapper.is-animating {
+  transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.22s ease-out;
+}
+
+/* ==========================================================================
+   Ranking Page: My Rank Top Card & Interactive Row
+   ========================================================================== */
+.ranking-my-top-card {
+  background: linear-gradient(135deg, var(--color-subtle-bg, #f8fafc) 0%, var(--color-surface, #ffffff) 100%);
+  border: 1px solid var(--color-primary-border, #cbd5e1);
+  border-radius: var(--radius-base, 8px);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ranking-my-top-card .my-rank-title {
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+  margin-bottom: 2px;
+}
+
+.ranking-my-top-card .my-rank-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ranking-my-top-card .my-rank-number {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary, #0f172a);
+}
+
+.ranking-my-top-card .my-rank-score {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text, #334155);
+}
+
+.ranking-row {
+  cursor: pointer;
+  transition: background-color 0.12s ease-in-out;
+}
+
+.ranking-row:hover {
+  background-color: var(--color-subtle-bg, #f8fafc);
+}
+
+.ranking-row.highlight-me {
+  background-color: var(--color-primary-light, #f1f5f9) !important;
+  border-left: 3px solid var(--color-primary, #0f172a);
+}
+
+.btn-jump-me {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: var(--radius-base, 6px);
+  border: 1px solid var(--color-primary, #0f172a);
+  background-color: var(--color-primary, #0f172a);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-jump-me:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.score-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.score-dash-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-base, 8px);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.score-dash-card.primary {
+  background: linear-gradient(135deg, var(--color-primary-light, #f1f5f9) 0%, var(--color-surface, #ffffff) 100%);
+  border-color: var(--color-primary-border, #cbd5e1);
+}
+
+.score-dash-card .dash-label {
+  font-size: 11px;
+  color: var(--color-text-muted, #64748b);
+  margin-bottom: 4px;
+}
+
+.score-dash-card .dash-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary, #0f172a);
+}
+
+.score-milestone-banner {
+  background: var(--color-subtle-bg, #f8fafc);
+  border: 1px dashed var(--color-primary-border, #cbd5e1);
+  border-radius: var(--radius-base, 8px);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.period-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.period-filter-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text, #334155);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+
+.period-filter-btn.active {
+  background: var(--color-primary, #0f172a);
+  border-color: var(--color-primary, #0f172a);
+  color: #ffffff;
+}
+
+.infinite-scroll-sentinel {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+}
+
+
+

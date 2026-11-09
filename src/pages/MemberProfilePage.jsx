@@ -46,6 +46,16 @@ export default function MemberProfilePage({
   const isAdmin = isAdminUser(currentUser, communityConfig);
 
   const [touchStartX, setTouchStartX] = useState(null);
+  const [touchDeltaX, setTouchDeltaX] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isSwipeEnabled, setIsSwipeEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem('heal_swipe_enabled');
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch {
+      return true;
+    }
+  });
   const [copiedLink, setCopiedLink] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -136,23 +146,55 @@ export default function MemberProfilePage({
     }
   };
 
-  // Touch Swipe Handlers for Mobile
+  // Touch Swipe Handlers for Mobile (With Real-time Drag & Smooth Animation)
   const handleTouchStart = (e) => {
+    if (!isSwipeEnabled || isAnimating) return;
     setTouchStartX(e.touches[0].clientX);
+    setTouchDeltaX(0);
   };
 
-  const handleTouchEnd = (e) => {
-    if (touchStartX === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchEndX - touchStartX;
+  const handleTouchMove = (e) => {
+    if (!isSwipeEnabled || touchStartX === null || isAnimating) return;
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - touchStartX;
+    // Limit max visual drag to ±120px to prevent tearing
+    const clampedDiff = Math.max(-120, Math.min(120, diff));
+    setTouchDeltaX(clampedDiff);
+  };
 
-    // Minimum swipe threshold: 50px
-    if (deltaX > 50) {
-      // Swiped right -> go to previous friend
-      goToPrev();
-    } else if (deltaX < -50) {
-      // Swiped left -> go to next friend
-      goToNext();
+  const handleTouchEnd = () => {
+    if (!isSwipeEnabled || touchStartX === null || isAnimating) {
+      setTouchStartX(null);
+      setTouchDeltaX(0);
+      return;
+    }
+
+    const threshold = 60;
+    if (touchDeltaX > threshold && currentIndex > 0) {
+      // Swiped right -> smoothly slide out and navigate to previous friend
+      setIsAnimating(true);
+      setTouchDeltaX(window.innerWidth || 320);
+      setTimeout(() => {
+        goToPrev();
+        setTouchDeltaX(0);
+        setIsAnimating(false);
+      }, 200);
+    } else if (touchDeltaX < -threshold && currentIndex < totalCount - 1 && currentIndex !== -1) {
+      // Swiped left -> smoothly slide out and navigate to next friend
+      setIsAnimating(true);
+      setTouchDeltaX(-(window.innerWidth || 320));
+      setTimeout(() => {
+        goToNext();
+        setTouchDeltaX(0);
+        setIsAnimating(false);
+      }, 200);
+    } else {
+      // Rebound back to origin
+      setIsAnimating(true);
+      setTouchDeltaX(0);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 200);
     }
     setTouchStartX(null);
   };
@@ -286,10 +328,11 @@ export default function MemberProfilePage({
     <div
       className="list-container"
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      style={{ userSelect: 'none' }}
+      style={{ userSelect: 'none', overflowX: 'hidden' }}
     >
-      {/* Top Bar: Back & Carousel Controls */}
+      {/* Top Bar: Back, Swipe Toggle & Link Share */}
       <div
         style={{
           display: 'flex',
@@ -308,43 +351,42 @@ export default function MemberProfilePage({
           ← 목록
         </button>
 
-        {/* Carousel / Navigation Counter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Swipe Gesture Toggle Button (Color-indicated ON/OFF) */}
           <button
             type="button"
-            className="btn btn-outline btn-sm"
-            onClick={goToPrev}
-            disabled={currentIndex <= 0}
-            style={{ padding: '4px 8px', fontSize: '12px' }}
-            title="이전 친구 (오른쪽 스와이프)"
+            className={`btn-swipe-toggle ${isSwipeEnabled ? 'is-active' : ''}`}
+            onClick={() => {
+              const next = !isSwipeEnabled;
+              setIsSwipeEnabled(next);
+              try {
+                localStorage.setItem('heal_swipe_enabled', JSON.stringify(next));
+              } catch (err) {}
+            }}
+            title={isSwipeEnabled ? '스와이프 켜짐 (탭하여 끄기)' : '스와이프 꺼짐 (탭하여 켜기)'}
           >
-            ◀
+            스와이프
           </button>
-          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-            {currentIndex >= 0 ? `${currentIndex + 1} / ${totalCount}` : ''}
-          </span>
+
+          {/* Link Share Button */}
           <button
             type="button"
             className="btn btn-outline btn-sm"
-            onClick={goToNext}
-            disabled={currentIndex >= totalCount - 1 || currentIndex === -1}
-            style={{ padding: '4px 8px', fontSize: '12px' }}
-            title="다음 친구 (왼쪽 스와이프)"
+            onClick={handleCopyLink}
+            style={{ fontSize: '12px', padding: '5px 10px' }}
           >
-            ▶
+            {copiedLink ? '✅ 복사됨!' : '🔗 링크 공유'}
           </button>
         </div>
-
-        {/* Link Share Button */}
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          onClick={handleCopyLink}
-          style={{ fontSize: '12px', padding: '5px 10px' }}
-        >
-          {copiedLink ? '✅ 복사됨!' : '🔗 링크 공유'}
-        </button>
       </div>
+
+      <div
+        className={`swipe-card-wrapper ${isAnimating ? 'is-animating' : ''}`}
+        style={{
+          transform: `translateX(${touchDeltaX}px)`,
+          opacity: 1 - Math.min(0.4, Math.abs(touchDeltaX) / 300)
+        }}
+      >
 
       {feedback && (
         <div className="success-banner" style={{ marginBottom: '10px' }}>
@@ -858,20 +900,21 @@ export default function MemberProfilePage({
                     {mtg.dateOnly || mtg.date} • {mtg.location}
                   </div>
                 </div>
-
-                <span style={{ fontSize: '12px', color: '#3b82f6', fontWeight: 600 }}>
-                  상세보기 →
-                </span>
               </div>
             ))}
           </div>
         )}
       </section>
 
-      {/* Mobile Swipe Hint */}
-      <div style={{ textAlign: 'center', marginTop: '16px', color: '#94a3b8', fontSize: '12px' }}>
-        👆 좌우로 스와이프하여 다음/이전 친구로 이동할 수 있습니다.
+      {/* Swipe wrapper closing */}
       </div>
+
+      {/* Mobile Swipe Hint */}
+      {isSwipeEnabled && (
+        <div style={{ textAlign: 'center', marginTop: '16px', color: '#94a3b8', fontSize: '12px' }}>
+          좌우로 스와이프하여 이전/다음 친구로 이동할 수 있습니다.
+        </div>
+      )}
     </div>
   );
 }

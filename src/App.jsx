@@ -580,7 +580,10 @@ export default function App() {
         <RankingPage
           currentUser={currentUser}
           members={members}
+          meetings={meetings}
           scoreLogs={scoreLogs}
+          onSelectMember={handleSelectMember}
+          onOpenMeetingDetail={handleOpenMeetingDetail}
         />
       );
     }
