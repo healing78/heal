@@ -348,7 +348,7 @@ export const getHistoricalScoreInfo = (member, currentMeeting, allMeetings, loca
   const beforeBadge = getTierBadgeByScore(beforeScore);
   const afterBadge = getTierBadgeByScore(afterScore);
   const isBadgePromoted = Boolean(
-    beforeBadge?.name && afterBadge?.name && beforeBadge.name !== afterBadge.name
+    beforeBadge !== afterBadge && Boolean(afterBadge)
   );
 
   const isSpecialRole = [
@@ -1760,7 +1760,13 @@ export default function MeetingDetailPage({
         meeting.hostUid,
         ...(meeting.status === 'settled' && confirmedList.length > 0
           ? confirmedList
-          : applicants)
+          : [
+              ...applicants,
+              ...(meeting.rounds || []).flatMap((r) => r.participants || []),
+              ...(settlement?.participantRows || [])
+                .filter((r) => r.attendedRounds && r.attendedRounds.length > 0)
+                .map((r) => r.uid)
+            ])
       ].filter(Boolean)
     )
   );
@@ -5542,7 +5548,9 @@ export default function MeetingDetailPage({
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                       <span style={{ fontSize: '16px' }}>🎉</span>
                       <strong style={{ fontSize: '13px', color: '#92400e' }}>
-                        축하합니다! 승급 & 뱃지 획득 안내 ({closingCelebrations.length}명)
+                        {isMeetingSettled
+                          ? `축하합니다! 승급 & 뱃지 획득 완료 (${closingCelebrations.length}명)`
+                          : `축하합니다! 마감 시 승급 & 뱃지 획득 예정 (${closingCelebrations.length}명)`}
                       </strong>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -5575,7 +5583,7 @@ export default function MeetingDetailPage({
                                   whiteSpace: 'nowrap'
                                 }}
                               >
-                                정회원 승급 🎊
+                                {isMeetingSettled ? '정회원 승급 🎊' : '정회원 승급 예정 🎊'}
                               </span>
                             )}
                             {c.isBadgePromoted && (
@@ -5590,7 +5598,7 @@ export default function MeetingDetailPage({
                                   whiteSpace: 'nowrap'
                                 }}
                               >
-                                {(typeof c.afterBadge === 'string' ? c.afterBadge : (c.afterBadge?.label || c.afterBadge?.name || ''))} 달성 ⭐
+                                {(typeof c.afterBadge === 'string' ? c.afterBadge : (c.afterBadge?.label || c.afterBadge?.name || ''))} {isMeetingSettled ? '달성 ⭐' : '달성 예정 ⭐'}
                               </span>
                             )}
                           </div>
@@ -5698,7 +5706,7 @@ export default function MeetingDetailPage({
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              정회원 승급 🎊
+                              {isSettled ? '정회원 승급 🎊' : '정회원 승급 예정 🎊'}
                             </span>
                           )}
                           {isBadgePromoted && (
@@ -5713,7 +5721,7 @@ export default function MeetingDetailPage({
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              {(typeof afterBadge === 'string' ? afterBadge : (afterBadge?.label || afterBadge?.name || ''))} ⭐
+                              {(typeof afterBadge === 'string' ? afterBadge : (afterBadge?.label || afterBadge?.name || ''))} {isSettled ? '달성 ⭐' : '달성 예정 ⭐'}
                             </span>
                           )}
                         </div>
