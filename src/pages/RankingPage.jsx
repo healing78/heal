@@ -32,6 +32,13 @@ function getNextMilestone(score = 0) {
   };
 }
 
+function getRankBadgeClass(idx) {
+  if (idx === 0) return 'rank-badge rank-1';
+  if (idx === 1) return 'rank-badge rank-2';
+  if (idx === 2) return 'rank-badge rank-3';
+  return 'rank-badge rank-normal';
+}
+
 export default function RankingPage({
   currentUser,
   members = [],
@@ -251,45 +258,49 @@ export default function RankingPage({
   const milestone = currentUser ? getNextMilestone(myTotalScore) : null;
 
   return (
-    <div className="list-container">
+    <div className="list-container" style={{ paddingBottom: '90px' }}>
       <section className="list-section">
         <h2>활동 랭킹</h2>
 
-        <div className="subtab-bar">
+        <div className="ranking-segmented-bar">
           <button
             type="button"
-            className={`subtab-btn ${subTab === 'total' ? 'active' : ''}`}
+            className={`ranking-seg-btn ${subTab === 'total' ? 'active' : ''}`}
             onClick={() => setSubTab('total')}
           >
-            전체 누적 랭킹 ({activeMembers.length})
+            전체 ({activeMembers.length})
           </button>
           <button
             type="button"
-            className={`subtab-btn ${subTab === 'monthly' ? 'active' : ''}`}
+            className={`ranking-seg-btn ${subTab === 'monthly' ? 'active' : ''}`}
             onClick={() => setSubTab('monthly')}
           >
-            이번 달 랭킹 ({monthlyActiveCount}명)
+            이번 달 ({monthlyActiveCount})
           </button>
           {currentUser && (
             <button
               type="button"
-              className={`subtab-btn ${subTab === 'history' ? 'active' : ''}`}
+              className={`ranking-seg-btn ${subTab === 'history' ? 'active' : ''}`}
               onClick={() => setSubTab('history')}
             >
-              내 벙점수 내역 ({fullScoreHistory.length})
+              내 점수 ({fullScoreHistory.length})
             </button>
           )}
         </div>
 
         {subTab !== 'history' && (
-          <div className="filter-bar">
-            <input
-              type="text"
-              placeholder="친구 이름 또는 닉네임 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="ranking-filter-bar">
+            <div className="ranking-search-wrap">
+              <span className="ranking-search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="친구 이름 또는 닉네임 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
             <select
+              className="ranking-city-select"
               value={cityFilter}
               onChange={(e) => setCityFilter(e.target.value)}
             >
@@ -307,31 +318,29 @@ export default function RankingPage({
       {subTab !== 'history' && currentUser && myRankIndex !== -1 && (
         <section className="list-section" style={{ paddingBottom: 0 }}>
           <div className="ranking-my-top-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div className="my-rank-title">
-                  {currentUser.realName || currentUser.nickname}님의{' '}
-                  {subTab === 'monthly' ? '이번 달' : '누적'} 순위
-                </div>
-                <div className="my-rank-stats">
-                  <span className="my-rank-number">{myRankIndex + 1}위</span>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                    / 총 {filteredMembers.length}명
-                  </span>
-                  <span className="my-rank-score" style={{ marginLeft: '6px' }}>
-                    ({subTab === 'monthly' ? currentUser.monthlyScore || 0 : myTotalScore}점)
-                  </span>
-                </div>
+            <div className="my-rank-content">
+              <div className="my-rank-title">
+                {currentUser.realName || currentUser.nickname}님의{' '}
+                {subTab === 'monthly' ? '이번 달' : '누적'} 순위
               </div>
-              <button
-                type="button"
-                className="btn-jump-me"
-                onClick={handleJumpToMyRank}
-                title="리스트에서 내 위치로 바로 스크롤 이동합니다"
-              >
-                내 위치 🎯
-              </button>
+              <div className="my-rank-stats">
+                <span className="my-rank-number">{myRankIndex + 1}위</span>
+                <span className="my-rank-total">
+                  / 총 {filteredMembers.length}명
+                </span>
+                <span className="my-rank-score">
+                  ({subTab === 'monthly' ? `${currentUser.monthlyScore || 0}점` : `${myTotalScore}점`})
+                </span>
+              </div>
             </div>
+            <button
+              type="button"
+              className="btn-jump-me"
+              onClick={handleJumpToMyRank}
+              title="리스트에서 내 위치로 바로 스크롤 이동합니다"
+            >
+              내 위치 🎯
+            </button>
           </div>
         </section>
       )}
@@ -500,13 +509,10 @@ export default function RankingPage({
                     }}
                   >
                     <div className="rank-left">
-                      <span className="rank-num">
-                        {index === 0 && '🥇 '}
-                        {index === 1 && '🥈 '}
-                        {index === 2 && '🥉 '}
+                      <span className={getRankBadgeClass(index)}>
                         {index + 1}위
                       </span>
-                      <div>
+                      <div className="rank-info">
                         <div className="rank-name-line">
                           <strong>{formatMemberNickname(member)}</strong>
                           <span
