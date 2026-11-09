@@ -153,36 +153,10 @@ export default function MeetingsPage({
 
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
 
-  // If a specific schedule ID is selected (/meetings/26110701), render its dedicated page
+  // If a specific schedule ID is selected (/meetings/26110701), resolve its data
   const activeMeeting = selectedMeetingId
     ? meetings.find((m) => String(m.id) === String(selectedMeetingId))
     : null;
-
-  if (activeMeeting) {
-    return (
-      <ErrorBoundary onReset={() => onSelectMeetingId(null)}>
-        <MeetingDetailPage
-          meeting={activeMeeting}
-          allMeetings={meetings}
-          currentUser={currentUser}
-          members={members}
-          communityConfig={communityConfig}
-          initialSubView={selectedMeetingSubView}
-          onUpdateSubView={onSelectMeetingSubView}
-          onBackToList={() => onSelectMeetingId(null)}
-          onShareMeeting={onShareMeeting}
-          onToggleApplyMeeting={onToggleApplyMeeting}
-          onUpdateMeeting={onUpdateMeeting}
-          onAdminSaveMeeting={onAdminSaveMeeting}
-          onDeleteMeeting={onDeleteMeeting}
-          onUpdateMemberProfile={onUpdateMemberProfile}
-          onSettleMeeting={onSettleMeeting}
-          onRollbackMeeting={onRollbackMeeting}
-          onNavigateTab={onNavigateTab}
-        />
-      </ErrorBoundary>
-    );
-  }
 
   const handleOpenCreateModal = () => {
     if (!currentUser) {
@@ -360,6 +334,34 @@ export default function MeetingsPage({
       }
     }
   };
+
+  // If a specific schedule ID is selected (/meetings/26110701), render its dedicated page
+  // IMPORTANT: Placed after all Hook declarations to strictly uphold React Rules of Hooks (Error #300 prevention)
+  if (activeMeeting) {
+    return (
+      <ErrorBoundary onReset={() => onSelectMeetingId(null)}>
+        <MeetingDetailPage
+          meeting={activeMeeting}
+          allMeetings={meetings}
+          currentUser={currentUser}
+          members={members}
+          communityConfig={communityConfig}
+          initialSubView={selectedMeetingSubView}
+          onUpdateSubView={onSelectMeetingSubView}
+          onBackToList={() => onSelectMeetingId(null)}
+          onShareMeeting={onShareMeeting}
+          onToggleApplyMeeting={onToggleApplyMeeting}
+          onUpdateMeeting={onUpdateMeeting}
+          onAdminSaveMeeting={onAdminSaveMeeting}
+          onDeleteMeeting={onDeleteMeeting}
+          onUpdateMemberProfile={onUpdateMemberProfile}
+          onSettleMeeting={onSettleMeeting}
+          onRollbackMeeting={onRollbackMeeting}
+          onNavigateTab={onNavigateTab}
+        />
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <div className="list-container" style={{ paddingBottom: '90px' }}>

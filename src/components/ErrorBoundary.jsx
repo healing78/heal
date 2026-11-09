@@ -2,15 +2,16 @@ import React from 'react';
 
 /**
  * Global/Section-Level Error Boundary to prevent white screen crashes (WSOD)
+ * Provides one-click error copying for easy troubleshooting.
  */
 export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, copied: false };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    return { hasError: true, error, copied: false };
   }
 
   componentDidCatch(error, errorInfo) {
@@ -18,7 +19,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, copied: false });
     if (this.props.onReset) {
       this.props.onReset();
     } else if (typeof window !== 'undefined') {
@@ -26,8 +27,47 @@ export class ErrorBoundary extends React.Component {
     }
   };
 
+  handleCopyError = async () => {
+    const err = this.state.error;
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const now = new Date().toISOString();
+
+    const textToCopy = [
+      `[Healing78 런타임 오류 리포트]`,
+      `일시: ${now}`,
+      `URL: ${url}`,
+      `오류 메시지: ${String(err?.message || err)}`,
+      `--- Stack Trace ---`,
+      String(err?.stack || 'No stack trace available'),
+      `--- User Agent ---`,
+      userAgent
+    ].join('\n');
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      this.setState({ copied: true });
+      setTimeout(() => this.setState({ copied: false }), 2500);
+    } catch (e) {
+      console.warn('Failed to copy error to clipboard:', e);
+      alert('오류 내용:\n' + textToCopy);
+    }
+  };
+
   render() {
     if (this.state.hasError) {
+      const { copied, error } = this.state;
       return (
         <div
           className="list-container"
@@ -65,18 +105,20 @@ export class ErrorBoundary extends React.Component {
                 fontSize: '13.5px',
                 lineHeight: '1.5',
                 color: '#7c2d12',
-                marginBottom: '20px'
+                marginBottom: '16px'
               }}
             >
               안전하게 모임 데이터 정합성을 보호하고 있습니다.<br />
-              아래 버튼을 눌러 목록으로 돌아가거나 다시 시도해 주세요.
+              아래 버튼을 눌러 목록으로 돌아가거나 오류를 복사해 전달해 주세요.
             </p>
+
             <div
               style={{
                 display: 'flex',
-                gap: '10px',
+                gap: '8px',
                 justifyContent: 'center',
-                flexWrap: 'wrap'
+                flexWrap: 'wrap',
+                marginBottom: '16px'
               }}
             >
               <button
@@ -97,11 +139,25 @@ export class ErrorBoundary extends React.Component {
               >
                 일정 목록으로 이동
               </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                style={{
+                  background: copied ? '#10b981' : '#f97316',
+                  color: '#ffffff',
+                  borderColor: 'transparent',
+                  fontWeight: 600
+                }}
+                onClick={this.handleCopyError}
+              >
+                {copied ? '오류 복사 완료! ✓' : '📋 오류 내용 복사'}
+              </button>
             </div>
-            {this.state.error && (
+
+            {error && (
               <details
                 style={{
-                  marginTop: '16px',
+                  marginTop: '12px',
                   textAlign: 'left',
                   background: '#f8fafc',
                   border: '1px solid #e2e8f0',
@@ -112,18 +168,34 @@ export class ErrorBoundary extends React.Component {
                 open
               >
                 <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#b91c1c' }}>
-                  오류 내용: {String(this.state.error?.message || this.state.error)}
+                  오류 내용: {String(error?.message || error)}
                 </summary>
+                <div style={{ marginTop: '8px', textAlign: 'right' }}>
+                  <button
+                    type="button"
+                    style={{
+                      fontSize: '11px',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      border: '1px solid #cbd5e1',
+                      background: '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                    onClick={this.handleCopyError}
+                  >
+                    {copied ? '복사됨 ✓' : '전체 복사'}
+                  </button>
+                </div>
                 <pre
                   style={{
-                    marginTop: '8px',
+                    marginTop: '6px',
                     fontSize: '11px',
                     overflowX: 'auto',
                     whiteSpace: 'pre-wrap',
                     color: '#64748b'
                   }}
                 >
-                  {String(this.state.error?.stack || '')}
+                  {String(error?.stack || '')}
                 </pre>
               </details>
             )}
