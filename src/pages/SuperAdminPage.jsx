@@ -823,18 +823,7 @@ export default function SuperAdminPage({
               : `⚡ 공식 벙기록 표준 시드 즉시 동기화 (${INITIAL_MEMBERS.length}명 / ${INITIAL_MEETINGS.length}건)`}
           </button>
 
-          <button
-            type="button"
-            className="btn btn-secondary"
-            disabled={isSyncing}
-            onClick={() =>
-              runArmed('enrich-live-members', () => handleEnrichLiveMembersOnly())
-            }
-          >
-            {isArmed('enrich-live-members')
-              ? '확인: 회원 정보 일괄 갱신 실행'
-              : '👥 원천 로그(001.log) 기반 도시·성별·결혼·가입일 갱신'}
-          </button>
+
 
           <button
             type="button"
