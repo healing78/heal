@@ -81,7 +81,7 @@ export default function FriendsPage({
 
   // Filtered members
   const filteredMembers = useMemo(() => {
-    let list = members;
+    let list = (members || []).filter((m) => m && (m.realName || '').trim() !== '');
 
     // Privacy filter: Regular members cannot see Wanderer, Expelled, or Withdrawn members
     if (!isAdmin) {
