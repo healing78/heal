@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
   formatMeetingToKakaoNotice,
   formatAllMeetingsToKakaoDocument,
@@ -17,10 +17,12 @@ export default function BungRecordsTab({
   const [selectedYear, setSelectedYear] = useState('ALL'); // 'ALL' | '2026' | '2025' | '2024'
   const [viewMode, setViewMode] = useState('card'); // 'card' | 'raw'
   const [copiedToast, setCopiedToast] = useState('');
-  const [displayLimit, setDisplayLimit] = useState(50);
+  const [displayLimit, setDisplayLimit] = useState(25);
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [quickAddText, setQuickAddText] = useState('');
   const [quickAddFeedback, setQuickAddFeedback] = useState('');
+
+  const sentinelRef = useRef(null);
 
   const membersMap = useMemo(
     () => new Map(members.map((m) => [m.uid, m])),
@@ -40,34 +42,33 @@ export default function BungRecordsTab({
     return map;
   }, [members]);
 
-  // Helper to extract participant realNames from meeting
-  const getMeetingParticipantNames = (mtg) => {
-    const names = new Set();
+  // Extract participant tokens with numbers attached (e.g. '레시2', '쭈2', '다온')
+  const getMeetingAttendeeTokens = (mtg) => {
+    if (mtg.attendees && mtg.attendees.length > 0 && typeof mtg.attendees[0] === 'object') {
+      return mtg.attendees.map(
+        (a) => a.rawToken || (a.points > 1 ? `${a.name}${a.points}` : a.name)
+      );
+    }
+
+    if (mtg.attendeeNames && mtg.attendeeNames.length > 0) {
+      return mtg.attendeeNames;
+    }
+
     const uids =
       mtg.confirmedParticipants ||
       mtg.attendeeUids ||
       mtg.rounds?.[0]?.participants ||
       [];
-    for (const uid of uids) {
-      const m = membersMap.get(uid);
-      if (m?.realName) names.add(m.realName);
-      else if (uid) names.add(uid.replace(/^kakao:/, ''));
-    }
 
-    if (mtg.attendees) {
-      for (const a of mtg.attendees) {
-        if (typeof a === 'string') names.add(a);
-        else if (a?.name) names.add(a.name);
+    return uids.map((uid) => {
+      const member = membersMap.get(uid);
+      const cleanName = member?.realName || String(uid).replace(/^kakao:/, '');
+      const earned = mtg.memberScoreSnapshots?.[uid]?.earned;
+      if (typeof earned === 'number' && earned > 1) {
+        return `${cleanName}${earned}`;
       }
-    }
-
-    if (mtg.attendeeNames) {
-      for (const n of mtg.attendeeNames) {
-        if (n) names.add(n);
-      }
-    }
-
-    return Array.from(names);
+      return cleanName;
+    });
   };
 
   // Sort all meetings descending (newest first)
@@ -108,7 +109,7 @@ export default function BungRecordsTab({
         const titleMatch = (mtg.title || '').toLowerCase().includes(q);
         const locMatch = (mtg.location || '').toLowerCase().includes(q);
         const dateMatch = (mtg.dateOnly || '').includes(q);
-        const participants = getMeetingParticipantNames(mtg);
+        const participants = getMeetingAttendeeTokens(mtg);
         const nameMatch = participants.some((name) => {
           const clean = name.replace(/[0-9]/g, '').toLowerCase();
           return clean.includes(q) || name.toLowerCase().includes(q);
@@ -120,10 +121,38 @@ export default function BungRecordsTab({
     return list;
   }, [sortedMeetings, selectedYear, searchQuery, membersMap]);
 
+  // Reset infinite scroll limit when filter changes
+  useEffect(() => {
+    setDisplayLimit(25);
+  }, [selectedYear, searchQuery]);
+
   // Visible items for performance
   const visibleMeetings = useMemo(() => {
     return filteredMeetings.slice(0, displayLimit);
   }, [filteredMeetings, displayLimit]);
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    if (viewMode === 'raw') return;
+    if (!sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setDisplayLimit((prev) => {
+            if (prev < filteredMeetings.length) {
+              return prev + 25;
+            }
+            return prev;
+          });
+        }
+      },
+      { rootMargin: '250px' }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [viewMode, filteredMeetings.length]);
 
   // Copy Full / Filtered Kakao Document
   const handleCopyKakaoDocument = async () => {
@@ -202,11 +231,10 @@ export default function BungRecordsTab({
               payerUid: '',
               cost: 0,
               receiptUrl: '',
-              isGoldenBell: false,
-              goldenBellUid: ''
+              isGoldenBell: false
             }
           ],
-          sponsorships: [],
+          attendees: rec.attendees,
           manualAmounts: {},
           paymentStatuses: {},
           safeReturns: {},
@@ -231,7 +259,7 @@ export default function BungRecordsTab({
   };
 
   return (
-    <div style={{ marginTop: '12px' }}>
+    <div style={{ marginTop: '10px' }}>
       {/* Toast Notification */}
       {copiedToast && (
         <aside
@@ -259,44 +287,24 @@ export default function BungRecordsTab({
         </aside>
       )}
 
-      {/* Header Info Card */}
-      <section
-        style={{
-          background: 'var(--color-bg-primary, #ffffff)',
-          border: '1px solid var(--color-border, #e2e8f0)',
-          borderRadius: '10px',
-          padding: '14px',
-          marginBottom: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '8px',
-            flexWrap: 'wrap',
-            gap: '8px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* Tidy Header Archive Card */}
+      <section className="bung-archive-header">
+        <div className="archive-header-top">
+          <div className="archive-header-title">
             <span style={{ fontSize: '18px' }}>📜</span>
-            <strong style={{ fontSize: '15px', color: 'var(--color-text-primary, #0f172a)' }}>
-              공식 벙기록 아카이브
-            </strong>
+            <strong>공식 벙기록 아카이브</strong>
             <span className="count-badge">총 {sortedMeetings.length}회</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '6px' }}>
+          <div className="archive-header-actions">
             <button
               type="button"
               className="btn btn-primary btn-sm"
               onClick={handleCopyKakaoDocument}
-              style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '6px' }}
-              title="현재 필터링된 벙기록을 기존 파이썬 프로그램 및 카톡 공지용 포맷으로 복사"
+              style={{ fontSize: '12px', padding: '5px 11px', borderRadius: '6px' }}
+              title="현재 필터링된 벙기록을 카톡 공지용 포맷으로 복사"
             >
-              📋 카톡 공지 복사
+              📋 카톡 복사
             </button>
             <button
               type="button"
@@ -309,159 +317,55 @@ export default function BungRecordsTab({
           </div>
         </div>
 
-        <p
-          style={{
-            fontSize: '12px',
-            color: 'var(--color-text-secondary, #64748b)',
-            margin: 0,
-            lineHeight: 1.5
-          }}
-        >
-          2024년 1월부터 진행된 모든 벙의 일시, 벙 이름, 참석자 및 원정 가산점 이력을 원천데이터 형식 그대로 열람하고 검색합니다.
-        </p>
-
-        {/* View Mode & Year Filter Pills */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '12px',
-            flexWrap: 'wrap',
-            gap: '8px'
-          }}
-        >
-          {/* Year Filter Buttons */}
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className={`btn btn-sm ${selectedYear === 'ALL' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '14px' }}
-              onClick={() => {
-                setSelectedYear('ALL');
-                setDisplayLimit(50);
-              }}
-            >
-              전체 ({yearCounts.ALL})
-            </button>
-            <button
-              type="button"
-              className={`btn btn-sm ${selectedYear === '2026' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '14px' }}
-              onClick={() => {
-                setSelectedYear('2026');
-                setDisplayLimit(50);
-              }}
-            >
-              2026년 ({yearCounts['2026']})
-            </button>
-            <button
-              type="button"
-              className={`btn btn-sm ${selectedYear === '2025' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '14px' }}
-              onClick={() => {
-                setSelectedYear('2025');
-                setDisplayLimit(50);
-              }}
-            >
-              2025년 ({yearCounts['2025']})
-            </button>
-            <button
-              type="button"
-              className={`btn btn-sm ${selectedYear === '2024' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '14px' }}
-              onClick={() => {
-                setSelectedYear('2024');
-                setDisplayLimit(50);
-              }}
-            >
-              2024년 ({yearCounts['2024']})
-            </button>
+        {/* 1-Row Unified Toolbar: Year Pills & View Mode */}
+        <div className="archive-toolbar">
+          <div className="year-pills-bar">
+            {['ALL', '2026', '2025', '2024'].map((yr) => (
+              <button
+                key={yr}
+                type="button"
+                className={`year-pill ${selectedYear === yr ? 'active' : ''}`}
+                onClick={() => setSelectedYear(yr)}
+              >
+                {yr === 'ALL' ? '전체' : `${yr}년`} ({yearCounts[yr]})
+              </button>
+            ))}
           </div>
 
-          {/* Toggle View Mode */}
-          <div
-            style={{
-              display: 'inline-flex',
-              background: 'var(--color-bg-secondary, #f1f5f9)',
-              padding: '2px',
-              borderRadius: '6px'
-            }}
-          >
+          <div className="archive-view-toggle">
             <button
               type="button"
+              className={viewMode === 'card' ? 'active' : ''}
               onClick={() => setViewMode('card')}
-              style={{
-                border: 'none',
-                background: viewMode === 'card' ? '#ffffff' : 'transparent',
-                color: viewMode === 'card' ? '#0f172a' : '#64748b',
-                padding: '4px 10px',
-                borderRadius: '4px',
-                fontSize: '11px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: viewMode === 'card' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none'
-              }}
             >
-              📱 카드 뷰
+              카드
             </button>
             <button
               type="button"
+              className={viewMode === 'raw' ? 'active' : ''}
               onClick={() => setViewMode('raw')}
-              style={{
-                border: 'none',
-                background: viewMode === 'raw' ? '#ffffff' : 'transparent',
-                color: viewMode === 'raw' ? '#0f172a' : '#64748b',
-                padding: '4px 10px',
-                borderRadius: '4px',
-                fontSize: '11px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: viewMode === 'raw' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none'
-              }}
             >
-              📝 카톡 원문
+              원문
             </button>
           </div>
         </div>
       </section>
 
-      {/* Search Input Bar */}
-      <div style={{ marginBottom: '12px', position: 'relative' }}>
+      {/* Clean Search Bar */}
+      <div className="archive-search-wrap">
+        <span className="archive-search-icon">🔍</span>
         <input
           type="text"
           placeholder="회원 이름(예: 카일, 잔치) 또는 벙 이름 검색..."
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setDisplayLimit(50);
-          }}
-          style={{
-            width: '100%',
-            padding: '9px 12px',
-            paddingRight: '32px',
-            fontSize: '13px',
-            borderRadius: '8px',
-            border: '1px solid var(--color-border, #cbd5e1)',
-            boxSizing: 'border-box',
-            background: 'var(--color-bg-primary, #ffffff)'
-          }}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
         {searchQuery && (
           <button
             type="button"
+            className="btn-clear-search"
             onClick={() => setSearchQuery('')}
-            style={{
-              position: 'absolute',
-              right: '10px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              color: '#94a3b8',
-              fontSize: '13px',
-              cursor: 'pointer'
-            }}
+            title="검색어 지우기"
           >
             ✕
           </button>
@@ -509,7 +413,7 @@ export default function BungRecordsTab({
             </div>
 
             <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '12px', lineHeight: 1.4 }}>
-              카카오톡 공지 포맷을 그대로 붙여넣으세요. 제목 끝 글자 제한이나 공백 제약 없이 유연하게 자동 파싱됩니다.
+              카카오톡 공지 포맷을 그대로 붙여넣으세요. 날짜, 벙 제목, 참석자(점수 포함)가 자동으로 파싱됩니다.
             </p>
 
             <textarea
@@ -633,7 +537,7 @@ export default function BungRecordsTab({
         </section>
       ) : (
         /* Card View Mode */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {filteredMeetings.length === 0 ? (
             <div
               style={{
@@ -651,81 +555,30 @@ export default function BungRecordsTab({
           ) : (
             visibleMeetings.map((mtg, idx) => {
               const dateStr = mtg.dateOnly || String(mtg.date || '').slice(0, 10);
-              const pNames = getMeetingParticipantNames(mtg);
-              const totalCount = pNames.length;
+              const tokens = getMeetingAttendeeTokens(mtg);
+              const totalCount = tokens.length;
 
               return (
                 <article
                   key={mtg.id || idx}
+                  className="bung-record-card"
                   onClick={() => onSelectMeetingId && onSelectMeetingId(mtg.id)}
-                  style={{
-                    background: 'var(--color-bg-primary, #ffffff)',
-                    border: '1px solid var(--color-border, #e2e8f0)',
-                    borderRadius: '8px',
-                    padding: '12px 14px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px',
-                    cursor: onSelectMeetingId ? 'pointer' : 'default',
-                    transition: 'border-color 0.15s ease'
-                  }}
                 >
-                  {/* Top Row: Date, Title, Total Badge, Copy Single */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '8px',
-                      flexWrap: 'wrap'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <span
-                        style={{
-                          background: '#f1f5f9',
-                          color: '#475569',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          padding: '2px 7px',
-                          borderRadius: '4px'
-                        }}
-                      >
-                        {dateStr}
-                      </span>
-                      <strong
-                        style={{
-                          fontSize: '14px',
-                          color: 'var(--color-text-primary, #0f172a)'
-                        }}
-                      >
+                  {/* Top Row: Date, Title (Ellipsis), Total Count Badge, Copy Button */}
+                  <div className="bung-record-header">
+                    <div className="bung-record-title-wrap">
+                      <span className="bung-record-date">{dateStr}</span>
+                      <strong className="bung-record-title" title={mtg.title}>
                         {mtg.title}
                       </strong>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span
-                        style={{
-                          background: '#e0e7ff',
-                          color: '#4338ca',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          padding: '2px 8px',
-                          borderRadius: '12px'
-                        }}
-                      >
-                        총 {totalCount}명
-                      </span>
-
+                    <div className="bung-record-actions">
+                      <span className="bung-record-count">총 {totalCount}명</span>
                       <button
                         type="button"
                         onClick={(e) => handleCopySingleNotice(e, mtg)}
-                        className="btn btn-outline btn-sm"
-                        style={{
-                          fontSize: '11px',
-                          padding: '2px 6px',
-                          borderRadius: '4px'
-                        }}
+                        className="btn-copy-mini"
                         title="이 벙기록만 카톡 공지 포맷으로 복사"
                       >
                         복사
@@ -733,82 +586,46 @@ export default function BungRecordsTab({
                     </div>
                   </div>
 
-                  {/* Attendees Chips Row */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '6px',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <span style={{ fontSize: '12px', color: '#64748b', marginRight: '2px' }}>
-                      참석자:
-                    </span>
-                    {pNames.map((name, pIdx) => {
-                      const hasExpedition = name.includes('2') || name.includes('3');
-                      const cleanName = name.replace(/[0-9]/g, '');
-                      const member = nameToMemberMap.get(cleanName);
+                  {/* Attendees Row: Authentic Raw Tokens with numbers attached (e.g. '레시2', '쭈2', '다온') */}
+                  <div className="bung-record-attendees">
+                    <span className="attendees-label">참석:</span>
+                    <div className="attendees-tokens-wrap">
+                      {tokens.map((token, tIdx) => {
+                        const cleanName = token.replace(/[0-9]/g, '');
+                        const numMatch = token.match(/[0-9]+/);
+                        const bonusNum = numMatch ? numMatch[0] : '';
+                        const member = nameToMemberMap.get(cleanName);
 
-                      return (
-                        <span
-                          key={pIdx}
-                          onClick={(e) => {
-                            if (member && onNavigateTab) {
-                              e.stopPropagation();
-                              onNavigateTab('members', { memberUid: member.uid });
-                            }
-                          }}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '3px',
-                            background: hasExpedition ? '#fef3c7' : 'var(--color-bg-secondary, #f8fafc)',
-                            color: hasExpedition ? '#92400e' : '#334155',
-                            border: `1px solid ${hasExpedition ? '#fde68a' : 'var(--color-border, #e2e8f0)'}`,
-                            fontSize: '12px',
-                            padding: '2px 7px',
-                            borderRadius: '4px',
-                            fontWeight: hasExpedition ? 700 : 500,
-                            cursor: member ? 'pointer' : 'default'
-                          }}
-                        >
-                          {cleanName}
-                          {hasExpedition && (
+                        return (
+                          <React.Fragment key={tIdx}>
+                            {tIdx > 0 && <span className="attendee-sep">·</span>}
                             <span
-                              style={{
-                                fontSize: '10px',
-                                background: '#f59e0b',
-                                color: '#ffffff',
-                                borderRadius: '8px',
-                                padding: '0 4px',
-                                fontWeight: 800
+                              className={`attendee-token ${bonusNum ? 'has-bonus' : ''}`}
+                              onClick={(e) => {
+                                if (member && onNavigateTab) {
+                                  e.stopPropagation();
+                                  onNavigateTab('members', { memberUid: member.uid });
+                                }
                               }}
-                              title="원정 보너스 점수 부여"
+                              title={member ? `${cleanName}님의 프로필 보기` : cleanName}
                             >
-                              +원정
+                              {cleanName}
+                              {bonusNum && <span className="bonus-num">{bonusNum}</span>}
                             </span>
-                          )}
-                        </span>
-                      );
-                    })}
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
                   </div>
                 </article>
               );
             })
           )}
 
-          {/* Load More Button for Mobile Performance */}
+          {/* Infinite Scroll Sentinel */}
           {visibleMeetings.length < filteredMeetings.length && (
-            <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '20px' }}>
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => setDisplayLimit((prev) => prev + 50)}
-                style={{ fontSize: '13px', padding: '8px 24px', borderRadius: 'var(--radius-base)' }}
-              >
-                더보기 ({filteredMeetings.length - visibleMeetings.length}건 남음) ▼
-              </button>
+            <div ref={sentinelRef} className="infinite-scroll-sentinel">
+              벙기록 더 불러오는 중... ({visibleMeetings.length} / {filteredMeetings.length}건)
             </div>
           )}
         </div>

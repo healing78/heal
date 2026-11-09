@@ -378,17 +378,17 @@ export default function MeetingsPage({
         )}
 
         {/* Sub-tabs */}
-        <div className="subtab-bar">
+        <div className="meetings-subtab-bar">
           <button
             type="button"
-            className={`subtab-btn ${activeSubTab === 'open' ? 'active' : ''}`}
+            className={`meetings-subtab-btn ${activeSubTab === 'open' ? 'active' : ''}`}
             onClick={() => setSubTab('open')}
           >
             진행 예정 ({openCount})
           </button>
           <button
             type="button"
-            className={`subtab-btn ${activeSubTab === 'past' || activeSubTab === 'settled' ? 'active' : ''}`}
+            className={`meetings-subtab-btn ${activeSubTab === 'past' || activeSubTab === 'settled' ? 'active' : ''}`}
             onClick={() => setSubTab('past')}
           >
             지나간 일정 ({pastCount})
@@ -396,7 +396,7 @@ export default function MeetingsPage({
           {currentUser && (
             <button
               type="button"
-              className={`subtab-btn ${activeSubTab === 'mine' ? 'active' : ''}`}
+              className={`meetings-subtab-btn ${activeSubTab === 'mine' ? 'active' : ''}`}
               onClick={() => setSubTab('mine')}
             >
               내 일정
@@ -405,7 +405,7 @@ export default function MeetingsPage({
           {adminUser && (
             <button
               type="button"
-              className={`subtab-btn ${activeSubTab === 'records' ? 'active' : ''}`}
+              className={`meetings-subtab-btn ${activeSubTab === 'records' ? 'active' : ''}`}
               onClick={() => setSubTab('records')}
             >
               🔒 벙기록 ({meetings.length})
