@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   canCreateMeeting,
   REGION_GROUPS,
@@ -130,6 +130,8 @@ export default function MeetingsPage({
 
   const adminUser = isAdminUser(currentUser, communityConfig);
   const activeSubTab = !adminUser && subTab === 'records' ? 'open' : subTab;
+  const [displayLimit, setDisplayLimit] = useState(25);
+  const sentinelRef = useRef(null);
 
   const defaultDate = getTodayDateString();
 
@@ -257,45 +259,92 @@ export default function MeetingsPage({
 
   const todayStr = getTodayDateString();
 
-  const filteredMeetings = meetings.filter((m) => {
-    const isPast = isPastMeeting(m, todayStr);
-    if (activeSubTab === 'open') return !isPast;
-    if (activeSubTab === 'past' || activeSubTab === 'settled') return isPast;
-    if (activeSubTab === 'mine') {
-      if (!currentUser) return false;
-      return (
-        m.hostUid === currentUser.uid ||
-        m.treasurerUid === currentUser.uid ||
-        (m.applicants || []).includes(currentUser.uid) ||
-        (m.confirmedParticipants || []).includes(currentUser.uid)
-      );
-    }
-    return true;
-  });
+  // Reset infinite scroll limit when switching tabs
+  useEffect(() => {
+    setDisplayLimit(25);
+  }, [activeSubTab]);
+
+  const openCount = useMemo(() => {
+    return meetings.filter((m) => !isPastMeeting(m, todayStr)).length;
+  }, [meetings, todayStr]);
+
+  const pastCount = useMemo(() => {
+    return meetings.filter((m) => isPastMeeting(m, todayStr)).length;
+  }, [meetings, todayStr]);
+
+  const filteredMeetings = useMemo(() => {
+    return meetings.filter((m) => {
+      const isPast = isPastMeeting(m, todayStr);
+      if (activeSubTab === 'open') return !isPast;
+      if (activeSubTab === 'past' || activeSubTab === 'settled') return isPast;
+      if (activeSubTab === 'mine') {
+        if (!currentUser) return false;
+        return (
+          m.hostUid === currentUser.uid ||
+          m.treasurerUid === currentUser.uid ||
+          (m.applicants || []).includes(currentUser.uid) ||
+          (m.confirmedParticipants || []).includes(currentUser.uid)
+        );
+      }
+      return true;
+    });
+  }, [meetings, activeSubTab, todayStr, currentUser]);
 
   // Sort chronologically and group by Year-Month
   // For past meetings, sort in descending order (most recent first)
   const isPastTab = subTab === 'past' || subTab === 'settled';
-  const sortedMeetings = [...filteredMeetings].sort((a, b) => {
-    const da = String(a.date || a.dateOnly || '');
-    const db = String(b.date || b.dateOnly || '');
-    return isPastTab ? db.localeCompare(da) : da.localeCompare(db);
-  });
+  const sortedMeetings = useMemo(() => {
+    return [...filteredMeetings].sort((a, b) => {
+      const da = String(a.date || a.dateOnly || '');
+      const db = String(b.date || b.dateOnly || '');
+      return isPastTab ? db.localeCompare(da) : da.localeCompare(db);
+    });
+  }, [filteredMeetings, isPastTab]);
 
-  const monthGroups = [];
-  for (const mtg of sortedMeetings) {
-    const meta = buildScheduleMeta(mtg);
-    let group = monthGroups.find((g) => g.monthKey === meta.monthKey);
-    if (!group) {
-      group = {
-        monthKey: meta.monthKey,
-        monthLabel: meta.monthLabel,
-        items: []
-      };
-      monthGroups.push(group);
+  // Infinite Scroll slice
+  const displayedMeetings = useMemo(() => {
+    return sortedMeetings.slice(0, displayLimit);
+  }, [sortedMeetings, displayLimit]);
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setDisplayLimit((prev) => {
+            if (prev < sortedMeetings.length) {
+              return prev + 25;
+            }
+            return prev;
+          });
+        }
+      },
+      { rootMargin: '250px' }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [sortedMeetings.length]);
+
+  const monthGroups = useMemo(() => {
+    const groups = [];
+    for (const mtg of displayedMeetings) {
+      const meta = buildScheduleMeta(mtg);
+      let group = groups.find((g) => g.monthKey === meta.monthKey);
+      if (!group) {
+        group = {
+          monthKey: meta.monthKey,
+          monthLabel: meta.monthLabel,
+          items: []
+        };
+        groups.push(group);
+      }
+      group.items.push({ mtg, meta });
     }
-    group.items.push({ mtg, meta });
-  }
+    return groups;
+  }, [displayedMeetings]);
 
   const openPicker = (e) => {
     if (typeof e.target.showPicker === 'function') {
@@ -308,7 +357,7 @@ export default function MeetingsPage({
   };
 
   return (
-    <div className="list-container">
+    <div className="list-container" style={{ paddingBottom: '90px' }}>
       {/* Page Header & Register Schedule Button */}
       <section className="list-section">
         <div className="section-title-row">
@@ -335,14 +384,14 @@ export default function MeetingsPage({
             className={`subtab-btn ${activeSubTab === 'open' ? 'active' : ''}`}
             onClick={() => setSubTab('open')}
           >
-            진행 예정 ({meetings.filter((m) => !isPastMeeting(m, todayStr)).length})
+            진행 예정 ({openCount})
           </button>
           <button
             type="button"
             className={`subtab-btn ${activeSubTab === 'past' || activeSubTab === 'settled' ? 'active' : ''}`}
             onClick={() => setSubTab('past')}
           >
-            지나간 일정 ({meetings.filter((m) => isPastMeeting(m, todayStr)).length})
+            지나간 일정 ({pastCount})
           </button>
           {currentUser && (
             <button
@@ -766,6 +815,13 @@ export default function MeetingsPage({
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* 무한 스크롤 감지 영역 (Sentinel) */}
+          {displayedMeetings.length < sortedMeetings.length && (
+            <div ref={sentinelRef} className="infinite-scroll-sentinel">
+              지나간 일정 더 불러오는 중... ({displayedMeetings.length} / {sortedMeetings.length}개)
             </div>
           )}
         </section>
