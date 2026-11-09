@@ -76,6 +76,9 @@ function buildScheduleMeta(mtg) {
   if (!locationText && mtg.placeDetail) {
     locationText = cleanScheduleLocation(mtg.placeDetail, r1Place);
   }
+  if (!locationText) {
+    locationText = (mtg.location || mtg.placeDetail || r1Place || '').trim();
+  }
 
   return {
     monthKey: `${year}-${String(month).padStart(2, '0')}`,

@@ -741,6 +741,9 @@ export default function MeetingDetailPage({
   if (!cleanLocation && meeting.placeDetail) {
     cleanLocation = cleanScheduleLocation(meeting.placeDetail, r1Place);
   }
+  if (!cleanLocation) {
+    cleanLocation = (meeting.location || meeting.placeDetail || r1Place || '').trim();
+  }
   const primaryPlaceText = cleanLocation;
   const regionDetection = detectMeetingRegion(meeting);
 
@@ -2071,7 +2074,7 @@ export default function MeetingDetailPage({
                           className="feed-avatar-circle sm"
                           style={{ backgroundColor: getAvatarBg(uid) }}
                         >
-                          {mem.realName.slice(0, 1)}
+                          {(mem.realName || mem.name || mem.nickname || '회').slice(0, 1)}
                         </span>
                         <span className="detail-attendee-nick">
                           {formatMemberNickname(mem)}
@@ -2487,7 +2490,7 @@ export default function MeetingDetailPage({
                     {treasurerUid &&
                     treasurerUid !== meeting.hostUid &&
                     treasurerMember
-                      ? ` · 총무 ${treasurerMember.realName}`
+                      ? ` · 총무 ${treasurerMember.realName || treasurerMember.name || '회원'}`
                       : ''}
                   </span>
                   <span className="admin-edit-accordion-arrow">
@@ -6255,7 +6258,7 @@ export default function MeetingDetailPage({
                     style={{ backgroundColor: getAvatarBg(uid) }}
                     title={m ? formatMemberNickname(m) : uid}
                   >
-                    {m ? m.realName.slice(0, 1) : '회원'}
+                    {m ? (m.realName || m.name || m.nickname || '회').slice(0, 1) : '회'}
                   </span>
                 );
               })}
@@ -6284,7 +6287,7 @@ export default function MeetingDetailPage({
                     className="feed-avatar-circle"
                     style={{ backgroundColor: getAvatarBg(cmt.uid) }}
                   >
-                    {author ? author.realName.slice(0, 1) : '회'}
+                    {author ? (author.realName || author.name || author.nickname || '회').slice(0, 1) : '회'}
                   </div>
                   <div className="feed-comment-body">
                     <div className="feed-comment-header">

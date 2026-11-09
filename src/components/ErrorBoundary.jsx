@@ -98,20 +98,34 @@ export class ErrorBoundary extends React.Component {
                 일정 목록으로 이동
               </button>
             </div>
-            {this.props.showDetails && this.state.error && (
-              <pre
+            {this.state.error && (
+              <details
                 style={{
                   marginTop: '16px',
-                  padding: '8px',
-                  background: '#f8fafc',
-                  fontSize: '11px',
                   textAlign: 'left',
-                  overflowX: 'auto',
-                  borderRadius: '6px'
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '6px',
+                  padding: '8px 12px',
+                  fontSize: '12px'
                 }}
+                open
               >
-                {String(this.state.error?.message || this.state.error)}
-              </pre>
+                <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#b91c1c' }}>
+                  오류 내용: {String(this.state.error?.message || this.state.error)}
+                </summary>
+                <pre
+                  style={{
+                    marginTop: '8px',
+                    fontSize: '11px',
+                    overflowX: 'auto',
+                    whiteSpace: 'pre-wrap',
+                    color: '#64748b'
+                  }}
+                >
+                  {String(this.state.error?.stack || '')}
+                </pre>
+              </details>
             )}
           </div>
         </div>
