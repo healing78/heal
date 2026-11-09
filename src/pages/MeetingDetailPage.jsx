@@ -4194,16 +4194,16 @@ export default function MeetingDetailPage({
                                 <td style={{ color: '#0f172a', fontSize: '14px', fontWeight: 800, textAlign: 'right' }}>
                                   {Math.abs(mySettlementRow.netToPay || 0).toLocaleString()}원
                                 </td>
-                                <td style={{ textAlign: 'center' }}>
+                                <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                                   {mySettlementRow.confirmed ? (
-                                    <span className="deposit-tag confirmed">정산 완료 ✓</span>
+                                    <span className="deposit-tag confirmed" style={{ whiteSpace: 'nowrap' }}>정산 완료 ✓</span>
                                   ) : mySettlementRow.paid ? (
-                                    <span className="deposit-tag paid">확인 대기중</span>
+                                    <span className="deposit-tag paid" style={{ whiteSpace: 'nowrap' }}>확인 대기중</span>
                                   ) : (
                                     <button
                                       type="button"
                                       className="btn btn-xs btn-primary"
-                                      style={{ padding: '2px 8px', fontSize: '11px', height: '24px' }}
+                                      style={{ padding: '2px 10px', fontSize: '11px', height: '24px', whiteSpace: 'nowrap' }}
                                       onClick={() => handleTogglePaid(currentUser.uid)}
                                     >
                                       입금 완료
@@ -4240,7 +4240,7 @@ export default function MeetingDetailPage({
                     </div>
 
                     <div className="settle-accordion-header-right">
-                      {treasurerMember?.bankAccount ? (
+                      {!isSettleOverviewAccordionOpen && treasurerMember?.bankAccount ? (
                         <div className="settle-bank-wrap">
                           <span
                             className="settle-bank-val"
@@ -4259,25 +4259,13 @@ export default function MeetingDetailPage({
                             {copiedAccount ? '복사됨 ✓' : '복사'}
                           </button>
                         </div>
-                      ) : (
+                      ) : !isSettleOverviewAccordionOpen && !treasurerMember?.bankAccount ? (
                         <div className="settle-bank-wrap">
                           <span className="settle-bank-val" style={{ color: '#94a3b8', fontSize: '11.5px' }}>
                             총무 계좌 미등록
                           </span>
-                          {(canManage || currentUser?.uid === treasurerUid || currentUser?.uid === meeting.hostUid) && (
-                            <button
-                              type="button"
-                              className="btn btn-xs btn-primary"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingBank((prev) => !prev);
-                              }}
-                            >
-                              {editingBank ? '닫기' : '+ 계좌 등록'}
-                            </button>
-                          )}
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
 
@@ -4376,6 +4364,8 @@ export default function MeetingDetailPage({
                                 const count = r.participantCount || (Array.isArray(r.participants) ? r.participants.length : 0);
                                 const cost = Number(r.cost) || 0;
                                 const perPerson = r.perPersonRounded || (!r.isGoldenBell && count > 0 ? Math.round(cost / count) : 0);
+                                const pSummary = parsePlaceSummary(r.placeName);
+                                const cleanPlaceName = (pSummary.placeName || (r.placeName ? r.placeName.split('\n')[0].replace(/^\[(네이버지도|카카오맵)\]\s*/i, '') : '') || `${idx + 1}차 장소`).trim();
 
                                 return (
                                   <div key={r.id || idx} className="settle-formula-row">
@@ -4384,8 +4374,8 @@ export default function MeetingDetailPage({
                                       <span className="platform-badge" style={{ fontSize: '11px', padding: '1px 6px' }}>
                                         {r.label || `${idx + 1}차`}
                                       </span>
-                                      <span className="settle-row-name" title={r.placeName}>
-                                        {r.placeName ? r.placeName.split('\n')[0].slice(0, 12) : `${idx + 1}차`}
+                                      <span className="settle-row-name" title={cleanPlaceName}>
+                                        {cleanPlaceName}
                                       </span>
                                     </div>
 
