@@ -8,6 +8,7 @@ import {
 } from '../core/communityRules';
 import MeetingDetailPage from './MeetingDetailPage';
 import BungRecordsTab from '../components/BungRecordsTab';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const WEEKDAY_SHORT_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_FULL_KO = [
@@ -143,12 +144,9 @@ export default function MeetingsPage({
     endTime: '13:00',
     allDay: false,
     placeDetail: '',
-    region: '',
     advanceDeposit: '',
     requestAttendance: true
   });
-
-  const scheduleRegionDetected = detectRegionFromText(newSchedule.placeDetail);
 
   const hostEligible = currentUser ? canCreateMeeting(currentUser) : false;
 
@@ -159,25 +157,27 @@ export default function MeetingsPage({
 
   if (activeMeeting) {
     return (
-      <MeetingDetailPage
-        meeting={activeMeeting}
-        allMeetings={meetings}
-        currentUser={currentUser}
-        members={members}
-        communityConfig={communityConfig}
-        initialSubView={selectedMeetingSubView}
-        onUpdateSubView={onSelectMeetingSubView}
-        onBackToList={() => onSelectMeetingId(null)}
-        onShareMeeting={onShareMeeting}
-        onToggleApplyMeeting={onToggleApplyMeeting}
-        onUpdateMeeting={onUpdateMeeting}
-        onAdminSaveMeeting={onAdminSaveMeeting}
-        onDeleteMeeting={onDeleteMeeting}
-        onUpdateMemberProfile={onUpdateMemberProfile}
-        onSettleMeeting={onSettleMeeting}
-        onRollbackMeeting={onRollbackMeeting}
-        onNavigateTab={onNavigateTab}
-      />
+      <ErrorBoundary onReset={() => onSelectMeetingId(null)}>
+        <MeetingDetailPage
+          meeting={activeMeeting}
+          allMeetings={meetings}
+          currentUser={currentUser}
+          members={members}
+          communityConfig={communityConfig}
+          initialSubView={selectedMeetingSubView}
+          onUpdateSubView={onSelectMeetingSubView}
+          onBackToList={() => onSelectMeetingId(null)}
+          onShareMeeting={onShareMeeting}
+          onToggleApplyMeeting={onToggleApplyMeeting}
+          onUpdateMeeting={onUpdateMeeting}
+          onAdminSaveMeeting={onAdminSaveMeeting}
+          onDeleteMeeting={onDeleteMeeting}
+          onUpdateMemberProfile={onUpdateMemberProfile}
+          onSettleMeeting={onSettleMeeting}
+          onRollbackMeeting={onRollbackMeeting}
+          onNavigateTab={onNavigateTab}
+        />
+      </ErrorBoundary>
     );
   }
 
@@ -219,12 +219,14 @@ export default function MeetingsPage({
     if (!newSchedule.title.trim()) return;
 
     const placeInput = newSchedule.placeDetail.trim();
-    const resolvedRegion = scheduleRegionDetected.recognized
-      ? scheduleRegionDetected.group.name
-      : (newSchedule.region || '');
+    const titleInput = newSchedule.title.trim();
+    const detectedFromPlace = detectRegionFromText(placeInput);
+    const detectedFromTitle = detectRegionFromText(titleInput);
+    const detected = detectedFromPlace.recognized ? detectedFromPlace : detectedFromTitle;
+    const resolvedRegion = detected.recognized ? detected.group.name : '';
 
     const created = await onCreateMeeting({
-      title: newSchedule.title.trim(),
+      title: titleInput,
       dateOnly: newSchedule.dateOnly,
       endDateOnly: newSchedule.endDateOnly || newSchedule.dateOnly,
       startTime: newSchedule.allDay ? '00:00' : newSchedule.startTime,
@@ -585,54 +587,6 @@ export default function MeetingsPage({
                       })
                     }
                   />
-                  <datalist id="schedule-region-list">
-                    {REGION_GROUPS.map((g) => (
-                      <option key={g.id} value={g.keywords[0]}>
-                        {g.name}
-                      </option>
-                    ))}
-                  </datalist>
-
-                  {/* Smart Region Detection / Fallback Dropdown */}
-                  {newSchedule.placeDetail.trim() && (
-                    <div style={{ marginTop: '4px', fontSize: '11px' }}>
-                      {scheduleRegionDetected.recognized ? (
-                        <span style={{ color: '#059669', fontWeight: 600 }}>
-                          ✓ {scheduleRegionDetected.group.name} (권역 자동 감지)
-                        </span>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                          <span style={{ color: '#d97706', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                            권역 설정:
-                          </span>
-                          <select
-                            style={{
-                              fontSize: '11px',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              border: '1px solid #cbd5e1',
-                              background: 'var(--color-surface, #ffffff)',
-                              color: 'var(--color-text, #1e293b)'
-                            }}
-                            value={newSchedule.region || ''}
-                            onChange={(e) =>
-                              setNewSchedule((prev) => ({
-                                ...prev,
-                                region: e.target.value
-                              }))
-                            }
-                          >
-                            <option value="">권역을 선택해주세요 (점수 산정용)</option>
-                            {REGION_GROUPS.map((g) => (
-                              <option key={g.id} value={g.name}>
-                                {g.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
 

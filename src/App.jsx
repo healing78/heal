@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AppLayout from './components/layout/AppLayout';
+import ErrorBoundary from './components/ErrorBoundary';
 import {
   formatMemberNickname,
   isAdminRole,
@@ -734,7 +735,9 @@ export default function App() {
         onChangeTheme={handleChangeTheme}
         isMasterTabEnabled={isMasterTabEnabled}
       >
-        {renderPageBody()}
+        <ErrorBoundary onReset={() => handleSelectMeetingId(null)}>
+          {renderPageBody()}
+        </ErrorBoundary>
       </AppLayout>
     </>
   );

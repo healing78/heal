@@ -12,6 +12,7 @@ import {
   calculateMeetingScoreForMember,
   cleanScheduleLocation,
   detectMeetingRegion,
+  detectRegionFromText,
   generateMeetingId,
   getMemberTotalScore,
   REGION_GROUPS,
@@ -672,6 +673,17 @@ export const createMeeting = async (hostUid, meetingInput) => {
           }
         ];
 
+  const placeDetection = detectRegionFromText(rawPlaceInput);
+  const titleDetection = detectRegionFromText(meetingInput.title);
+  const round1Detection = detectRegionFromText(inputRounds[0]?.placeName);
+  const bestDetection = placeDetection.recognized
+    ? placeDetection
+    : titleDetection.recognized
+    ? titleDetection
+    : round1Detection;
+  const autoDetectedRegion = bestDetection.recognized ? bestDetection.group.name : '';
+  const finalRegion = (meetingInput.region || autoDetectedRegion || resolvedLocation || '').trim();
+
   const created = {
     id: newId,
     title: sanitizeBungText(meetingInput.title.trim()),
@@ -688,7 +700,7 @@ export const createMeeting = async (hostUid, meetingInput) => {
     date: combinedDate,
     location: resolvedLocation,
     placeDetail: rawPlaceInput,
-    region: (meetingInput.region || resolvedLocation || '').trim(),
+    region: finalRegion,
     hostUid,
     treasurerUid: meetingInput.treasurerUid || hostUid,
     type: meetingInput.type || 'Casual',

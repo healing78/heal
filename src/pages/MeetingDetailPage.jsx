@@ -5410,7 +5410,22 @@ export default function MeetingDetailPage({
             )}
 
             {/* TAB 3: 귀가현황 (One-Click Safe Return Check & Member Status List) */}
-            {loungeTab === 'returns' && (
+            {loungeTab === 'returns' && (() => {
+              const activeRegionGroup = regionDetection.recognized
+                ? regionDetection.group
+                : settleFallbackRegion
+                ? (REGION_GROUPS.find((g) => g.keywords[0] === settleFallbackRegion || g.name === settleFallbackRegion) || null)
+                : (meeting.region ? (REGION_GROUPS.find((g) => g.name === meeting.region || g.keywords.some((k) => meeting.region.includes(k))) || null) : null);
+              const hasSettlementRegion = Boolean(activeRegionGroup);
+
+              const handleSelectSettlementRegion = async (group) => {
+                setSettleFallbackRegion(group.keywords[0]);
+                if (onUpdateMeeting && meeting?.id) {
+                  await onUpdateMeeting(meeting.id, { region: group.name });
+                }
+              };
+
+              return (
               <div className="lounge-tab-content-wrap lounge-unified-stack">
                 <div className="lounge-settle-hero">
                   <div
@@ -5425,6 +5440,47 @@ export default function MeetingDetailPage({
                         {adminUser && !isApplied && !isConfirmedParticipant
                           ? '귀가 확인 제외'
                           : mySafeReturn || '귀가 전'}
+                      </div>
+                      {/* 상시 권역 정보 노출 */}
+                      <div style={{ marginTop: '6px' }}>
+                        {hasSettlementRegion ? (
+                          <span
+                            className="platform-badge"
+                            style={{
+                              background: 'rgba(16, 185, 129, 0.12)',
+                              color: '#065f46',
+                              borderColor: '#a7f3d0',
+                              fontSize: '11.5px',
+                              padding: '3px 8px',
+                              fontWeight: 600,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span>📍 권역:</span>
+                            <strong>{activeRegionGroup.name}</strong>
+                            {regionDetection.recognized && regionDetection.matchedKeyword && (
+                              <span style={{ opacity: 0.8, fontSize: '11px', fontWeight: 500 }}>
+                                ({regionDetection.matchedKeyword} 감지)
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span
+                            className="platform-badge"
+                            style={{
+                              background: 'rgba(239, 68, 68, 0.12)',
+                              color: '#991b1b',
+                              borderColor: '#fecaca',
+                              fontSize: '11.5px',
+                              padding: '3px 8px',
+                              fontWeight: 700
+                            }}
+                          >
+                            ⚠️ 권역: 미설정 (마감 전 설정 필요)
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div
@@ -5461,11 +5517,13 @@ export default function MeetingDetailPage({
                         <button
                           type="button"
                           className="btn btn-settle-blue"
-                          disabled={
-                            !regionDetection.recognized &&
-                            !settleFallbackRegion
-                          }
-                          onClick={handleFinalizeSettlement}
+                          disabled={!hasSettlementRegion}
+                          style={{
+                            opacity: hasSettlementRegion ? 1 : 0.45,
+                            cursor: hasSettlementRegion ? 'pointer' : 'not-allowed'
+                          }}
+                          onClick={hasSettlementRegion ? handleFinalizeSettlement : undefined}
+                          title={hasSettlementRegion ? '최종 마감 실행' : '권역을 먼저 설정해야 마감할 수 있습니다'}
                         >
                           최종 마감
                         </button>
@@ -5485,53 +5543,58 @@ export default function MeetingDetailPage({
                       )}
                     </div>
                   </div>
-
-                  {canManage &&
-                    meeting.status === 'open' &&
-                    !regionDetection.recognized && (
-                      <div
-                        className="participants-box stack-gap"
-                        style={{
-                          marginTop: '12px',
-                          background: 'rgba(255, 255, 255, 0.7)'
-                        }}
-                      >
-                        <div className="meeting-top">
-                          <strong style={{ fontSize: '13px' }}>
-                            권역 선택 (필수)
-                          </strong>
-                          <span className="sub-meta">최종 마감 점수 산정용</span>
-                        </div>
-                        <div
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns:
-                              'repeat(4, minmax(0, 1fr))',
-                            gap: '6px'
-                          }}
-                        >
-                          {REGION_GROUPS.map((group) => {
-                            const isSelected =
-                              settleFallbackRegion === group.keywords[0];
-                            return (
-                              <button
-                                key={group.id}
-                                type="button"
-                                className={`btn btn-sm ${
-                                  isSelected ? 'btn-primary' : 'btn-outline'
-                                }`}
-                                onClick={() =>
-                                  setSettleFallbackRegion(group.keywords[0])
-                                }
-                              >
-                                {group.name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
                 </div>
+
+                {/* 권역 설정 안 되어 있을 때 서브탭과 개인별 섹션 사이에 권역 설정 섹션 표시 */}
+                {!hasSettlementRegion && canManage && meeting.status === 'open' && (
+                  <div
+                    className="participants-box stack-gap"
+                    style={{
+                      margin: '12px 0',
+                      padding: '14px',
+                      background: 'rgba(255, 255, 255, 0.95)',
+                      border: '2px dashed #f59e0b',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <div className="meeting-top" style={{ marginBottom: '8px' }}>
+                      <strong style={{ fontSize: '13.5px', color: '#b45309' }}>
+                        📍 권역 설정 (최종 마감 필수)
+                      </strong>
+                      <span className="sub-meta">원정 점수 산정을 위해 모임 권역을 선택해 주세요.</span>
+                    </div>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                        gap: '6px'
+                      }}
+                    >
+                      {REGION_GROUPS.map((group) => {
+                        const isSelected =
+                          activeRegionGroup?.id === group.id ||
+                          settleFallbackRegion === group.keywords[0];
+                        return (
+                          <button
+                            key={group.id}
+                            type="button"
+                            className={`btn btn-sm ${
+                              isSelected ? 'btn-primary' : 'btn-outline'
+                            }`}
+                            style={{
+                              fontSize: '12px',
+                              padding: '6px 4px',
+                              fontWeight: isSelected ? 700 : 500
+                            }}
+                            onClick={() => handleSelectSettlementRegion(group)}
+                          >
+                            {group.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* [동적 생성 섹션] 신입 승급 & 마일스톤 뱃지 변경 축하 섹션 (내 안심 귀가 상태 섹션 바로 아래) */}
                 {closingCelebrations.length > 0 && (
@@ -5786,7 +5849,8 @@ export default function MeetingDetailPage({
                   })}
                 </div>
               </div>
-            )}
+            );
+            })()}
 
             {/* TAB 4: 📸 앨범 (미디어 갤러리 & 랜덤 박스 잠금 해제) */}
             {loungeTab === 'album' && (

@@ -1,4 +1,5 @@
 import { generateNickname } from '../nicknameUtils.js';
+import { KOREA_DISTRICTS } from './koreaRegions.js';
 
 export const ROLE_META = {
   Leader: { label: '방장', badgeColor: 'var(--role-leader, #1e293b)', isAdmin: true },
@@ -16,7 +17,7 @@ export const ROLE_KEYS = Object.keys(ROLE_META);
 
 /**
  * 7 Regional Groups for Expedition Score Calculation:
- * 1. 서울, 경기 (수도권: 서울·경기·인천 및 경기도 내 시/군)
+ * 1. 서울, 경기 (수도권: 서울·경기·인천 및 서울 25개 자치구, 경기도 내 시/군, 주요 생활권)
  * 2. 강원도
  * 3. 충청남북도, 대전 (세종 포함)
  * 4. 전라남북도, 광주
@@ -32,7 +33,18 @@ export const REGION_GROUPS = [
       '서울', '경기', '인천', '수도권', '수원', '성남', '분당', '판교', '고양', '일산',
       '용인', '부천', '안산', '안양', '인덕원', '남양주', '화성', '동탄', '평택', '의정부', '시흥',
       '파주', '광명', '김포', '군포', '광주(경기)', '이천', '양주', '오산', '구리', '안성',
-      '포천', '의왕', '하남', '여주', '양평', '동두천', '과천', '가평', '연천'
+      '포천', '의왕', '하남', '여주', '양평', '동두천', '과천', '가평', '연천',
+      // 서울 25개 자치구
+      '영등포', '영등포구', '강남', '강남구', '서초', '서초구', '송파', '송파구', '마포', '마포구',
+      '용산', '용산구', '종로', '종로구', '성동', '성동구', '광진', '광진구', '동대문', '동대문구',
+      '중랑', '중랑구', '성북', '성북구', '강북', '강북구', '도봉', '도봉구', '노원', '노원구',
+      '은평', '은평구', '서대문', '서대문구', '양천', '양천구', '강서', '강서구', '구로', '구로구',
+      '금천', '금천구', '동작', '동작구', '관악', '관악구', '강동', '강동구', '중구', '서울중구',
+      // 서울 및 수도권 주요 생활권/동네
+      '여의도', '문래', '당산', '홍대', '신촌', '합정', '망원', '상암', '공덕', '이태원',
+      '한남', '성수', '서울숲', '건대', '잠실', '신림', '사당', '노량진', '가산', '신도림',
+      '목동', '혜화', '대학로', '을지로', '명동', '압구정', '신사', '청담', '역삼', '선릉',
+      '삼성', '양재', '교대', '반포', '방배', '서현', '야탑', '정자', '미금', '수내'
     ]
   },
   {
@@ -49,7 +61,7 @@ export const REGION_GROUPS = [
     keywords: [
       '충청', '충남', '충북', '대전', '세종', '천안', '공주', '보령', '아산', '서산',
       '논산', '계룡', '당진', '청주', '충주', '제천', '보은', '옥천', '영동', '증평',
-      '진천', '괴산', '음성', '단양'
+      '진천', '괴산', '음성', '단양', '유성', '대덕', '둔산'
     ]
   },
   {
@@ -58,7 +70,8 @@ export const REGION_GROUPS = [
     keywords: [
       '전라', '전남', '전북', '광주', '전주', '군산', '익산', '정읍', '남원', '김제',
       '목포', '여수', '순천', '나주', '광양', '담양', '곡성', '구례', '고흥', '보성',
-      '화순', '장흥', '강진', '해남', '영암', '무안', '함평', '영광', '장성', '완도', '진도', '신안'
+      '화순', '장흥', '강진', '해남', '영암', '무안', '함평', '영광', '장성', '완도', '진도', '신안',
+      '완산', '덕진', '상무'
     ]
   },
   {
@@ -67,13 +80,13 @@ export const REGION_GROUPS = [
     keywords: [
       '경상', '경남', '경북', '부산', '대구', '울산', '포항', '경주', '김천', '안동',
       '구미', '영주', '영천', '상주', '문경', '경산', '창원', '마산', '진해', '진주',
-      '통영', '사천', '김해', '밀양', '거제', '양산'
+      '통영', '사천', '김해', '밀양', '거제', '양산', '해운대', '서면', '수성', '동성로'
     ]
   },
   {
     id: 6,
     name: '제주도',
-    keywords: ['제주', '서귀포']
+    keywords: ['제주', '서귀포', '한라산', '중문']
   },
   {
     id: 7,
@@ -84,6 +97,26 @@ export const REGION_GROUPS = [
     ]
   }
 ];
+
+const PROVINCE_TO_REGION_ID = {
+  '서울': 1,
+  '경기': 1,
+  '인천': 1,
+  '강원': 2,
+  '충남': 3,
+  '충북': 3,
+  '대전': 3,
+  '세종': 3,
+  '전남': 4,
+  '전북': 4,
+  '광주': 4,
+  '경남': 5,
+  '경북': 5,
+  '부산': 5,
+  '대구': 5,
+  '울산': 5,
+  '제주': 6
+};
 
 /**
  * Resolves a city/location string into one of the 7 region groups.
@@ -100,6 +133,22 @@ export const resolveRegionGroup = (locationStr) => {
       return { id: group.id, name: group.name };
     }
   }
+
+  // Fallback to KOREA_DISTRICTS database
+  if (Array.isArray(KOREA_DISTRICTS)) {
+    for (const d of KOREA_DISTRICTS) {
+      if (
+        clean.includes(d.value) ||
+        clean.includes(d.label) ||
+        (Array.isArray(d.aliases) && d.aliases.some((a) => clean.includes(a)))
+      ) {
+        const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
+        const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
+        return { id: targetGroup.id, name: targetGroup.name };
+      }
+    }
+  }
+
   return { id: 1, name: clean };
 };
 
@@ -111,6 +160,7 @@ export const detectRegionFromText = (rawText = '') => {
   const text = String(rawText || '').trim();
   if (!text) return { recognized: false, group: null, matchedKeyword: '' };
 
+  // 1. Direct match with REGION_GROUPS name
   for (const group of REGION_GROUPS) {
     if (text === group.name) {
       return {
@@ -119,6 +169,10 @@ export const detectRegionFromText = (rawText = '') => {
         matchedKeyword: group.keywords[0] || group.name
       };
     }
+  }
+
+  // 2. Keyword match in REGION_GROUPS (Sort by keyword length descending to match most specific first)
+  for (const group of REGION_GROUPS) {
     const matched = group.keywords.find((kw) => text.includes(kw));
     if (matched) {
       return {
@@ -128,11 +182,54 @@ export const detectRegionFromText = (rawText = '') => {
       };
     }
   }
+
+  // 3. Fallback match with 전국 행정구역 마스터(KOREA_DISTRICTS)
+  if (Array.isArray(KOREA_DISTRICTS)) {
+    for (const d of KOREA_DISTRICTS) {
+      if (text.includes(d.value)) {
+        const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
+        const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
+        return {
+          recognized: true,
+          group: { id: targetGroup.id, name: targetGroup.name },
+          matchedKeyword: d.value
+        };
+      }
+      if (text.includes(d.label)) {
+        const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
+        const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
+        return {
+          recognized: true,
+          group: { id: targetGroup.id, name: targetGroup.name },
+          matchedKeyword: d.label
+        };
+      }
+      if (Array.isArray(d.aliases)) {
+        const matchedAlias = d.aliases.find((a) => text.includes(a));
+        if (matchedAlias) {
+          const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
+          const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
+          return {
+            recognized: true,
+            group: { id: targetGroup.id, name: targetGroup.name },
+            matchedKeyword: matchedAlias
+          };
+        }
+      }
+    }
+  }
+
   return { recognized: false, group: null, matchedKeyword: '' };
 };
 
 /**
- * Checks if a meeting has a recognizable region keyword in explicit region, placeDetail, location, or rounds (1차, 2차, ...).
+ * Checks if a meeting has a recognizable region keyword across:
+ * - meeting.region
+ * - meeting.regionGroup
+ * - meeting.title (일정 제목) ⭐
+ * - meeting.placeDetail (상세 위치)
+ * - meeting.location (위치)
+ * - meeting.rounds[].placeName (1차, 2차 장소 코스) ⭐
  * Returns { recognized: boolean, group: object|null, matchedKeyword: string }
  */
 export const detectMeetingRegion = (meeting) => {
