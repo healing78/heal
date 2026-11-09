@@ -60,6 +60,11 @@
   - 액션 결과는 카드/버튼의 상태 변화(예: `사용 요청` → `사용 요청 완료`)나 인라인 상태 표시로 전달하고, 실패 시에는 `console.error` 기록 후 상태를 유지합니다.
   - 반려·삭제 등 되돌리기 어려운 액션은 확인창 대신 **2단계 탭**(첫 탭 시 버튼 라벨이 `반려 확인` 등으로 바뀌고 3초 내 재탭 시 실행)으로 보호합니다. 공통 훅 `src/utils/useArmedAction.js`(`isArmed`, `runArmed`)를 사용합니다.
   - 기존 코드를 수정할 때 해당 영역의 `alert`/`confirm`도 함께 제거합니다.
+- **Infinite Scroll First Policy for All Large Lists (모든 대용량 리스트 무한 스크롤 기본 표준):**
+  - 회원 목록(`FriendsPage`), 랭킹 목록(`RankingPage`), 모임/일정 목록(`MeetingsPage`), 공식 벙기록 아카이브(`BungRecordsTab`), 내 활동 리포트(`ProfilePage`), 운영자 모임 관리(`AdminPage`) 등 대량의 아이템을 렌더링하는 모든 리스트는 **브라우저 성능 최적화와 DOM 부하 방지를 위해 점진적 무한 스크롤(`IntersectionObserver` 기반 Sentinel 패턴)**을 기본 필수 표준으로 적용합니다.
+  - **초기 로딩 및 점진 로딩 청크 규격:** 첫 진입 시 20~30건만 선별 렌더링하고, 하단 센티넬 감지 시 20~25건씩 점진적으로 확장합니다 (`displayedList = list.slice(0, displayLimit)`).
+  - **필터/검색/탭 전환 리셋 동기화:** 사용자가 검색어 입력, 서브탭 전환, 필터 선택, 정렬 방식을 변경할 때는 `displayLimit`을 초기값으로 즉시 리셋하여 스크롤 위치 및 리스트 정합성을 유지합니다.
+  - **수동 더보기 버튼 지양:** 번거로운 수동 '더보기 버튼' 클릭 대신 자연스러운 센티넬 감지 기반 무한 스크롤을 표준으로 적용합니다.
 
 ## Strict Real-Data Integrity Principle (가상/임의 데이터 생성 절대 금지)
 - **오직 실제 데이터만 취급:**

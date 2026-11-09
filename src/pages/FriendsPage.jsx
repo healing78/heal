@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
   formatMemberNickname,
   isAdminUser,
@@ -40,6 +40,8 @@ export default function FriendsPage({
   const [internalFilter, setInternalFilter] = useState('ALL');
   const [internalSearch, setInternalSearch] = useState('');
   const [sortBy, setSortBy] = useState('score'); // 'score' | 'name' | 'attendance' | 'newest'
+  const [displayLimit, setDisplayLimit] = useState(30);
+  const sentinelRef = useRef(null);
 
   const activeFilter =
     controlledFilter !== undefined ? controlledFilter : internalFilter;
@@ -165,8 +167,40 @@ export default function FriendsPage({
     });
   }, [members, activeFilter, searchQuery, isAdmin, currentUser?.uid, sortBy]);
 
+  // Reset infinite scroll limit on filter / search / sort changes
+  useEffect(() => {
+    setDisplayLimit(30);
+  }, [activeFilter, searchQuery, sortBy]);
+
+  // Infinite Scroll slice
+  const displayedMembers = useMemo(() => {
+    return filteredMembers.slice(0, displayLimit);
+  }, [filteredMembers, displayLimit]);
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setDisplayLimit((prev) => {
+            if (prev < filteredMembers.length) {
+              return prev + 25;
+            }
+            return prev;
+          });
+        }
+      },
+      { rootMargin: '250px' }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [filteredMembers.length]);
+
   return (
-    <div className="list-container">
+    <div className="list-container" style={{ paddingBottom: '90px' }}>
       {/* Compact Newcomer Nickname Banner */}
       {onNavigateTab && (
         <section
@@ -313,7 +347,7 @@ export default function FriendsPage({
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {filteredMembers.map((member) => {
+            {displayedMembers.map((member) => {
               const effectiveRole = resolveMemberRole(member);
               const roleMeta = ROLE_META[effectiveRole] || ROLE_META.Member;
               const formattedNick = formatMemberNickname(member);
@@ -431,6 +465,13 @@ export default function FriendsPage({
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Infinite Scroll Sentinel */}
+        {displayedMembers.length < filteredMembers.length && (
+          <div ref={sentinelRef} className="infinite-scroll-sentinel">
+            친구 더 불러오는 중... ({displayedMembers.length} / {filteredMembers.length}명)
           </div>
         )}
       </section>

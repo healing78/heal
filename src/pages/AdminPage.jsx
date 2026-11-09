@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useArmedAction } from '../utils/useArmedAction';
 import {
   formatMemberNickname,
@@ -63,6 +63,42 @@ export default function AdminPage({
   const [newcomerFilter, setNewcomerFilter] = useState('ALL'); // 'ALL' | 'UNREGISTERED' | 'REGISTERED'
   const [newcomerSearch, setNewcomerSearch] = useState('');
   const [copiedUid, setCopiedUid] = useState('');
+  const [adminMeetingsLimit, setAdminMeetingsLimit] = useState(25);
+  const adminMeetingSentinelRef = useRef(null);
+
+  const sortedAdminMeetings = useMemo(() => {
+    return [...meetings].sort((a, b) => String(b.date || b.id).localeCompare(String(a.date || a.id)));
+  }, [meetings]);
+
+  const displayedAdminMeetings = useMemo(() => {
+    return sortedAdminMeetings.slice(0, adminMeetingsLimit);
+  }, [sortedAdminMeetings, adminMeetingsLimit]);
+
+  useEffect(() => {
+    setAdminMeetingsLimit(25);
+  }, [subTab]);
+
+  useEffect(() => {
+    if (subTab !== 'meetings') return;
+    if (!adminMeetingSentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setAdminMeetingsLimit((prev) => {
+            if (prev < sortedAdminMeetings.length) {
+              return prev + 25;
+            }
+            return prev;
+          });
+        }
+      },
+      { rootMargin: '250px' }
+    );
+
+    observer.observe(adminMeetingSentinelRef.current);
+    return () => observer.disconnect();
+  }, [subTab, sortedAdminMeetings.length]);
 
   const handleCopyUid = (uid) => {
     try {
@@ -681,9 +717,7 @@ export default function AdminPage({
             <p className="muted-text">등록된 모임이 없습니다.</p>
           ) : (
             <div className="divider-list">
-              {[...meetings]
-                .sort((a, b) => String(b.date || b.id).localeCompare(String(a.date || a.id)))
-                .map((m) => {
+              {displayedAdminMeetings.map((m) => {
                   const applicants = m.applicants || [];
                   const isExpanded = expandedMeetingId === m.id;
                   const treasurerUid = m.treasurerUid || m.hostUid;
@@ -1123,6 +1157,13 @@ export default function AdminPage({
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Infinite Scroll Sentinel for Admin Meetings */}
+          {displayedAdminMeetings.length < sortedAdminMeetings.length && (
+            <div ref={adminMeetingSentinelRef} className="infinite-scroll-sentinel">
+              모임 목록 더 불러오는 중... ({displayedAdminMeetings.length} / {sortedAdminMeetings.length}개)
             </div>
           )}
 

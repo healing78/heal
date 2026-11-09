@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useArmedAction } from '../utils/useArmedAction';
 import RegionInput from '../components/RegionInput';
 import { isValidKoreanName } from '../nicknameUtils';
@@ -174,7 +174,13 @@ export default function ProfilePage({
 
   const [activitySearchQuery, setActivitySearchQuery] = useState('');
   const [activitySortBy, setActivitySortBy] = useState('latest');
-  const [activityDisplayLimit, setActivityDisplayLimit] = useState(10);
+  const [activityDisplayLimit, setActivityDisplayLimit] = useState(20);
+  const activitySentinelRef = useRef(null);
+
+  // Reset activity infinite scroll limit on search / sort changes
+  useEffect(() => {
+    setActivityDisplayLimit(20);
+  }, [activitySearchQuery, activitySortBy]);
 
   const filteredAndSortedActivities = useMemo(() => {
     let list = [...personalMeetingRows];
@@ -223,6 +229,29 @@ export default function ProfilePage({
     0,
     activityDisplayLimit
   );
+
+  // Infinite Scroll Observer for Personal Activity Report
+  useEffect(() => {
+    if (subTab !== 'report') return;
+    if (!activitySentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setActivityDisplayLimit((prev) => {
+            if (prev < filteredAndSortedActivities.length) {
+              return prev + 20;
+            }
+            return prev;
+          });
+        }
+      },
+      { rootMargin: '250px' }
+    );
+
+    observer.observe(activitySentinelRef.current);
+    return () => observer.disconnect();
+  }, [subTab, filteredAndSortedActivities.length]);
 
   const myHostedCount = (meetings || []).filter(
     (m) => m.hostUid === currentUser?.uid
@@ -1038,32 +1067,10 @@ export default function ProfilePage({
             </div>
           )}
 
-          {/* 점진적 로딩 페이징 컨트롤: 더보기 버튼 */}
+          {/* Infinite Scroll Sentinel for Personal Activity Report */}
           {visibleActivities.length < filteredAndSortedActivities.length && (
-            <div
-              style={{
-                display: 'flex',
-                gap: '8px',
-                justifyContent: 'center',
-                marginTop: '12px'
-              }}
-            >
-              <button
-                type="button"
-                className="btn btn-outline"
-                style={{ flex: 1, maxWidth: '280px', padding: '10px 16px', fontWeight: 600 }}
-                onClick={() => setActivityDisplayLimit((prev) => prev + 15)}
-              >
-                더보기 ({visibleActivities.length} / {filteredAndSortedActivities.length}개) ▼
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline"
-                style={{ padding: '10px 14px', fontSize: '12px' }}
-                onClick={() => setActivityDisplayLimit(filteredAndSortedActivities.length)}
-              >
-                전체 펼치기
-              </button>
+            <div ref={activitySentinelRef} className="infinite-scroll-sentinel">
+              내 활동 내역 더 불러오는 중... ({visibleActivities.length} / {filteredAndSortedActivities.length}건)
             </div>
           )}
         </section>
