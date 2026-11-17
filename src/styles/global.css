@@ -3996,6 +3996,89 @@ body.lounge-chat-active .list-container.is-lounge-chat-mode {
   border-radius: var(--radius-base);
 }
 
+/* Admin Edit Segmented Chips & Quick Paste Box */
+.admin-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.admin-select-chip {
+  padding: 5px 11px;
+  border-radius: var(--radius-base, 6px);
+  border: 1px solid var(--admin-edit-border, #cbd5e1);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text, #1e293b);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-select-chip:hover {
+  background: var(--admin-edit-chip-bg, #f1f5f9);
+}
+
+.admin-select-chip.is-active {
+  background: var(--admin-edit-accent, #334155);
+  color: #ffffff;
+  border-color: var(--admin-edit-accent, #334155);
+  font-weight: 700;
+}
+
+.admin-quick-paste-box {
+  background: var(--admin-edit-bg, #f8fafc);
+  border: 1px dashed var(--admin-edit-border, #cbd5e1);
+  border-radius: var(--radius-base, 6px);
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.admin-quick-paste-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.admin-quick-paste-input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  border: 1px solid var(--admin-edit-border, #cbd5e1);
+  border-radius: var(--radius-base, 6px);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text, #1e293b);
+}
+
+.admin-quick-paste-input:focus {
+  outline: none;
+  border-color: var(--admin-edit-accent, #334155);
+}
+
+.admin-quick-paste-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: var(--radius-base, 6px);
+  border: 1px solid var(--admin-edit-accent, #334155);
+  background: var(--admin-edit-accent, #334155);
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.admin-quick-paste-btn:hover {
+  opacity: 0.9;
+}
+
 /* Desktop Breakpoint (>= 768px) */
 @media (min-width: 768px) {
   .pc-sidebar {

@@ -9,6 +9,7 @@ import {
 } from '../core/communityRules';
 import { useArmedAction } from '../utils/useArmedAction';
 import { buildCoAttendanceIndex } from '../core/bungParser';
+import { deriveEntryBadge, parseMemberQuickInput } from '../core/memberParser';
 
 const AVATAR_BG_PALETTE = [
   '#f59e0b',
@@ -102,6 +103,7 @@ export default function MemberProfilePage({
       member.homeCity.trim() !== member.city.trim()
     )
   );
+  const [quickPasteInput, setQuickPasteInput] = useState('');
 
   // Sync form when member changes
   React.useEffect(() => {
@@ -126,6 +128,7 @@ export default function MemberProfilePage({
       );
       setIsEditing(false);
       setShowReassignBox(false);
+      setQuickPasteInput('');
     }
   }, [member?.uid]);
 
@@ -208,6 +211,79 @@ export default function MemberProfilePage({
       setTimeout(() => setCopiedLink(false), 2000);
     } catch {
       setCopiedLink(false);
+    }
+  };
+
+  // Handle JoinedAt change with automatic entryBadge derivation (MMDD)
+  const handleJoinedAtChange = (newDate) => {
+    const derivedBadge = deriveEntryBadge(newDate);
+    setEditForm((prev) => ({
+      ...prev,
+      joinedAt: newDate,
+      ...(derivedBadge ? { entryBadge: derivedBadge } : {})
+    }));
+  };
+
+  // Immediate 1-Tap update for Role, Gender, MaritalStatus (with Auto-save)
+  const handleQuickUpdateField = async (field, value) => {
+    setEditForm((prev) => ({ ...prev, [field]: value }));
+    if (!member || !onAdminUpdateMember) return;
+    try {
+      await onAdminUpdateMember(member.uid, { [field]: value });
+      const labelMap = {
+        gender: value === '남' ? '남성' : '여성',
+        maritalStatus: value === 'married' ? '기혼(기)' : value === 'divorced' ? '돌싱(돌)' : '미혼(미)',
+        role: ROLE_META[value]?.label || value
+      };
+      const fieldName = field === 'gender' ? '성별' : field === 'maritalStatus' ? '결혼 여부' : '등급';
+      setFeedback(`✅ ${fieldName}이(가) '${labelMap[field]}'으로 저장되었습니다.`);
+      setTimeout(() => setFeedback(''), 2500);
+    } catch (err) {
+      setFeedback(`❌ 저장 실패: ${err.message || err}`);
+    }
+  };
+
+  // Smart Quick Paste (Method A: Instant parse, auto-fill & auto-save)
+  const handleApplyQuickPaste = async () => {
+    if (!quickPasteInput.trim()) return;
+    const parsed = parseMemberQuickInput(quickPasteInput);
+    if (!parsed) {
+      setFeedback('❌ 입력 형식을 인식할 수 없습니다. (예: 2026년 5월 21일 오전 5:29 맑음이 마포 기 여)');
+      setTimeout(() => setFeedback(''), 3500);
+      return;
+    }
+
+    const updates = {};
+    if (parsed.joinedAt) updates.joinedAt = parsed.joinedAt;
+    if (parsed.entryBadge) updates.entryBadge = parsed.entryBadge;
+    if (parsed.city) {
+      updates.city = parsed.city;
+      if (!hasCustomHomeCity) updates.homeCity = parsed.city;
+    }
+    if (parsed.gender) updates.gender = parsed.gender;
+    if (parsed.maritalStatus) updates.maritalStatus = parsed.maritalStatus;
+    if (parsed.realName) updates.realName = parsed.realName;
+
+    setEditForm((prev) => ({ ...prev, ...updates }));
+
+    if (member && onAdminUpdateMember) {
+      try {
+        await onAdminUpdateMember(member.uid, updates);
+        const summaries = [];
+        if (updates.joinedAt) summaries.push(`가입일: ${updates.joinedAt} (${updates.entryBadge || ''})`);
+        if (updates.city) summaries.push(`지역: ${updates.city}`);
+        if (updates.maritalStatus) summaries.push(updates.maritalStatus === 'married' ? '기혼' : updates.maritalStatus === 'divorced' ? '돌싱' : '미혼');
+        if (updates.gender) summaries.push(updates.gender === '남' ? '남성' : '여성');
+        setFeedback(`✅ 스마트 파싱 저장 완료: ${summaries.join(', ')}`);
+        setQuickPasteInput('');
+        setTimeout(() => setFeedback(''), 3500);
+      } catch (err) {
+        setFeedback(`❌ 저장 실패: ${err.message || err}`);
+      }
+    } else {
+      setFeedback('✅ 스마트 파싱 완료: 변경 사항이 폼에 반영되었습니다.');
+      setQuickPasteInput('');
+      setTimeout(() => setFeedback(''), 3000);
     }
   };
 
@@ -495,21 +571,50 @@ export default function MemberProfilePage({
         <form
           onSubmit={handleSaveAdminEdit}
           style={{
-            background: 'var(--color-bg-secondary, #f8fafc)',
-            border: '1px solid var(--color-border, #cbd5e1)',
+            background: 'var(--admin-edit-bg, #f8fafc)',
+            border: '1px solid var(--admin-edit-border, #cbd5e1)',
             borderRadius: '8px',
             padding: '14px',
             marginBottom: '12px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px'
+            gap: '12px'
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b' }}>
+          <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--admin-edit-accent, #1e293b)' }}>
             ✏️ 회원 정보 직접 수정 & 등급 분류
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          {/* Quick Paste (Smart Input) Box - Option A */}
+          <div className="admin-quick-paste-box">
+            <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--admin-edit-accent, #334155)' }}>
+              ⚡ 카톡 가입글 스마트 붙여넣기 (한 줄로 일괄 분석 및 즉시 저장)
+            </label>
+            <div className="admin-quick-paste-row">
+              <input
+                type="text"
+                className="admin-quick-paste-input"
+                placeholder="예: 2026년 5월 21일 오전 5:29 맑음이 마포 기 여"
+                value={quickPasteInput}
+                onChange={(e) => setQuickPasteInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleApplyQuickPaste();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="admin-quick-paste-btn"
+                onClick={handleApplyQuickPaste}
+              >
+                적용 및 저장
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
               <label style={{ fontSize: '11px', color: '#64748b' }}>실명 / 닉네임</label>
               <input
@@ -518,21 +623,6 @@ export default function MemberProfilePage({
                 onChange={(e) => setEditForm((p) => ({ ...p, realName: e.target.value }))}
                 style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
               />
-            </div>
-
-            <div>
-              <label style={{ fontSize: '11px', color: '#64748b' }}>회원 등급(Role)</label>
-              <select
-                value={editForm.role}
-                onChange={(e) => setEditForm((p) => ({ ...p, role: e.target.value }))}
-                style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-              >
-                {ROLE_KEYS.map((rk) => (
-                  <option key={rk} value={rk}>
-                    {ROLE_META[rk].label} ({rk})
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div>
@@ -580,18 +670,94 @@ export default function MemberProfilePage({
               )}
             </div>
 
+            {/* Role Chip Group (Full width row) */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                <label style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                  회원 등급(Role) <span style={{ fontSize: '10px', color: '#94a3b8' }}>(탭 즉시 자동 저장)</span>
+                </label>
+              </div>
+              <div className="admin-chip-group">
+                {ROLE_KEYS.map((rk) => (
+                  <button
+                    key={rk}
+                    type="button"
+                    className={`admin-select-chip ${editForm.role === rk ? 'is-active' : ''}`}
+                    onClick={() => handleQuickUpdateField('role', rk)}
+                  >
+                    {ROLE_META[rk].label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Gender Chip Group */}
+            <div>
+              <label style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                성별 <span style={{ fontSize: '10px', color: '#94a3b8' }}>(탭 즉시 자동 저장)</span>
+              </label>
+              <div className="admin-chip-group">
+                <button
+                  type="button"
+                  className={`admin-select-chip ${editForm.gender === '남' ? 'is-active' : ''}`}
+                  onClick={() => handleQuickUpdateField('gender', '남')}
+                >
+                  남성 (남)
+                </button>
+                <button
+                  type="button"
+                  className={`admin-select-chip ${editForm.gender === '여' ? 'is-active' : ''}`}
+                  onClick={() => handleQuickUpdateField('gender', '여')}
+                >
+                  여성 (여)
+                </button>
+              </div>
+            </div>
+
+            {/* Marital Status Chip Group */}
+            <div>
+              <label style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                결혼 여부 <span style={{ fontSize: '10px', color: '#94a3b8' }}>(탭 즉시 자동 저장)</span>
+              </label>
+              <div className="admin-chip-group">
+                <button
+                  type="button"
+                  className={`admin-select-chip ${editForm.maritalStatus === 'single' ? 'is-active' : ''}`}
+                  onClick={() => handleQuickUpdateField('maritalStatus', 'single')}
+                >
+                  미혼 (미)
+                </button>
+                <button
+                  type="button"
+                  className={`admin-select-chip ${editForm.maritalStatus === 'married' ? 'is-active' : ''}`}
+                  onClick={() => handleQuickUpdateField('maritalStatus', 'married')}
+                >
+                  기혼 (기)
+                </button>
+                <button
+                  type="button"
+                  className={`admin-select-chip ${editForm.maritalStatus === 'divorced' ? 'is-active' : ''}`}
+                  onClick={() => handleQuickUpdateField('maritalStatus', 'divorced')}
+                >
+                  돌싱 (돌)
+                </button>
+              </div>
+            </div>
+
+            {/* JoinedAt with auto-badge calculation */}
             <div>
               <label style={{ fontSize: '11px', color: '#64748b' }}>가입일 (YYYY-MM-DD)</label>
               <input
                 type="date"
                 value={editForm.joinedAt}
-                onChange={(e) => setEditForm((p) => ({ ...p, joinedAt: e.target.value }))}
+                onChange={(e) => handleJoinedAtChange(e.target.value)}
                 style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
               />
             </div>
 
+            {/* Entry Badge */}
             <div>
-              <label style={{ fontSize: '11px', color: '#64748b' }}>가입 뱃지 (MMDD)</label>
+              <label style={{ fontSize: '11px', color: '#64748b' }}>가입 뱃지 (MMDD, 자동 연동)</label>
               <input
                 type="text"
                 maxLength={4}
@@ -600,31 +766,6 @@ export default function MemberProfilePage({
                 placeholder="예: 0814"
                 style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
               />
-            </div>
-
-            <div>
-              <label style={{ fontSize: '11px', color: '#64748b' }}>성별</label>
-              <select
-                value={editForm.gender}
-                onChange={(e) => setEditForm((p) => ({ ...p, gender: e.target.value }))}
-                style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-              >
-                <option value="남">남성</option>
-                <option value="여">여성</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={{ fontSize: '11px', color: '#64748b' }}>결혼 여부</label>
-              <select
-                value={editForm.maritalStatus}
-                onChange={(e) => setEditForm((p) => ({ ...p, maritalStatus: e.target.value }))}
-                style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-              >
-                <option value="single">미혼 (미)</option>
-                <option value="married">기혼 (기)</option>
-                <option value="divorced">돌싱 (돌)</option>
-              </select>
             </div>
           </div>
 
@@ -639,7 +780,7 @@ export default function MemberProfilePage({
             </button>
 
             <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '6px 16px' }}>
-              저장하기
+              전체 저장하기
             </button>
           </div>
 
