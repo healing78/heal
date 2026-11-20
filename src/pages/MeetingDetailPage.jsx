@@ -675,6 +675,9 @@ export default function MeetingDetailPage({
   const confirmedList = meeting.confirmedParticipants || [];
   const isApplied = applicants.includes(currentUser?.uid);
   const isConfirmedParticipant = confirmedList.includes(currentUser?.uid);
+  const isUserPending = Boolean(
+    currentUser && (currentUser.approvalStatus === 'pending' || currentUser.approvalStatus === 'rejected')
+  );
 
   // Only attendees, host/treasurer, or admin can view the 벙대기실 (rounds, settlement, safe return)
   const canAccessLounge =
@@ -2077,15 +2080,27 @@ export default function MeetingDetailPage({
                 <>
                   <div>
                     {meeting.status === 'open' && (
-                      <button
-                        type="button"
-                        className={`detail-attend-pill ${
-                          isApplied ? 'is-attending' : ''
-                        }`}
-                        onClick={() => onToggleApplyMeeting(meeting.id)}
-                      >
-                        {isApplied ? '참석 ✓' : '참석'}
-                      </button>
+                      isUserPending ? (
+                        <button
+                          type="button"
+                          className="detail-attend-pill"
+                          style={{ opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' }}
+                          disabled
+                          title="가입 승인 대기 중에는 참석 신청이 불가능합니다."
+                        >
+                          승인 대기
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className={`detail-attend-pill ${
+                            isApplied ? 'is-attending' : ''
+                          }`}
+                          onClick={() => onToggleApplyMeeting(meeting.id)}
+                        >
+                          {isApplied ? '참석 ✓' : '참석'}
+                        </button>
+                      )
                     )}
                   </div>
 

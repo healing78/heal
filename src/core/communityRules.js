@@ -347,6 +347,9 @@ export const resolveMemberRole = (member) => {
  */
 export const canCreateMeeting = (member) => {
   if (!member) return false;
+  if (member.approvalStatus === 'pending' || member.approvalStatus === 'rejected') {
+    return false;
+  }
   if (
     member.role === 'Rookie' ||
     member.role === 'OnLeave' ||

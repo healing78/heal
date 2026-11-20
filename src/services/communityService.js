@@ -140,13 +140,19 @@ const sanitizeMember = (m) => {
     'Wanderer',
     'Expelled'
   ].includes(m.role);
-  if (!isSpecial && (m.attendanceCount === 0 || !m.attendanceCount) && m.role === 'Member') {
-    return {
-      ...m,
-      role: 'Rookie'
-    };
-  }
-  return m;
+  const baseMember = (!isSpecial && (m.attendanceCount === 0 || !m.attendanceCount) && m.role === 'Member')
+    ? { ...m, role: 'Rookie' }
+    : m;
+
+  // approvalStatus 보정: 명시적 상태가 없으면 기존 정회원은 approved, 연동 대기자는 pending
+  const resolvedApproval = baseMember.approvalStatus || (
+    baseMember.linkRequestStatus === 'pending' ? 'pending' : 'approved'
+  );
+
+  return {
+    ...baseMember,
+    approvalStatus: resolvedApproval
+  };
 };
 
 const sanitizeConfig = (cfg) => {
@@ -431,6 +437,7 @@ export const registerOnboardingMember = async (form, customUid) => {
     maritalStatus: form.maritalStatus,
     gender: form.gender,
     role: 'Rookie',
+    approvalStatus: 'pending',
     entryBadge: `${mm}${dd}`,
     joinedAt: `${year}-${mm}-${dd}`,
     customBadge: '',
@@ -491,9 +498,15 @@ export const updateMemberProfile = async (uid, updatedFields) => {
  * Toggles meeting attendance application for a member (and syncs 1차 round participation).
  */
 export const toggleMeetingApplicant = async (meetingId, uid) => {
-  const { meetings } = getLocalState();
+  const { meetings, members } = getLocalState();
   const target = meetings.find((m) => String(m.id) === String(meetingId));
   if (!target || target.status !== 'open') return;
+
+  const currentMember = members.find((m) => m.uid === uid);
+  if (!currentMember || currentMember.approvalStatus === 'pending' || currentMember.approvalStatus === 'rejected') {
+    console.warn(`Meeting application blocked for unapproved member: ${uid}`);
+    return;
+  }
 
   const exists = (target.applicants || []).includes(uid);
   const nextApplicants = exists
@@ -1272,6 +1285,7 @@ export const reassignMemberUid = async (oldUid, newUid) => {
     linkRequestRealName: '',
     linkRequestSourceUid: '',
     linkRequestStatus: '',
+    approvalStatus: 'approved',
     subUids: Array.from(new Set([
       ...(target.subUids || []),
       ...(destination?.subUids || []),
@@ -1296,21 +1310,21 @@ export const reassignMemberUid = async (oldUid, newUid) => {
       changed = true;
     }
     if (Array.isArray(nextMtg.applicants) && nextMtg.applicants.includes(cleanOldUid)) {
-      nextMtg.applicants = nextMtg.applicants.map((u) => (u === cleanOldUid ? cleanNewUid : u));
+      nextMtg.applicants = Array.from(new Set(nextMtg.applicants.map((u) => (u === cleanOldUid ? cleanNewUid : u))));
       changed = true;
     }
     if (Array.isArray(nextMtg.confirmedParticipants) && nextMtg.confirmedParticipants.includes(cleanOldUid)) {
-      nextMtg.confirmedParticipants = nextMtg.confirmedParticipants.map((u) =>
+      nextMtg.confirmedParticipants = Array.from(new Set(nextMtg.confirmedParticipants.map((u) =>
         u === cleanOldUid ? cleanNewUid : u
-      );
+      )));
       changed = true;
     }
     if (Array.isArray(nextMtg.attendeeUids) && nextMtg.attendeeUids.includes(cleanOldUid)) {
-      nextMtg.attendeeUids = nextMtg.attendeeUids.map((u) => (u === cleanOldUid ? cleanNewUid : u));
+      nextMtg.attendeeUids = Array.from(new Set(nextMtg.attendeeUids.map((u) => (u === cleanOldUid ? cleanNewUid : u))));
       changed = true;
     }
     if (Array.isArray(nextMtg.likes) && nextMtg.likes.includes(cleanOldUid)) {
-      nextMtg.likes = nextMtg.likes.map((u) => (u === cleanOldUid ? cleanNewUid : u));
+      nextMtg.likes = Array.from(new Set(nextMtg.likes.map((u) => (u === cleanOldUid ? cleanNewUid : u))));
       changed = true;
     }
     if (Array.isArray(nextMtg.rounds)) {
@@ -1319,7 +1333,7 @@ export const reassignMemberUid = async (oldUid, newUid) => {
         let rChanged = false;
         let nextR = { ...r };
         if (Array.isArray(nextR.participants) && nextR.participants.includes(cleanOldUid)) {
-          nextR.participants = nextR.participants.map((u) => (u === cleanOldUid ? cleanNewUid : u));
+          nextR.participants = Array.from(new Set(nextR.participants.map((u) => (u === cleanOldUid ? cleanNewUid : u))));
           rChanged = true;
         }
         if (nextR.payerUid === cleanOldUid) {
@@ -1462,15 +1476,36 @@ export const approveAccountLinkRequest = async (applicantUid, sourceUid) => {
 };
 
 /**
+ * Admin: Approves a newly registered member (pure signup).
+ */
+export const adminApproveNewMember = async (uid) => {
+  await updateMemberProfile(uid, {
+    approvalStatus: 'approved'
+  });
+};
+
+/**
+ * Admin: Rejects a newly registered member.
+ */
+export const adminRejectNewMember = async (uid, reason = '') => {
+  await updateMemberProfile(uid, {
+    approvalStatus: 'rejected',
+    rejectionReason: reason || '운영진 검토에 의해 가입이 반려되었습니다.'
+  });
+};
+
+/**
  * Admin: Rejects an account link request.
  */
-export const rejectAccountLinkRequest = async (applicantUid) => {
+export const rejectAccountLinkRequest = async (applicantUid, reason = '') => {
   await updateMemberProfile(applicantUid, {
     linkRequestRealName: '',
     linkRequestSourceUid: '',
     linkRequestType: '',
     linkRequestSubName: '',
-    linkRequestStatus: 'rejected'
+    linkRequestStatus: 'rejected',
+    approvalStatus: 'rejected',
+    rejectionReason: reason || '운영진 검토에 의해 계정 연동 신청이 반려되었습니다.'
   });
 };
 

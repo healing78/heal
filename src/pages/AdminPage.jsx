@@ -56,7 +56,9 @@ export default function AdminPage({
   onAdminUpdateConfig,
   onApproveAccountLink,
   onApproveSubPhone,
-  onRejectAccountLink
+  onRejectAccountLink,
+  onAdminApproveNewMember,
+  onAdminRejectNewMember
 }) {
   const [subTab, setSubTab] = useState('login'); // 'login' | 'meetings' | 'requests' | 'scores' | 'config'
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
@@ -167,6 +169,14 @@ export default function AdminPage({
     (l) => l.isRegistered
   ).length;
 
+  // Pure new member signup approval requests
+  const pendingNewSignups = members.filter(
+    (m) =>
+      m.approvalStatus === 'pending' &&
+      !m.linkRequestStatus &&
+      !m.linkRequestRealName
+  );
+
   // Account link / recovery requests
   const pendingLinkRequests = members.filter(
     (m) =>
@@ -184,7 +194,10 @@ export default function AdminPage({
     (m) => m.requestAttendance !== false && m.loungeStatus === 'approved'
   );
 
-  const totalRequestsCount = pendingLoungeRequests.length + pendingLinkRequests.length;
+  const totalRequestsCount =
+    pendingLoungeRequests.length +
+    pendingLinkRequests.length +
+    pendingNewSignups.length;
 
   const handleApproveLoungeRequest = async (meetingId) => {
     if (!onUpdateMeeting) return;
@@ -887,9 +900,125 @@ export default function AdminPage({
         </section>
       )}
 
-      {/* Sub-tab: Requests Management (계정 연동 승인 및 벙대기실 조기 오픈) */}
+      {/* Sub-tab: Requests Management (신규 가입 승인, 계정 연동 승인 및 벙대기실 조기 오픈) */}
       {subTab === 'requests' && (
         <>
+          {/* Section 0: Pure New Member Signup Approval Requests */}
+          <section className="list-section" style={{ marginBottom: '16px' }}>
+            <div className="section-title-row">
+              <h3 style={{ margin: 0 }}>
+                신규 회원 가입 승인 요청 ({pendingNewSignups.length})
+              </h3>
+            </div>
+            <p className="sub-meta" style={{ marginTop: '4px', marginBottom: '10px' }}>
+              카카오로 신규 가입하여 운영진의 승인을 기다리는 회원입니다. 승인 시 정회원(신입) 자격으로 전체 모임 및 기능에 접근할 수 있게 됩니다.
+            </p>
+
+            {pendingNewSignups.length === 0 ? (
+              <p className="muted-text" style={{ padding: '12px 0' }}>
+                현재 대기 중인 신규 가입 요청이 없습니다.
+              </p>
+            ) : (
+              <div className="divider-list" style={{ marginTop: '10px' }}>
+                {pendingNewSignups.map((applicant) => {
+                  return (
+                    <div
+                      key={applicant.uid}
+                      style={{
+                        padding: '12px',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <span style={{ fontSize: '14px', fontWeight: 700 }}>
+                            신규 신청자: {formatMemberNickname(applicant)}
+                          </span>
+                          <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '6px' }}>
+                            ({applicant.uid})
+                          </span>
+                          {(applicant.isSimulation || (applicant.uid && applicant.uid.startsWith('kakao:sim-'))) && (
+                            <span
+                              className="platform-badge"
+                              style={{ background: '#10b981', color: '#fff', fontSize: '10px', marginLeft: '6px' }}
+                            >
+                              🧪 시뮬레이션
+                            </span>
+                          )}
+                        </div>
+                        <span
+                          className="lounge-waiting-badge"
+                          style={{
+                            background: '#fef3c7',
+                            color: '#92400e'
+                          }}
+                        >
+                          가입 승인 대기
+                        </span>
+                      </div>
+
+                      <div
+                        style={{
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '6px',
+                          padding: '8px 10px',
+                          fontSize: '12px',
+                          lineHeight: 1.6
+                        }}
+                      >
+                        <div>
+                          <strong>활동 닉네임:</strong> {applicant.realName} {applicant.legalName ? `(실명: ${applicant.legalName})` : ''} · <strong>지역:</strong> {applicant.city} ({applicant.homeCity})
+                        </div>
+                        <div>
+                          <strong>성별 / 혼인구분:</strong> {applicant.gender === '여' ? '여성' : '남성'} · {applicant.maritalStatus === 'single' ? '미혼' : applicant.maritalStatus === 'married' ? '기혼' : '돌싱'} · <strong>신청일:</strong> {applicant.joinedAt || '오늘'}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                        {onAdminApproveNewMember && (
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={() =>
+                              runArmed(`approve-new:${applicant.uid}`, () =>
+                                onAdminApproveNewMember(applicant.uid)
+                              )
+                            }
+                          >
+                            {isArmed(`approve-new:${applicant.uid}`)
+                              ? '확인: 즉시 정회원 가입 승인'
+                              : '✅ 승인 (정회원 활성화)'}
+                          </button>
+                        )}
+                        {onAdminRejectNewMember && (
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            style={{ color: '#ef4444', borderColor: '#fca5a5' }}
+                            onClick={() =>
+                              runArmed(`reject-new:${applicant.uid}`, () =>
+                                onAdminRejectNewMember(applicant.uid)
+                              )
+                            }
+                          >
+                            {isArmed(`reject-new:${applicant.uid}`) ? '반려 확인' : '❌ 반려'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
           {/* Section 1: Account Link / Historical Data Transfer Requests */}
           <section className="list-section" style={{ marginBottom: '16px' }}>
             <div className="section-title-row">

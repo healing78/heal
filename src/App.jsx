@@ -23,6 +23,8 @@ import {
 import { getSavedTheme, saveAndApplyTheme } from './core/theme';
 import {
   adminAdjustEventScore,
+  adminApproveNewMember,
+  adminRejectNewMember,
   adminSaveFullMeeting,
   adminUpdateMember,
   approveAccountLinkRequest,
@@ -51,6 +53,7 @@ import {
 } from './services/communityService';
 import { logoutFromKakao } from './services/kakaoAuthService';
 import LoginOnboardingPage from './pages/LoginOnboardingPage';
+import PendingApprovalPage from './pages/PendingApprovalPage';
 import HomePage from './pages/HomePage';
 import MeetingsPage from './pages/MeetingsPage';
 import ReportsPage from './pages/ReportsPage';
@@ -268,8 +271,14 @@ export default function App() {
     navigateToTab('meetings', { id: meetingId, subView });
   };
 
-  // Compute dynamic 20-char top header summary & document.title for current page (Before & After Login)
-  const currentMeta = buildRouteMeta({
+  const isApprovalBlocked = Boolean(
+    currentUser &&
+      (currentUser.approvalStatus === 'pending' ||
+        currentUser.approvalStatus === 'rejected')
+  );
+
+  // Compute dynamic top header summary & document.title for current page (Before & After Login)
+  const baseMeta = buildRouteMeta({
     tab: activeTab,
     meetingId: selectedMeetingId,
     subView: selectedMeetingSubView,
@@ -279,6 +288,20 @@ export default function App() {
     communityConfig,
     currentUser
   });
+
+  const currentMeta = isApprovalBlocked
+    ? {
+        ...baseMeta,
+        title:
+          currentUser.approvalStatus === 'rejected'
+            ? '힐링78 - 가입 반려'
+            : '힐링78 - 가입 승인 대기',
+        headerSummary:
+          currentUser.approvalStatus === 'rejected'
+            ? '힐링78 - 가입 반려'
+            : '힐링78 - 가입 승인 대기'
+      }
+    : baseMeta;
 
   useEffect(() => {
     syncDocumentMeta(currentMeta);
@@ -423,8 +446,16 @@ export default function App() {
     await disconnectSubPhone(primaryUid, subUid);
   };
 
-  const handleRejectAccountLink = async (applicantUid) => {
-    await rejectAccountLinkRequest(applicantUid);
+  const handleRejectAccountLink = async (applicantUid, reason) => {
+    await rejectAccountLinkRequest(applicantUid, reason);
+  };
+
+  const handleAdminApproveNewMember = async (targetUid) => {
+    await adminApproveNewMember(targetUid);
+  };
+
+  const handleAdminRejectNewMember = async (targetUid, reason) => {
+    await adminRejectNewMember(targetUid, reason);
   };
 
   const handleResetDemoData = () => {
@@ -465,6 +496,16 @@ export default function App() {
   const renderPageBody = () => {
     if (isOnboardingSimulation) {
       return renderBeforeLoginView();
+    }
+
+    if (isApprovalBlocked) {
+      return (
+        <PendingApprovalPage
+          currentUser={currentUser}
+          communityConfig={communityConfig}
+          onLogout={() => handleSwitchUser('__LOGOUT__')}
+        />
+      );
     }
 
     if (activeTab === 'nickname') {
@@ -634,6 +675,8 @@ export default function App() {
           onApproveAccountLink={handleApproveAccountLink}
           onApproveSubPhone={handleApproveSubPhone}
           onRejectAccountLink={handleRejectAccountLink}
+          onAdminApproveNewMember={handleAdminApproveNewMember}
+          onAdminRejectNewMember={handleAdminRejectNewMember}
         />
       );
     }

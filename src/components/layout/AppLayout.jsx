@@ -46,12 +46,19 @@ export default function AppLayout({
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const showAdminMenu = currentUser && isAdminUser(currentUser, communityConfig);
+  const isApprovalGateActive = Boolean(
+    currentUser &&
+      (currentUser.approvalStatus === 'pending' ||
+        currentUser.approvalStatus === 'rejected')
+  );
+
+  const showAdminMenu = currentUser && !isApprovalGateActive && isAdminUser(currentUser, communityConfig);
   const showMasterMenu =
     currentUser &&
+    !isApprovalGateActive &&
     isSuperAdmin(currentUser, communityConfig) &&
     Boolean(isMasterTabEnabled);
-  const navItems = [...BASE_NAV_ITEMS];
+  const navItems = isApprovalGateActive ? [] : [...BASE_NAV_ITEMS];
   if (showAdminMenu) {
     navItems.push({ id: 'admin', label: '운영', icon: '⚙️' });
   }
@@ -78,9 +85,9 @@ export default function AppLayout({
             className="brand-title"
             role="button"
             tabIndex={0}
-            onClick={() => onChangeTab('home')}
-            onKeyDown={(e) => e.key === 'Enter' && onChangeTab('home')}
-            style={{ cursor: 'pointer' }}
+            onClick={isApprovalGateActive ? undefined : () => onChangeTab('home')}
+            onKeyDown={(e) => !isApprovalGateActive && e.key === 'Enter' && onChangeTab('home')}
+            style={{ cursor: isApprovalGateActive ? 'default' : 'pointer' }}
           >
             {isRoseTheme ? (
               <img
@@ -121,20 +128,22 @@ export default function AppLayout({
           </div>
         </div>
 
-        <ul className="nav-list">
-          {navItems.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                className={`nav-btn ${activeTab === item.id ? 'active' : ''}`}
-                onClick={() => onChangeTab(item.id)}
-              >
-                {isRoseTheme && <span className="nav-icon">{item.icon}</span>}
-                <span>{item.label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        {!isApprovalGateActive && (
+          <ul className="nav-list">
+            {navItems.map((item) => (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  className={`nav-btn ${activeTab === item.id ? 'active' : ''}`}
+                  onClick={() => onChangeTab(item.id)}
+                >
+                  {isRoseTheme && <span className="nav-icon">{item.icon}</span>}
+                  <span>{item.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Quick Account / Role Switcher on PC Sidebar */}
         <div className="sidebar-footer">
@@ -229,7 +238,7 @@ export default function AppLayout({
               ))}
             </div>
 
-            {!currentUser && activeTab !== 'login' && (
+            {!currentUser && activeTab !== 'login' && !isApprovalGateActive && (
               <button
                 type="button"
                 className="header-login-btn"
@@ -238,7 +247,7 @@ export default function AppLayout({
                 로그인
               </button>
             )}
-            {activeTab !== 'admin' && activeTab !== 'master' && (
+            {activeTab !== 'admin' && activeTab !== 'master' && !isApprovalGateActive && (
               <button
                 type="button"
                 className="header-share-btn"
@@ -270,14 +279,15 @@ export default function AppLayout({
         <main className="content-body">{children}</main>
 
         {/* Mobile & Native App Bottom Tab Bar */}
-        <nav
-          className="mobile-tabbar"
-          style={{
-            gridTemplateColumns: `repeat(${navItems.length}, 1fr)`
-          }}
-          aria-label="모바일 하단 메뉴"
-        >
-          {navItems.map((item) => (
+        {!isApprovalGateActive && navItems.length > 0 && (
+          <nav
+            className="mobile-tabbar"
+            style={{
+              gridTemplateColumns: `repeat(${navItems.length}, 1fr)`
+            }}
+            aria-label="모바일 하단 메뉴"
+          >
+            {navItems.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -293,6 +303,7 @@ export default function AppLayout({
             </button>
           ))}
         </nav>
+        )}
       </div>
     </div>
   );
