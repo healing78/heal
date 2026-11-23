@@ -874,7 +874,7 @@ export default function MeetingDetailPage({
     setTreasurerSearchQuery('');
   };
 
-  // Admin: Toggle Attendee (참석 / 미참석; 벙주는 항상 참석 고정)
+  // Admin: Toggle Attendee (참석 / 미참석; 벙주는 항상 참석 고정, 유령 계정은 클릭 시 즉시 제거)
   const handleAdminToggleAttendee = async (targetUid) => {
     if (!onUpdateMeeting || !adminUser || !targetUid) return;
     if (targetUid === meeting.hostUid) return; // 벙주는 항상 참석 고정
@@ -884,18 +884,19 @@ export default function MeetingDetailPage({
         meeting.hostUid,
         ...(meeting.status === 'settled' && confirmedList.length > 0
           ? confirmedList
-          : applicants)
+          : applicants),
+        ...(rounds || []).flatMap((r) => r.participants || [])
       ].filter(Boolean))
     );
     const isCurrentlyAttending = currentList.includes(targetUid);
 
     const nextApplicants = isCurrentlyAttending
-      ? currentList.filter((uid) => uid !== targetUid)
-      : [...currentList, targetUid];
+      ? (meeting.applicants || []).filter((uid) => uid !== targetUid)
+      : [...(meeting.applicants || []), targetUid];
 
     const nextConfirmed =
       meeting.status === 'settled' || confirmedList.length > 0
-        ? nextApplicants
+        ? (meeting.confirmedParticipants || []).filter((uid) => uid !== targetUid)
         : confirmedList;
 
     const nextRounds = rounds.map((r, idx) => {
@@ -1818,22 +1819,52 @@ export default function MeetingDetailPage({
     }
   };
 
-  const displayAttendeeUids = Array.from(
-    new Set(
-      [
-        meeting.hostUid,
-        ...(meeting.status === 'settled' && confirmedList.length > 0
-          ? confirmedList
-          : [
-              ...applicants,
-              ...(meeting.rounds || []).flatMap((r) => r.participants || []),
-              ...(settlement?.participantRows || [])
-                .filter((r) => r.attendedRounds && r.attendedRounds.length > 0)
-                .map((r) => r.uid)
-            ])
-      ].filter(Boolean)
-    )
-  );
+  const allRawAttendeeUids = useMemo(() => {
+    return Array.from(
+      new Set(
+        [
+          meeting.hostUid,
+          ...(meeting.status === 'settled' && confirmedList.length > 0
+            ? confirmedList
+            : [
+                ...applicants,
+                ...(meeting.rounds || []).flatMap((r) => r.participants || []),
+                ...(settlement?.participantRows || [])
+                  .filter((r) => r.attendedRounds && r.attendedRounds.length > 0)
+                  .map((r) => r.uid)
+              ])
+        ].filter(Boolean)
+      )
+    );
+  }, [meeting.hostUid, meeting.status, confirmedList, applicants, meeting.rounds, settlement]);
+
+  // Self-healing: Only include UIDs that exist in the members registry for public displays and counts
+  const displayAttendeeUids = useMemo(() => {
+    const memberUidSet = new Set((members || []).map((m) => m.uid));
+    return allRawAttendeeUids.filter((uid) => memberUidSet.has(uid));
+  }, [allRawAttendeeUids, members]);
+
+  // Orphan UIDs: present in meeting attendees/rounds but no longer found in members collection
+  const orphanAttendeeUids = useMemo(() => {
+    const memberUidSet = new Set((members || []).map((m) => m.uid));
+    return allRawAttendeeUids.filter((uid) => !memberUidSet.has(uid));
+  }, [allRawAttendeeUids, members]);
+
+  const handleCleanAllOrphanUids = async () => {
+    if (!adminUser || !onUpdateMeeting || !orphanAttendeeUids.length) return;
+    const orphanSet = new Set(orphanAttendeeUids);
+    const nextApplicants = (meeting.applicants || []).filter((uid) => !orphanSet.has(uid));
+    const nextConfirmed = (meeting.confirmedParticipants || []).filter((uid) => !orphanSet.has(uid));
+    const nextRounds = (meeting.rounds || []).map((r) => ({
+      ...r,
+      participants: (r.participants || []).filter((uid) => !orphanSet.has(uid))
+    }));
+    await onUpdateMeeting(meeting.id, {
+      applicants: nextApplicants,
+      confirmedParticipants: nextConfirmed,
+      rounds: nextRounds
+    });
+  };
 
   // 마감탭 전용 정렬: 1순위 본인, 2순위 운영진, 3순위 가나다순
   const sortedClosingAttendeeUids = useMemo(() => {
@@ -2699,7 +2730,10 @@ export default function MeetingDetailPage({
               >
                 <span className="admin-edit-accordion-title">참석자 변경</span>
                 <div className="admin-edit-accordion-meta">
-                  <span>{displayAttendeeUids.length}명 참석</span>
+                  <span>
+                    {displayAttendeeUids.length}명 참석
+                    {orphanAttendeeUids.length > 0 && ` (⚠️ 미확인 ${orphanAttendeeUids.length}건)`}
+                  </span>
                   <span className="admin-edit-accordion-arrow">
                     {isAttendeeAccordionOpen ? '▲' : '▼'}
                   </span>
@@ -2708,8 +2742,49 @@ export default function MeetingDetailPage({
 
               {isAttendeeAccordionOpen && (
                 <div className="admin-edit-accordion-body">
+                  {orphanAttendeeUids.length > 0 && (
+                    <div
+                      style={{
+                        padding: '8px 12px',
+                        background: '#fff1f2',
+                        border: '1px solid #fecdd3',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        color: '#be123c',
+                        marginBottom: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      <span>
+                        ⚠️ 회원 DB에서 삭제된 유령 계정({orphanAttendeeUids.length}건)이 감지되었습니다.
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-xs"
+                        style={{
+                          background: '#e11d48',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '4px',
+                          padding: '4px 10px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                        onClick={handleCleanAllOrphanUids}
+                      >
+                        유령 계정 일괄 정리 ({orphanAttendeeUids.length}건)
+                      </button>
+                    </div>
+                  )}
+
                   {/* Current Attendees (벙주는 참석 고정, 일반 참석자는 터치 시 미참석 전환) */}
                   <div className="admin-edit-chip-wrap">
+                    {/* 1. Valid registered members */}
                     {displayAttendeeUids.map((uid) => {
                       const mem = members.find((m) => m.uid === uid);
                       if (!mem) return null;
@@ -2733,6 +2808,30 @@ export default function MeetingDetailPage({
                         </button>
                       );
                     })}
+
+                    {/* 2. Orphan UIDs (deleted/unregistered members) shown as red warning chips */}
+                    {orphanAttendeeUids.map((uid) => (
+                      <button
+                        key={uid}
+                        type="button"
+                        className="admin-edit-member-chip"
+                        style={{
+                          background: '#fef2f2',
+                          borderColor: '#fca5a5',
+                          color: '#dc2626'
+                        }}
+                        onClick={() => handleAdminToggleAttendee(uid)}
+                        title="회원 DB에 없는 삭제된 계정입니다. 클릭 시 명단에서 즉시 영구 삭제됩니다."
+                      >
+                        <span>⚠️ 미확인 ({String(uid).slice(0, 14)})</span>
+                        <span
+                          className="admin-edit-role-tag"
+                          style={{ background: '#dc2626', color: '#ffffff' }}
+                        >
+                          정리 ✕
+                        </span>
+                      </button>
+                    ))}
                   </div>
 
                   {/* Add Attendee Search Box */}

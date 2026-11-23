@@ -41,7 +41,11 @@ Healing78 커뮤니티 관리 시스템의 전체 화면 흐름과 하위 주소
   - **벙 참석 및 생성 원천 차단:**
     - `approvalStatus`가 `'pending'` 또는 `'rejected'`인 계정은 `toggleMeetingApplicant` 및 `canCreateMeeting` 함수 레벨에서 참석 및 모임 개설이 원천 차단되어 데이터 오염을 방지합니다.
   - **계정 연동 승인 시 중복 방지 (Deduplication):**
-    - 운영진의 계정 연동 승인(`approveAccountLinkRequest`) 시 모임의 `applicants`, `rounds[].participants`, `confirmedParticipants`에서 기존 구 UID를 새 UID로 치환할 때 `Set` 중복 제거를 강제 적용하여 동일 회원의 다중 등록 버그를 방지합니다.
+    - 운영진의 계정 연동 승인(`approveAccountLinkRequest`) 및 서브폰 연동 승인(`approveSubPhoneRequest`) 시 모임의 `applicants`, `rounds[].participants`, `confirmedParticipants`에서 기존 구 UID를 새 UID/대표 UID로 치환할 때 `Set` 중복 제거를 강제 적용하여 동일 회원의 다중 등록 및 유령 UID 잔류를 방지합니다.
+  - **모임 참석자 인원수 자가 치유(Self-Healing) 및 유령 UID 청소 정책:**
+    - **실존 회원 기준 인원수 자동 계산:** 모임 상세 및 관리자 모임 카드에서 참석 인원수(`displayAttendeeUids`) 계산 시, 회원 DB(`members`)에 실존하는 회원만 대조하여 카운트합니다. 이를 통해 과거 테스트나 연동 과정에서 삭제된 유령 UID가 배열에 남아있더라도 일반 회원 및 요약 화면에서는 항상 정확한 인원수(예: 14명)가 노출됩니다.
+    - **운영진 전용 유령 계정 칩 시각화 및 원터치 삭제:** 모임 상세의 `[운영진 일정 수정] > [참석자 변경]` 목록에 회원 DB에 존재하지 않는 미확인/삭제 계정이 감지될 경우, 상단에 `⚠️ 회원 DB에서 삭제된 유령 계정 감지` 배너 및 `[유령 계정 일괄 정리]` 버튼을 제공하고, 개별 칩을 `[⚠️ 미확인 (UID) | 정리 ✕]` 붉은색 칩으로 렌더링하여 클릭 한 번으로 모임 데이터베이스(Firestore `applicants`, `rounds[].participants`)에서 영구 삭제할 수 있도록 지원합니다.
+    - **마스터 탭 전역 유령 참석자 정리:** 마스터 관리 센터(`/master`)에 `[🧹 모임 유령 참석자 정리]` 도구를 제공하여, 전체 850개 이상의 모임을 일괄 스캔하여 탈퇴/삭제된 유령 UID를 한 번에 영구 제거할 수 있습니다.
 
 ### 2. Main Navigation Structure
 - **기본 5개 메뉴 (모바일 하단 아이콘 탭바 & PC 사이드바):**

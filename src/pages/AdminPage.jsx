@@ -732,6 +732,10 @@ export default function AdminPage({
             <div className="divider-list">
               {displayedAdminMeetings.map((m) => {
                   const applicants = m.applicants || [];
+                  const validApplicants = applicants.filter((uid) =>
+                    members.some((mem) => mem.uid === uid)
+                  );
+                  const orphanCount = applicants.length - validApplicants.length;
                   const isExpanded = expandedMeetingId === m.id;
                   const treasurerUid = m.treasurerUid || m.hostUid;
 
@@ -804,7 +808,7 @@ export default function AdminPage({
                             }}
                             title="참석자 명단 펼치기/접기"
                           >
-                            👥 {applicants.length}명 참석 {isExpanded ? '▲' : '▼'}
+                            👥 {validApplicants.length}명 참석 {orphanCount > 0 ? `(⚠️${orphanCount}) ` : ''}{isExpanded ? '▲' : '▼'}
                           </button>
 
                           {/* Future Extension Action Slot */}
@@ -846,20 +850,25 @@ export default function AdminPage({
                             }}
                           >
                             <span className="sub-meta" style={{ fontWeight: 600 }}>
-                              참석 신청자 명단 ({applicants.length}명)
+                              참석 신청자 명단 ({validApplicants.length}명)
+                              {orphanCount > 0 && (
+                                <span style={{ color: '#ef4444', marginLeft: '6px', fontSize: '11px' }}>
+                                  (미확인 계정 {orphanCount}건 감지됨)
+                                </span>
+                              )}
                             </span>
                             <span className="muted-text" style={{ fontSize: '11px' }}>
                               장소: {m.location}
                             </span>
                           </div>
 
-                          {applicants.length === 0 ? (
+                          {validApplicants.length === 0 ? (
                             <p className="muted-text" style={{ margin: 0, fontSize: '12px' }}>
                               참석 신청자가 없습니다.
                             </p>
                           ) : (
                             <div className="detail-attendee-grid" style={{ marginTop: 0 }}>
-                              {applicants.map((uid) => {
+                              {validApplicants.map((uid) => {
                                 const mem = members.find((memObj) => memObj.uid === uid);
                                 if (!mem) return null;
                                 const isHost = uid === m.hostUid;

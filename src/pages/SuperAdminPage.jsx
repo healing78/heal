@@ -11,7 +11,10 @@ import {
   INITIAL_MEETINGS,
   INITIAL_MEMBERS
 } from '../core/initialData';
-import { cleanupSimulationMembers } from '../services/communityService';
+import {
+  cleanupSimulationMembers,
+  cleanOrphanMeetingAttendees
+} from '../services/communityService';
 import { useArmedAction } from '../utils/useArmedAction';
 
 const AVATAR_BG_PALETTE = [
@@ -114,6 +117,18 @@ export default function SuperAdminPage({
       setTimeout(() => setActionFeedback(''), 3000);
     } catch (err) {
       setActionFeedback(`❌ 정리 실패: ${err.message || err}`);
+    }
+  };
+
+  const handleCleanOrphanAttendees = async () => {
+    try {
+      const { totalOrphansRemoved, changedMeetingsCount } = await cleanOrphanMeetingAttendees();
+      setActionFeedback(
+        `🧹 모임 내 유령 참석자 (${totalOrphansRemoved}건, 모임 ${changedMeetingsCount}개)가 안전하게 정리되었습니다.`
+      );
+      setTimeout(() => setActionFeedback(''), 4000);
+    } catch (err) {
+      setActionFeedback(`❌ 유령 참석자 정리 실패: ${err.message || err}`);
     }
   };
 
@@ -536,6 +551,18 @@ export default function SuperAdminPage({
             }
           >
             {isArmed('cleanup-simulations') ? '확인: 테스트 데이터 일괄 정리' : '🧹 테스트 데이터 정리'}
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            style={{ fontSize: '12px', color: '#dc2626', borderColor: '#fca5a5' }}
+            onClick={() =>
+              runArmed('cleanup-orphan-attendees', () => handleCleanOrphanAttendees())
+            }
+          >
+            {isArmed('cleanup-orphan-attendees')
+              ? '확인: 모임 유령 참석자 일괄 정리'
+              : '🧹 모임 유령 참석자 정리'}
           </button>
         </div>
       </section>

@@ -1544,7 +1544,57 @@ export const approveSubPhoneRequest = async (applicantUid, primaryUid, subName =
     .filter((m) => m.uid !== applicantUid)
     .map((m) => (m.uid === primaryUid ? updatedPrimary : m));
 
+  // Map applicantUid to primaryUid across meetings with deduplication
+  const changedMeetings = [];
+  const nextMeetings = (meetings || []).map((mtg) => {
+    let changed = false;
+    let nextMtg = { ...mtg };
+    if (Array.isArray(nextMtg.applicants) && nextMtg.applicants.includes(applicantUid)) {
+      nextMtg.applicants = Array.from(
+        new Set(nextMtg.applicants.map((u) => (u === applicantUid ? primaryUid : u)))
+      );
+      changed = true;
+    }
+    if (
+      Array.isArray(nextMtg.confirmedParticipants) &&
+      nextMtg.confirmedParticipants.includes(applicantUid)
+    ) {
+      nextMtg.confirmedParticipants = Array.from(
+        new Set(
+          nextMtg.confirmedParticipants.map((u) => (u === applicantUid ? primaryUid : u))
+        )
+      );
+      changed = true;
+    }
+    if (Array.isArray(nextMtg.rounds)) {
+      let roundsChanged = false;
+      const nextRounds = nextMtg.rounds.map((r) => {
+        if (Array.isArray(r.participants) && r.participants.includes(applicantUid)) {
+          roundsChanged = true;
+          return {
+            ...r,
+            participants: Array.from(
+              new Set(r.participants.map((u) => (u === applicantUid ? primaryUid : u)))
+            )
+          };
+        }
+        return r;
+      });
+      if (roundsChanged) {
+        nextMtg.rounds = nextRounds;
+        changed = true;
+      }
+    }
+    if (changed) {
+      changedMeetings.push(nextMtg);
+    }
+    return changed ? nextMtg : mtg;
+  });
+
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  if (changedMeetings.length > 0) {
+    writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  }
   notifyLocalListeners();
 
   if (isFirebaseConfigured && db) {
@@ -1555,6 +1605,9 @@ export const approveSubPhoneRequest = async (applicantUid, primaryUid, subName =
         aliases: nextAliases,
         subCities: nextSubCities
       });
+      for (const mtg of changedMeetings) {
+        await setDoc(doc(db, 'meetings', String(mtg.id)), mtg, { merge: true });
+      }
     } catch (err) {
       console.warn('Firestore write fallback (approveSubPhoneRequest):', err.code);
     }
@@ -1590,10 +1643,11 @@ export const disconnectSubPhone = async (primaryUid, subUidToRemove) => {
  * and purges simulation UIDs from any member's subUids array.
  */
 export const cleanupSimulationMembers = async () => {
-  const { members } = getLocalState();
+  const { members, meetings } = getLocalState();
   const simUids = members
     .filter((m) => (m.uid && m.uid.startsWith('kakao:sim-')) || m.isSimulation)
     .map((m) => m.uid);
+  const simUidSet = new Set(simUids);
 
   const nextMembers = members
     .filter((m) => !((m.uid && m.uid.startsWith('kakao:sim-')) || m.isSimulation))
@@ -1607,7 +1661,47 @@ export const cleanupSimulationMembers = async () => {
       return m;
     });
 
+  // Also purge simulation UIDs from any meetings (applicants, confirmed, rounds)
+  const changedMeetings = [];
+  const nextMeetings = (meetings || []).map((mtg) => {
+    if (!simUids.length) return mtg;
+    let changed = false;
+    let nextMtg = { ...mtg };
+    if (Array.isArray(nextMtg.applicants) && nextMtg.applicants.some((u) => simUidSet.has(u))) {
+      nextMtg.applicants = nextMtg.applicants.filter((u) => !simUidSet.has(u));
+      changed = true;
+    }
+    if (
+      Array.isArray(nextMtg.confirmedParticipants) &&
+      nextMtg.confirmedParticipants.some((u) => simUidSet.has(u))
+    ) {
+      nextMtg.confirmedParticipants = nextMtg.confirmedParticipants.filter((u) => !simUidSet.has(u));
+      changed = true;
+    }
+    if (Array.isArray(nextMtg.rounds)) {
+      let roundsChanged = false;
+      const nextRounds = nextMtg.rounds.map((r) => {
+        if (Array.isArray(r.participants) && r.participants.some((u) => simUidSet.has(u))) {
+          roundsChanged = true;
+          return { ...r, participants: r.participants.filter((u) => !simUidSet.has(u)) };
+        }
+        return r;
+      });
+      if (roundsChanged) {
+        nextMtg.rounds = nextRounds;
+        changed = true;
+      }
+    }
+    if (changed) {
+      changedMeetings.push(nextMtg);
+    }
+    return changed ? nextMtg : mtg;
+  });
+
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  if (changedMeetings.length > 0) {
+    writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  }
   notifyLocalListeners();
 
   if (isFirebaseConfigured && db) {
@@ -1622,12 +1716,90 @@ export const cleanupSimulationMembers = async () => {
           });
         }
       }
+      for (const mtg of changedMeetings) {
+        await setDoc(doc(db, 'meetings', String(mtg.id)), mtg, { merge: true });
+      }
     } catch (err) {
       console.warn('Firestore write fallback (cleanupSimulationMembers):', err.code);
     }
   }
 
   return simUids.length;
+};
+
+/**
+ * Master/Admin: Cleans up any orphan UIDs in meeting applicants, confirmedParticipants,
+ * and rounds[].participants that no longer exist in the members registry.
+ */
+export const cleanOrphanMeetingAttendees = async () => {
+  const { members, meetings } = getLocalState();
+  const memberUidSet = new Set((members || []).map((m) => m.uid));
+  let totalOrphansRemoved = 0;
+  const changedMeetings = [];
+
+  const nextMeetings = (meetings || []).map((mtg) => {
+    let changed = false;
+    let nextMtg = { ...mtg };
+    if (Array.isArray(nextMtg.applicants)) {
+      const filtered = nextMtg.applicants.filter((u) => memberUidSet.has(u));
+      if (filtered.length !== nextMtg.applicants.length) {
+        totalOrphansRemoved += nextMtg.applicants.length - filtered.length;
+        nextMtg.applicants = filtered;
+        changed = true;
+      }
+    }
+    if (Array.isArray(nextMtg.confirmedParticipants)) {
+      const filtered = nextMtg.confirmedParticipants.filter((u) => memberUidSet.has(u));
+      if (filtered.length !== nextMtg.confirmedParticipants.length) {
+        totalOrphansRemoved += nextMtg.confirmedParticipants.length - filtered.length;
+        nextMtg.confirmedParticipants = filtered;
+        changed = true;
+      }
+    }
+    if (Array.isArray(nextMtg.rounds)) {
+      let roundsChanged = false;
+      const nextRounds = nextMtg.rounds.map((r) => {
+        if (Array.isArray(r.participants)) {
+          const filtered = r.participants.filter((u) => memberUidSet.has(u));
+          if (filtered.length !== r.participants.length) {
+            roundsChanged = true;
+            return { ...r, participants: filtered };
+          }
+        }
+        return r;
+      });
+      if (roundsChanged) {
+        nextMtg.rounds = nextRounds;
+        changed = true;
+      }
+    }
+    if (changed) {
+      changedMeetings.push(nextMtg);
+    }
+    return changed ? nextMtg : mtg;
+  });
+
+  if (changedMeetings.length > 0) {
+    writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+    notifyLocalListeners();
+    if (isFirebaseConfigured && db) {
+      try {
+        const CHUNK_SIZE = 50;
+        for (let i = 0; i < changedMeetings.length; i += CHUNK_SIZE) {
+          const chunk = changedMeetings.slice(i, i + CHUNK_SIZE);
+          const batch = writeBatch(db);
+          for (const mtg of chunk) {
+            batch.set(doc(db, 'meetings', String(mtg.id)), mtg, { merge: true });
+          }
+          await batch.commit();
+        }
+      } catch (err) {
+        console.warn('Firestore write fallback (cleanOrphanMeetingAttendees):', err.code);
+      }
+    }
+  }
+
+  return { totalOrphansRemoved, changedMeetingsCount: changedMeetings.length };
 };
 
 /**
