@@ -628,6 +628,7 @@ export default function MeetingDetailPage({
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedLounge, setCopiedLounge] = useState(false);
   const [loungeRequestPending, setLoungeRequestPending] = useState(false);
+  const [expeditionToast, setExpeditionToast] = useState('');
 
   const handleCopyDirectLink = async () => {
     const origin =
@@ -6127,6 +6128,45 @@ export default function MeetingDetailPage({
                 )}
 
                 {/* 마감 친구 리스트 (1순위 본인, 2순위 운영진, 3순위 가나다순 & 현재점수 -> 바뀐점수 시작위치 고정 수직 정렬) */}
+                {expeditionToast && (
+                  <div
+                    style={{
+                      padding: '8px 12px',
+                      background: '#fef3c7',
+                      border: '1px solid #fde68a',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#92400e',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>🚩</span>
+                      <span>{expeditionToast}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setExpeditionToast('')}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '14px',
+                        color: '#92400e',
+                        cursor: 'pointer',
+                        padding: '0 4px',
+                        lineHeight: 1
+                      }}
+                      aria-label="닫기"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
                 <div className="divider-list">
                   {sortedClosingAttendeeUids.map((uid) => {
                     const m = members.find((mem) => mem.uid === uid);
@@ -6162,15 +6202,20 @@ export default function MeetingDetailPage({
                             alignItems: 'center',
                             gap: '6px',
                             minWidth: 0,
-                            flex: 1
+                            flex: 1,
+                            overflow: 'hidden'
                           }}
                         >
                           <strong
                             style={{
                               fontSize: '13.5px',
                               color: '#1e293b',
-                              whiteSpace: 'nowrap'
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              flexShrink: 1
                             }}
+                            title={formatMemberNickname(m, isSettled ? hist.afterBadge : undefined)}
                           >
                             {formatMemberNickname(m, isSettled ? hist.afterBadge : undefined)}
                           </strong>
@@ -6183,7 +6228,8 @@ export default function MeetingDetailPage({
                                 background: '#dbeafe',
                                 color: '#1d4ed8',
                                 borderColor: '#bfdbfe',
-                                whiteSpace: 'nowrap'
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0
                               }}
                             >
                               나
@@ -6198,19 +6244,38 @@ export default function MeetingDetailPage({
                                 background: '#fef3c7',
                                 color: '#b45309',
                                 borderColor: '#fde047',
-                                whiteSpace: 'nowrap'
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0
                               }}
                             >
                               운영진
                             </span>
                           )}
                           {scoreInfo?.isExpedition && (
-                            <span
+                            <button
+                              type="button"
                               className="expedition-pill"
-                              style={{ fontSize: '10.5px', whiteSpace: 'nowrap' }}
+                              style={{
+                                fontSize: '10.5px',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                lineHeight: 1.4,
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0,
+                                cursor: 'pointer',
+                                fontFamily: 'inherit'
+                              }}
+                              title={scoreInfo?.label}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (scoreInfo?.label) {
+                                  setExpeditionToast(scoreInfo.label);
+                                  setTimeout(() => setExpeditionToast(''), 3500);
+                                }
+                              }}
                             >
-                              {scoreInfo?.label}
-                            </span>
+                              {scoreInfo?.isOverseas ? '해외 +2' : '원정 +1'}
+                            </button>
                           )}
                           {isRookiePromotion && (
                             <span
