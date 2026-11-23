@@ -1146,17 +1146,17 @@ export default function SuperAdminPage({
           <button
             type="button"
             className="btn btn-primary"
-            disabled={isSyncing}
-            onClick={() =>
-              runArmed('sync-standard-seed', () => handleSyncStandardSeed())
-            }
+            disabled={true}
+            style={{
+              opacity: 0.5,
+              cursor: 'not-allowed',
+              background: '#64748b',
+              borderColor: '#94a3b8'
+            }}
+            title="실운영 데이터 보호를 위해 비활성화되어 있습니다."
           >
-            {isArmed('sync-standard-seed')
-              ? '⚡ 확인: 표준 벙기록 즉시 덮어쓰기'
-              : `⚡ 공식 벙기록 표준 시드 즉시 동기화 (${INITIAL_MEMBERS.length}명 / ${INITIAL_MEETINGS.length}건)`}
+            🔒 공식 벙기록 표준 시드 동기화 (비활성화됨)
           </button>
-
-
 
           <button
             type="button"
