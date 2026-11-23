@@ -418,6 +418,7 @@ export default function MeetingDetailPage({
   onUpdateMemberProfile,
   onSettleMeeting,
   onRollbackMeeting,
+  onResettleMeetingRegion,
   onNavigateTab
 }) {
   const isBungMeeting = meeting.requestAttendance !== false;
@@ -629,6 +630,33 @@ export default function MeetingDetailPage({
   const [copiedLounge, setCopiedLounge] = useState(false);
   const [loungeRequestPending, setLoungeRequestPending] = useState(false);
   const [expeditionToast, setExpeditionToast] = useState('');
+
+  const [showResettleSection, setShowResettleSection] = useState(false);
+  const [selectedResettleRegion, setSelectedResettleRegion] = useState(
+    meeting.region || ''
+  );
+  const [isResettling, setIsResettling] = useState(false);
+  const [resettleNotice, setResettleNotice] = useState('');
+
+  const handleExecuteResettle = async () => {
+    if (!onResettleMeetingRegion || !selectedResettleRegion) return;
+    setIsResettling(true);
+    try {
+      const res = await onResettleMeetingRegion(
+        meeting.id,
+        selectedResettleRegion
+      );
+      setResettleNotice(
+        `✅ 권역이 '${selectedResettleRegion}'(으)로 변경되었으며, 참석자 ${res.affectedCount}명의 벙점수가 성공적으로 재정산되었습니다.`
+      );
+      setTimeout(() => setResettleNotice(''), 4500);
+    } catch (err) {
+      console.error(err);
+      setResettleNotice(`❌ 재정산 실패: ${err.message || err}`);
+    } finally {
+      setIsResettling(false);
+    }
+  };
 
   const handleCopyDirectLink = async () => {
     const origin =
@@ -5986,20 +6014,161 @@ export default function MeetingDetailPage({
                       )}
 
                       {meeting.status === 'settled' && (
-                        <span
-                          className="status-pill settled"
-                          style={{
-                            padding: '8px 14px',
-                            fontSize: '13px',
-                            fontWeight: 700
-                          }}
-                        >
-                          마감 완료 ✓
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span
+                            className="status-pill settled"
+                            style={{
+                              padding: '8px 14px',
+                              fontSize: '13px',
+                              fontWeight: 700
+                            }}
+                          >
+                            마감 완료 ✓
+                          </span>
+                          {canManage && (
+                            <button
+                              type="button"
+                              className="btn btn-outline btn-sm"
+                              style={{
+                                fontSize: '12px',
+                                padding: '6px 10px',
+                                borderColor: '#cbd5e1',
+                                background: '#ffffff',
+                                color: '#334155',
+                                fontWeight: 600,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                              onClick={() => {
+                                setSelectedResettleRegion(
+                                  meeting.region ||
+                                    activeRegionGroup?.name ||
+                                    '서울·경기'
+                                );
+                                setShowResettleSection((prev) => !prev);
+                              }}
+                            >
+                              <span>⚙️ 권역 교정 & 재정산</span>
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
+
+                {/* 마감 모임 권역 교정 및 재정산 아코디언 */}
+                {showResettleSection && canManage && meeting.status === 'settled' && (
+                  <div
+                    className="participants-box stack-gap"
+                    style={{
+                      margin: '12px 0',
+                      padding: '14px',
+                      background: '#f8fafc',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      <div>
+                        <strong style={{ fontSize: '13.5px', color: '#1e293b' }}>
+                          📍 마감 모임 권역 사후 교정 및 재정산 (운영진 전용)
+                        </strong>
+                        <div className="sub-meta" style={{ marginTop: '2px' }}>
+                          현재 적용 권역:{' '}
+                          <strong>
+                            {activeRegionGroup?.name ||
+                              meeting.region ||
+                              regionDetection?.group?.name ||
+                              '미설정'}
+                          </strong>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-xs"
+                        onClick={() => setShowResettleSection(false)}
+                      >
+                        닫기 ✕
+                      </button>
+                    </div>
+                    <p
+                      className="sub-meta"
+                      style={{
+                        fontSize: '12px',
+                        color: '#475569',
+                        marginBottom: '10px',
+                        lineHeight: 1.5
+                      }}
+                    >
+                      장소명 오인식 등으로 과거 권역이 잘못 적용된 경우, 아래에서 올바른 권역을 선택하고 [재정산 실행]을 누르면 모든 참석자들의 원정 점수와 스냅샷이 즉시 정상 재계산됩니다.
+                    </p>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                        gap: '6px',
+                        marginBottom: '10px'
+                      }}
+                    >
+                      {REGION_GROUPS.map((group) => {
+                        const isSelected = selectedResettleRegion === group.name;
+                        return (
+                          <button
+                            key={group.id}
+                            type="button"
+                            className={`btn btn-sm ${
+                              isSelected ? 'btn-primary' : 'btn-outline'
+                            }`}
+                            style={{
+                              fontSize: '12px',
+                              padding: '6px 4px',
+                              fontWeight: isSelected ? 700 : 500
+                            }}
+                            onClick={() => setSelectedResettleRegion(group.name)}
+                          >
+                            {group.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {resettleNotice && (
+                      <div
+                        style={{
+                          padding: '8px 12px',
+                          background: '#dcfce7',
+                          color: '#166534',
+                          border: '1px solid #bbf7d0',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          marginBottom: '10px',
+                          fontWeight: 600
+                        }}
+                      >
+                        {resettleNotice}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      style={{ background: '#0284c7', borderColor: '#0369a1' }}
+                      disabled={isResettling || !selectedResettleRegion}
+                      onClick={handleExecuteResettle}
+                    >
+                      {isResettling
+                        ? '점수 재정산 처리 중...'
+                        : `⚡ '${selectedResettleRegion || '권역 선택'}'(으)로 점수 재정산 실행`}
+                    </button>
+                  </div>
+                )}
 
                 {/* 권역 설정 안 되어 있을 때 서브탭과 개인별 섹션 사이에 권역 설정 섹션 표시 */}
                 {!hasSettlementRegion && canManage && meeting.status === 'open' && (

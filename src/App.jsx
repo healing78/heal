@@ -37,6 +37,9 @@ import {
   getSavedCurrentUserUid,
   reassignMemberUid,
   recalculateAndApplyAllBungScores,
+  recalculateSingleMemberScore,
+  resettleMeetingRegion,
+  updateMeetingRegionOnly,
   recordKakaoLogin,
   registerOnboardingMember,
   rejectAccountLinkRequest,
@@ -546,6 +549,7 @@ export default function App() {
           onDeleteMeeting={handleDeleteMeeting}
           onSettleMeeting={handleSettleMeeting}
           onRollbackMeeting={handleRollbackMeeting}
+          onResettleMeetingRegion={resettleMeetingRegion}
           onUpdateMemberProfile={handleUpdateProfile}
           onNavigateTab={navigateToTab}
         />
@@ -607,6 +611,7 @@ export default function App() {
             onApproveAccountLink={handleApproveAccountLink}
             onApproveSubPhone={handleApproveSubPhone}
             onRejectAccountLink={handleRejectAccountLink}
+            onRecalculateSingleMemberScore={recalculateSingleMemberScore}
           />
         );
       }
@@ -677,6 +682,7 @@ export default function App() {
           onRejectAccountLink={handleRejectAccountLink}
           onAdminApproveNewMember={handleAdminApproveNewMember}
           onAdminRejectNewMember={handleAdminRejectNewMember}
+          onRecalculateSingleMemberScore={recalculateSingleMemberScore}
         />
       );
     }
@@ -700,6 +706,9 @@ export default function App() {
           onStartOnboardingSimulation={() => setIsOnboardingSimulation(true)}
           onAuditBungScores={validateAndAuditBungScores}
           onRecalculateBungScores={recalculateAndApplyAllBungScores}
+          onRecalculateSingleMemberScore={recalculateSingleMemberScore}
+          onUpdateMeetingRegionOnly={updateMeetingRegionOnly}
+          onResettleMeetingRegion={resettleMeetingRegion}
           onImpersonateUser={(uid) => {
             setImpersonatedUid(uid);
             navigateToTab('home');

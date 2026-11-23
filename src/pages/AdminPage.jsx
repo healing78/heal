@@ -58,7 +58,8 @@ export default function AdminPage({
   onApproveSubPhone,
   onRejectAccountLink,
   onAdminApproveNewMember,
-  onAdminRejectNewMember
+  onAdminRejectNewMember,
+  onRecalculateSingleMemberScore
 }) {
   const [subTab, setSubTab] = useState('login'); // 'login' | 'meetings' | 'requests' | 'scores' | 'config'
   const [expandedMeetingId, setExpandedMeetingId] = useState(null);
@@ -245,6 +246,30 @@ export default function AdminPage({
     reason: '월간 이벤트 우수 참여 보너스'
   });
   const [scoreNotice, setScoreNotice] = useState('');
+
+  // Single member score recalculate state
+  const [singleRecalcUid, setSingleRecalcUid] = useState(members[0]?.uid || '');
+  const [isSingleRecalculating, setIsSingleRecalculating] = useState(false);
+  const [singleRecalcNotice, setSingleRecalcNotice] = useState('');
+
+  const handleSingleRecalculate = async () => {
+    if (!onRecalculateSingleMemberScore || !singleRecalcUid) return;
+    setIsSingleRecalculating(true);
+    try {
+      const res = await onRecalculateSingleMemberScore(singleRecalcUid);
+      const memName =
+        res.member.realName || res.member.nickname || singleRecalcUid;
+      setSingleRecalcNotice(
+        `✅ [${memName}] 점수 최신화 완료: 총 ${res.attendedCount}개 모임 역추적 → 출석 ${res.oldAtt}→${res.newAtt}회, 벙점수 ${res.oldTotal}→${res.newTotal}점 (${res.diffTotal >= 0 ? '+' : ''}${res.diffTotal}점)`
+      );
+      setTimeout(() => setSingleRecalcNotice(''), 6000);
+    } catch (err) {
+      console.error(err);
+      setSingleRecalcNotice(`❌ 재계산 실패: ${err.message || err}`);
+    } finally {
+      setIsSingleRecalculating(false);
+    }
+  };
 
   // Community notice/rules config form state
   const [configForm, setConfigForm] = useState({
@@ -1424,6 +1449,63 @@ export default function AdminPage({
               </button>
             </div>
           </form>
+
+          {/* Section: 1인 단독 벙점수 원천 재계산 */}
+          <div
+            style={{
+              marginTop: '20px',
+              paddingTop: '16px',
+              borderTop: '1px solid #e2e8f0'
+            }}
+          >
+            <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#0f172a' }}>
+              🔄 회원 1인 벙점수 원천 재계산 (개별 복원)
+            </h4>
+            <p className="sub-meta" style={{ marginBottom: '12px', lineHeight: 1.5 }}>
+              특정 회원이 참석한 모든 마감 벙 기록을 역추적하여 출석 횟수와 벙점수(기본 + 권역별 원정)를 멱등하게 재계산하여 Firestore에 즉시 동기화합니다.
+            </p>
+            <div className="form-field" style={{ marginBottom: '10px' }}>
+              <label htmlFor="recalc-target">재계산 대상 회원 선택</label>
+              <select
+                id="recalc-target"
+                value={singleRecalcUid}
+                onChange={(e) => setSingleRecalcUid(e.target.value)}
+              >
+                {members.map((m) => (
+                  <option key={m.uid} value={m.uid}>
+                    {formatMemberNickname(m)} [{ROLE_META[m.role]?.label || m.role || '회원'}] (현재 {m.totalScore}점 / {m.attendanceCount || 0}회)
+                  </option>
+                ))}
+              </select>
+            </div>
+            {singleRecalcNotice && (
+              <div
+                style={{
+                  padding: '8px 12px',
+                  background: '#dcfce7',
+                  color: '#166534',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  marginBottom: '10px',
+                  fontWeight: 600
+                }}
+              >
+                {singleRecalcNotice}
+              </div>
+            )}
+            <div className="btn-row">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                style={{ background: '#ffffff', color: '#0284c7', borderColor: '#38bdf8', fontWeight: 600 }}
+                disabled={isSingleRecalculating || !singleRecalcUid}
+                onClick={handleSingleRecalculate}
+              >
+                {isSingleRecalculating ? '점수 역추적 재계산 중...' : '⚡ 이 회원의 모임기록 기반 점수 최신화'}
+              </button>
+            </div>
+          </div>
         </section>
       )}
 

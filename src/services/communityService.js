@@ -2023,10 +2023,15 @@ export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
     uniqueUids.forEach((uid) => {
       const m = members.find((mem) => mem.uid === uid);
       if (!m || !statsMap[uid]) return;
-      const scoreCalc = calculateMeetingScoreForMember(
-        m,
-        mtg.region || mtg.location
-      );
+      const regInfo = detectMeetingRegion(mtg);
+      const resolvedLoc =
+        mtg.region ||
+        (regInfo.recognized
+          ? regInfo.matchedKeyword || regInfo.group?.name
+          : null) ||
+        mtg.location ||
+        '';
+      const scoreCalc = calculateMeetingScoreForMember(m, resolvedLoc);
       statsMap[uid].baseScore += scoreCalc.base || 1;
       statsMap[uid].expeditionScore += scoreCalc.expedition || 0;
       statsMap[uid].attendanceCount += 1;
@@ -2122,16 +2127,31 @@ export const recalculateAndApplyAllBungScores = async () => {
     const eventScore = Number(m.eventScore || 0);
     const newTotalScore = stats.baseScore + stats.expeditionScore + eventScore;
 
+    const isSpecialRole = [
+      'Leader',
+      'Deputy',
+      'VIP',
+      'OnLeave',
+      'Withdrawn',
+      'Wanderer',
+      'Expelled'
+    ].includes(m.role);
+    const nextRole =
+      !isSpecialRole && stats.attendanceCount >= 1 && m.role === 'Rookie'
+        ? 'Member'
+        : m.role;
+
     const nextMember = {
       ...m,
+      role: nextRole,
       baseScore: stats.baseScore,
       expeditionScore: stats.expeditionScore,
       attendanceCount: stats.attendanceCount,
       hostCount: stats.hostCount,
-      totalScore: newTotalScore
+      totalScore: newTotalScore,
+      customBadge: m.customBadge || ''
     };
 
-    nextMember.customBadge = m.customBadge || '';
     return nextMember;
   });
 
@@ -2163,5 +2183,269 @@ export const recalculateAndApplyAllBungScores = async () => {
     updatedMembersCount: updatedMembers.length,
     driftsCount: auditResult.drifts.length,
     auditResult
+  };
+};
+
+/**
+ * 특정 회원 1인의 전체 벙기록 역추적 재계산
+ */
+export const recalculateSingleMemberScore = async (targetUid) => {
+  const { meetings, members } = getLocalState();
+  const targetMember = members.find((m) => m.uid === targetUid);
+  if (!targetMember) throw new Error('회원을 찾을 수 없습니다.');
+
+  const settledMeetings = meetings.filter((m) => m.status === 'settled');
+  let baseScore = 0;
+  let expeditionScore = 0;
+  let attendanceCount = 0;
+  let hostCount = 0;
+  const attendedMeetings = [];
+
+  settledMeetings.forEach((mtg) => {
+    if (mtg.hostUid === targetUid) {
+      hostCount += 1;
+    }
+    const attendees =
+      mtg.confirmedParticipants && mtg.confirmedParticipants.length > 0
+        ? mtg.confirmedParticipants
+        : mtg.applicants || [];
+
+    if (attendees.includes(targetUid)) {
+      const regInfo = detectMeetingRegion(mtg);
+      const resolvedLoc =
+        mtg.region ||
+        (regInfo.recognized
+          ? regInfo.matchedKeyword || regInfo.group?.name
+          : null) ||
+        mtg.location ||
+        '';
+      const calc = calculateMeetingScoreForMember(targetMember, resolvedLoc);
+      baseScore += calc.base || 1;
+      expeditionScore += calc.expedition || 0;
+      attendanceCount += 1;
+      attendedMeetings.push({
+        id: mtg.id,
+        title: mtg.title,
+        date: mtg.date,
+        total: calc.total,
+        isExpedition: calc.isExpedition
+      });
+    }
+  });
+
+  const eventScore = Number(targetMember.eventScore || 0);
+  const newTotal = baseScore + expeditionScore + eventScore;
+  const oldTotal = getMemberTotalScore(targetMember);
+  const oldAtt = Number(targetMember.attendanceCount || 0);
+
+  const isSpecialRole = [
+    'Leader',
+    'Deputy',
+    'VIP',
+    'OnLeave',
+    'Withdrawn',
+    'Wanderer',
+    'Expelled'
+  ].includes(targetMember.role);
+  const nextRole =
+    !isSpecialRole && attendanceCount >= 1 && targetMember.role === 'Rookie'
+      ? 'Member'
+      : targetMember.role;
+
+  const updatedMember = {
+    ...targetMember,
+    role: nextRole,
+    baseScore,
+    expeditionScore,
+    attendanceCount,
+    hostCount,
+    totalScore: newTotal
+  };
+
+  // LocalState 반영
+  const nextMembers = members.map((m) =>
+    m.uid === targetUid ? updatedMember : m
+  );
+  writeLocalJson(STORAGE_KEYS.members, nextMembers);
+  notifyLocalListeners();
+
+  // Firestore 반영
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, 'members', targetUid), updatedMember, {
+        merge: true
+      });
+    } catch (err) {
+      console.warn(
+        'Firestore write fallback (recalculateSingleMemberScore):',
+        err
+      );
+    }
+  }
+
+  return {
+    member: updatedMember,
+    oldTotal,
+    newTotal,
+    diffTotal: newTotal - oldTotal,
+    oldAtt,
+    newAtt: attendanceCount,
+    diffAtt: attendanceCount - oldAtt,
+    attendedCount: attendedMeetings.length
+  };
+};
+
+/**
+ * 모임의 권역명만 단독 저장 (사후 전체 재계산 대비)
+ */
+export const updateMeetingRegionOnly = async (meetingId, newRegionName) => {
+  const { meetings } = getLocalState();
+  const targetMeeting = meetings.find(
+    (m) => String(m.id) === String(meetingId)
+  );
+  if (!targetMeeting) throw new Error('모임을 찾을 수 없습니다.');
+
+  const cleanRegion = String(newRegionName || '').trim();
+  const updatedMeeting = {
+    ...targetMeeting,
+    region: cleanRegion
+  };
+
+  const nextMeetings = meetings.map((m) =>
+    String(m.id) === String(meetingId) ? updatedMeeting : m
+  );
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(
+        doc(db, 'meetings', String(meetingId)),
+        { region: cleanRegion },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Firestore write fallback (updateMeetingRegionOnly):', err);
+    }
+  }
+
+  return updatedMeeting;
+};
+
+/**
+ * 마감된 모임의 권역을 사후 변경하고 해당 모임의 스냅샷 및 참석자 점수 재정산
+ */
+export const resettleMeetingRegion = async (meetingId, newRegionName) => {
+  const { meetings, members } = getLocalState();
+  const targetMeeting = meetings.find(
+    (m) => String(m.id) === String(meetingId)
+  );
+  if (!targetMeeting) throw new Error('모임을 찾을 수 없습니다.');
+
+  const cleanRegion = String(newRegionName || '').trim();
+  if (!cleanRegion) throw new Error('변경할 권역을 선택해 주세요.');
+
+  // 1. 참석자 목록 추출
+  const attendees =
+    targetMeeting.confirmedParticipants &&
+    targetMeeting.confirmedParticipants.length > 0
+      ? targetMeeting.confirmedParticipants
+      : targetMeeting.applicants || [];
+  const uniqueUids = Array.from(new Set(attendees));
+
+  // 2. 각 참석자의 기존 점수 vs 새 권역 기준 점수 재계산
+  const oldSnapshots = targetMeeting.memberScoreSnapshots || {};
+  const newSnapshots = { ...oldSnapshots };
+  const memberDeltas = {}; // uid -> score delta
+
+  uniqueUids.forEach((uid) => {
+    const mem = members.find((m) => m.uid === uid);
+    if (!mem) return;
+
+    const newCalc = calculateMeetingScoreForMember(mem, cleanRegion);
+    const newEarned = Number(newCalc.total || newCalc.score || 1);
+    const oldEarned = Number(oldSnapshots[uid]?.earned || 1);
+    const delta = newEarned - oldEarned;
+    memberDeltas[uid] = {
+      delta,
+      newCalc,
+      newEarned
+    };
+
+    const beforeScore =
+      oldSnapshots[uid]?.beforeScore !== undefined
+        ? oldSnapshots[uid].beforeScore
+        : Math.max(0, getMemberTotalScore(mem) - oldEarned);
+
+    newSnapshots[uid] = {
+      ...(oldSnapshots[uid] || {}),
+      beforeScore,
+      afterScore: beforeScore + newEarned,
+      earned: newEarned,
+      isExpedition: newCalc.isExpedition,
+      isOverseas: newCalc.isOverseas,
+      label: newCalc.label
+    };
+  });
+
+  // 3. 모임 객체 업데이트
+  const updatedMeeting = {
+    ...targetMeeting,
+    region: cleanRegion,
+    memberScoreSnapshots: newSnapshots
+  };
+
+  // 4. 회원 객체 업데이트
+  const updatedMembers = members.map((mem) => {
+    if (!memberDeltas[mem.uid]) return mem;
+    const { delta, newCalc } = memberDeltas[mem.uid];
+    if (delta === 0) return mem;
+
+    const expeditionDiff = (newCalc.expedition || 0) - (oldSnapshots[mem.uid]?.isExpedition ? 1 : 0);
+    const newExpedition = Math.max(0, (mem.expeditionScore || 0) + expeditionDiff);
+    const newTotal = Math.max(0, (mem.totalScore || 0) + delta);
+    return {
+      ...mem,
+      expeditionScore: newExpedition,
+      totalScore: newTotal,
+      monthlyScore: Math.max(0, (mem.monthlyScore || 0) + delta)
+    };
+  });
+
+  // 5. 로컬스토리지 반영
+  const nextMeetings = meetings.map((m) =>
+    String(m.id) === String(meetingId) ? updatedMeeting : m
+  );
+  writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  writeLocalJson(STORAGE_KEYS.members, updatedMembers);
+  notifyLocalListeners();
+
+  // 6. Firestore 반영
+  if (isFirebaseConfigured && db) {
+    try {
+      const batch = writeBatch(db);
+      batch.set(
+        doc(db, 'meetings', String(meetingId)),
+        {
+          region: cleanRegion,
+          memberScoreSnapshots: newSnapshots
+        },
+        { merge: true }
+      );
+      uniqueUids.forEach((uid) => {
+        const updatedMem = updatedMembers.find((m) => m.uid === uid);
+        if (updatedMem) {
+          batch.set(doc(db, 'members', uid), updatedMem, { merge: true });
+        }
+      });
+      await batch.commit();
+    } catch (err) {
+      console.warn('Firestore write fallback (resettleMeetingRegion):', err);
+    }
+  }
+
+  return {
+    meeting: updatedMeeting,
+    affectedCount: uniqueUids.length
   };
 };

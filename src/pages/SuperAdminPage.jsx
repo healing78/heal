@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import {
   BUNG_TIER_BADGES,
+  detectMeetingRegion,
   formatMemberNickname,
   getTierBadgeByScore,
+  REGION_GROUPS,
   ROLE_KEYS,
   ROLE_META
 } from '../core/communityRules';
@@ -53,7 +55,10 @@ export default function SuperAdminPage({
   onReassignMemberUid,
   onStartOnboardingSimulation,
   onAuditBungScores,
-  onRecalculateBungScores
+  onRecalculateBungScores,
+  onRecalculateSingleMemberScore,
+  onUpdateMeetingRegionOnly,
+  onResettleMeetingRegion
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [newSuperUid, setNewSuperUid] = useState('');
@@ -80,6 +85,17 @@ export default function SuperAdminPage({
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [showAnomalies, setShowAnomalies] = useState(false);
   const [driftFilter, setDriftFilter] = useState('all');
+
+  // 1인 벙점수 단독 재계산 State
+  const [singleRecalcUid, setSingleRecalcUid] = useState(members[0]?.uid || '');
+  const [isSingleRecalculating, setIsSingleRecalculating] = useState(false);
+  const [singleRecalcNotice, setSingleRecalcNotice] = useState('');
+
+  // 마감 모임 권역 검색 및 수동 지정 State
+  const [regionMeetingQuery, setRegionMeetingQuery] = useState('');
+  const [meetingRegionDrafts, setMeetingRegionDrafts] = useState({});
+  const [meetingRegionNotice, setMeetingRegionNotice] = useState('');
+  const [isProcessingMeetingRegion, setIsProcessingMeetingRegion] = useState(null);
 
   const duplicateCandidates = useMemo(() => {
     const q = duplicateQuery.trim().toLowerCase();
@@ -171,6 +187,81 @@ export default function SuperAdminPage({
       setIsRecalculating(false);
     }
   };
+
+  const handleSingleRecalculate = async () => {
+    if (!onRecalculateSingleMemberScore || !singleRecalcUid) return;
+    setIsSingleRecalculating(true);
+    try {
+      const res = await onRecalculateSingleMemberScore(singleRecalcUid);
+      const memName =
+        res.member.realName || res.member.nickname || singleRecalcUid;
+      setSingleRecalcNotice(
+        `✅ [${memName}] 점수 최신화 완료: 총 ${res.attendedCount}개 모임 역추적 → 출석 ${res.oldAtt}→${res.newAtt}회, 벙점수 ${res.oldTotal}→${res.newTotal}점 (${res.diffTotal >= 0 ? '+' : ''}${res.diffTotal}점)`
+      );
+      if (onAuditBungScores) {
+        setAuditResult(onAuditBungScores({ meetings, members }));
+      }
+      setTimeout(() => setSingleRecalcNotice(''), 6000);
+    } catch (err) {
+      console.error(err);
+      setSingleRecalcNotice(`❌ 재계산 실패: ${err.message || err}`);
+    } finally {
+      setIsSingleRecalculating(false);
+    }
+  };
+
+  const handleSaveMeetingRegionOnly = async (meetingId, regionName) => {
+    if (!onUpdateMeetingRegionOnly) return;
+    setIsProcessingMeetingRegion(meetingId);
+    try {
+      await onUpdateMeetingRegionOnly(meetingId, regionName);
+      setMeetingRegionNotice(
+        `✅ [#${meetingId}] 권역이 '${regionName}'(으)로 저장되었습니다.`
+      );
+      setTimeout(() => setMeetingRegionNotice(''), 4000);
+    } catch (err) {
+      console.error(err);
+      setMeetingRegionNotice(`❌ 저장 실패: ${err.message || err}`);
+    } finally {
+      setIsProcessingMeetingRegion(null);
+    }
+  };
+
+  const handleResettleMeetingRegionAction = async (meetingId, regionName) => {
+    if (!onResettleMeetingRegion) return;
+    setIsProcessingMeetingRegion(meetingId);
+    try {
+      const res = await onResettleMeetingRegion(meetingId, regionName);
+      setMeetingRegionNotice(
+        `✅ [#${meetingId}] 권역이 '${regionName}'(으)로 변경되고 참석자 ${res.affectedCount}명의 벙점수가 성공적으로 재정산되었습니다.`
+      );
+      if (onAuditBungScores) {
+        setAuditResult(onAuditBungScores({ meetings, members }));
+      }
+      setTimeout(() => setMeetingRegionNotice(''), 6000);
+    } catch (err) {
+      console.error(err);
+      setMeetingRegionNotice(`❌ 재정산 실패: ${err.message || err}`);
+    } finally {
+      setIsProcessingMeetingRegion(null);
+    }
+  };
+
+  const filteredSettledMeetings = useMemo(() => {
+    const q = regionMeetingQuery.trim().toLowerCase();
+    const settled = meetings.filter((m) => m.status === 'settled');
+    if (!q) return settled.slice(0, 20);
+    return settled
+      .filter(
+        (m) =>
+          String(m.id).includes(q) ||
+          (m.title || '').toLowerCase().includes(q) ||
+          (m.location || '').toLowerCase().includes(q) ||
+          (m.region || '').toLowerCase().includes(q) ||
+          (m.date || '').includes(q)
+      )
+      .slice(0, 30);
+  }, [meetings, regionMeetingQuery]);
 
   const handleAdminExecuteReassign = async (e) => {
     e.preventDefault();
@@ -725,6 +816,221 @@ export default function SuperAdminPage({
             )}
           </div>
         )}
+
+        {/* 5. 특정 회원 1인 벙점수 단독 재계산 (개별 복원) */}
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '14px',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '8px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '15px' }}>👤</span>
+            <strong style={{ fontSize: '13.5px', color: '#1e293b' }}>
+              특정 회원 1인 벙점수 단독 재계산 (개별 복원)
+            </strong>
+          </div>
+          <p className="sub-meta" style={{ marginBottom: '12px', lineHeight: 1.5 }}>
+            강퇴자(예: 으쓱), 탈퇴자, 일반 회원 중 벙점수가 누락되었거나 최신화가 필요한 회원을 선택하면, 해당 회원의 참석 모임을 역추적하여 점수를 단독 복원합니다.
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
+            <select
+              style={{
+                flex: '1 1 260px',
+                padding: '8px 12px',
+                fontSize: '13px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                background: '#ffffff'
+              }}
+              value={singleRecalcUid}
+              onChange={(e) => setSingleRecalcUid(e.target.value)}
+            >
+              {members.map((m) => (
+                <option key={m.uid} value={m.uid}>
+                  {formatMemberNickname(m)} [{ROLE_META[m.role]?.label || m.role || '회원'}] (현재 {m.totalScore}점 / {m.attendanceCount || 0}회)
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              style={{ background: '#ffffff', color: '#0284c7', borderColor: '#38bdf8', fontWeight: 600, padding: '8px 14px' }}
+              disabled={isSingleRecalculating || !singleRecalcUid}
+              onClick={handleSingleRecalculate}
+            >
+              {isSingleRecalculating ? '점수 역추적 재계산 중...' : '⚡ 이 회원의 점수 최신화'}
+            </button>
+          </div>
+          {singleRecalcNotice && (
+            <div
+              style={{
+                padding: '8px 12px',
+                background: '#dcfce7',
+                color: '#166534',
+                border: '1px solid #bbf7d0',
+                borderRadius: '6px',
+                fontSize: '12.5px',
+                fontWeight: 600
+              }}
+            >
+              {singleRecalcNotice}
+            </div>
+          )}
+        </div>
+
+        {/* 6. 마감 모임 권역 검색 및 수동 지정 / 즉시 재정산 */}
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '14px',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '8px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '15px' }}>📍</span>
+            <strong style={{ fontSize: '13.5px', color: '#1e293b' }}>
+              마감 모임 권역 검색 및 수동 교정 / 즉시 재정산
+            </strong>
+          </div>
+          <p className="sub-meta" style={{ marginBottom: '12px', lineHeight: 1.5 }}>
+            과거 장소명이 불분명하여 권역이 잘못 인식된 모임을 검색하여 올바른 권역(예: 서울·경기, 충청·대전 등)을 부여하고 즉시 참석자 점수를 재정산할 수 있습니다.
+          </p>
+          <div style={{ marginBottom: '12px' }}>
+            <input
+              type="text"
+              placeholder="모임 제목, 장소, 일시, 또는 모임 ID 검색 (예: 영등포, 수수루, 2610...)"
+              value={regionMeetingQuery}
+              onChange={(e) => setRegionMeetingQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                fontSize: '13px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px'
+              }}
+            />
+          </div>
+
+          {meetingRegionNotice && (
+            <div
+              style={{
+                padding: '8px 12px',
+                background: '#dcfce7',
+                color: '#166534',
+                border: '1px solid #bbf7d0',
+                borderRadius: '6px',
+                fontSize: '12.5px',
+                marginBottom: '10px',
+                fontWeight: 600
+              }}
+            >
+              {meetingRegionNotice}
+            </div>
+          )}
+
+          <div style={{ maxHeight: '340px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
+            <table className="settle-data-table" style={{ margin: 0, fontSize: '12px' }}>
+              <thead>
+                <tr style={{ background: '#f8fafc' }}>
+                  <th style={{ width: '40%' }}>모임 정보</th>
+                  <th style={{ width: '22%', textAlign: 'center' }}>감지 / 현재 권역</th>
+                  <th style={{ width: '38%', textAlign: 'right' }}>권역 지정 및 재정산</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSettledMeetings.map((mtg) => {
+                  const det = detectMeetingRegion(mtg);
+                  const autoDetectedName = det.recognized ? (det.matchedKeyword || det.group?.name) : '미감지';
+                  const currentSavedRegion = mtg.region || '';
+                  const currentSelected = meetingRegionDrafts[mtg.id] || currentSavedRegion || autoDetectedName || '서울·경기';
+                  const isProcessing = isProcessingMeetingRegion === mtg.id;
+
+                  return (
+                    <tr key={mtg.id}>
+                      <td>
+                        <div style={{ fontWeight: 600, color: '#0f172a' }}>
+                          #{mtg.id} {mtg.title}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                          {mtg.date} · 장소: {mtg.location || mtg.placeDetail || '미기재'}
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        {currentSavedRegion ? (
+                          <span
+                            className="platform-badge"
+                            style={{ background: '#dbeafe', color: '#1e40af', borderColor: '#93c5fd' }}
+                          >
+                            수동: {currentSavedRegion}
+                          </span>
+                        ) : (
+                          <span
+                            className="platform-badge"
+                            style={{ background: '#f1f5f9', color: '#475569' }}
+                          >
+                            자동: {autoDetectedName}
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                          <select
+                            style={{
+                              fontSize: '11.5px',
+                              padding: '3px 6px',
+                              borderRadius: '4px',
+                              border: '1px solid #cbd5e1',
+                              background: '#ffffff'
+                            }}
+                            value={currentSelected}
+                            onChange={(e) =>
+                              setMeetingRegionDrafts({
+                                ...meetingRegionDrafts,
+                                [mtg.id]: e.target.value
+                              })
+                            }
+                          >
+                            {REGION_GROUPS.map((g) => (
+                              <option key={g.id} value={g.name}>
+                                {g.name}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-xs"
+                            style={{ fontSize: '11px', padding: '3px 6px', background: '#ffffff' }}
+                            disabled={isProcessing}
+                            onClick={() => handleSaveMeetingRegionOnly(mtg.id, currentSelected)}
+                            title="권역명만 저장합니다 (추후 전체 재동기화 시 반영)"
+                          >
+                            {isProcessing ? '...' : '권역저장'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-xs"
+                            style={{ fontSize: '11px', padding: '3px 6px', background: '#0284c7', borderColor: '#0369a1' }}
+                            disabled={isProcessing}
+                            onClick={() => handleResettleMeetingRegionAction(mtg.id, currentSelected)}
+                            title="이 모임 참가자들의 점수를 즉시 재정산합니다"
+                          >
+                            {isProcessing ? '처리중...' : '재정산 ⚡'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       {/* Section 1: Master Account & DB Backup */}

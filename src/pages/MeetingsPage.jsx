@@ -126,6 +126,7 @@ export default function MeetingsPage({
   onUpdateMemberProfile,
   onSettleMeeting,
   onRollbackMeeting,
+  onResettleMeetingRegion,
   onNavigateTab
 }) {
   const [subTab, setSubTab] = useState('open'); // 'open' | 'past' | 'mine' | 'records'
@@ -357,6 +358,7 @@ export default function MeetingsPage({
           onUpdateMemberProfile={onUpdateMemberProfile}
           onSettleMeeting={onSettleMeeting}
           onRollbackMeeting={onRollbackMeeting}
+          onResettleMeetingRegion={onResettleMeetingRegion}
           onNavigateTab={onNavigateTab}
         />
       </ErrorBoundary>
