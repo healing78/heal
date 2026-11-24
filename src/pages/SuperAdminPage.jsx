@@ -5,9 +5,11 @@ import {
   formatMemberNickname,
   getTierBadgeByScore,
   REGION_GROUPS,
+  resolveRegionGroup,
   ROLE_KEYS,
   ROLE_META
 } from '../core/communityRules';
+import RegionInput from '../components/RegionInput';
 import {
   INITIAL_COMMUNITY_CONFIG,
   INITIAL_MEETINGS,
@@ -98,6 +100,73 @@ export default function SuperAdminPage({
   const [meetingRegionNotice, setMeetingRegionNotice] = useState('');
   const [isProcessingMeetingRegion, setIsProcessingMeetingRegion] = useState(null);
 
+  // 회원 거주지 미인식/미기재 및 동적 별칭 관리 State
+  const [cityFixDrafts, setCityFixDrafts] = useState({});
+  const [aliasGroupDrafts, setAliasGroupDrafts] = useState({});
+  const [cityFixNotice, setCityFixNotice] = useState('');
+  const [cityIssueFilter, setCityIssueFilter] = useState('all'); // 'all' | 'unrecognized' | 'missing'
+  const [isSavingCityFix, setIsSavingCityFix] = useState(null);
+
+  const regionAliases = communityConfig?.regionAliases || {};
+
+  const memberCityIssues = useMemo(() => {
+    const missing = [];
+    const unrecognized = [];
+    const termMap = {};
+
+    (members || []).forEach((m) => {
+      if (!m || m.role === 'Withdrawn' || m.role === 'Expelled') return;
+      const rawHome = (m.homeCity || '').trim();
+      const rawCity = (m.city || '').trim();
+      if (!rawHome && !rawCity) {
+        missing.push({
+          uid: m.uid,
+          realName: m.realName,
+          nickname: m.nickname || '',
+          role: m.role,
+          city: '',
+          homeCity: '',
+          issueType: 'missing',
+          rawInput: ''
+        });
+        return;
+      }
+      const primaryCity = rawHome || rawCity;
+      const reg = resolveRegionGroup(primaryCity, regionAliases);
+      if (!reg.recognized) {
+        unrecognized.push({
+          uid: m.uid,
+          realName: m.realName,
+          nickname: m.nickname || '',
+          role: m.role,
+          city: rawCity,
+          homeCity: rawHome,
+          issueType: 'unrecognized',
+          rawInput: primaryCity
+        });
+        if (!termMap[primaryCity]) {
+          termMap[primaryCity] = { term: primaryCity, count: 0, members: [] };
+        }
+        termMap[primaryCity].count += 1;
+        termMap[primaryCity].members.push({ uid: m.uid, name: m.realName });
+      }
+    });
+
+    const terms = Object.values(termMap).sort(
+      (a, b) => b.count - a.count || a.term.localeCompare(b.term, 'ko')
+    );
+
+    const all = [...unrecognized, ...missing];
+    const filtered =
+      cityIssueFilter === 'unrecognized'
+        ? unrecognized
+        : cityIssueFilter === 'missing'
+          ? missing
+          : all;
+
+    return { missing, unrecognized, terms, all, filtered };
+  }, [members, regionAliases, cityIssueFilter]);
+
   const duplicateCandidates = useMemo(() => {
     const q = duplicateQuery.trim().toLowerCase();
     if (!q) return [];
@@ -154,7 +223,7 @@ export default function SuperAdminPage({
     if (!onAuditBungScores) return;
     setIsAuditing(true);
     try {
-      const res = onAuditBungScores({ meetings, members });
+      const res = onAuditBungScores({ meetings, members, regionAliases });
       setAuditResult(res);
       setActionFeedback(
         `🔍 분석 완료: 마감 벙 ${res.totalSettledMeetings}건 검사 완료. (불일치 ${res.drifts.length}명 감지)`
@@ -178,7 +247,7 @@ export default function SuperAdminPage({
         `✅ 원천 데이터 기준 전체 벙점수 재동기화 완료: 총 ${res.updatedMembersCount}명 회원 점수/출석/호스트/뱃지가 성공적으로 갱신되었습니다!`
       );
       if (onAuditBungScores) {
-        setAuditResult(onAuditBungScores({ meetings, members }));
+        setAuditResult(onAuditBungScores({ meetings, members, regionAliases }));
       }
       setTimeout(() => setActionFeedback(''), 6000);
     } catch (err) {
@@ -200,7 +269,7 @@ export default function SuperAdminPage({
         `✅ [${memName}] 점수 최신화 완료: 총 ${res.attendedCount}개 모임 역추적 → 출석 ${res.oldAtt}→${res.newAtt}회, 벙점수 ${res.oldTotal}→${res.newTotal}점 (${res.diffTotal >= 0 ? '+' : ''}${res.diffTotal}점)`
       );
       if (onAuditBungScores) {
-        setAuditResult(onAuditBungScores({ meetings, members }));
+        setAuditResult(onAuditBungScores({ meetings, members, regionAliases }));
       }
       setTimeout(() => setSingleRecalcNotice(''), 6000);
     } catch (err) {
@@ -237,7 +306,7 @@ export default function SuperAdminPage({
         `✅ [#${meetingId}] 권역이 '${regionName}'(으)로 변경되고 참석자 ${res.affectedCount}명의 벙점수가 성공적으로 재정산되었습니다.`
       );
       if (onAuditBungScores) {
-        setAuditResult(onAuditBungScores({ meetings, members }));
+        setAuditResult(onAuditBungScores({ meetings, members, regionAliases }));
       }
       setTimeout(() => setMeetingRegionNotice(''), 6000);
     } catch (err) {
@@ -245,6 +314,88 @@ export default function SuperAdminPage({
       setMeetingRegionNotice(`❌ 재정산 실패: ${err.message || err}`);
     } finally {
       setIsProcessingMeetingRegion(null);
+    }
+  };
+
+  const handleSaveMemberCity = async (memberItem) => {
+    if (!onAdminUpdateMember) return;
+    const nextVal = String(cityFixDrafts[memberItem.uid] ?? '').trim();
+    if (!nextVal) {
+      setCityFixNotice('❌ 저장할 거주 지역명을 입력해 주세요.');
+      return;
+    }
+    setIsSavingCityFix(memberItem.uid);
+    try {
+      await onAdminUpdateMember(memberItem.uid, {
+        homeCity: nextVal,
+        city: memberItem.city || nextVal
+      });
+      const resolved = resolveRegionGroup(nextVal, regionAliases);
+      setCityFixNotice(
+        `✅ [${memberItem.realName}] 거주지가 '${nextVal}'(${resolved.recognized ? resolved.name : '미인식'})으로 저장되었습니다.`
+      );
+      setCityFixDrafts((prev) => {
+        const next = { ...prev };
+        delete next[memberItem.uid];
+        return next;
+      });
+      if (onAuditBungScores) {
+        setAuditResult(onAuditBungScores({ meetings, members, regionAliases }));
+      }
+      setTimeout(() => setCityFixNotice(''), 5000);
+    } catch (err) {
+      console.error(err);
+      setCityFixNotice(`❌ 저장 실패: ${err.message || err}`);
+    } finally {
+      setIsSavingCityFix(null);
+    }
+  };
+
+  const handleSaveRegionAlias = async (term, groupId) => {
+    if (!onAdminUpdateConfig || !term) return;
+    const targetId = Number(groupId || 1);
+    const targetGroup = REGION_GROUPS.find((g) => g.id === targetId);
+    if (!targetGroup) return;
+    setIsSavingCityFix(`alias:${term}`);
+    try {
+      const nextAliases = { ...regionAliases, [term]: targetId };
+      await onAdminUpdateConfig({ regionAliases: nextAliases });
+      setCityFixNotice(
+        `✅ 지역명 '${term}' → '${targetGroup.name}' 권역으로 연결되었습니다. (재동기화 시 점수 반영)`
+      );
+      if (onAuditBungScores) {
+        setAuditResult(
+          onAuditBungScores({ meetings, members, regionAliases: nextAliases })
+        );
+      }
+      setTimeout(() => setCityFixNotice(''), 5000);
+    } catch (err) {
+      console.error(err);
+      setCityFixNotice(`❌ 별칭 저장 실패: ${err.message || err}`);
+    } finally {
+      setIsSavingCityFix(null);
+    }
+  };
+
+  const handleRemoveRegionAlias = async (term) => {
+    if (!onAdminUpdateConfig || !term) return;
+    setIsSavingCityFix(`alias:${term}`);
+    try {
+      const nextAliases = { ...regionAliases };
+      delete nextAliases[term];
+      await onAdminUpdateConfig({ regionAliases: nextAliases });
+      setCityFixNotice(`🗑️ 별칭 '${term}' 연결이 해제되었습니다.`);
+      if (onAuditBungScores) {
+        setAuditResult(
+          onAuditBungScores({ meetings, members, regionAliases: nextAliases })
+        );
+      }
+      setTimeout(() => setCityFixNotice(''), 4000);
+    } catch (err) {
+      console.error(err);
+      setCityFixNotice(`❌ 별칭 삭제 실패: ${err.message || err}`);
+    } finally {
+      setIsSavingCityFix(null);
     }
   };
 
@@ -685,7 +836,14 @@ export default function SuperAdminPage({
               style={{ fontSize: '12px', background: '#ffffff' }}
               onClick={() => setShowAnomalies((prev) => !prev)}
             >
-              {showAnomalies ? '⚠️ 원천 이상치 닫기' : `⚠️ 원천 이상치 보기 (${auditResult.anomalies.unrecognizedRegionMeetings.length + auditResult.anomalies.emptyAttendeeMeetings.length + auditResult.anomalies.missingHomeCityMembers.length}건)`}
+              {showAnomalies
+                ? '⚠️ 원천 이상치 닫기'
+                : `⚠️ 원천 이상치 보기 (${
+                    auditResult.anomalies.unrecognizedRegionMeetings.length +
+                    auditResult.anomalies.emptyAttendeeMeetings.length +
+                    auditResult.anomalies.missingHomeCityMembers.length +
+                    (auditResult.anomalies.unrecognizedCityMembers?.length || 0)
+                  }건)`}
             </button>
           )}
 
@@ -714,6 +872,14 @@ export default function SuperAdminPage({
               <div>· 권역 미감지 마감 벙: {auditResult.anomalies.unrecognizedRegionMeetings.length}건 {auditResult.anomalies.unrecognizedRegionMeetings.map(m => `[#${m.id} ${m.title}]`).join(', ')}</div>
               <div>· 참석자 0명 마감 벙: {auditResult.anomalies.emptyAttendeeMeetings.length}건 {auditResult.anomalies.emptyAttendeeMeetings.map(m => `[#${m.id} ${m.title}]`).join(', ')}</div>
               <div>· 거주지(시/군/구) 미기재 회원: {auditResult.anomalies.missingHomeCityMembers.length}명 {auditResult.anomalies.missingHomeCityMembers.map(m => `${m.name}`).slice(0, 10).join(', ')}</div>
+              <div>
+                · 권역 추출 실패 거주지 회원: {auditResult.anomalies.unrecognizedCityMembers?.length || 0}명
+                {auditResult.anomalies.unrecognizedCityMembers?.length > 0 &&
+                  ` (${auditResult.anomalies.unrecognizedCityMembers
+                    .slice(0, 10)
+                    .map((m) => `${m.name}[${m.rawInput}]`)
+                    .join(', ')})`}
+              </div>
             </div>
           </div>
         )}
@@ -1002,6 +1168,250 @@ export default function SuperAdminPage({
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* 7. 거주지 권역 미인식 · 미기재 회원 및 동적 별칭(Alias) 관리 */}
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '14px',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '8px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '15px' }}>🏙️</span>
+              <strong style={{ fontSize: '13.5px', color: '#1e293b' }}>
+                거주지 권역 미인식 · 미기재 회원 및 지역명 관리
+              </strong>
+            </div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              <span className="platform-badge" style={{ background: '#fef3c7', color: '#92400e', borderColor: '#fcd34d' }}>
+                권역 미인식 {memberCityIssues.unrecognized.length}명
+              </span>
+              <span className="platform-badge" style={{ background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }}>
+                거주지 미기재 {memberCityIssues.missing.length}명
+              </span>
+            </div>
+          </div>
+          <p className="sub-meta" style={{ marginBottom: '12px', lineHeight: 1.5 }}>
+            약어·오타 등으로 권역 추출에 실패했거나 거주지가 비어 있는 회원을 확인하고 즉시 수정할 수 있습니다. 추출 불가 지역명을 권역에 연결해 두면 코드 수정 없이도 즉시 점수 계산에 반영됩니다.
+          </p>
+
+          {cityFixNotice && (
+            <div
+              style={{
+                padding: '8px 12px',
+                background: cityFixNotice.startsWith('❌') ? '#fee2e2' : '#dcfce7',
+                color: cityFixNotice.startsWith('❌') ? '#991b1b' : '#166534',
+                border: `1px solid ${cityFixNotice.startsWith('❌') ? '#fca5a5' : '#bbf7d0'}`,
+                borderRadius: '6px',
+                fontSize: '12.5px',
+                marginBottom: '10px',
+                fontWeight: 600
+              }}
+            >
+              {cityFixNotice}
+            </div>
+          )}
+
+          {/* 7-1. 추출 불가 지역명 리스트 & 일괄 권역 연결 */}
+          {memberCityIssues.terms.length > 0 && (
+            <div style={{ marginBottom: '12px', padding: '10px 12px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '6px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#92400e', marginBottom: '8px' }}>
+                ⚠️ 권역 추출 실패 지역명 ({memberCityIssues.terms.length}종) — 권역 연결로 일괄 해결
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {memberCityIssues.terms.map((item) => {
+                  const selectedGroupId = aliasGroupDrafts[item.term] || 1;
+                  const busy = isSavingCityFix === `alias:${item.term}`;
+                  return (
+                    <div
+                      key={item.term}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                        flexWrap: 'wrap',
+                        padding: '6px 8px',
+                        background: '#ffffff',
+                        border: '1px solid #fde68a',
+                        borderRadius: '6px',
+                        fontSize: '12px'
+                      }}
+                    >
+                      <div>
+                        <strong style={{ color: '#b45309' }}>"{item.term}"</strong>
+                        <span style={{ marginLeft: '6px', color: '#64748b' }}>
+                          ({item.count}명: {item.members.slice(0, 4).map((m) => m.name).join(', ')}
+                          {item.members.length > 4 ? ` 외 ${item.members.length - 4}명` : ''})
+                        </span>
+                      </div>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <select
+                          style={{
+                            fontSize: '11.5px',
+                            padding: '3px 6px',
+                            borderRadius: '4px',
+                            border: '1px solid #cbd5e1',
+                            background: '#ffffff'
+                          }}
+                          value={selectedGroupId}
+                          onChange={(e) =>
+                            setAliasGroupDrafts((prev) => ({
+                              ...prev,
+                              [item.term]: Number(e.target.value)
+                            }))
+                          }
+                        >
+                          {REGION_GROUPS.map((g) => (
+                            <option key={g.id} value={g.id}>
+                              {g.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-xs"
+                          style={{ fontSize: '11px', padding: '3px 8px', background: '#d97706', borderColor: '#b45309' }}
+                          disabled={busy}
+                          onClick={() => handleSaveRegionAlias(item.term, selectedGroupId)}
+                        >
+                          {busy ? '저장중...' : '권역 연결'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 7-2. 현재 등록된 동적 지역 별칭 목록 */}
+          {Object.keys(regionAliases).length > 0 && (
+            <div style={{ marginBottom: '12px', padding: '8px 10px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11.5px' }}>
+              <div style={{ fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                🔗 등록된 커스텀 지역 별칭 ({Object.keys(regionAliases).length}건)
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {Object.entries(regionAliases).map(([term, groupId]) => {
+                  const grp = REGION_GROUPS.find((g) => g.id === Number(groupId));
+                  return (
+                    <span
+                      key={term}
+                      className="platform-badge"
+                      style={{ background: '#e0f2fe', color: '#0369a1', borderColor: '#7dd3fc', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <span>{term} → {grp ? grp.name : `권역#${groupId}`}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveRegionAlias(term)}
+                        style={{ border: 'none', background: 'transparent', color: '#0369a1', cursor: 'pointer', fontWeight: 700, padding: 0, fontSize: '12px' }}
+                        title="별칭 연결 해제"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 7-3. 회원별 거주지 이상치 필터 & 테이블 */}
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+            {[
+              { key: 'all', label: `전체 (${memberCityIssues.all.length})` },
+              { key: 'unrecognized', label: `권역 미인식 (${memberCityIssues.unrecognized.length})` },
+              { key: 'missing', label: `거주지 미기재 (${memberCityIssues.missing.length})` }
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`btn btn-xs ${cityIssueFilter === tab.key ? 'btn-primary' : 'btn-outline'}`}
+                style={{ fontSize: '11.5px', padding: '4px 10px' }}
+                onClick={() => setCityIssueFilter(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {memberCityIssues.filtered.length === 0 ? (
+            <div style={{ padding: '14px', textAlign: 'center', fontSize: '12.5px', color: '#166534', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+              🎉 모든 활동 회원의 거주 지역이 정상적으로 권역에 매칭되었습니다!
+            </div>
+          ) : (
+            <div style={{ maxHeight: '320px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
+              <table className="settle-data-table" style={{ margin: 0, fontSize: '12px' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc' }}>
+                    <th style={{ width: '32%' }}>회원</th>
+                    <th style={{ width: '24%', textAlign: 'center' }}>현재 거주지</th>
+                    <th style={{ width: '44%', textAlign: 'right' }}>지역명 직접 수정</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {memberCityIssues.filtered.map((item) => {
+                    const draftVal = cityFixDrafts[item.uid] ?? item.rawInput;
+                    const busy = isSavingCityFix === item.uid;
+                    return (
+                      <tr key={item.uid}>
+                        <td>
+                          <div style={{ fontWeight: 600, color: '#0f172a' }}>
+                            {item.realName} {item.nickname ? `(${item.nickname})` : ''}
+                          </div>
+                          <div style={{ fontSize: '10.5px', color: '#64748b' }}>
+                            {ROLE_META[item.role]?.label || item.role}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {item.issueType === 'missing' ? (
+                            <span className="platform-badge" style={{ background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }}>
+                              미기재
+                            </span>
+                          ) : (
+                            <span className="platform-badge" style={{ background: '#fef3c7', color: '#92400e', borderColor: '#fcd34d' }}>
+                              미인식: {item.rawInput}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '260px', justifyContent: 'flex-end' }}>
+                            <div style={{ flex: 1, minWidth: '140px', textAlign: 'left' }}>
+                              <RegionInput
+                                id={`fix-city-${item.uid}`}
+                                value={draftVal}
+                                placeholder="표준 지역명 입력"
+                                onChange={(val) =>
+                                  setCityFixDrafts((prev) => ({
+                                    ...prev,
+                                    [item.uid]: val
+                                  }))
+                                }
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="btn btn-primary btn-xs"
+                              style={{ fontSize: '11px', padding: '6px 10px', whiteSpace: 'nowrap' }}
+                              disabled={busy}
+                              onClick={() => handleSaveMemberCity(item)}
+                            >
+                              {busy ? '...' : '저장'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </section>
       )}
