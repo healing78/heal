@@ -16,7 +16,8 @@ import {
   generateMeetingId,
   getMemberTotalScore,
   REGION_GROUPS,
-  resolveMemberBadge
+  resolveMemberBadge,
+  resolveRegionGroup
 } from '../core/communityRules';
 import {
   INITIAL_COMMUNITY_CONFIG,
@@ -168,7 +169,11 @@ const sanitizeConfig = (cfg) => {
     ),
     noticeBody: sanitizeBungText(
       cfg.noticeBody || INITIAL_COMMUNITY_CONFIG.noticeBody
-    )
+    ),
+    regionAliases:
+      cfg.regionAliases && typeof cfg.regionAliases === 'object' && !Array.isArray(cfg.regionAliases)
+        ? cfg.regionAliases
+        : {}
   };
 };
 
@@ -857,7 +862,8 @@ export const settleMeetingWithScores = async (
   const targetMeeting = currentMeetings.find((m) => m.id === meetingId);
   if (!targetMeeting || targetMeeting.status === 'settled') return;
 
-  const detected = detectMeetingRegion(targetMeeting);
+  const regionAliases = getLocalState().communityConfig?.regionAliases || {};
+  const detected = detectMeetingRegion(targetMeeting, regionAliases);
   const resolvedLocation =
     (overrideLocation || '').trim() ||
     detected.matchedKeyword ||
@@ -886,7 +892,8 @@ export const settleMeetingWithScores = async (
     if (!confirmedUids.includes(member.uid)) return member;
     const calc = calculateMeetingScoreForMember(
       member,
-      resolvedLocation
+      resolvedLocation,
+      regionAliases
     );
 
     newLogs.push({
@@ -936,7 +943,7 @@ export const settleMeetingWithScores = async (
   for (const uid of confirmedUids) {
     const mem = currentMembers.find((m) => m.uid === uid);
     if (!mem) continue;
-    const calc = calculateMeetingScoreForMember(mem, resolvedLocation);
+    const calc = calculateMeetingScoreForMember(mem, resolvedLocation, regionAliases);
     const earned = Number(calc.total || calc.score || 1);
     const beforeScore = getMemberTotalScore(mem);
     const afterScore = beforeScore + earned;
@@ -1962,14 +1969,22 @@ export const resetToInitialDemoData = async () => {
  * 모든 마감된 모임(meetings) 원천 데이터를 기반으로 회원의 참석/원정/출석을 재계산하고,
  * 현재 회원 데이터와의 차이(Drift) 및 원천 데이터의 이상치(Anomaly)를 분석합니다.
  */
-export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
+export const validateAndAuditBungScores = ({
+  meetings = [],
+  members = [],
+  regionAliases: inputAliases
+}) => {
+  const regionAliases =
+    inputAliases !== undefined
+      ? inputAliases
+      : getLocalState().communityConfig?.regionAliases || {};
   const settledMeetings = meetings.filter((m) => m.status === 'settled');
 
   // 1. 원천 데이터 이상치(Anomaly) 검출
   const unrecognizedRegionMeetings = [];
   const emptyAttendeeMeetings = [];
   settledMeetings.forEach((mtg) => {
-    const regionInfo = detectMeetingRegion(mtg);
+    const regionInfo = detectMeetingRegion(mtg, regionAliases);
     if (!regionInfo.recognized && !mtg.region) {
       unrecognizedRegionMeetings.push({
         id: mtg.id,
@@ -1991,12 +2006,50 @@ export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
     }
   });
 
-  const missingHomeCityMembers = members
-    .filter(
-      (m) =>
-        !m.homeCity && !m.city && m.role !== 'Withdrawn' && m.role !== 'Expelled'
-    )
-    .map((m) => ({ uid: m.uid, name: m.realName, role: m.role }));
+  const missingHomeCityMembers = [];
+  const unrecognizedCityMembers = [];
+  const unrecognizedTermMap = {};
+
+  members.forEach((m) => {
+    if (!m || m.role === 'Withdrawn' || m.role === 'Expelled') return;
+    const rawHome = (m.homeCity || '').trim();
+    const rawCity = (m.city || '').trim();
+    if (!rawHome && !rawCity) {
+      missingHomeCityMembers.push({
+        uid: m.uid,
+        name: m.realName,
+        nickname: m.nickname || '',
+        role: m.role
+      });
+      return;
+    }
+
+    const primaryCity = rawHome || rawCity;
+    const regInfo = resolveRegionGroup(primaryCity, regionAliases);
+    if (!regInfo.recognized) {
+      unrecognizedCityMembers.push({
+        uid: m.uid,
+        name: m.realName,
+        nickname: m.nickname || '',
+        role: m.role,
+        city: rawCity,
+        homeCity: rawHome,
+        rawInput: primaryCity
+      });
+      if (!unrecognizedTermMap[primaryCity]) {
+        unrecognizedTermMap[primaryCity] = { term: primaryCity, count: 0, members: [] };
+      }
+      unrecognizedTermMap[primaryCity].count += 1;
+      unrecognizedTermMap[primaryCity].members.push({
+        uid: m.uid,
+        name: m.realName
+      });
+    }
+  });
+
+  const unrecognizedCityTerms = Object.values(unrecognizedTermMap).sort(
+    (a, b) => b.count - a.count || a.term.localeCompare(b.term, 'ko')
+  );
 
   // 2. 멱등 누적 재계산 시뮬레이션
   const statsMap = {};
@@ -2023,7 +2076,7 @@ export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
     uniqueUids.forEach((uid) => {
       const m = members.find((mem) => mem.uid === uid);
       if (!m || !statsMap[uid]) return;
-      const regInfo = detectMeetingRegion(mtg);
+      const regInfo = detectMeetingRegion(mtg, regionAliases);
       const resolvedLoc =
         mtg.region ||
         (regInfo.recognized
@@ -2031,7 +2084,7 @@ export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
           : null) ||
         mtg.location ||
         '';
-      const scoreCalc = calculateMeetingScoreForMember(m, resolvedLoc);
+      const scoreCalc = calculateMeetingScoreForMember(m, resolvedLoc, regionAliases);
       statsMap[uid].baseScore += scoreCalc.base || 1;
       statsMap[uid].expeditionScore += scoreCalc.expedition || 0;
       statsMap[uid].attendanceCount += 1;
@@ -2100,7 +2153,9 @@ export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
     anomalies: {
       unrecognizedRegionMeetings,
       emptyAttendeeMeetings,
-      missingHomeCityMembers
+      missingHomeCityMembers,
+      unrecognizedCityMembers,
+      unrecognizedCityTerms
     },
     drifts,
     totalSettledMeetings: settledMeetings.length,
@@ -2113,8 +2168,12 @@ export const validateAndAuditBungScores = ({ meetings = [], members = [] }) => {
  * 원천 모임 기록 기준 모든 회원의 벙점수 일괄 재계산 및 영구 동기화 실행
  */
 export const recalculateAndApplyAllBungScores = async () => {
-  const { meetings, members } = getLocalState();
-  const auditResult = validateAndAuditBungScores({ meetings, members });
+  const { meetings, members, communityConfig } = getLocalState();
+  const auditResult = validateAndAuditBungScores({
+    meetings,
+    members,
+    regionAliases: communityConfig?.regionAliases || {}
+  });
   const { statsMap } = auditResult;
 
   const updatedMembers = members.map((m) => {
@@ -2190,7 +2249,8 @@ export const recalculateAndApplyAllBungScores = async () => {
  * 특정 회원 1인의 전체 벙기록 역추적 재계산
  */
 export const recalculateSingleMemberScore = async (targetUid) => {
-  const { meetings, members } = getLocalState();
+  const { meetings, members, communityConfig } = getLocalState();
+  const regionAliases = communityConfig?.regionAliases || {};
   const targetMember = members.find((m) => m.uid === targetUid);
   if (!targetMember) throw new Error('회원을 찾을 수 없습니다.');
 
@@ -2211,7 +2271,7 @@ export const recalculateSingleMemberScore = async (targetUid) => {
         : mtg.applicants || [];
 
     if (attendees.includes(targetUid)) {
-      const regInfo = detectMeetingRegion(mtg);
+      const regInfo = detectMeetingRegion(mtg, regionAliases);
       const resolvedLoc =
         mtg.region ||
         (regInfo.recognized
@@ -2219,7 +2279,7 @@ export const recalculateSingleMemberScore = async (targetUid) => {
           : null) ||
         mtg.location ||
         '';
-      const calc = calculateMeetingScoreForMember(targetMember, resolvedLoc);
+      const calc = calculateMeetingScoreForMember(targetMember, resolvedLoc, regionAliases);
       baseScore += calc.base || 1;
       expeditionScore += calc.expedition || 0;
       attendanceCount += 1;
@@ -2336,7 +2396,8 @@ export const updateMeetingRegionOnly = async (meetingId, newRegionName) => {
  * 마감된 모임의 권역을 사후 변경하고 해당 모임의 스냅샷 및 참석자 점수 재정산
  */
 export const resettleMeetingRegion = async (meetingId, newRegionName) => {
-  const { meetings, members } = getLocalState();
+  const { meetings, members, communityConfig } = getLocalState();
+  const regionAliases = communityConfig?.regionAliases || {};
   const targetMeeting = meetings.find(
     (m) => String(m.id) === String(meetingId)
   );
@@ -2362,7 +2423,7 @@ export const resettleMeetingRegion = async (meetingId, newRegionName) => {
     const mem = members.find((m) => m.uid === uid);
     if (!mem) return;
 
-    const newCalc = calculateMeetingScoreForMember(mem, cleanRegion);
+    const newCalc = calculateMeetingScoreForMember(mem, cleanRegion, regionAliases);
     const newEarned = Number(newCalc.total || newCalc.score || 1);
     const oldEarned = Number(oldSnapshots[uid]?.earned || 1);
     const delta = newEarned - oldEarned;
