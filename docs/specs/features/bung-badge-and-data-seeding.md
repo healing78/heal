@@ -124,9 +124,10 @@
 
 ### (2) 4단계 무결성 검증 및 재계산 워크플로우 (방안 A: 마스터 탭 콘솔)
 1. **1단계: 원천 데이터 이상치(Anomaly) 검출**
-   - 권역 미감지 모임(장소 텍스트에서 4대 권역 파싱 불가) 검출
+   - 권역 미감지 모임(장소 텍스트에서 권역 파싱 불가) 검출
    - 마감 모임 중 참석자 0명인 모임 검출
-   - 거주지 권역 미입력 회원 검출
+   - 거주지 권역 미입력 회원(`missingHomeCityMembers`) 및 **권역 추출 실패 거주지 회원(`unrecognizedCityMembers`) / 추출 불가 지역명(`unrecognizedCityTerms`)** 검출
+   - 권역 판별(`resolveRegionGroup`, `detectRegionFromText`)은 키워드 길이 내림차순 우선 매칭(`광주(경기)`, `고성(경남)` 등 동명이인 구분 및 `경광`/`전광` 약어 지원)과 `communityConfig.regionAliases` 동적 별칭 매핑을 함께 적용하며, 마스터 탭에서 미인식 지역명을 권역에 연결하거나 회원 거주지를 즉시 수정 가능
 2. **2단계: Dry-Run 실시간 불일치(Drift) 시뮬레이션**
    - 실제 DB 데이터를 수정하지 않고 가상 메모리 상에서 전체 원천 모임을 날짜순 재계산.
    - 현재 DB의 `totalScore`, `attendanceCount`, `hostCount`, `badge`와 시뮬레이션 결과를 비교하여 오차(Drift) 인원 및 차액을 실시간 분석.
