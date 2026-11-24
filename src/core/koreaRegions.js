@@ -92,6 +92,7 @@ export const KOREA_DISTRICTS = [
   { value: '동두천', label: '동두천시', province: '경기', aliases: ['동두천시'] },
   { value: '가평', label: '가평군', province: '경기', aliases: ['가평군'] },
   { value: '과천', label: '과천시', province: '경기', aliases: ['과천시'] },
+  { value: '광주(경기)', label: '광주시 (경기)', province: '경기', aliases: ['경기광주', '경기도광주', '경광', '곤지암', '초월', '오포'] },
   { value: '연천', label: '연천군', province: '경기', aliases: ['연천군'] },
 
   // 3. 인천광역시
@@ -245,7 +246,7 @@ export const KOREA_DISTRICTS = [
   { value: '의령', label: '의령군', province: '경남', aliases: ['의령군'] },
 
   // 9. 광주광역시 & 전라남도 & 전북특별자치도
-  { value: '광주', label: '광주광역시', province: '광주', aliases: ['광주시', '상무'] },
+  { value: '광주', label: '광주광역시', province: '광주', aliases: ['광주시', '상무', '전광', '전남광주'] },
   { value: '광산', label: '광주 광산구', province: '광주', aliases: ['광산구', '광주', '수완'] },
   { value: '수완', label: '광주 수완지구', province: '광주', aliases: ['수완동', '광산', '광주'] },
   { value: '광주서구', label: '광주 서구', province: '광주', aliases: ['서구', '광주', '치평', '풍암'] },

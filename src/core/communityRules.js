@@ -32,7 +32,7 @@ export const REGION_GROUPS = [
     keywords: [
       '서울', '경기', '인천', '수도권', '수원', '성남', '분당', '판교', '고양', '일산',
       '용인', '부천', '안산', '안양', '인덕원', '남양주', '화성', '동탄', '평택', '의정부', '시흥',
-      '파주', '광명', '김포', '군포', '광주(경기)', '이천', '양주', '오산', '구리', '안성',
+      '파주', '광명', '김포', '군포', '광주(경기)', '경기광주', '경기도광주', '경광', '이천', '양주', '오산', '구리', '안성',
       '포천', '의왕', '하남', '여주', '양평', '동두천', '과천', '가평', '연천',
       // 서울 25개 자치구
       '영등포', '영등포구', '강남', '강남구', '서초', '서초구', '송파', '송파구', '마포', '마포구',
@@ -68,7 +68,7 @@ export const REGION_GROUPS = [
     id: 4,
     name: '전라·광주',
     keywords: [
-      '전라', '전남', '전북', '광주', '전주', '군산', '익산', '정읍', '남원', '김제',
+      '전라', '전남', '전북', '광주', '전광', '전남광주', '광주광역시', '전주', '군산', '익산', '정읍', '남원', '김제',
       '목포', '여수', '순천', '나주', '광양', '담양', '곡성', '구례', '고흥', '보성',
       '화순', '장흥', '강진', '해남', '영암', '무안', '함평', '영광', '장성', '완도', '진도', '신안',
       '완산', '덕진', '상무'
@@ -80,7 +80,7 @@ export const REGION_GROUPS = [
     keywords: [
       '경상', '경남', '경북', '부산', '대구', '울산', '포항', '경주', '김천', '안동',
       '구미', '영주', '영천', '상주', '문경', '경산', '창원', '마산', '진해', '진주',
-      '통영', '사천', '김해', '밀양', '거제', '양산', '해운대', '서면', '수성', '동성로'
+      '통영', '사천', '김해', '밀양', '거제', '양산', '고성(경남)', '경남고성', '해운대', '서면', '수성', '동성로'
     ]
   },
   {
@@ -118,47 +118,43 @@ const PROVINCE_TO_REGION_ID = {
   '제주': 6
 };
 
-/**
- * Resolves a city/location string into one of the 7 region groups.
- */
-export const resolveRegionGroup = (locationStr) => {
-  const clean = String(locationStr || '').trim();
-  if (!clean) return { id: 1, name: '서울·경기' };
+// Pre-sorted keyword index (longest first) so specific names like '광주(경기)' or '고성(경남)'
+// always match before shorter ambiguous names like '광주' or '고성'.
+const SORTED_REGION_KEYWORDS = REGION_GROUPS.flatMap((group) =>
+  group.keywords.map((kw) => ({ kw, group }))
+).sort((a, b) => b.kw.length - a.kw.length || a.group.id - b.group.id);
 
-  for (const group of REGION_GROUPS) {
-    if (
-      clean === group.name ||
-      group.keywords.some((kw) => clean.includes(kw))
-    ) {
-      return { id: group.id, name: group.name };
-    }
-  }
-
-  // Fallback to KOREA_DISTRICTS database
-  if (Array.isArray(KOREA_DISTRICTS)) {
-    for (const d of KOREA_DISTRICTS) {
-      if (
-        clean.includes(d.value) ||
-        clean.includes(d.label) ||
-        (Array.isArray(d.aliases) && d.aliases.some((a) => clean.includes(a)))
-      ) {
-        const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
-        const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
-        return { id: targetGroup.id, name: targetGroup.name };
-      }
-    }
-  }
-
-  return { id: 1, name: clean };
-};
+const findGroupById = (id) =>
+  REGION_GROUPS.find((g) => g.id === Number(id)) || null;
 
 /**
  * Detects region group from a single piece of text.
+ * Supports optional dynamic customAliases ({ [keyword]: regionGroupId }).
  * Returns { recognized: boolean, group: object|null, matchedKeyword: string }
  */
-export const detectRegionFromText = (rawText = '') => {
+export const detectRegionFromText = (rawText = '', customAliases = {}) => {
   const text = String(rawText || '').trim();
   if (!text) return { recognized: false, group: null, matchedKeyword: '' };
+
+  // 0. Dynamic admin-configured custom aliases (exact or substring, longest first)
+  if (customAliases && typeof customAliases === 'object') {
+    const aliasEntries = Object.entries(customAliases)
+      .filter(([kw, groupId]) => String(kw || '').trim() && findGroupById(groupId))
+      .sort(([a], [b]) => b.length - a.length);
+    for (const [kw, groupId] of aliasEntries) {
+      const cleanKw = String(kw).trim();
+      if (text === cleanKw || text.includes(cleanKw)) {
+        const targetGroup = findGroupById(groupId);
+        if (targetGroup) {
+          return {
+            recognized: true,
+            group: { id: targetGroup.id, name: targetGroup.name },
+            matchedKeyword: cleanKw
+          };
+        }
+      }
+    }
+  }
 
   // 1. Direct match with REGION_GROUPS name
   for (const group of REGION_GROUPS) {
@@ -171,14 +167,13 @@ export const detectRegionFromText = (rawText = '') => {
     }
   }
 
-  // 2. Keyword match in REGION_GROUPS (Sort by keyword length descending to match most specific first)
-  for (const group of REGION_GROUPS) {
-    const matched = group.keywords.find((kw) => text.includes(kw));
-    if (matched) {
+  // 2. Keyword match across all REGION_GROUPS (longest/most specific keyword first)
+  for (const { kw, group } of SORTED_REGION_KEYWORDS) {
+    if (text.includes(kw)) {
       return {
         recognized: true,
         group: { id: group.id, name: group.name },
-        matchedKeyword: matched
+        matchedKeyword: kw
       };
     }
   }
@@ -186,40 +181,45 @@ export const detectRegionFromText = (rawText = '') => {
   // 3. Fallback match with 전국 행정구역 마스터(KOREA_DISTRICTS)
   if (Array.isArray(KOREA_DISTRICTS)) {
     for (const d of KOREA_DISTRICTS) {
-      if (text.includes(d.value)) {
+      const candidates = [
+        d.value,
+        d.label,
+        ...(Array.isArray(d.aliases) ? d.aliases : [])
+      ].filter(Boolean);
+      const matched = candidates.find((c) => text.includes(c));
+      if (matched) {
         const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
-        const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
+        const targetGroup = findGroupById(targetId) || REGION_GROUPS[0];
         return {
           recognized: true,
           group: { id: targetGroup.id, name: targetGroup.name },
-          matchedKeyword: d.value
+          matchedKeyword: matched
         };
-      }
-      if (text.includes(d.label)) {
-        const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
-        const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
-        return {
-          recognized: true,
-          group: { id: targetGroup.id, name: targetGroup.name },
-          matchedKeyword: d.label
-        };
-      }
-      if (Array.isArray(d.aliases)) {
-        const matchedAlias = d.aliases.find((a) => text.includes(a));
-        if (matchedAlias) {
-          const targetId = PROVINCE_TO_REGION_ID[d.province] || 1;
-          const targetGroup = REGION_GROUPS.find((g) => g.id === targetId) || REGION_GROUPS[0];
-          return {
-            recognized: true,
-            group: { id: targetGroup.id, name: targetGroup.name },
-            matchedKeyword: matchedAlias
-          };
-        }
       }
     }
   }
 
   return { recognized: false, group: null, matchedKeyword: '' };
+};
+
+/**
+ * Resolves a city/location string into one of the 7 region groups.
+ * Returns { id, name, recognized }. Unrecognized values fall back to id: 1 with recognized: false.
+ */
+export const resolveRegionGroup = (locationStr, customAliases = {}) => {
+  const clean = String(locationStr || '').trim();
+  if (!clean) return { id: 1, name: '서울·경기', recognized: false };
+
+  const detected = detectRegionFromText(clean, customAliases);
+  if (detected.recognized && detected.group) {
+    return {
+      id: detected.group.id,
+      name: detected.group.name,
+      recognized: true
+    };
+  }
+
+  return { id: 1, name: clean, recognized: false };
 };
 
 /**
@@ -232,7 +232,7 @@ export const detectRegionFromText = (rawText = '') => {
  * - meeting.rounds[].placeName (1차, 2차 장소 코스) ⭐
  * Returns { recognized: boolean, group: object|null, matchedKeyword: string }
  */
-export const detectMeetingRegion = (meeting) => {
+export const detectMeetingRegion = (meeting, customAliases = {}) => {
   if (!meeting) return { recognized: false, group: null, matchedKeyword: '' };
   const candidates = [
     meeting.region,
@@ -248,7 +248,7 @@ export const detectMeetingRegion = (meeting) => {
     .filter(Boolean);
 
   for (const text of candidates) {
-    const res = detectRegionFromText(text);
+    const res = detectRegionFromText(text, customAliases);
     if (res.recognized) return res;
   }
   return { recognized: false, group: null, matchedKeyword: '' };
@@ -384,7 +384,7 @@ export const canSettleMeeting = (member, meeting, communityConfig = {}) => {
  * Calculates base (+1), domestic expedition (+1 if different province group 1~6),
  * and overseas (+2 if either member or meeting is in group 7 '해외').
  */
-export const calculateMeetingScoreForMember = (member, meetingLocation) => {
+export const calculateMeetingScoreForMember = (member, meetingLocation, customAliases = {}) => {
   const base = 1;
   const rawCity = (member?.city || '').trim();
   const rawHomeCity = (member?.homeCity || '').trim();
@@ -402,10 +402,10 @@ export const calculateMeetingScoreForMember = (member, meetingLocation) => {
   }
 
   // Check both homeCity and city for overseas status (e.g. Mexico resident temporarily staying in 경광)
-  const cityGroup = rawCity ? resolveRegionGroup(rawCity) : null;
-  const homeGroup = rawHomeCity ? resolveRegionGroup(rawHomeCity) : null;
+  const cityGroup = rawCity ? resolveRegionGroup(rawCity, customAliases) : null;
+  const homeGroup = rawHomeCity ? resolveRegionGroup(rawHomeCity, customAliases) : null;
   const isMemberOverseas = cityGroup?.id === 7 || homeGroup?.id === 7;
-  const meetingGroup = resolveRegionGroup(mtgLoc);
+  const meetingGroup = resolveRegionGroup(mtgLoc, customAliases);
 
   if (isMemberOverseas || meetingGroup.id === 7) {
     return {
