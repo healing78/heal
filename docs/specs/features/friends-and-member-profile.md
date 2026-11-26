@@ -151,4 +151,15 @@
 - **마일스톤 동기부여 배너**: 다음 티어 뱃지(예: 🦄 유니콘, 🥉 동메달 등)까지 남은 점수를 실시간 계산하여 안내.
 - **기간 필터**: `전체 누적 (N건)` | `이번 달` | `올해 (2026)`.
 
+## 11. 운영진 신규 친구 추가 & 방장 이상 전용 회원 삭제
+- **운영진 신규 친구 추가 (`FriendsPage.jsx` / `adminCreateMember`)**:
+  - 운영진(`Leader`, `Deputy`, `SuperAdmin`)에게만 친구 탭 상단 `+ 친구 추가` 버튼이 노출됩니다.
+  - 카톡 입장 문구 자동채움(`parseMemberQuickInput`), 활동명 중복 검사, `RegionInput` 거주지 자동완성 및 권역 인식 미리보기를 지원합니다.
+  - 등록 시 `manual:${Date.now()}` 임시 UID와 `approvalStatus: 'approved'`로 즉시 생성되며, 추후 본인이 카카오 로그인 시 `linkRequest` → `reassignMemberUid`로 점수와 이력을 승계할 수 있습니다.
+- **방장 이상 전용 회원 삭제 (`MemberProfilePage.jsx` / `canDeleteMember` / `deleteMember`)**:
+  - `canDeleteMember(actor, target, communityConfig)`를 통해 **방장(`Leader`)** 및 **최고관리자(`SuperAdmin`)**에게만 `회원 삭제` 버튼이 노출됩니다 (`Deputy` 부방장 이하 차단, 자기 자신 및 `SuperAdmin` 대상 삭제 차단).
+  - `useArmedAction` 2단계 탭(`회원 삭제` → `영구 삭제 확인`)으로 오삭제를 방지하며, 참석 이력이 있는 회원은 탈퇴자 전환 권장 안내를 표시합니다.
+  - 삭제 시 서비스 레벨에서도 권한을 재검증하고, 미마감(`open`) 모임의 `applicants` 및 `rounds[].participants`에서 해당 UID를 함께 정리합니다.
+
+
 
