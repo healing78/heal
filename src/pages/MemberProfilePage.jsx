@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import RegionInput from '../components/RegionInput';
 import {
+  canDeleteMember,
   formatMemberNickname,
   isAdminUser,
   resolveMemberBadge,
@@ -39,6 +40,7 @@ export default function MemberProfilePage({
   communityConfig = {},
   onSelectMember,
   onAdminUpdateMember,
+  onDeleteMember,
   onReassignMemberUid,
   onBack,
   onNavigateTab
@@ -83,6 +85,20 @@ export default function MemberProfilePage({
       null
     );
   }, [members, cleanUid, memberUid]);
+
+  const canDeleteThisMember = canDeleteMember(currentUser, member, communityConfig);
+
+  const handleDeleteThisMember = async () => {
+    if (!onDeleteMember || !member || !canDeleteThisMember) return;
+    try {
+      await onDeleteMember(member.uid);
+      if (onBack) onBack();
+      else if (onNavigateTab) onNavigateTab('friends');
+    } catch (err) {
+      console.error(err);
+      setFeedback(`❌ 삭제 실패: ${err.message || err}`);
+    }
+  };
 
   // Edit form state
   const [editForm, setEditForm] = useState(() => ({
@@ -769,15 +785,43 @@ export default function MemberProfilePage({
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
-              onClick={() => setShowReassignBox((prev) => !prev)}
-              style={{ fontSize: '11px', color: '#475569' }}
-            >
-              🔄 카카오 UID 인계 / 연결
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', gap: '6px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setShowReassignBox((prev) => !prev)}
+                style={{ fontSize: '11px', color: '#475569' }}
+              >
+                🔄 카카오 UID 인계 / 연결
+              </button>
+              {canDeleteThisMember && onDeleteMember && (
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{
+                    fontSize: '11px',
+                    color: isArmed(`delete-member:${member.uid}`) ? '#ffffff' : '#b91c1c',
+                    background: isArmed(`delete-member:${member.uid}`) ? '#dc2626' : 'transparent',
+                    borderColor: '#fca5a5'
+                  }}
+                  onClick={() =>
+                    runArmed(`delete-member:${member.uid}`, handleDeleteThisMember)
+                  }
+                  title={
+                    (member.attendanceCount || 0) > 0 || (member.hostCount || 0) > 0
+                      ? `참석 ${member.attendanceCount || 0}회 기록이 있습니다. 탈퇴자 전환을 권장합니다.`
+                      : '방장 이상 전용 영구 삭제'
+                  }
+                >
+                  {isArmed(`delete-member:${member.uid}`)
+                    ? ((member.attendanceCount || 0) > 0 || (member.hostCount || 0) > 0
+                        ? `영구 삭제 확인 (참석 ${member.attendanceCount || 0}회)`
+                        : '영구 삭제 확인')
+                    : '회원 삭제'}
+                </button>
+              )}
+            </div>
 
             <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '6px 16px' }}>
               전체 저장하기

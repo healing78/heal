@@ -1,11 +1,14 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
+import RegionInput from '../components/RegionInput';
 import {
   formatMemberNickname,
   isAdminUser,
   resolveMemberBadge,
   resolveMemberRole,
+  resolveRegionGroup,
   ROLE_META
 } from '../core/communityRules';
+import { deriveEntryBadge, parseMemberQuickInput } from '../core/memberParser';
 
 const AVATAR_BG_PALETTE = [
   '#f59e0b',
@@ -35,6 +38,7 @@ export default function FriendsPage({
   searchQuery: controlledSearchQuery,
   onChangeSearchQuery,
   onSelectMember,
+  onAdminCreateMember,
   onNavigateTab
 }) {
   const [internalFilter, setInternalFilter] = useState('ALL');
@@ -42,6 +46,23 @@ export default function FriendsPage({
   const [sortBy, setSortBy] = useState('score'); // 'score' | 'name' | 'attendance' | 'newest'
   const [displayLimit, setDisplayLimit] = useState(30);
   const sentinelRef = useRef(null);
+
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }, []);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [quickPasteText, setQuickPasteText] = useState('');
+  const [addForm, setAddForm] = useState(() => ({
+    realName: '',
+    city: '',
+    maritalStatus: 'single',
+    gender: '여',
+    role: 'Rookie',
+    joinedAt: ''
+  }));
+  const [addStatus, setAddStatus] = useState('');
+  const [isCreatingMember, setIsCreatingMember] = useState(false);
 
   const activeFilter =
     controlledFilter !== undefined ? controlledFilter : internalFilter;
@@ -58,6 +79,72 @@ export default function FriendsPage({
   };
 
   const isAdmin = isAdminUser(currentUser, communityConfig);
+
+  const duplicateMember = useMemo(() => {
+    const clean = (addForm.realName || '').trim().toLowerCase();
+    if (!clean) return null;
+    return (members || []).find(
+      (m) => (m.realName || '').trim().toLowerCase() === clean
+    ) || null;
+  }, [members, addForm.realName]);
+
+  const addRegionPreview = useMemo(() => {
+    const city = (addForm.city || '').trim();
+    if (!city) return null;
+    return resolveRegionGroup(city, communityConfig?.regionAliases || {});
+  }, [addForm.city, communityConfig?.regionAliases]);
+
+  const handleQuickParse = () => {
+    const parsed = parseMemberQuickInput(quickPasteText);
+    if (!parsed) return;
+    setAddForm((prev) => ({
+      ...prev,
+      realName: parsed.realName || prev.realName,
+      city: parsed.city || prev.city,
+      gender: parsed.gender || prev.gender,
+      maritalStatus: parsed.maritalStatus || prev.maritalStatus,
+      joinedAt: parsed.joinedAt || prev.joinedAt
+    }));
+  };
+
+  const handleCreateMemberSubmit = async (e) => {
+    e.preventDefault();
+    if (!onAdminCreateMember || duplicateMember) return;
+    const joinedAt = (addForm.joinedAt || todayStr).trim();
+    setIsCreatingMember(true);
+    setAddStatus('');
+    try {
+      const created = await onAdminCreateMember({
+        realName: addForm.realName,
+        city: addForm.city,
+        homeCity: addForm.city,
+        maritalStatus: addForm.maritalStatus,
+        gender: addForm.gender,
+        role: addForm.role,
+        joinedAt,
+        entryBadge: deriveEntryBadge(joinedAt)
+      });
+      setAddStatus(`✅ ${created.realName} 등록 완료`);
+      setQuickPasteText('');
+      setAddForm({
+        realName: '',
+        city: '',
+        maritalStatus: 'single',
+        gender: '여',
+        role: 'Rookie',
+        joinedAt: ''
+      });
+      setTimeout(() => {
+        setAddStatus('');
+        setShowAddForm(false);
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      setAddStatus(`❌ ${err.message || '등록 실패'}`);
+    } finally {
+      setIsCreatingMember(false);
+    }
+  };
 
   // Available filter tabs
   const filterTabs = useMemo(() => {
@@ -234,8 +321,180 @@ export default function FriendsPage({
       <section className="list-section">
         <div className="section-title-row">
           <h2>친구</h2>
-          <span className="count-badge">{filteredMembers.length}명</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="count-badge">{filteredMembers.length}명</span>
+            {isAdmin && onAdminCreateMember && (
+              <button
+                type="button"
+                className={`btn btn-xs ${showAddForm ? 'btn-outline' : 'btn-primary'}`}
+                style={{ fontSize: '12px', padding: '4px 10px' }}
+                onClick={() => {
+                  setShowAddForm((prev) => !prev);
+                  setAddStatus('');
+                }}
+              >
+                {showAddForm ? '닫기' : '+ 친구 추가'}
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Admin Inline Add Friend Card */}
+        {isAdmin && showAddForm && (
+          <form
+            onSubmit={handleCreateMemberSubmit}
+            style={{
+              marginTop: '10px',
+              marginBottom: '12px',
+              padding: '12px',
+              background: 'var(--admin-edit-bg, #f1f5f9)',
+              border: '1px solid var(--admin-edit-border, #cbd5e1)',
+              borderRadius: 'var(--radius-base, 8px)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <strong style={{ fontSize: '13px', color: 'var(--admin-edit-accent, #334155)' }}>
+                신규 친구 등록
+              </strong>
+              {addStatus && (
+                <span style={{ fontSize: '12px', fontWeight: 600, color: addStatus.startsWith('❌') ? '#b91c1c' : '#15803d' }}>
+                  {addStatus}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <input
+                type="text"
+                value={quickPasteText}
+                onChange={(e) => setQuickPasteText(e.target.value)}
+                placeholder="입장 문구 붙여넣기 (예: 2026-11-26 길동 강남 미 남)"
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  fontSize: '12.5px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--color-border, #cbd5e1)',
+                  background: '#ffffff'
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn-outline btn-xs"
+                style={{ whiteSpace: 'nowrap', background: '#ffffff' }}
+                onClick={handleQuickParse}
+              >
+                자동채움
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '2px' }}>
+                  활동명
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  value={addForm.realName}
+                  onChange={(e) => setAddForm((p) => ({ ...p, realName: e.target.value }))}
+                  placeholder="한글 1~3자"
+                  style={{ width: '100%', padding: '7px 8px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', background: '#ffffff' }}
+                />
+                {duplicateMember && (
+                  <div style={{ fontSize: '11px', color: '#b91c1c', marginTop: '2px', fontWeight: 600 }}>
+                    중복 이름: {duplicateMember.realName}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '2px' }}>
+                  거주지 {addRegionPreview && (
+                    <span style={{ color: addRegionPreview.recognized ? '#0369a1' : '#b45309', fontWeight: 600 }}>
+                      ({addRegionPreview.recognized ? addRegionPreview.name : '미인식'})
+                    </span>
+                  )}
+                </label>
+                <RegionInput
+                  id="add-friend-city"
+                  value={addForm.city}
+                  onChange={(val) => setAddForm((p) => ({ ...p, city: val }))}
+                  placeholder="구·시·군 입력"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '2px' }}>
+                  결혼
+                </label>
+                <select
+                  value={addForm.maritalStatus}
+                  onChange={(e) => setAddForm((p) => ({ ...p, maritalStatus: e.target.value }))}
+                  style={{ width: '100%', padding: '7px 8px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff' }}
+                >
+                  <option value="single">미혼</option>
+                  <option value="married">기혼</option>
+                  <option value="divorced">돌싱</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '2px' }}>
+                  성별
+                </label>
+                <select
+                  value={addForm.gender}
+                  onChange={(e) => setAddForm((p) => ({ ...p, gender: e.target.value }))}
+                  style={{ width: '100%', padding: '7px 8px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff' }}
+                >
+                  <option value="여">여</option>
+                  <option value="남">남</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '2px' }}>
+                  가입일
+                </label>
+                <input
+                  type="date"
+                  value={addForm.joinedAt || todayStr}
+                  onChange={(e) => setAddForm((p) => ({ ...p, joinedAt: e.target.value }))}
+                  style={{ width: '100%', padding: '6px 8px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', background: '#ffffff' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '2px' }}>
+                  등급
+                </label>
+                <select
+                  value={addForm.role}
+                  onChange={(e) => setAddForm((p) => ({ ...p, role: e.target.value }))}
+                  style={{ width: '100%', padding: '7px 8px', fontSize: '13px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff' }}
+                >
+                  <option value="Rookie">신입</option>
+                  <option value="Member">일반회원</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
+              <button
+                type="submit"
+                className="btn btn-primary btn-sm"
+                disabled={isCreatingMember || Boolean(duplicateMember) || !addForm.realName.trim()}
+              >
+                {isCreatingMember ? '등록 중...' : '등록하기'}
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* Subtabs by Role */}
         <div

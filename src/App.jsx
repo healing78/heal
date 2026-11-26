@@ -24,6 +24,7 @@ import { getSavedTheme, saveAndApplyTheme } from './core/theme';
 import {
   adminAdjustEventScore,
   adminApproveNewMember,
+  adminCreateMember,
   adminRejectNewMember,
   adminSaveFullMeeting,
   adminUpdateMember,
@@ -250,8 +251,12 @@ export default function App() {
     navigateToTab('members', { uid: cleanUid, filter: filterToUse }, options);
   };
 
+  const handleAdminCreateMember = async (form) => {
+    return await adminCreateMember(form);
+  };
+
   const handleDeleteMember = async (targetUid) => {
-    await deleteMember(targetUid);
+    await deleteMember(targetUid, currentUser?.uid);
   };
 
   const handleReassignMemberUid = async (oldUid, newUid) => {
@@ -570,6 +575,7 @@ export default function App() {
           searchQuery={friendsSearchQuery}
           onChangeSearchQuery={setFriendsSearchQuery}
           onSelectMember={handleSelectMember}
+          onAdminCreateMember={handleAdminCreateMember}
           onNavigateTab={navigateToTab}
         />
       );
@@ -587,6 +593,7 @@ export default function App() {
           communityConfig={communityConfig}
           onSelectMember={handleSelectMember}
           onAdminUpdateMember={handleAdminUpdateMember}
+          onDeleteMember={handleDeleteMember}
           onReassignMemberUid={handleReassignMemberUid}
           onBack={() => navigateToTab('friends', { filter: friendsFilter })}
           onNavigateTab={navigateToTab}
