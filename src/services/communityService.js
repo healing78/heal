@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import {
   calculateMeetingScoreForMember,
+  canDeleteMember,
   cleanScheduleLocation,
   detectMeetingRegion,
   detectRegionFromText,
@@ -473,6 +474,76 @@ export const registerOnboardingMember = async (form, customUid) => {
       await setDoc(doc(db, 'members', newUid), newMember);
     } catch (err) {
       console.warn('Firestore write fallback (registerOnboardingMember):', err.code);
+    }
+  }
+
+  return newMember;
+};
+
+/**
+ * Creates a new approved member directly by an administrator (offline / pre-login friend registration).
+ */
+export const adminCreateMember = async (form) => {
+  const cleanName = String(form?.realName || '').trim();
+  if (!cleanName) {
+    throw new Error('활동명을 입력해 주세요.');
+  }
+
+  const { members } = getLocalState();
+  const duplicate = members.find(
+    (m) => (m.realName || '').trim().toLowerCase() === cleanName.toLowerCase()
+  );
+  if (duplicate) {
+    throw new Error(`이미 등록된 활동명입니다: ${duplicate.realName}`);
+  }
+
+  const now = new Date();
+  const defaultJoinedAt = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const joinedAt = String(form?.joinedAt || '').trim() || defaultJoinedAt;
+  const dateDigits = joinedAt.replace(/\D/g, '');
+  const derivedBadge =
+    dateDigits.length >= 8 ? dateDigits.slice(4, 8) : `${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+  const entryBadge = String(form?.entryBadge || '').trim() || derivedBadge;
+
+  const newUid = `manual:${Date.now()}`;
+  const cleanCity = String(form?.city || '').trim();
+  const cleanHomeCity = String(form?.homeCity || cleanCity).trim();
+
+  const newMember = {
+    uid: newUid,
+    realName: cleanName,
+    legalName: String(form?.legalName || '').trim(),
+    city: cleanCity,
+    homeCity: cleanHomeCity,
+    maritalStatus: form?.maritalStatus || 'single',
+    gender: form?.gender || '여',
+    role: form?.role || 'Rookie',
+    approvalStatus: 'approved',
+    entryBadge,
+    joinedAt,
+    customBadge: '',
+    bankAccount: '',
+    isSimulation: false,
+    attendanceCount: 0,
+    baseScore: 0,
+    expeditionScore: 0,
+    eventScore: 0,
+    totalScore: 0,
+    monthlyScore: 0,
+    subUids: [],
+    aliases: [],
+    subCities: [],
+    unlockedAlbums: []
+  };
+
+  writeLocalJson(STORAGE_KEYS.members, [...members, newMember]);
+  notifyLocalListeners();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, 'members', newUid), newMember);
+    } catch (err) {
+      console.warn('Firestore write fallback (adminCreateMember):', err.code);
     }
   }
 
@@ -1202,16 +1273,61 @@ export const adminAdjustEventScore = async (
 
 /**
  * Permanently deletes a member (e.g. duplicate account removal).
+ * When actorUid is provided, enforces Leader-or-above permission.
+ * Also removes the deleted UID from open meetings' applicants and round participants.
  */
-export const deleteMember = async (targetUid) => {
-  const { members } = getLocalState();
+export const deleteMember = async (targetUid, actorUid = '') => {
+  const { members, meetings, communityConfig } = getLocalState();
+  const target = members.find((m) => m.uid === targetUid);
+  if (!target) return;
+
+  if (actorUid) {
+    const actor = members.find((m) => m.uid === actorUid);
+    if (!canDeleteMember(actor, target, communityConfig)) {
+      throw new Error('방장 이상만 회원을 삭제할 수 있습니다.');
+    }
+  }
+
   const nextMembers = members.filter((m) => m.uid !== targetUid);
   writeLocalJson(STORAGE_KEYS.members, nextMembers);
+
+  const changedMeetings = [];
+  const nextMeetings = meetings.map((mtg) => {
+    if (mtg.status !== 'open') return mtg;
+    const hasApplicant = (mtg.applicants || []).includes(targetUid);
+    const hasRoundPart =
+      Array.isArray(mtg.rounds) &&
+      mtg.rounds.some((r) => (r.participants || []).includes(targetUid));
+    if (!hasApplicant && !hasRoundPart) return mtg;
+
+    const updatedMtg = {
+      ...mtg,
+      applicants: (mtg.applicants || []).filter((uid) => uid !== targetUid),
+      rounds: Array.isArray(mtg.rounds)
+        ? mtg.rounds.map((r) => ({
+            ...r,
+            participants: (r.participants || []).filter((uid) => uid !== targetUid)
+          }))
+        : mtg.rounds
+    };
+    changedMeetings.push(updatedMtg);
+    return updatedMtg;
+  });
+
+  if (changedMeetings.length > 0) {
+    writeLocalJson(STORAGE_KEYS.meetings, nextMeetings);
+  }
   notifyLocalListeners();
 
   if (isFirebaseConfigured && db) {
     try {
       await deleteDoc(doc(db, 'members', targetUid));
+      for (const mtg of changedMeetings) {
+        await updateDoc(doc(db, 'meetings', String(mtg.id)), {
+          applicants: mtg.applicants,
+          rounds: mtg.rounds
+        });
+      }
     } catch (err) {
       console.warn('Firestore deleteMember error:', err);
     }

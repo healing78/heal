@@ -320,6 +320,17 @@ export const isAdminRole = (role) => {
 };
 
 /**
+ * Checks whether an actor is allowed to permanently delete a target member.
+ * Only Leader (방장) or Stealth SuperAdmin can delete; cannot delete self or a SuperAdmin.
+ */
+export const canDeleteMember = (actor, target, communityConfig = {}) => {
+  if (!actor || !target) return false;
+  if (actor.uid === target.uid) return false;
+  if (isSuperAdmin(target, communityConfig)) return false;
+  return actor.role === 'Leader' || isSuperAdmin(actor, communityConfig);
+};
+
+/**
  * Resolves the effective role for a member based on bung attendance:
  * - 벙참석 기록이 0회인 회원은 'Rookie'(신입)로 분류
  * - 벙참석 기록이 1회 이상이면 'Member'(일반회원)로 승급
